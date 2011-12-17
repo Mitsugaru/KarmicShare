@@ -1,0 +1,45 @@
+name: KarmicShare
+
+main: com.mitsugaru.KarmicShare.KarmicShare
+
+version: 0.06
+
+website: http://dev.bukkit.org/server-mods/karmicshare/
+
+description: Command-based item sharing with karma system
+
+authors:
+  - Mitsugaru
+
+commands:
+  ks:
+    description: Root command for KarmicShare
+    usage: /ks ? - Show help on KarmicShare
+
+permissions:
+    KarmicShare.*:
+        description: Gives access to all KarmicShare commands
+        children:
+            KarmicShare.karma: true
+            KarmicShare.give: true
+            KarmicShare.take: true
+            KarmicShare.admin: true
+            KarmicShare.karma.other: true
+        default: op
+    KarmicShare.karma:
+        description: Allows user view their karma
+        default: op
+    KarmicShare.karma.other:
+        description: Allows user view another user's karma
+        default: op
+    KarmicShare.give:
+        description: Allows user to give items to pool
+        default: op
+    KarmicShare.take:
+        description: Allows user to take items from pool
+        default: op
+    KarmicShare.admin:
+        description: Allows user to take clear item pool
+        default: op
+        children:
+            KarmicShare.karma.other: true
