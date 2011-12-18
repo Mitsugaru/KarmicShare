@@ -22,6 +22,7 @@ public class KarmicShare extends JavaPlugin {
 	private final static String prefix = "[KarmicShare]";
 	private Commander commander;
 	private Config config;
+	private PermCheck perm;
 
 	// IDEA max amount of total items in pool?
 	// TODO Enchantments
@@ -64,6 +65,9 @@ public class KarmicShare extends JavaPlugin {
 		// Config
 		config = new Config(this);
 
+		//Create permission handler
+		perm = new PermCheck();
+
 		// Grab Commander to handle commands
 		commander = new Commander(this);
 		getCommand("ks").setExecutor(commander);
@@ -89,6 +93,11 @@ public class KarmicShare extends JavaPlugin {
 			database.createTable("CREATE TABLE `players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL,UNIQUE (`playername`));");
 		}
 		syslog.info(prefix + " KarmicShare v" + this.getDescription().getVersion() + " enabled");
+	}
+
+	public PermCheck getPermissionHandler()
+	{
+		return perm;
 	}
 
 	/**

@@ -26,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 public class Commander implements CommandExecutor {
 	// Class variables
 	private final KarmicShare ks;
+	private final PermCheck perm;
 	private final static String bar = "======================";
 	private final String prefix;
 	private final Config config;
@@ -45,6 +46,7 @@ public class Commander implements CommandExecutor {
 		ks = karmicShare;
 		prefix = ks.getPluginPrefix();
 		config = ks.getPluginConfig();
+		perm = ks.getPermissionHandler();
 		limit = config.listlimit;
 	}
 
@@ -69,7 +71,7 @@ public class Commander implements CommandExecutor {
 			{
 				Player player = (Player) sender;
 				// Check if they have "karma" permission
-				if (sender.hasPermission("KarmicShare.karma"))
+				if (perm.checkPermission(sender, "KarmicShare.karma"))
 				{
 					try
 					{
@@ -191,7 +193,7 @@ public class Commander implements CommandExecutor {
 				{
 					Player player = (Player) sender;
 					// Check if they have "give" permission
-					if (sender.hasPermission("KarmicShare.give"))
+					if (perm.checkPermission(sender,"KarmicShare.give"))
 					{
 						// Grab item in player's hand.
 						ItemStack items = player.getItemInHand();
@@ -343,7 +345,7 @@ public class Commander implements CommandExecutor {
 				{
 					Player player = (Player) sender;
 					// Check if they have "take" permission
-					if (sender.hasPermission("KarmicShare.take"))
+					if (perm.checkPermission(sender,"KarmicShare.take"))
 					{
 						// Check karma before anything
 						int karma = config.playerKarmaDefault;
@@ -936,7 +938,7 @@ public class Commander implements CommandExecutor {
 			// Admin command
 			else if (com.equals("admin"))
 			{
-				if (sender.hasPermission("KarmicShare.admin"))
+				if (perm.checkPermission(sender,"KarmicShare.admin"))
 				{
 					if (args.length > 1)
 					{
@@ -988,8 +990,8 @@ public class Commander implements CommandExecutor {
 				if (args.length > 1)
 				{
 					// Check if they have the permission node
-					if (sender.hasPermission("KarmicShare.admin")
-							|| sender.hasPermission("KarmicShare.karma.other"))
+					if (perm.checkPermission(sender,"KarmicShare.admin")
+							|| perm.checkPermission(sender,"KarmicShare.karma.other"))
 					{
 						// attempt to parse name
 						String name = args[1];
@@ -1121,12 +1123,12 @@ public class Commander implements CommandExecutor {
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
 		sender.sendMessage(ChatColor.GREEN + "/ks" + ChatColor.YELLOW
 				+ " : Show karma");
-		if (sender.hasPermission("KarmicShare.give"))
+		if (perm.checkPermission(sender,"KarmicShare.give"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks give" + ChatColor.YELLOW
 					+ " : Give item stack in current hand");
 		}
-		if (sender.hasPermission("KarmicShare.take"))
+		if (perm.checkPermission(sender,"KarmicShare.take"))
 		{
 			sender.sendMessage(ChatColor.GREEN
 					+ "/ks take <item>[:data] [amount]" + ChatColor.YELLOW
@@ -1146,12 +1148,12 @@ public class Commander implements CommandExecutor {
 				+ " : Show help menu");
 		sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
 				+ " : Inspect currently held item");
-		if (sender.hasPermission("KarmicShare.karma.other"))
+		if (perm.checkPermission(sender,"KarmicShare.karma.other"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
 					+ ChatColor.YELLOW + " : Show karma for given player name");
 		}
-		if (sender.hasPermission("KarmicShare.admin"))
+		if (perm.checkPermission(sender,"KarmicShare.admin"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW
 					+ " : List admin commands");
