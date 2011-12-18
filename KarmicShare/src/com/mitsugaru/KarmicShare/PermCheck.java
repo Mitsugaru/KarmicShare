@@ -7,12 +7,31 @@ import org.bukkit.entity.Player;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
+/**
+ * Class to handle permission node checks.
+ * Mostly only to support PEX natively, due to
+ * SuperPerm compatibility with PEX issues.
+ *
+ * @author Mitsugaru
+ *
+ */
 public class PermCheck {
 
+	/**
+	 * Constructor
+	 * May not really be needed. Had thought I needed it
+	 * earlier, but now... meh.
+	 */
 	public PermCheck()
 	{
 	}
 
+	/**
+	 *
+	 * @param CommandSender that sent command
+	 * @param Permission node to check, as String
+	 * @return true if sender has the node, else false
+	 */
 	public boolean checkPermission(CommandSender sender, String node)
 	{
 		if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx"))
