@@ -32,6 +32,8 @@ public class SQLite extends DatabaseHandler {
 	public String location;
 	public String name;
 	private File sqlFile;
+	private final int timeout = 1000;
+	private int count;
 
 	public SQLite(Logger log, String prefix, String name, String location) {
 		super(log,prefix,"[SQLite] ");
@@ -51,6 +53,7 @@ public class SQLite extends DatabaseHandler {
 		}
 
 		sqlFile = new File(folder.getAbsolutePath() + File.separator + name + ".db");
+		count = 0;
 	}
 
 	/*@Override
@@ -171,8 +174,9 @@ public class SQLite extends DatabaseHandler {
 		boolean passed = false;
 		Connection connection = open();
 		Statement statement = null;
+		count = 0;
 
-		while (!passed) {
+		while (!passed && count < timeout) {
 			try {
 				//WARN ODR_OPEN_DATABASE_RESOURCE
 				/*
@@ -192,12 +196,17 @@ public class SQLite extends DatabaseHandler {
 			} catch (SQLException ex) {
 				if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
 					passed = false;
-					//this.writeError("Locked",false);
+					count++;
+					this.writeError("Locked",false);
 				} else {
 					if(!(ex.toString().contains("not return ResultSet")))
 						this.writeError("Error at SQL Query: " + ex.getMessage(), false);
 				}
 			}
+		}
+		if(count >= timeout)
+		{
+			this.writeError("Failed to write to SQLite database. Timed out.",true);
 		}
 	}
 
@@ -329,8 +338,9 @@ public class SQLite extends DatabaseHandler {
 		boolean passed = false;
 		Connection connection = open();
 		Statement statement = null;
+		count = 0;
 
-		while (!passed) {
+		while (!passed || count < timeout) {
 			try {
 				//WARN ODR_OPEN_DATABASE_RESOURCE
 				/*
@@ -350,10 +360,16 @@ public class SQLite extends DatabaseHandler {
 			} catch (SQLException ex) {
 				if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked") ) {
 					passed = false;
+					count++;
+					this.writeError("Locked",false);
 				} else {
 					this.writeError("Error at SQL Query: " + ex.getMessage(), false);
 				}
 			}
+		}
+		if(count >= timeout)
+		{
+			this.writeError("Failed to write to SQLite database. Timed out.",true);
 		}
 	}
 

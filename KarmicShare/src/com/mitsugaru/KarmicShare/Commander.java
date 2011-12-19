@@ -540,9 +540,9 @@ public class Commander implements CommandExecutor {
 									}
 									return true;
 								}
+								rs.close();
 								if (has)
 								{
-									rs.close();
 									// Check karma again, before giving item, to
 									// adjust amount
 									// based on karma and karma multipliers
@@ -1032,11 +1032,11 @@ public class Commander implements CommandExecutor {
 							}
 							else
 							{
-								rs.close();
 								// Error in query...
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " SQL query error");
 							}
+							rs.close();
 						}
 						catch (SQLException e)
 						{
@@ -1051,7 +1051,6 @@ public class Commander implements CommandExecutor {
 							int karma = config.playerKarmaDefault;
 							try
 							{
-								rs.close();
 								query = "SELECT * FROM players WHERE playername='"
 										+ name + "';";
 								rs = ks.getLiteDB().select(query);
@@ -1268,7 +1267,6 @@ public class Commander implements CommandExecutor {
 						}
 						else
 						{
-							rs.close();
 							// Item not in database, therefore add
 							// it
 							query = "INSERT INTO items VALUES (" + itemid + ","
@@ -1364,11 +1362,11 @@ public class Commander implements CommandExecutor {
 					}
 					else
 					{
-						rs.close();
 						// Error in query...
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " SQL query error");
 					}
+					rs.close();
 				}
 				catch (SQLException e)
 				{
@@ -1382,7 +1380,6 @@ public class Commander implements CommandExecutor {
 					int karma;
 					try
 					{
-						rs.close();
 						// Set to zero
 						karma = this.getPlayerKarma(name) * -1;
 						this.updatePlayerKarma(name, karma);
@@ -1471,11 +1468,11 @@ public class Commander implements CommandExecutor {
 						}
 						else
 						{
-							rs.close();
 							// Error in query...
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " SQL query error");
 						}
+						rs.close();
 					}
 					catch (SQLException e)
 					{
@@ -1489,7 +1486,6 @@ public class Commander implements CommandExecutor {
 						int karma;
 						try
 						{
-							rs.close();
 							// Set to given amount by using the difference
 							// between the two
 							karma = amount - this.getPlayerKarma(name);
