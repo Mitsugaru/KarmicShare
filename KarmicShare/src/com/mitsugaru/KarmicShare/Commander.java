@@ -146,6 +146,47 @@ public class Commander implements CommandExecutor {
 								+ ChatColor.LIGHT_PURPLE + item.getData()
 								+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
 								+ item.isTool());
+						if (config.statickarma)
+						{
+							buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karmaChange);
+							buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karmaChange * quantity));
+						}
+						else
+						{
+							//Check if given item has a multiplier
+							Item[] karmaList = config.karma.keySet()
+									.toArray(new Item[0]);
+							boolean hasKarma = false;
+							for (Item k : karmaList)
+							{
+								if (k.areSame(item))
+								{
+									// Item karma needs to be adjusted
+									hasKarma = true;
+								}
+							}
+							if (hasKarma)
+							{
+								try
+								{
+									buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karma.get(item));
+									buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karma.get(item) * quantity));
+								}
+								catch (NullPointerException n)
+								{
+									// Found item, but there is no
+									// config for specific data value
+									// thus adjust using regular means
+									buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karmaChange);
+									buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karmaChange * quantity));
+								}
+							}
+							else
+							{
+								buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karmaChange);
+								buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karmaChange * quantity));
+							}
+						}
 						Map<Enchantment, Integer> enchantments = items
 								.getEnchantments();
 						if (enchantments.isEmpty())
