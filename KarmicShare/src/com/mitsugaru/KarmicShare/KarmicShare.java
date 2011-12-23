@@ -53,24 +53,13 @@ public class KarmicShare extends JavaPlugin {
 	// Gets called before enable
 	// DiddiZ has it so that it does SQL and config
 	// As well as self-updater
-
-	/**
-	 * Method that is called when plugin is enabled
-	 */
 	@Override
-	public void onEnable() {
+	public void onLoad()
+	{
 		// Logger
 		syslog = this.getServer().getLogger();
-
 		// Config
 		config = new Config(this);
-
-		//Create permission handler
-		perm = new PermCheck();
-
-		// Grab Commander to handle commands
-		commander = new Commander(this);
-		getCommand("ks").setExecutor(commander);
 		// TODO MySQL support
 		// Connect to sql database
 		database = new SQLite(syslog, prefix, "pool", this.getDataFolder()
@@ -92,6 +81,23 @@ public class KarmicShare extends JavaPlugin {
 			// Boundary must be within 30000 high or low, as per SMALLINT
 			database.createTable("CREATE TABLE `players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL,UNIQUE (`playername`));");
 		}
+	}
+
+	/**
+	 * Method that is called when plugin is enabled
+	 */
+	@Override
+	public void onEnable() {
+		//Config update
+		config.checkUpdate();
+
+		//Create permission handler
+		perm = new PermCheck();
+
+		// Grab Commander to handle commands
+		commander = new Commander(this);
+		getCommand("ks").setExecutor(commander);
+
 		syslog.info(prefix + " KarmicShare v" + this.getDescription().getVersion() + " enabled");
 	}
 

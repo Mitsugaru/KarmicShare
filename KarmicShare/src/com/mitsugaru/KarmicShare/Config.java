@@ -87,16 +87,6 @@ public class Config {
 		effects = config.getBoolean("effects", true);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
-		// Check if need to update
-		if (Double.parseDouble(ks.getDescription().getVersion()) > Double
-				.parseDouble(config.getString("version")))
-		{
-			// Update to latest version
-			ks.getLogger().info(
-					ks.getPluginPrefix() + " Updating to v"
-							+ ks.getDescription().getVersion());
-			this.update();
-		}
 		// Load config for item specific karma if not using static karma
 		if (!statickarma)
 		{
@@ -147,6 +137,24 @@ public class Config {
 		}
 		plugin.getLogger().info(
 				plugin.getPluginPrefix() + " Loaded custom karma values");
+	}
+
+	/**
+	 * Check if updates are necessary
+	 */
+	public void checkUpdate()
+	{
+		// Check if need to update
+		ConfigurationSection config = plugin.getConfig();
+		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
+				.parseDouble(config.getString("version")))
+		{
+			// Update to latest version
+			plugin.getLogger().info(
+					plugin.getPluginPrefix() + " Updating to v"
+							+ plugin.getDescription().getVersion());
+			this.update();
+		}
 	}
 
 	/**
