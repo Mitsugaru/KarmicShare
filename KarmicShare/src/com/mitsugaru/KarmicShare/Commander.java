@@ -34,6 +34,7 @@ public class Commander implements CommandExecutor {
 	private final Map<String, Integer> multiPage = new HashMap<String, Integer>();
 	private final Map<Item, Integer> cache = new HashMap<Item, Integer>();
 	private int limit;
+	private long time;
 
 	/**
 	 * Constructor
@@ -48,16 +49,15 @@ public class Commander implements CommandExecutor {
 		config = ks.getPluginConfig();
 		perm = ks.getPermissionHandler();
 		limit = config.listlimit;
+		time = 0;
 	}
 
 	/**
 	 * Command handler
 	 */
-	// TODO methodize each command? would make finding the commands simpler...
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd,
 			String commandLabel, String[] args) {
-		long time = 0;
 		if (config.debugTime)
 		{
 			time = System.nanoTime();
@@ -66,28 +66,7 @@ public class Commander implements CommandExecutor {
 		if (args.length == 0)
 		{
 			// Show player karma
-			// Check if player sent command
-			if (sender instanceof Player)
-			{
-				Player player = (Player) sender;
-				// Check if they have "karma" permission
-				if (perm.checkPermission(sender, "KarmicShare.karma"))
-				{
-					try
-					{
-						// Retrieve karma from database and colorize
-						sender.sendMessage(this
-								.colorizeKarma(getPlayerKarma(player.getName())));
-					}
-					catch (SQLException e)
-					{
-						// INFO Auto-generated catch block
-						player.sendMessage(ChatColor.RED + prefix
-								+ "Could not obtain player karma!");
-						e.printStackTrace();
-					}
-				}
-			}
+			this.showPlayerKarma(sender, args);
 		}
 		else
 		{
@@ -95,29 +74,7 @@ public class Commander implements CommandExecutor {
 			if (com.equals("version") || com.equals("ver"))
 			{
 				// Version and author
-				sender.sendMessage(ChatColor.BLUE + bar + "=====");
-				sender.sendMessage(ChatColor.GREEN + "KarmicShare v"
-						+ ks.getDescription().getVersion());
-				sender.sendMessage(ChatColor.GREEN + "Coded by Mitsugaru");
-				sender.sendMessage(ChatColor.BLUE + "==========="
-						+ ChatColor.GRAY + "Config" + ChatColor.BLUE
-						+ "===========");
-				sender.sendMessage(ChatColor.GRAY + "Effects: "
-						+ config.effects);
-				sender.sendMessage(ChatColor.GRAY + "Static karma: "
-						+ config.statickarma);
-				sender.sendMessage(ChatColor.GRAY + "Karma upper limit: "
-						+ config.upper);
-				sender.sendMessage(ChatColor.GRAY + "Karma upper %: "
-						+ config.upperPercent * 100 + "%");
-				sender.sendMessage(ChatColor.GRAY + "Karma lower limit: "
-						+ config.lower);
-				sender.sendMessage(ChatColor.GRAY + "Karma lower %: "
-						+ config.lowerPercent * 100 + "%");
-				sender.sendMessage(ChatColor.GRAY + "Default karma: "
-						+ config.playerKarmaDefault);
-				sender.sendMessage(ChatColor.GRAY + "Default karma rate: "
-						+ config.karmaChange);
+				this.showVersion(sender, args);
 			}
 			else if (com.equals("?") || com.equals("help"))
 			{
@@ -125,772 +82,24 @@ public class Commander implements CommandExecutor {
 			}
 			else if (com.equals("info"))
 			{
-				// Inspect item in hand
-				if (sender instanceof Player)
-				{
-					Player player = (Player) sender;
-					// Grab item in player's hand.
-					ItemStack items = player.getItemInHand();
-					int itemid = items.getTypeId();
-					// Check if there is an item in their hand
-					if (itemid != 0)
-					{
-						int quantity = items.getAmount();
-						Item item = new Item(itemid, items.getData().getData());
-						StringBuffer buf = new StringBuffer();
-						buf.append("Info: Name: " + ChatColor.AQUA + item.name
-								+ ChatColor.GREEN + " ID: "
-								+ ChatColor.LIGHT_PURPLE + itemid
-								+ ChatColor.GREEN + " Amount:" + ChatColor.GOLD
-								+ quantity + ChatColor.GREEN + " Data: "
-								+ ChatColor.LIGHT_PURPLE + item.getData()
-								+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
-								+ item.isTool());
-						if (config.statickarma)
-						{
-							buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karmaChange);
-							buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karmaChange * quantity));
-						}
-						else
-						{
-							//Check if given item has a multiplier
-							Item[] karmaList = config.karma.keySet()
-									.toArray(new Item[0]);
-							boolean hasKarma = false;
-							for (Item k : karmaList)
-							{
-								if (k.areSame(item))
-								{
-									// Item karma needs to be adjusted
-									hasKarma = true;
-								}
-							}
-							if (hasKarma)
-							{
-								try
-								{
-									buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karma.get(item));
-									buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karma.get(item) * quantity));
-								}
-								catch (NullPointerException n)
-								{
-									// Found item, but there is no
-									// config for specific data value
-									// thus adjust using regular means
-									buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karmaChange);
-									buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karmaChange * quantity));
-								}
-							}
-							else
-							{
-								buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW + config.karmaChange);
-								buf.append(ChatColor.GREEN + " Total Karma: " + ChatColor.YELLOW + "" + (config.karmaChange * quantity));
-							}
-						}
-						Map<Enchantment, Integer> enchantments = items
-								.getEnchantments();
-						if (enchantments.isEmpty())
-						{
-							buf.append(ChatColor.GREEN + " Enchantments: "
-									+ ChatColor.WHITE + "NONE");
-						}
-						else
-						{
-							buf.append(ChatColor.GREEN + " Enchantments: ");
-
-							for (Map.Entry<Enchantment, Integer> e : enchantments
-									.entrySet())
-							{
-								buf.append(ChatColor.WHITE
-										+ e.getKey().getName()
-										+ ChatColor.YELLOW + " v"
-										+ e.getValue().intValue() + ", ");
-							}
-						}
-						player.sendMessage(ChatColor.GREEN + prefix
-								+ buf.toString());
-					}
-					else
-					{
-						// If there is no item, stop
-						sender.sendMessage(ChatColor.RED + prefix
-								+ " No item in hand. Nothing to lookup.");
-					}
-				}
-				else
-				{
-					// Console cannot inspect items
-					sender.sendMessage(prefix
-							+ " Cannot use this command as console.");
-				}
+				//Info command
+				this.inspectItem(sender, args);
 			}
-			//Player is giving item to pool
+			// Player is giving item to pool
 			else if (com.equals("give"))
 			{
-				// TODO allow for player to specify item and amount
-				// parse more parameters to allow spaces for item names
-				// Check if player sent command
-				if (sender instanceof Player)
-				{
-					Player player = (Player) sender;
-					// Check if they have "give" permission
-					if (perm.checkPermission(sender,"KarmicShare.give"))
-					{
-						// Grab item in player's hand.
-						ItemStack items = player.getItemInHand();
-						int itemid = items.getTypeId();
-						// Check if there is an item in their hand
-						if (itemid != 0)
-						{
-							int quantity = items.getAmount();
-							int data = items.getData().getData();
-
-							// Remove item from player inventory
-							// Thanks to @nisovin for the following line
-							player.setItemInHand(null);
-
-							// Create SQL query to see if item is already in
-							// database
-							String query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND data='" + data + "';";
-							ResultSet rs = ks.getLiteDB().select(query);
-
-							// Send Item to database
-							try
-							{
-								if (rs.next())
-								{
-									do
-									{
-										// For tools, look up for similar
-										// durability. Add amount that way
-										// if it exists
-										// TODO format initial query to
-										// include enchantments
-										int total = quantity
-												+ rs.getInt("amount");
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND data='"
-												+ data + "';";
-									}
-									while (rs.next());
-								}
-								else
-								{
-									// Item not in database, therefore add it
-									query = "INSERT INTO items VALUES ("
-											+ itemid + "," + quantity + ","
-											+ data + ");";
-
-								}
-								rs.close();
-								// Needs to be outside of loop for
-								// whatever reason
-								// so that it doesn't hang.
-								ks.getLiteDB().standardQuery(query);
-								final Item item = new Item(itemid,
-										Byte.valueOf("" + data));
-								player.sendMessage(ChatColor.GREEN + prefix
-										+ " Added " + ChatColor.GOLD + quantity
-										+ " of " + ChatColor.AQUA + item.name
-										+ ChatColor.GREEN + " to pool.");
-								// Smoke effect
-								this.smokePlayer(player);
-								// Update karma
-								if (config.statickarma)
-								{
-									this.updatePlayerKarma(player.getName(),
-											quantity * config.karmaChange * -1);
-								}
-								else
-								{
-									//Check if given item has a multiplier
-									Item[] karmaList = config.karma.keySet()
-											.toArray(new Item[0]);
-									boolean hasKarma = false;
-									for (Item k : karmaList)
-									{
-										if (k.areSame(item))
-										{
-											// Item karma needs to be adjusted
-											hasKarma = true;
-										}
-									}
-									if (hasKarma)
-									{
-										try
-										{
-											this.updatePlayerKarma(
-													player.getName(),
-													quantity
-															* config.karma
-																	.get(item));
-										}
-										catch (NullPointerException n)
-										{
-											// Found item, but there is no
-											// config for specific data value
-											// thus adjust using regular means
-											this.updatePlayerKarma(
-													player.getName(),
-													quantity
-															* config.karmaChange);
-										}
-									}
-									else
-									{
-										this.updatePlayerKarma(
-												player.getName(), quantity
-														* config.karmaChange);
-									}
-								}
-
-							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Could not add item to pool!");
-								e.printStackTrace();
-							}
-						}
-						else
-						{
-							// If there is no item, stop
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " No item in hand. Nothing to give.");
-						}
-
-					}
-					else
-					{
-						sender.sendMessage(ChatColor.RED
-								+ "You do not have permission for that command.");
-						sender.sendMessage(ChatColor.RED
-								+ "Ask for: KarmicShare.give");
-					}
-				}
-				else
-				{
-					sender.sendMessage(prefix
-							+ " Cannot use this command as console.");
-				}
+				this.giveItem(sender, args);
 			}
 			// Player requested an item
 			else if (com.equals("take"))
 			{
-				// Take item from pool
-				// Check if player sent command
-				if (sender instanceof Player)
+				if(this.takeItem(sender, args))
 				{
-					Player player = (Player) sender;
-					// Check if they have "take" permission
-					if (perm.checkPermission(sender,"KarmicShare.take"))
+					if (config.debugTime)
 					{
-						// Check karma before anything
-						int karma = config.playerKarmaDefault;
-						try
-						{
-							karma = getPlayerKarma(player.getName());
-							if (karma <= config.lower)
-							{
-								// They are at the limit, or somehow lower for
-								// whatever reason
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Your karma is at the limit!");
-								if (config.debugTime)
-								{
-									debugTime(sender, time);
-								}
-								return true;
-							}
-						}
-						catch (SQLException e1)
-						{
-							// INFO Auto-generated catch block
-							player.sendMessage(ChatColor.RED + prefix
-									+ " Could not retrieve player karma");
-							e1.printStackTrace();
-						}
-						// Current karma is not at limit, so continue
-						// Check that they gave an item name/id
-						if (args.length > 1)
-						{
-							// Player will always request at least 1 item
-							int itemid = 0;
-							int data = 0;
-							int amount = 1;
-							boolean has = false;
-							try
-							{
-								// Attempt to grab simple, singular itemid
-								itemid = Integer.parseInt(args[1]);
-							}
-							catch (NumberFormatException e)
-							{
-								// They gave a string
-								if (args[1].contains(":"))
-								{
-									// Attempt to parse as itemid:data
-									// TODO parse as strings as well? Be extra
-									// work
-									String[] cut = args[1].split(":");
-									try
-									{
-										itemid = Integer.parseInt(cut[0]);
-										data = Integer.parseInt(cut[1]);
-										if (args.length > 2)
-										{
-											// Grab amount as well if they gave
-											// it
-											amount = Integer.parseInt(args[2]);
-										}
-									}
-									catch (NumberFormatException r)
-									{
-										// Not a number given
-										player.sendMessage(ChatColor.RED
-												+ prefix
-												+ " Invalid item id / data value");
-										if (config.debugTime)
-										{
-											debugTime(sender, time);
-										}
-										return true;
-									}
-								}
-								else
-								{
-									// Did not follow the id:data format
-									// Try and parse the rest of the args[] as
-									// material name
-									StringBuffer sb = new StringBuffer();
-									for (int i = 1; i < args.length; i++)
-									{
-										try
-										{
-											// If they specified an amount,
-											// catch it
-											amount = Integer.parseInt(args[i]);
-											// Ignore the rest once we have an
-											// amount
-											break;
-										}
-										catch (NumberFormatException num)
-										{
-											sb.append(args[i] + " ");
-										}
-									}
-									String temp = sb.toString();
-									temp = temp.replaceAll("\\s+$", "");
-									temp = temp.toLowerCase();
-									// Update cache
-									this.updateCache(sender);
-									// Check if item exists in cache through
-									// reverse lookup: name -> id:data
-									Item[] array = cache.keySet().toArray(
-											new Item[0]);
-									for (int i = 0; i < array.length; i++)
-									{
-										if (temp.equals(array[i].name))
-										{
-											// Item is in cache, so get item id
-											// and data values
-											itemid = array[i].itemId();
-											data = array[i].getData();
-											has = true;
-											break;
-										}
-									}
-									if (!has)
-									{
-										// Item not in cache, therefore
-										// potential error on player part
-										player.sendMessage(ChatColor.RED
-												+ prefix
-												+ " Item not in pool...");
-										if (config.debugTime)
-										{
-											debugTime(sender, time);
-										}
-										return true;
-									}
-								}
-							}
-							// Check if pool contains item requested + amount
-							int total = 0;
-							// SQL query to see if item is in pool
-							// WARN this does not consolidate tools with
-							// different data
-							// Need another query specifically for tools that
-							// ignores data
-							// cannot use !isBlock due to dyes
-							// Do initial COUNT(*) for tool to get number of
-							// entries
-							// TODO if tool, call another method, so I don't get
-							// all confused
-							String query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND data='" + data + "';";
-							ResultSet rs = ks.getLiteDB().select(query);
-
-							// Check ResultSet
-							try
-							{
-								if (rs.next())
-								{
-									// Item already in pool, check
-									// amount
-									int poolAmount = rs.getInt("amount");
-									if (poolAmount >= amount)
-									{
-										// We have enough in pool that
-										// was requested
-										has = true;
-										total = poolAmount;
-									}
-									else if (poolAmount < amount)
-									{
-										// They requested too much, adjust
-										// amount to max
-										has = true;
-										amount = poolAmount;
-										total = poolAmount;
-										sender.sendMessage(ChatColor.YELLOW
-												+ prefix
-												+ " Requested too much. Adjusting to max.");
-									}
-									// TODO do while loop to count
-									// amount for specified tool
-									// Create array of entries for tools
-									// Should there be an order?
-									/*
-									 * do { } while(rs.next());
-									 */
-								}
-								else
-								{
-									// Item not in database, therefore error
-									// on player part
-									rs.close();
-									player.sendMessage(ChatColor.RED + prefix
-											+ " Item not in pool...");
-									if (config.debugTime)
-									{
-										debugTime(sender, time);
-									}
-									return true;
-								}
-								rs.close();
-								if (has)
-								{
-									// Check karma again, before giving item, to
-									// adjust amount
-									// based on karma and karma multipliers
-									final Item item = new Item(itemid,
-											Byte.valueOf("" + data));
-									int karmaAdj = 0;
-									boolean hasKarma = false;
-									if (config.statickarma)
-									{
-										// Using static karma, everything goes
-										// by
-										// the config's default karma change
-										// value
-										if (karmaAdj < config.lower)
-										{
-											karmaAdj = karma
-													+ (config.karmaChange
-															* amount * -1);
-											// They went beyond the lower limit
-											// adjust amount given based on
-											// karma now
-											amount = Math.abs(config.lower)
-													- Math.abs(karma);
-											amount = amount
-													/ config.karmaChange;
-											if (amount == 0)
-											{
-												// Cannot give any items as
-												// they'd go beyond
-												// karma limit
-												player.sendMessage(ChatColor.RED
-														+ prefix
-														+ " Not enough karma to take item");
-												if (config.debugTime)
-												{
-													debugTime(sender, time);
-												}
-												return true;
-											}
-											else
-											{
-												player.sendMessage(ChatColor.YELLOW
-														+ prefix
-														+ " Near/Hit karma limit!");
-											}
-										}
-									}
-									else
-									{
-										// Using per-item karma
-										Item[] karmaList = config.karma
-												.keySet().toArray(new Item[0]);
-										// Check if requested item is in the
-										// karma list
-										for (Item k : karmaList)
-										{
-											if (k.areSame(item))
-											{
-												// Item karma needs to be
-												// adjusted
-												hasKarma = true;
-											}
-										}
-										if (hasKarma)
-										{
-											try
-											{
-												karmaAdj = karma
-														+ (config.karma
-																.get(item)
-																* amount * -1);
-												if (karmaAdj < config.lower)
-												{
-													// They went beyond the
-													// lower limit
-													// adjust amount given based
-													// on karma now
-													amount = Math
-															.abs(config.lower)
-															- Math.abs(karma);
-													amount = amount
-															/ config.karma
-																	.get(item);
-													if (amount == 0)
-													{
-														// Cannot give any items
-														// as they'd go beyond
-														// karma limit
-														player.sendMessage(ChatColor.RED
-																+ prefix
-																+ " Not enough karma to take item");
-														if (config.debugTime)
-														{
-															debugTime(sender,
-																	time);
-														}
-														return true;
-													}
-													else
-													{
-														player.sendMessage(ChatColor.YELLOW
-																+ prefix
-																+ " Near/Hit karma limit!");
-													}
-												}
-											}
-											catch (NullPointerException n)
-											{
-												// Found item, but there is no
-												// config for specific data
-												// value
-												// thus adjust using regular
-												// means
-												karmaAdj = karma
-														+ (config.karmaChange
-																* amount * -1);
-												if (karmaAdj < config.lower)
-												{
-													// They went beyond the
-													// lower limit
-													// adjust amount given based
-													// on karma now
-													amount = Math
-															.abs(config.lower)
-															- Math.abs(karma);
-													amount = amount
-															/ config.karmaChange;
-													if (amount == 0)
-													{
-														player.sendMessage(ChatColor.RED
-																+ prefix
-																+ " Not enough karma to take item");
-														if (config.debugTime)
-														{
-															debugTime(sender,
-																	time);
-														}
-														return true;
-													}
-													else
-													{
-														player.sendMessage(ChatColor.YELLOW
-																+ prefix
-																+ " Near/Hit karma limit!");
-													}
-												}
-												// Reset so later we use default
-												// karma change
-												hasKarma = false;
-											}
-										}
-										else
-										{
-											// Item does not have a multiplier,
-											// so use default
-											karmaAdj = karma
-													+ (config.karmaChange
-															* amount * -1);
-											if (karmaAdj < config.lower)
-											{
-												// They went beyond the lower
-												// limit
-												// adjust amount given based on
-												// karma now
-												amount = Math.abs(config.lower)
-														- Math.abs(karma);
-												amount = amount
-														/ config.karmaChange;
-												if (amount == 0)
-												{
-													// Cannot give any items as
-													// they'd go beyond
-													// karma limit
-													player.sendMessage(ChatColor.RED
-															+ prefix
-															+ " Not enough karma to take item");
-												}
-												else
-												{
-													player.sendMessage(ChatColor.YELLOW
-															+ prefix
-															+ " Near/Hit karma limit!");
-												}
-											}
-										}
-									}
-									// TODO Need item generation loop to
-									// replicate
-									// each tool's durability / enchantment
-									// Pull from tool array until either the
-									// following
-									// happen: A) hit karma limit B) hit
-									// inventory limit
-									// C) hit requested amount
-
-									// Generate item
-									final ItemStack give = item
-											.toItemStack(amount);
-									HashMap<Integer, ItemStack> residual = player
-											.getInventory().addItem(give);
-									if (residual.size() != 0)
-									{
-										// Add back extra that could
-										// not be added to player inventory
-										// Calculate new amount removed from
-										// pool
-										amount -= residual.size();
-										if (amount == 0)
-										{
-											// Didn't actually give any items
-											// due
-											// to completely full inventory,
-											// therefore
-											// Notify player of their mistake
-											player.sendMessage(ChatColor.YELLOW
-													+ prefix
-													+ " Your inventory is completely full...");
-											if (config.debugTime)
-											{
-												debugTime(sender, time);
-											}
-											return true;
-										}
-									}
-									// Calculate new total
-									total -= amount;
-									rs.close();
-
-									if (total == 0)
-									{
-										// Drop record as there are none left
-										query = "DELETE FROM items WHERE amount='"
-												+ amount
-												+ "' AND itemid='"
-												+ itemid
-												+ "' AND data='"
-												+ data + "';";
-										ks.getLiteDB().standardQuery(query);
-										// Remove from cache list
-										cache.remove(item);
-									}
-									// Update amount to new total if there
-									// are items remaining
-									else
-									{
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND data='"
-												+ data + "';";
-										ks.getLiteDB().standardQuery(query);
-									}
-									player.sendMessage(ChatColor.GREEN + prefix
-											+ " Given " + ChatColor.GOLD
-											+ amount + ChatColor.GREEN + " of "
-											+ ChatColor.AQUA + item.name);
-									// Smoke effect
-									this.smokePlayer(player);
-									// Update karma
-									if (hasKarma)
-									{
-										this.updatePlayerKarma(
-												player.getName(),
-												amount * config.karma.get(item)
-														* -1);
-									}
-									else
-									{
-										this.updatePlayerKarma(
-												player.getName(), amount
-														* config.karmaChange
-														* -1);
-									}
-								}
-								else
-								{
-									rs.close();
-									player.sendMessage(ChatColor.RED + prefix
-											+ " Item is no longer available.");
-								}
-							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Could not retrieve item in pool!");
-								e.printStackTrace();
-							}
-						}
-						else
-						{
-							player.sendMessage(ChatColor.RED + prefix
-									+ " Need an item name or id");
-						}
-						// TODO remove highest durability tool first
+						debugTime(sender, time);
 					}
-					else
-					{
-						sender.sendMessage(ChatColor.RED
-								+ "You do not have permission for that command.");
-						sender.sendMessage(ChatColor.RED
-								+ "Ask for: KarmicShare.take");
-					}
-				}
-				else
-				{
-					sender.sendMessage(prefix
-							+ " Cannot use this command as console.");
+					return true;
 				}
 			}
 			// Previous page of item pool
@@ -907,79 +116,17 @@ public class Commander implements CommandExecutor {
 			// List items in pool
 			else if (com.equals("list"))
 			{
-				// TODO allow people to "find" items
-				// i.e. limit list entries to what they want
-				if (args.length > 1)
-				{
-					// If they provided a page number
-					try
-					{
-						// Attempt to parse argument for page number
-						int pageNum = Integer.parseInt(args[1]);
-						// Set current page to given number
-						page.put(sender.getName(), pageNum - 1);
-						// Show page if possible
-						this.listPool(sender, 0);
-					}
-					catch (NumberFormatException e)
-					{
-						sender.sendMessage(ChatColor.YELLOW + prefix
-								+ " Invalid integer for page number");
-					}
-				}
-				else
-				{
-					// List with current page
-					this.listPool(sender, 0);
-				}
+				this.listCommand(sender, args);
 			}
 			// Ask for karma multipliers / page through muliplier list
 			else if (com.equals("value"))
 			{
-
-				if (args.length > 1)
-				{
-					// If they provided a page number
-
-					try
-					{
-						// Attempt to parse argument for page number
-						int pageNum = Integer.parseInt(args[1]);
-						// Set current page to given number
-						multiPage.put(sender.getName(), pageNum - 1);
-						// Show page if possible
-						this.listMultipliers(sender, 0);
-					}
-					catch (NumberFormatException e)
-					{
-						// Maybe they did prev/next?
-						if (args[1].equals("prev"))
-						{
-							// List, with previous page
-							this.listMultipliers(sender, -1);
-						}
-						else if (args[1].equals("next"))
-						{
-							// List, with previous page
-							this.listMultipliers(sender, 1);
-						}
-						else
-						{
-							sender.sendMessage(ChatColor.YELLOW + prefix
-									+ " Invalid extra parameter: " + args[1]);
-						}
-					}
-				}
-				else
-				{
-					// List with current page
-					this.listMultipliers(sender, 0);
-				}
+				this.valueCommand(sender, args);
 			}
 			// Admin command
 			else if (com.equals("admin"))
 			{
-				if (perm.checkPermission(sender,"KarmicShare.admin"))
+				if (perm.checkPermission(sender, "KarmicShare.admin"))
 				{
 					if (args.length > 1)
 					{
@@ -1027,110 +174,7 @@ public class Commander implements CommandExecutor {
 			// Other player karma lookup
 			else if (com.equals("player"))
 			{
-				// Check if name was given
-				if (args.length > 1)
-				{
-					// Check if they have the permission node
-					if (perm.checkPermission(sender,"KarmicShare.admin")
-							|| perm.checkPermission(sender,"KarmicShare.karma.other"))
-					{
-						// attempt to parse name
-						String name = args[1];
-						// SQL query to get player count for specified name
-						String query = "SELECT COUNT(*) FROM players WHERE playername='"
-								+ name + "'";
-						ResultSet rs = ks.getLiteDB().select(query);
-						// Check ResultSet
-						boolean has = false;
-						try
-						{
-							if (rs.next())
-							{
-								// Check if only received 1 entry
-								if (rs.getInt(1) == 1)
-								{
-									// we have a single name
-									has = true;
-								}
-								else if (rs.getInt(1) > 1)
-								{
-									sender.sendMessage(ChatColor.RED
-											+ prefix
-											+ " Got more than one result. Possibly incomplete name?");
-								}
-								else
-								{
-									// Player not in database, therefore error
-									// on player part
-									sender.sendMessage(ChatColor.RED + prefix
-											+ " Player " + ChatColor.WHITE
-											+ name + ChatColor.RED
-											+ " not in database.");
-									sender.sendMessage(ChatColor.RED
-											+ prefix
-											+ " Player names are case sensitive.");
-								}
-							}
-							else
-							{
-								// Error in query...
-								sender.sendMessage(ChatColor.RED + prefix
-										+ " SQL query error");
-							}
-							rs.close();
-						}
-						catch (SQLException e)
-						{
-							// INFO Auto-generated catch block
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Could not get " + name + "'s karma");
-							e.printStackTrace();
-						}
-						if (has)
-						{
-							// Grab default
-							int karma = config.playerKarmaDefault;
-							try
-							{
-								query = "SELECT * FROM players WHERE playername='"
-										+ name + "';";
-								rs = ks.getLiteDB().select(query);
-								if (rs.next())
-								{
-									do
-									{
-										// Grab player karma value
-										karma = rs.getInt("karma");
-									}
-									while (rs.next());
-								}
-								rs.close();
-							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								sender.sendMessage(ChatColor.RED + prefix
-										+ " Could not get " + name + "'s karma");
-								e.printStackTrace();
-							}
-							// Colorize karma
-							sender.sendMessage(this.colorizeKarma(karma));
-						}
-					}
-					else
-					{
-						sender.sendMessage(ChatColor.RED
-								+ "You do not have permission for that command.");
-						sender.sendMessage(ChatColor.RED
-								+ "Ask for: KarmicShare.karma.other");
-					}
-				}
-				else
-				{
-					// did not give a player name, therefore error
-					sender.sendMessage(ChatColor.RED + prefix
-							+ " No player name given.");
-				}
+				this.otherPlayerKarma(sender, args);
 			}
 			else
 			{
@@ -1144,6 +188,1023 @@ public class Commander implements CommandExecutor {
 			debugTime(sender, time);
 		}
 		return true;
+	}
+
+	private void otherPlayerKarma(CommandSender sender, String[] args)
+	{
+		// Check if name was given
+		if (args.length > 1)
+		{
+			// Check if they have the permission node
+			if (perm.checkPermission(sender, "KarmicShare.admin")
+					|| perm.checkPermission(sender,
+							"KarmicShare.karma.other"))
+			{
+				// attempt to parse name
+				String name = args[1];
+				// SQL query to get player count for specified name
+				String query = "SELECT COUNT(*) FROM players WHERE playername='"
+						+ name + "'";
+				ResultSet rs = ks.getLiteDB().select(query);
+				// Check ResultSet
+				boolean has = false;
+				try
+				{
+					if (rs.next())
+					{
+						// Check if only received 1 entry
+						if (rs.getInt(1) == 1)
+						{
+							// we have a single name
+							has = true;
+						}
+						else if (rs.getInt(1) > 1)
+						{
+							sender.sendMessage(ChatColor.RED
+									+ prefix
+									+ " Got more than one result. Possibly incomplete name?");
+						}
+						else
+						{
+							// Player not in database, therefore error
+							// on player part
+							sender.sendMessage(ChatColor.RED + prefix
+									+ " Player " + ChatColor.WHITE
+									+ name + ChatColor.RED
+									+ " not in database.");
+							sender.sendMessage(ChatColor.RED
+									+ prefix
+									+ " Player names are case sensitive.");
+						}
+					}
+					else
+					{
+						// Error in query...
+						sender.sendMessage(ChatColor.RED + prefix
+								+ " SQL query error");
+					}
+					rs.close();
+				}
+				catch (SQLException e)
+				{
+					// INFO Auto-generated catch block
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Could not get " + name + "'s karma");
+					e.printStackTrace();
+				}
+				if (has)
+				{
+					// Grab default
+					int karma = config.playerKarmaDefault;
+					try
+					{
+						query = "SELECT * FROM players WHERE playername='"
+								+ name + "';";
+						rs = ks.getLiteDB().select(query);
+						if (rs.next())
+						{
+							do
+							{
+								// Grab player karma value
+								karma = rs.getInt("karma");
+							}
+							while (rs.next());
+						}
+						rs.close();
+					}
+					catch (SQLException e)
+					{
+						// INFO Auto-generated catch block
+						sender.sendMessage(ChatColor.RED + prefix
+								+ " Could not get " + name + "'s karma");
+						e.printStackTrace();
+					}
+					// Colorize karma
+					sender.sendMessage(this.colorizeKarma(karma));
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED
+						+ "You do not have permission for that command.");
+				sender.sendMessage(ChatColor.RED
+						+ "Ask for: KarmicShare.karma.other");
+			}
+		}
+		else
+		{
+			// did not give a player name, therefore error
+			sender.sendMessage(ChatColor.RED + prefix
+					+ " No player name given.");
+		}
+	}
+
+	private void valueCommand(CommandSender sender, String[] args) {
+		if (args.length > 1)
+		{
+			// If they provided a page number
+
+			try
+			{
+				// Attempt to parse argument for page number
+				int pageNum = Integer.parseInt(args[1]);
+				// Set current page to given number
+				multiPage.put(sender.getName(), pageNum - 1);
+				// Show page if possible
+				this.listMultipliers(sender, 0);
+			}
+			catch (NumberFormatException e)
+			{
+				// Maybe they did prev/next?
+				if (args[1].equals("prev"))
+				{
+					// List, with previous page
+					this.listMultipliers(sender, -1);
+				}
+				else if (args[1].equals("next"))
+				{
+					// List, with previous page
+					this.listMultipliers(sender, 1);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.YELLOW + prefix
+							+ " Invalid extra parameter: " + args[1]);
+				}
+			}
+		}
+		else
+		{
+			// List with current page
+			this.listMultipliers(sender, 0);
+		}
+	}
+
+	private void listCommand(CommandSender sender, String[] args) {
+		// TODO allow people to "find" items
+		// i.e. limit list entries to what they want
+		if (args.length > 1)
+		{
+			// If they provided a page number
+			try
+			{
+				// Attempt to parse argument for page number
+				int pageNum = Integer.parseInt(args[1]);
+				// Set current page to given number
+				page.put(sender.getName(), pageNum - 1);
+				// Show page if possible
+				this.listPool(sender, 0);
+			}
+			catch (NumberFormatException e)
+			{
+				sender.sendMessage(ChatColor.YELLOW + prefix
+						+ " Invalid integer for page number");
+			}
+		}
+		else
+		{
+			// List with current page
+			this.listPool(sender, 0);
+		}
+	}
+
+	private boolean takeItem(CommandSender sender, String[] args) {
+		// Take item from pool
+		// Check if player sent command
+		if (sender instanceof Player)
+		{
+			Player player = (Player) sender;
+			// Check if they have "take" permission
+			if (perm.checkPermission(sender, "KarmicShare.take"))
+			{
+				// Check karma before anything
+				int karma = config.playerKarmaDefault;
+				try
+				{
+					karma = getPlayerKarma(player.getName());
+					if (karma <= config.lower)
+					{
+						// They are at the limit, or somehow lower for
+						// whatever reason
+						player.sendMessage(ChatColor.RED + prefix
+								+ "Your karma is at the limit!");
+						if (config.debugTime)
+						{
+							debugTime(sender, time);
+						}
+						return true;
+					}
+				}
+				catch (SQLException e1)
+				{
+					// INFO Auto-generated catch block
+					player.sendMessage(ChatColor.RED + prefix
+							+ " Could not retrieve player karma");
+					e1.printStackTrace();
+				}
+				// Current karma is not at limit, so continue
+				// Check that they gave an item name/id
+				if (args.length > 1)
+				{
+					// Player will always request at least 1 item
+					int itemid = 0;
+					int data = 0;
+					int amount = 1;
+					boolean has = false;
+					try
+					{
+						// Attempt to grab simple, singular itemid
+						itemid = Integer.parseInt(args[1]);
+					}
+					catch (NumberFormatException e)
+					{
+						// They gave a string
+						if (args[1].contains(":"))
+						{
+							// Attempt to parse as itemid:data
+							// TODO parse as strings as well? Be extra
+							// work
+							String[] cut = args[1].split(":");
+							try
+							{
+								itemid = Integer.parseInt(cut[0]);
+								data = Integer.parseInt(cut[1]);
+								if (args.length > 2)
+								{
+									// Grab amount as well if they gave
+									// it
+									amount = Integer.parseInt(args[2]);
+								}
+							}
+							catch (NumberFormatException r)
+							{
+								// Not a number given
+								player.sendMessage(ChatColor.RED
+										+ prefix
+										+ " Invalid item id / data value");
+								if (config.debugTime)
+								{
+									debugTime(sender, time);
+								}
+								return true;
+							}
+						}
+						else
+						{
+							// Did not follow the id:data format
+							// Try and parse the rest of the args[] as
+							// material name
+							StringBuffer sb = new StringBuffer();
+							for (int i = 1; i < args.length; i++)
+							{
+								try
+								{
+									// If they specified an amount,
+									// catch it
+									amount = Integer.parseInt(args[i]);
+									// Ignore the rest once we have an
+									// amount
+									break;
+								}
+								catch (NumberFormatException num)
+								{
+									sb.append(args[i] + " ");
+								}
+							}
+							String temp = sb.toString();
+							temp = temp.replaceAll("\\s+$", "");
+							temp = temp.toLowerCase();
+							// Update cache
+							this.updateCache(sender);
+							// Check if item exists in cache through
+							// reverse lookup: name -> id:data
+							Item[] array = cache.keySet().toArray(
+									new Item[0]);
+							for (int i = 0; i < array.length; i++)
+							{
+								if (temp.equals(array[i].name))
+								{
+									// Item is in cache, so get item id
+									// and data values
+									itemid = array[i].itemId();
+									data = array[i].getData();
+									has = true;
+									break;
+								}
+							}
+							if (!has)
+							{
+								// Item not in cache, therefore
+								// potential error on player part
+								player.sendMessage(ChatColor.RED
+										+ prefix
+										+ " Item not in pool...");
+								if (config.debugTime)
+								{
+									debugTime(sender, time);
+								}
+								return true;
+							}
+						}
+					}
+					// Check if pool contains item requested + amount
+					int total = 0;
+					// SQL query to see if item is in pool
+					// WARN this does not consolidate tools with
+					// different data
+					// Need another query specifically for tools that
+					// ignores data
+					// cannot use !isBlock due to dyes
+					// Do initial COUNT(*) for tool to get number of
+					// entries
+					// TODO if tool, call another method, so I don't get
+					// all confused
+					String query = "SELECT * FROM items WHERE itemid='"
+							+ itemid + "' AND data='" + data + "';";
+					ResultSet rs = ks.getLiteDB().select(query);
+
+					// Check ResultSet
+					try
+					{
+						if (rs.next())
+						{
+							// Item already in pool, check
+							// amount
+							int poolAmount = rs.getInt("amount");
+							if (poolAmount >= amount)
+							{
+								// We have enough in pool that
+								// was requested
+								has = true;
+								total = poolAmount;
+							}
+							else if (poolAmount < amount)
+							{
+								// They requested too much, adjust
+								// amount to max
+								has = true;
+								amount = poolAmount;
+								total = poolAmount;
+								sender.sendMessage(ChatColor.YELLOW
+										+ prefix
+										+ " Requested too much. Adjusting to max.");
+							}
+							// TODO do while loop to count
+							// amount for specified tool
+							// Create array of entries for tools
+							// Should there be an order?
+							/*
+							 * do { } while(rs.next());
+							 */
+						}
+						else
+						{
+							// Item not in database, therefore error
+							// on player part
+							rs.close();
+							player.sendMessage(ChatColor.RED + prefix
+									+ " Item not in pool...");
+							if (config.debugTime)
+							{
+								debugTime(sender, time);
+							}
+							return true;
+						}
+						rs.close();
+						if (has)
+						{
+							// Check karma again, before giving item, to
+							// adjust amount
+							// based on karma and karma multipliers
+							final Item item = new Item(itemid,
+									Byte.valueOf("" + data));
+							int karmaAdj = 0;
+							boolean hasKarma = false;
+							if (config.statickarma)
+							{
+								// Using static karma, everything goes
+								// by
+								// the config's default karma change
+								// value
+								if (karmaAdj < config.lower)
+								{
+									karmaAdj = karma
+											+ (config.karmaChange
+													* amount * -1);
+									// They went beyond the lower limit
+									// adjust amount given based on
+									// karma now
+									amount = Math.abs(config.lower)
+											- Math.abs(karma);
+									amount = amount
+											/ config.karmaChange;
+									if (amount == 0)
+									{
+										// Cannot give any items as
+										// they'd go beyond
+										// karma limit
+										player.sendMessage(ChatColor.RED
+												+ prefix
+												+ " Not enough karma to take item");
+										if (config.debugTime)
+										{
+											debugTime(sender, time);
+										}
+										return true;
+									}
+									else
+									{
+										player.sendMessage(ChatColor.YELLOW
+												+ prefix
+												+ " Near/Hit karma limit!");
+									}
+								}
+							}
+							else
+							{
+								// Using per-item karma
+								Item[] karmaList = config.karma
+										.keySet().toArray(new Item[0]);
+								// Check if requested item is in the
+								// karma list
+								for (Item k : karmaList)
+								{
+									if (k.areSame(item))
+									{
+										// Item karma needs to be
+										// adjusted
+										hasKarma = true;
+									}
+								}
+								if (hasKarma)
+								{
+									try
+									{
+										karmaAdj = karma
+												+ (config.karma
+														.get(item)
+														* amount * -1);
+										if (karmaAdj < config.lower)
+										{
+											// They went beyond the
+											// lower limit
+											// adjust amount given based
+											// on karma now
+											amount = Math
+													.abs(config.lower)
+													- Math.abs(karma);
+											amount = amount
+													/ config.karma
+															.get(item);
+											if (amount == 0)
+											{
+												// Cannot give any items
+												// as they'd go beyond
+												// karma limit
+												player.sendMessage(ChatColor.RED
+														+ prefix
+														+ " Not enough karma to take item");
+												if (config.debugTime)
+												{
+													debugTime(sender,
+															time);
+												}
+												return true;
+											}
+											else
+											{
+												player.sendMessage(ChatColor.YELLOW
+														+ prefix
+														+ " Near/Hit karma limit!");
+											}
+										}
+									}
+									catch (NullPointerException n)
+									{
+										// Found item, but there is no
+										// config for specific data
+										// value
+										// thus adjust using regular
+										// means
+										karmaAdj = karma
+												+ (config.karmaChange
+														* amount * -1);
+										if (karmaAdj < config.lower)
+										{
+											// They went beyond the
+											// lower limit
+											// adjust amount given based
+											// on karma now
+											amount = Math
+													.abs(config.lower)
+													- Math.abs(karma);
+											amount = amount
+													/ config.karmaChange;
+											if (amount == 0)
+											{
+												player.sendMessage(ChatColor.RED
+														+ prefix
+														+ " Not enough karma to take item");
+												if (config.debugTime)
+												{
+													debugTime(sender,
+															time);
+												}
+												return true;
+											}
+											else
+											{
+												player.sendMessage(ChatColor.YELLOW
+														+ prefix
+														+ " Near/Hit karma limit!");
+											}
+										}
+										// Reset so later we use default
+										// karma change
+										hasKarma = false;
+									}
+								}
+								else
+								{
+									// Item does not have a multiplier,
+									// so use default
+									karmaAdj = karma
+											+ (config.karmaChange
+													* amount * -1);
+									if (karmaAdj < config.lower)
+									{
+										// They went beyond the lower
+										// limit
+										// adjust amount given based on
+										// karma now
+										amount = Math.abs(config.lower)
+												- Math.abs(karma);
+										amount = amount
+												/ config.karmaChange;
+										if (amount == 0)
+										{
+											// Cannot give any items as
+											// they'd go beyond
+											// karma limit
+											player.sendMessage(ChatColor.RED
+													+ prefix
+													+ " Not enough karma to take item");
+										}
+										else
+										{
+											player.sendMessage(ChatColor.YELLOW
+													+ prefix
+													+ " Near/Hit karma limit!");
+										}
+									}
+								}
+							}
+							// TODO Need item generation loop to
+							// replicate
+							// each tool's durability / enchantment
+							// Pull from tool array until either the
+							// following
+							// happen: A) hit karma limit B) hit
+							// inventory limit
+							// C) hit requested amount
+
+							// Generate item
+							final ItemStack give = item
+									.toItemStack(amount);
+							HashMap<Integer, ItemStack> residual = player
+									.getInventory().addItem(give);
+							if (residual.size() != 0)
+							{
+								// Add back extra that could
+								// not be added to player inventory
+								// Calculate new amount removed from
+								// pool
+								amount -= residual.size();
+								if (amount == 0)
+								{
+									// Didn't actually give any items
+									// due
+									// to completely full inventory,
+									// therefore
+									// Notify player of their mistake
+									player.sendMessage(ChatColor.YELLOW
+											+ prefix
+											+ " Your inventory is completely full...");
+									if (config.debugTime)
+									{
+										debugTime(sender, time);
+									}
+									return true;
+								}
+							}
+							// Calculate new total
+							total -= amount;
+							rs.close();
+
+							if (total == 0)
+							{
+								// Drop record as there are none left
+								query = "DELETE FROM items WHERE amount='"
+										+ amount
+										+ "' AND itemid='"
+										+ itemid
+										+ "' AND data='"
+										+ data + "';";
+								ks.getLiteDB().standardQuery(query);
+								// Remove from cache list
+								cache.remove(item);
+							}
+							// Update amount to new total if there
+							// are items remaining
+							else
+							{
+								query = "UPDATE items SET amount='"
+										+ total + "' WHERE itemid='"
+										+ itemid + "' AND data='"
+										+ data + "';";
+								ks.getLiteDB().standardQuery(query);
+							}
+							player.sendMessage(ChatColor.GREEN + prefix
+									+ " Given " + ChatColor.GOLD
+									+ amount + ChatColor.GREEN + " of "
+									+ ChatColor.AQUA + item.name);
+							// Smoke effect
+							this.smokePlayer(player);
+							// Update karma
+							if (hasKarma)
+							{
+								this.updatePlayerKarma(
+										player.getName(),
+										amount * config.karma.get(item)
+												* -1);
+							}
+							else
+							{
+								this.updatePlayerKarma(
+										player.getName(), amount
+												* config.karmaChange
+												* -1);
+							}
+						}
+						else
+						{
+							rs.close();
+							player.sendMessage(ChatColor.RED + prefix
+									+ " Item is no longer available.");
+						}
+					}
+					catch (SQLException e)
+					{
+						// INFO Auto-generated catch block
+						player.sendMessage(ChatColor.RED + prefix
+								+ "Could not retrieve item in pool!");
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					player.sendMessage(ChatColor.RED + prefix
+							+ " Need an item name or id");
+				}
+				// TODO remove highest durability tool first
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED
+						+ "You do not have permission for that command.");
+				sender.sendMessage(ChatColor.RED
+						+ "Ask for: KarmicShare.take");
+			}
+		}
+		else
+		{
+			sender.sendMessage(prefix
+					+ " Cannot use this command as console.");
+		}
+		return true;
+	}
+
+	private void giveItem(CommandSender sender, String[] args) {
+		// TODO allow for player to specify item and amount
+		// parse more parameters to allow spaces for item names
+		// Check if player sent command
+		if (sender instanceof Player)
+		{
+			Player player = (Player) sender;
+			// Check if they have "give" permission
+			if (perm.checkPermission(sender, "KarmicShare.give"))
+			{
+				// Grab item in player's hand.
+				ItemStack items = player.getItemInHand();
+				int itemid = items.getTypeId();
+				// Check if there is an item in their hand
+				if (itemid != 0)
+				{
+					int quantity = items.getAmount();
+					int data = items.getData().getData();
+
+					// Remove item from player inventory
+					// Thanks to @nisovin for the following line
+					player.setItemInHand(null);
+
+					// Create SQL query to see if item is already in
+					// database
+					String query = "SELECT * FROM items WHERE itemid='"
+							+ itemid + "' AND data='" + data + "';";
+					ResultSet rs = ks.getLiteDB().select(query);
+
+					// Send Item to database
+					try
+					{
+						if (rs.next())
+						{
+							do
+							{
+								// For tools, look up for similar
+								// durability. Add amount that way
+								// if it exists
+								// TODO format initial query to
+								// include enchantments
+								int total = quantity
+										+ rs.getInt("amount");
+								query = "UPDATE items SET amount='"
+										+ total + "' WHERE itemid='"
+										+ itemid + "' AND data='"
+										+ data + "';";
+							}
+							while (rs.next());
+						}
+						else
+						{
+							// Item not in database, therefore add it
+							query = "INSERT INTO items VALUES ("
+									+ itemid + "," + quantity + ","
+									+ data + ");";
+
+						}
+						rs.close();
+						// Needs to be outside of loop for
+						// whatever reason
+						// so that it doesn't hang.
+						ks.getLiteDB().standardQuery(query);
+						final Item item = new Item(itemid,
+								Byte.valueOf("" + data));
+						player.sendMessage(ChatColor.GREEN + prefix
+								+ " Added " + ChatColor.GOLD + quantity
+								+ " of " + ChatColor.AQUA + item.name
+								+ ChatColor.GREEN + " to pool.");
+						// Smoke effect
+						this.smokePlayer(player);
+						// Update karma
+						if (config.statickarma)
+						{
+							this.updatePlayerKarma(player.getName(),
+									quantity * config.karmaChange * -1);
+						}
+						else
+						{
+							// Check if given item has a multiplier
+							Item[] karmaList = config.karma.keySet()
+									.toArray(new Item[0]);
+							boolean hasKarma = false;
+							for (Item k : karmaList)
+							{
+								if (k.areSame(item))
+								{
+									// Item karma needs to be adjusted
+									hasKarma = true;
+								}
+							}
+							if (hasKarma)
+							{
+								try
+								{
+									this.updatePlayerKarma(
+											player.getName(),
+											quantity
+													* config.karma
+															.get(item));
+								}
+								catch (NullPointerException n)
+								{
+									// Found item, but there is no
+									// config for specific data value
+									// thus adjust using regular means
+									this.updatePlayerKarma(
+											player.getName(),
+											quantity
+													* config.karmaChange);
+								}
+							}
+							else
+							{
+								this.updatePlayerKarma(
+										player.getName(), quantity
+												* config.karmaChange);
+							}
+						}
+
+					}
+					catch (SQLException e)
+					{
+						// INFO Auto-generated catch block
+						player.sendMessage(ChatColor.RED + prefix
+								+ "Could not add item to pool!");
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					// If there is no item, stop
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " No item in hand. Nothing to give.");
+				}
+
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED
+						+ "You do not have permission for that command.");
+				sender.sendMessage(ChatColor.RED
+						+ "Ask for: KarmicShare.give");
+			}
+		}
+		else
+		{
+			sender.sendMessage(prefix
+					+ " Cannot use this command as console.");
+		}
+	}
+
+	private void inspectItem(CommandSender sender, String[] args) {
+		// Inspect item in hand
+		if (sender instanceof Player)
+		{
+			Player player = (Player) sender;
+			// Grab item in player's hand.
+			ItemStack items = player.getItemInHand();
+			int itemid = items.getTypeId();
+			// Check if there is an item in their hand
+			if (itemid != 0)
+			{
+				int quantity = items.getAmount();
+				Item item = new Item(itemid, items.getData().getData());
+				StringBuffer buf = new StringBuffer();
+				buf.append("Info: Name: " + ChatColor.AQUA + item.name
+						+ ChatColor.GREEN + " ID: "
+						+ ChatColor.LIGHT_PURPLE + itemid
+						+ ChatColor.GREEN + " Amount:" + ChatColor.GOLD
+						+ quantity + ChatColor.GREEN + " Data: "
+						+ ChatColor.LIGHT_PURPLE + item.getData()
+						+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
+						+ item.isTool());
+				if (config.statickarma)
+				{
+					buf.append(ChatColor.GREEN + " Multiplier: "
+							+ ChatColor.YELLOW + config.karmaChange);
+					buf.append(ChatColor.GREEN + " Total Karma: "
+							+ ChatColor.YELLOW + ""
+							+ (config.karmaChange * quantity));
+				}
+				else
+				{
+					// Check if given item has a multiplier
+					Item[] karmaList = config.karma.keySet().toArray(
+							new Item[0]);
+					boolean hasKarma = false;
+					for (Item k : karmaList)
+					{
+						if (k.areSame(item))
+						{
+							// Item karma needs to be adjusted
+							hasKarma = true;
+						}
+					}
+					if (hasKarma)
+					{
+						try
+						{
+							buf.append(ChatColor.GREEN
+									+ " Multiplier: "
+									+ ChatColor.YELLOW
+									+ config.karma.get(item));
+							buf.append(ChatColor.GREEN
+									+ " Total Karma: "
+									+ ChatColor.YELLOW
+									+ ""
+									+ (config.karma.get(item) * quantity));
+						}
+						catch (NullPointerException n)
+						{
+							// Found item, but there is no
+							// config for specific data value
+							// thus adjust using regular means
+							buf.append(ChatColor.GREEN
+									+ " Multiplier: "
+									+ ChatColor.YELLOW
+									+ config.karmaChange);
+							buf.append(ChatColor.GREEN
+									+ " Total Karma: "
+									+ ChatColor.YELLOW + ""
+									+ (config.karmaChange * quantity));
+						}
+					}
+					else
+					{
+						buf.append(ChatColor.GREEN + " Multiplier: "
+								+ ChatColor.YELLOW + config.karmaChange);
+						buf.append(ChatColor.GREEN + " Total Karma: "
+								+ ChatColor.YELLOW + ""
+								+ (config.karmaChange * quantity));
+					}
+				}
+				Map<Enchantment, Integer> enchantments = items
+						.getEnchantments();
+				if (enchantments.isEmpty())
+				{
+					buf.append(ChatColor.GREEN + " Enchantments: "
+							+ ChatColor.WHITE + "NONE");
+				}
+				else
+				{
+					buf.append(ChatColor.GREEN + " Enchantments: ");
+
+					for (Map.Entry<Enchantment, Integer> e : enchantments
+							.entrySet())
+					{
+						buf.append(ChatColor.WHITE
+								+ e.getKey().getName()
+								+ ChatColor.YELLOW + " v"
+								+ e.getValue().intValue() + ", ");
+					}
+				}
+				player.sendMessage(ChatColor.GREEN + prefix
+						+ buf.toString());
+			}
+			else
+			{
+				// If there is no item, stop
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " No item in hand. Nothing to lookup.");
+			}
+		}
+		else
+		{
+			// Console cannot inspect items
+			sender.sendMessage(prefix
+					+ " Cannot use this command as console.");
+		}
+	}
+
+	private void showVersion(CommandSender sender, String[] args) {
+		sender.sendMessage(ChatColor.BLUE + bar + "=====");
+		sender.sendMessage(ChatColor.GREEN + "KarmicShare v"
+				+ ks.getDescription().getVersion());
+		sender.sendMessage(ChatColor.GREEN + "Coded by Mitsugaru");
+		sender.sendMessage(ChatColor.BLUE + "==========="
+				+ ChatColor.GRAY + "Config" + ChatColor.BLUE
+				+ "===========");
+		sender.sendMessage(ChatColor.GRAY + "Effects: "
+				+ config.effects);
+		sender.sendMessage(ChatColor.GRAY + "Static karma: "
+				+ config.statickarma);
+		sender.sendMessage(ChatColor.GRAY + "Karma upper limit: "
+				+ config.upper);
+		sender.sendMessage(ChatColor.GRAY + "Karma upper %: "
+				+ config.upperPercent * 100 + "%");
+		sender.sendMessage(ChatColor.GRAY + "Karma lower limit: "
+				+ config.lower);
+		sender.sendMessage(ChatColor.GRAY + "Karma lower %: "
+				+ config.lowerPercent * 100 + "%");
+		sender.sendMessage(ChatColor.GRAY + "Default karma: "
+				+ config.playerKarmaDefault);
+		sender.sendMessage(ChatColor.GRAY + "Default karma rate: "
+				+ config.karmaChange);
+	}
+
+	private void showPlayerKarma(CommandSender sender, String[] args) {
+		// Check if player sent command
+		if (sender instanceof Player)
+		{
+			Player player = (Player) sender;
+			// Check if they have "karma" permission
+			if (perm.checkPermission(sender, "KarmicShare.karma"))
+			{
+				try
+				{
+					// Retrieve karma from database and colorize
+					sender.sendMessage(this.colorizeKarma(getPlayerKarma(player
+							.getName())));
+				}
+				catch (SQLException e)
+				{
+					// INFO Auto-generated catch block
+					player.sendMessage(ChatColor.RED + prefix
+							+ "Could not obtain player karma!");
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private void debugTime(CommandSender sender, long time) {
@@ -1163,12 +1224,12 @@ public class Commander implements CommandExecutor {
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
 		sender.sendMessage(ChatColor.GREEN + "/ks" + ChatColor.YELLOW
 				+ " : Show karma");
-		if (perm.checkPermission(sender,"KarmicShare.give"))
+		if (perm.checkPermission(sender, "KarmicShare.give"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks give" + ChatColor.YELLOW
 					+ " : Give item stack in current hand");
 		}
-		if (perm.checkPermission(sender,"KarmicShare.take"))
+		if (perm.checkPermission(sender, "KarmicShare.take"))
 		{
 			sender.sendMessage(ChatColor.GREEN
 					+ "/ks take <item>[:data] [amount]" + ChatColor.YELLOW
@@ -1188,12 +1249,12 @@ public class Commander implements CommandExecutor {
 				+ " : Show help menu");
 		sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
 				+ " : Inspect currently held item");
-		if (perm.checkPermission(sender,"KarmicShare.karma.other"))
+		if (perm.checkPermission(sender, "KarmicShare.karma.other"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
 					+ ChatColor.YELLOW + " : Show karma for given player name");
 		}
-		if (perm.checkPermission(sender,"KarmicShare.admin"))
+		if (perm.checkPermission(sender, "KarmicShare.admin"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW
 					+ " : List admin commands");
