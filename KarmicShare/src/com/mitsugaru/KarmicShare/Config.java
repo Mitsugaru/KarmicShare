@@ -154,6 +154,17 @@ public class Config {
 	 * necessary for database schema modification, for a proper update.
 	 */
 	private void update() {
+		//Grab current version
+		double ver = Double.parseDouble(plugin.getConfig().getString("version"));
+		String query = "";
+		//Updates to alpha 0.08
+		if(ver < 0.08)
+		{
+			//Add enchantments column
+			query = "ALTER TABLE items ADD enchantments TEXT;";
+			plugin.getLiteDB().standardQuery(query);
+		}
+
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
