@@ -1259,75 +1259,31 @@ public class Commander implements CommandExecutor {
 
 	private void inspectItem(CommandSender sender, String[] args) {
 		//Permission check
-		if(sender.hasPermission("KarmicShare.info"))
+		if (perm.checkPermission(sender, "KarmicShare.info"))
 		{
-		// Inspect item in hand
-		if (sender instanceof Player)
-		{
-			Player player = (Player) sender;
-			// Grab item in player's hand.
-			ItemStack items = player.getItemInHand();
-			int itemid = items.getTypeId();
-			// Check if there is an item in their hand
-			if (itemid != 0)
+			// Inspect item in hand
+			if (sender instanceof Player)
 			{
-				int quantity = items.getAmount();
-				Item item = new Item(itemid, items.getData().getData());
-				StringBuffer buf = new StringBuffer();
-				buf.append("Info: Name: " + ChatColor.AQUA + item.name
-						+ ChatColor.GREEN + " ID: " + ChatColor.LIGHT_PURPLE
-						+ itemid + ChatColor.GREEN + " Amount:"
-						+ ChatColor.GOLD + quantity + ChatColor.GREEN
-						+ " Data: " + ChatColor.LIGHT_PURPLE + item.getData()
-						+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
-						+ item.isTool());
-				if(!config.karmaDisabled)
+				Player player = (Player) sender;
+				// Grab item in player's hand.
+				ItemStack items = player.getItemInHand();
+				int itemid = items.getTypeId();
+				// Check if there is an item in their hand
+				if (itemid != 0)
 				{
-					if (config.statickarma)
+					int quantity = items.getAmount();
+					Item item = new Item(itemid, items.getData().getData());
+					StringBuffer buf = new StringBuffer();
+					buf.append("Info: Name: " + ChatColor.AQUA + item.name
+							+ ChatColor.GREEN + " ID: " + ChatColor.LIGHT_PURPLE
+							+ itemid + ChatColor.GREEN + " Amount:"
+							+ ChatColor.GOLD + quantity + ChatColor.GREEN
+							+ " Data: " + ChatColor.LIGHT_PURPLE + item.getData()
+							+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
+							+ item.isTool());
+					if(!config.karmaDisabled)
 					{
-						buf.append(ChatColor.GREEN + " Multiplier: "
-								+ ChatColor.YELLOW + config.karmaChange);
-						buf.append(ChatColor.GREEN + " Total Karma: "
-								+ ChatColor.YELLOW + ""
-								+ (config.karmaChange * quantity));
-					}
-					else
-					{
-						// Check if given item has a multiplier
-						Item[] karmaList = config.karma.keySet().toArray(
-								new Item[0]);
-						boolean hasKarma = false;
-						for (Item k : karmaList)
-						{
-							if (k.areSame(item))
-							{
-								// Item karma needs to be adjusted
-								hasKarma = true;
-							}
-						}
-						if (hasKarma)
-						{
-							try
-							{
-								buf.append(ChatColor.GREEN + " Multiplier: "
-										+ ChatColor.YELLOW + config.karma.get(item));
-								buf.append(ChatColor.GREEN + " Total Karma: "
-										+ ChatColor.YELLOW + ""
-										+ (config.karma.get(item) * quantity));
-							}
-							catch (NullPointerException n)
-							{
-								// Found item, but there is no
-								// config for specific data value
-								// thus adjust using regular means
-								buf.append(ChatColor.GREEN + " Multiplier: "
-										+ ChatColor.YELLOW + config.karmaChange);
-								buf.append(ChatColor.GREEN + " Total Karma: "
-										+ ChatColor.YELLOW + ""
-										+ (config.karmaChange * quantity));
-							}
-						}
-						else
+						if (config.statickarma)
 						{
 							buf.append(ChatColor.GREEN + " Multiplier: "
 									+ ChatColor.YELLOW + config.karmaChange);
@@ -1335,41 +1291,85 @@ public class Commander implements CommandExecutor {
 									+ ChatColor.YELLOW + ""
 									+ (config.karmaChange * quantity));
 						}
+						else
+						{
+							// Check if given item has a multiplier
+							Item[] karmaList = config.karma.keySet().toArray(
+									new Item[0]);
+							boolean hasKarma = false;
+							for (Item k : karmaList)
+							{
+								if (k.areSame(item))
+								{
+									// Item karma needs to be adjusted
+									hasKarma = true;
+								}
+							}
+							if (hasKarma)
+							{
+								try
+								{
+									buf.append(ChatColor.GREEN + " Multiplier: "
+											+ ChatColor.YELLOW + config.karma.get(item));
+									buf.append(ChatColor.GREEN + " Total Karma: "
+											+ ChatColor.YELLOW + ""
+											+ (config.karma.get(item) * quantity));
+								}
+								catch (NullPointerException n)
+								{
+									// Found item, but there is no
+									// config for specific data value
+									// thus adjust using regular means
+									buf.append(ChatColor.GREEN + " Multiplier: "
+											+ ChatColor.YELLOW + config.karmaChange);
+									buf.append(ChatColor.GREEN + " Total Karma: "
+											+ ChatColor.YELLOW + ""
+											+ (config.karmaChange * quantity));
+								}
+							}
+							else
+							{
+								buf.append(ChatColor.GREEN + " Multiplier: "
+										+ ChatColor.YELLOW + config.karmaChange);
+								buf.append(ChatColor.GREEN + " Total Karma: "
+										+ ChatColor.YELLOW + ""
+										+ (config.karmaChange * quantity));
+							}
+						}
 					}
-				}
-				Map<Enchantment, Integer> enchantments = items
-						.getEnchantments();
-				if (enchantments.isEmpty())
-				{
-					buf.append(ChatColor.GREEN + " Enchantments: "
-							+ ChatColor.WHITE + "NONE");
+					Map<Enchantment, Integer> enchantments = items
+							.getEnchantments();
+					if (enchantments.isEmpty())
+					{
+						buf.append(ChatColor.GREEN + " Enchantments: "
+								+ ChatColor.WHITE + "NONE");
+					}
+					else
+					{
+						buf.append(ChatColor.GREEN + " Enchantments: ");
+
+						for (Map.Entry<Enchantment, Integer> e : enchantments
+								.entrySet())
+						{
+							buf.append(ChatColor.WHITE + e.getKey().getName()
+									+ ChatColor.YELLOW + " v"
+									+ e.getValue().intValue() + ", ");
+						}
+					}
+					player.sendMessage(ChatColor.GREEN + prefix + buf.toString());
 				}
 				else
 				{
-					buf.append(ChatColor.GREEN + " Enchantments: ");
-
-					for (Map.Entry<Enchantment, Integer> e : enchantments
-							.entrySet())
-					{
-						buf.append(ChatColor.WHITE + e.getKey().getName()
-								+ ChatColor.YELLOW + " v"
-								+ e.getValue().intValue() + ", ");
-					}
+					// If there is no item, stop
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " No item in hand. Nothing to lookup.");
 				}
-				player.sendMessage(ChatColor.GREEN + prefix + buf.toString());
 			}
 			else
 			{
-				// If there is no item, stop
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " No item in hand. Nothing to lookup.");
+				// Console cannot inspect items
+				sender.sendMessage(prefix + " Cannot use this command as console.");
 			}
-		}
-		else
-		{
-			// Console cannot inspect items
-			sender.sendMessage(prefix + " Cannot use this command as console.");
-		}
 		}
 		else
 		{
@@ -1465,8 +1465,11 @@ public class Commander implements CommandExecutor {
 				+ " : List karma multiplier values, and page through list");
 		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
 				+ " : Show help menu");
-		sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
-				+ " : Inspect currently held item");
+		if (perm.checkPermission(sender, "KarmicShare.info"))
+		{
+			sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
+					+ " : Inspect currently held item");
+		}
 		if (perm.checkPermission(sender, "KarmicShare.karma.other"))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
