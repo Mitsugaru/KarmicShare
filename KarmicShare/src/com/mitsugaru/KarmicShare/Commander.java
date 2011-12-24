@@ -729,11 +729,15 @@ public class Commander implements CommandExecutor {
 												// lower limit
 												// adjust amount given based
 												// on karma now
-												amount = Math.abs(config.lower)
-														- Math.abs(karma);
-												amount = amount
-														/ config.karma.get(item);
-												if (amount == 0)
+												int tempKarma = Math.abs(karmaAdj) - Math.abs(config.lower);
+												int div = tempKarma/ config.karma.get(item);
+												int rem = tempKarma % config.karma.get(item);
+												if(rem != 0)
+												{
+													div++;
+												}
+												amount -= div;
+												if (amount <= 0)
 												{
 													// Cannot give any items
 													// as they'd go beyond
@@ -770,11 +774,15 @@ public class Commander implements CommandExecutor {
 												// lower limit
 												// adjust amount given based
 												// on karma now
-												amount = Math.abs(config.lower)
-														- Math.abs(karma);
-												amount = amount
-														/ config.karmaChange;
-												if (amount == 0)
+												int tempKarma = Math.abs(karmaAdj) - Math.abs(config.lower);
+												int div = tempKarma/ config.karmaChange;
+												int rem = tempKarma % config.karmaChange;
+												if(rem != 0)
+												{
+													div++;
+												}
+												amount -= div;
+												if (amount <= 0)
 												{
 													player.sendMessage(ChatColor.RED
 															+ prefix
@@ -809,10 +817,16 @@ public class Commander implements CommandExecutor {
 											// limit
 											// adjust amount given based on
 											// karma now
-											amount = Math.abs(config.lower)
-													- Math.abs(karma);
+											int tempKarma = Math.abs(karmaAdj) - Math.abs(config.lower);
+											int div = tempKarma/ config.karmaChange;
+											int rem = tempKarma % config.karmaChange;
+											if(rem != 0)
+											{
+												div++;
+											}
+											amount -= div;
 											amount = amount / config.karmaChange;
-											if (amount == 0)
+											if (amount <= 0)
 											{
 												// Cannot give any items as
 												// they'd go beyond
@@ -1572,7 +1586,7 @@ public class Commander implements CommandExecutor {
 						{
 							// Item not in database, therefore add
 							// it
-							query = "INSERT INTO items VALUES (" + itemid + ","
+							query = "INSERT INTO items (itemid,amount,data) VALUES (" + itemid + ","
 									+ amount + "," + data + ");";
 						}
 						// Needs to be outside of loop for

@@ -90,7 +90,7 @@ public class Config {
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		// Load config for item specific karma if not using static karma
-		if (!statickarma || !karmaDisabled)
+		if (!statickarma && !karmaDisabled)
 		{
 			this.loadKarmaMap();
 		}
@@ -199,7 +199,7 @@ public class Config {
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		// Load config for item specific karma if not using static karma
-		if (!statickarma || !karmaDisabled)
+		if (!statickarma && !karmaDisabled)
 		{
 			// Clear old mappings
 			karma.clear();
