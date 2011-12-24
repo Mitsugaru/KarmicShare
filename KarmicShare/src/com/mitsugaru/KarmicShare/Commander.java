@@ -176,9 +176,7 @@ public class Commander implements CommandExecutor {
 				else
 				{
 					sender.sendMessage(ChatColor.RED
-							+ "You do not have permission for that command.");
-					sender.sendMessage(ChatColor.RED
-							+ "Ask for: KarmicShare.admin");
+							+ " Lack permission: KarmicShare.admin");
 				}
 			}
 			// Other player karma lookup
@@ -295,9 +293,7 @@ public class Commander implements CommandExecutor {
 			else
 			{
 				sender.sendMessage(ChatColor.RED
-						+ "You do not have permission for that command.");
-				sender.sendMessage(ChatColor.RED
-						+ "Ask for: KarmicShare.karma.other");
+						+ " Lack permission: KarmicShare.karma.other");
 			}
 		}
 		else
@@ -1060,8 +1056,7 @@ public class Commander implements CommandExecutor {
 			else
 			{
 				sender.sendMessage(ChatColor.RED
-						+ "You do not have permission for that command.");
-				sender.sendMessage(ChatColor.RED + "Ask for: KarmicShare.take");
+						+ " Lack permission: KarmicShare.take");
 			}
 		}
 		else
@@ -1253,8 +1248,7 @@ public class Commander implements CommandExecutor {
 			else
 			{
 				sender.sendMessage(ChatColor.RED
-						+ "You do not have permission for that command.");
-				sender.sendMessage(ChatColor.RED + "Ask for: KarmicShare.give");
+						+ " Lack permission: KarmicShare.give");
 			}
 		}
 		else
@@ -1264,6 +1258,9 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void inspectItem(CommandSender sender, String[] args) {
+		//Permission check
+		if(sender.hasPermission("KarmicShare.info"))
+		{
 		// Inspect item in hand
 		if (sender instanceof Player)
 		{
@@ -1372,6 +1369,12 @@ public class Commander implements CommandExecutor {
 		{
 			// Console cannot inspect items
 			sender.sendMessage(prefix + " Cannot use this command as console.");
+		}
+		}
+		else
+		{
+			// Lack permission
+			sender.sendMessage(prefix + " Lack permission: KarmicShare.info");
 		}
 	}
 
@@ -1626,7 +1629,7 @@ public class Commander implements CommandExecutor {
 			final String query = "DELETE FROM items";
 			ks.getLiteDB().standardQuery(query);
 			ks.getLogger().info(prefix + "Items table cleared");
-			sender.sendMessage(prefix + "Item pool emptied.");
+			sender.sendMessage(ChatColor.GREEN + prefix + " Item pool emptied.");
 			cache.clear();
 			return true;
 		}

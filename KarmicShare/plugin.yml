@@ -2,7 +2,7 @@ name: KarmicShare
 
 main: com.mitsugaru.KarmicShare.KarmicShare
 
-version: 0.081
+version: 0.082
 
 website: http://dev.bukkit.org/server-mods/karmicshare/
 
@@ -24,6 +24,7 @@ permissions:
             KarmicShare.give: true
             KarmicShare.take: true
             KarmicShare.admin: true
+            KarmicShare.info: true
             KarmicShare.karma.other: true
         default: op
     KarmicShare.karma:
@@ -38,8 +39,12 @@ permissions:
     KarmicShare.take:
         description: Allows user to take items from pool
         default: op
+    KarmicShare.info:
+        description: Allows user to inspect items
+        default: op
     KarmicShare.admin:
         description: Allows user to take clear item pool
         default: op
         children:
             KarmicShare.karma.other: true
+            KarmicShare.info: true
