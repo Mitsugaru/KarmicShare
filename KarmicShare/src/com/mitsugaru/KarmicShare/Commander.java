@@ -67,8 +67,16 @@ public class Commander implements CommandExecutor {
 		// See if any arguments were given
 		if (args.length == 0)
 		{
-			// Show player karma
-			this.showPlayerKarma(sender, args);
+			if(!config.karmaDisabled)
+			{
+				// Show player karma
+				this.showPlayerKarma(sender, args);
+			}
+			else
+			{
+				//karma system disabled
+				sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
+			}
 		}
 		else
 		{
@@ -193,6 +201,9 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void otherPlayerKarma(CommandSender sender, String[] args) {
+		//Check if karma is enabled
+		if(!config.karmaDisabled)
+		{
 		// Check if name was given
 		if (args.length > 1)
 		{
@@ -295,46 +306,60 @@ public class Commander implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + prefix
 					+ " No player name given.");
 		}
+		}
+		else
+		{
+			//karma system disabled
+			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
+		}
 	}
 
 	private void valueCommand(CommandSender sender, String[] args) {
-		if (args.length > 1)
+		if(!config.karmaDisabled)
 		{
-			// If they provided a page number
+			if (args.length > 1)
+			{
+				// If they provided a page number
 
-			try
-			{
-				// Attempt to parse argument for page number
-				int pageNum = Integer.parseInt(args[1]);
-				// Set current page to given number
-				multiPage.put(sender.getName(), pageNum - 1);
-				// Show page if possible
-				this.listMultipliers(sender, 0);
+				try
+				{
+					// Attempt to parse argument for page number
+					int pageNum = Integer.parseInt(args[1]);
+					// Set current page to given number
+					multiPage.put(sender.getName(), pageNum - 1);
+					// Show page if possible
+					this.listMultipliers(sender, 0);
+				}
+				catch (NumberFormatException e)
+				{
+					// Maybe they did prev/next?
+					if (args[1].equals("prev"))
+					{
+						// List, with previous page
+						this.listMultipliers(sender, -1);
+					}
+					else if (args[1].equals("next"))
+					{
+						// List, with previous page
+						this.listMultipliers(sender, 1);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.YELLOW + prefix
+								+ " Invalid extra parameter: " + args[1]);
+					}
+				}
 			}
-			catch (NumberFormatException e)
+			else
 			{
-				// Maybe they did prev/next?
-				if (args[1].equals("prev"))
-				{
-					// List, with previous page
-					this.listMultipliers(sender, -1);
-				}
-				else if (args[1].equals("next"))
-				{
-					// List, with previous page
-					this.listMultipliers(sender, 1);
-				}
-				else
-				{
-					sender.sendMessage(ChatColor.YELLOW + prefix
-							+ " Invalid extra parameter: " + args[1]);
-				}
+				// List with current page
+				this.listMultipliers(sender, 0);
 			}
 		}
 		else
 		{
-			// List with current page
-			this.listMultipliers(sender, 0);
+			//karma system disabled
+			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
 		}
 	}
 
@@ -375,30 +400,34 @@ public class Commander implements CommandExecutor {
 			// Check if they have "take" permission
 			if (perm.checkPermission(sender, "KarmicShare.take"))
 			{
-				// Check karma before anything
-				int karma = config.playerKarmaDefault;
-				try
+				int karma = 0;
+				if(!config.karmaDisabled)
 				{
-					karma = getPlayerKarma(player.getName());
-					if (karma <= config.lower)
+					// Check karma before anything
+					karma = config.playerKarmaDefault;
+					try
 					{
-						// They are at the limit, or somehow lower for
-						// whatever reason
-						player.sendMessage(ChatColor.RED + prefix
-								+ "Your karma is at the limit!");
-						if (config.debugTime)
+						karma = getPlayerKarma(player.getName());
+						if (karma <= config.lower)
 						{
-							debugTime(sender, time);
+							// They are at the limit, or somehow lower for
+							// whatever reason
+							player.sendMessage(ChatColor.RED + prefix
+									+ "Your karma is at the limit!");
+							if (config.debugTime)
+							{
+								debugTime(sender, time);
+							}
+							return true;
 						}
-						return true;
 					}
-				}
-				catch (SQLException e1)
-				{
-					// INFO Auto-generated catch block
-					player.sendMessage(ChatColor.RED + prefix
-							+ " Could not retrieve player karma");
-					e1.printStackTrace();
+					catch (SQLException e1)
+					{
+						// INFO Auto-generated catch block
+						player.sendMessage(ChatColor.RED + prefix
+								+ " Could not retrieve player karma");
+						e1.printStackTrace();
+					}
 				}
 				// Current karma is not at limit, so continue
 				// Check that they gave an item name/id
@@ -624,158 +653,26 @@ public class Commander implements CommandExecutor {
 					{
 						if (has)
 						{
-							// Check karma again, before giving item, to
-							// adjust amount
-							// based on karma and karma multipliers
 							final Item item = new Item(itemid, Byte.valueOf(""
-									+ data));
-							int karmaAdj = 0;
+										+ data));
 							boolean hasKarma = false;
-							if (config.statickarma)
+							if(!config.karmaDisabled)
 							{
-								// Using static karma, everything goes
-								// by
-								// the config's default karma change
-								// value
-								if (karmaAdj < config.lower)
+								// Check karma again, before giving item, to
+								// adjust amount
+								// based on karma and karma multipliers
+								int karmaAdj = 0;
+								if (config.statickarma)
 								{
-									karmaAdj = karma
-											+ (config.karmaChange * amount * -1);
-									// They went beyond the lower limit
-									// adjust amount given based on
-									// karma now
-									amount = Math.abs(config.lower)
-											- Math.abs(karma);
-									amount = amount / config.karmaChange;
-									if (amount == 0)
-									{
-										// Cannot give any items as
-										// they'd go beyond
-										// karma limit
-										player.sendMessage(ChatColor.RED
-												+ prefix
-												+ " Not enough karma to take item");
-										if (config.debugTime)
-										{
-											debugTime(sender, time);
-										}
-										return true;
-									}
-									else
-									{
-										player.sendMessage(ChatColor.YELLOW
-												+ prefix
-												+ " Near/Hit karma limit!");
-									}
-								}
-							}
-							else
-							{
-								// Using per-item karma
-								Item[] karmaList = config.karma.keySet()
-										.toArray(new Item[0]);
-								// Check if requested item is in the
-								// karma list
-								for (Item k : karmaList)
-								{
-									if (k.areSame(item))
-									{
-										// Item karma needs to be
-										// adjusted
-										hasKarma = true;
-									}
-								}
-								if (hasKarma)
-								{
-									try
-									{
-										karmaAdj = karma
-												+ (config.karma.get(item)
-														* amount * -1);
-										if (karmaAdj < config.lower)
-										{
-											// They went beyond the
-											// lower limit
-											// adjust amount given based
-											// on karma now
-											amount = Math.abs(config.lower)
-													- Math.abs(karma);
-											amount = amount
-													/ config.karma.get(item);
-											if (amount == 0)
-											{
-												// Cannot give any items
-												// as they'd go beyond
-												// karma limit
-												player.sendMessage(ChatColor.RED
-														+ prefix
-														+ " Not enough karma to take item");
-												if (config.debugTime)
-												{
-													debugTime(sender, time);
-												}
-												return true;
-											}
-											else
-											{
-												player.sendMessage(ChatColor.YELLOW
-														+ prefix
-														+ " Near/Hit karma limit!");
-											}
-										}
-									}
-									catch (NullPointerException n)
-									{
-										// Found item, but there is no
-										// config for specific data
-										// value
-										// thus adjust using regular
-										// means
-										karmaAdj = karma
-												+ (config.karmaChange * amount * -1);
-										if (karmaAdj < config.lower)
-										{
-											// They went beyond the
-											// lower limit
-											// adjust amount given based
-											// on karma now
-											amount = Math.abs(config.lower)
-													- Math.abs(karma);
-											amount = amount
-													/ config.karmaChange;
-											if (amount == 0)
-											{
-												player.sendMessage(ChatColor.RED
-														+ prefix
-														+ " Not enough karma to take item");
-												if (config.debugTime)
-												{
-													debugTime(sender, time);
-												}
-												return true;
-											}
-											else
-											{
-												player.sendMessage(ChatColor.YELLOW
-														+ prefix
-														+ " Near/Hit karma limit!");
-											}
-										}
-										// Reset so later we use default
-										// karma change
-										hasKarma = false;
-									}
-								}
-								else
-								{
-									// Item does not have a multiplier,
-									// so use default
-									karmaAdj = karma
-											+ (config.karmaChange * amount * -1);
+									// Using static karma, everything goes
+									// by
+									// the config's default karma change
+									// value
 									if (karmaAdj < config.lower)
 									{
-										// They went beyond the lower
-										// limit
+										karmaAdj = karma
+												+ (config.karmaChange * amount * -1);
+										// They went beyond the lower limit
 										// adjust amount given based on
 										// karma now
 										amount = Math.abs(config.lower)
@@ -800,6 +697,141 @@ public class Commander implements CommandExecutor {
 											player.sendMessage(ChatColor.YELLOW
 													+ prefix
 													+ " Near/Hit karma limit!");
+										}
+									}
+								}
+								else
+								{
+									// Using per-item karma
+									Item[] karmaList = config.karma.keySet()
+											.toArray(new Item[0]);
+									// Check if requested item is in the
+									// karma list
+									for (Item k : karmaList)
+									{
+										if (k.areSame(item))
+										{
+											// Item karma needs to be
+											// adjusted
+											hasKarma = true;
+										}
+									}
+									if (hasKarma)
+									{
+										try
+										{
+											karmaAdj = karma
+													+ (config.karma.get(item)
+															* amount * -1);
+											if (karmaAdj < config.lower)
+											{
+												// They went beyond the
+												// lower limit
+												// adjust amount given based
+												// on karma now
+												amount = Math.abs(config.lower)
+														- Math.abs(karma);
+												amount = amount
+														/ config.karma.get(item);
+												if (amount == 0)
+												{
+													// Cannot give any items
+													// as they'd go beyond
+													// karma limit
+													player.sendMessage(ChatColor.RED
+															+ prefix
+															+ " Not enough karma to take item");
+													if (config.debugTime)
+													{
+														debugTime(sender, time);
+													}
+													return true;
+												}
+												else
+												{
+													player.sendMessage(ChatColor.YELLOW
+															+ prefix
+															+ " Near/Hit karma limit!");
+												}
+											}
+										}
+										catch (NullPointerException n)
+										{
+											// Found item, but there is no
+											// config for specific data
+											// value
+											// thus adjust using regular
+											// means
+											karmaAdj = karma
+													+ (config.karmaChange * amount * -1);
+											if (karmaAdj < config.lower)
+											{
+												// They went beyond the
+												// lower limit
+												// adjust amount given based
+												// on karma now
+												amount = Math.abs(config.lower)
+														- Math.abs(karma);
+												amount = amount
+														/ config.karmaChange;
+												if (amount == 0)
+												{
+													player.sendMessage(ChatColor.RED
+															+ prefix
+															+ " Not enough karma to take item");
+													if (config.debugTime)
+													{
+														debugTime(sender, time);
+													}
+													return true;
+												}
+												else
+												{
+													player.sendMessage(ChatColor.YELLOW
+															+ prefix
+															+ " Near/Hit karma limit!");
+												}
+											}
+											// Reset so later we use default
+											// karma change
+											hasKarma = false;
+										}
+									}
+									else
+									{
+										// Item does not have a multiplier,
+										// so use default
+										karmaAdj = karma
+												+ (config.karmaChange * amount * -1);
+										if (karmaAdj < config.lower)
+										{
+											// They went beyond the lower
+											// limit
+											// adjust amount given based on
+											// karma now
+											amount = Math.abs(config.lower)
+													- Math.abs(karma);
+											amount = amount / config.karmaChange;
+											if (amount == 0)
+											{
+												// Cannot give any items as
+												// they'd go beyond
+												// karma limit
+												player.sendMessage(ChatColor.RED
+														+ prefix
+														+ " Not enough karma to take item");
+												if (config.debugTime)
+												{
+													debugTime(sender, time);
+												}
+												return true;
+											}
+											else
+											{
+												player.sendMessage(ChatColor.YELLOW
+														+ prefix
+														+ " Near/Hit karma limit!");
+											}
 										}
 									}
 								}
@@ -976,15 +1008,18 @@ public class Commander implements CommandExecutor {
 							// Smoke effect
 							this.smokePlayer(player);
 							// Update karma
-							if (hasKarma)
+							if(!config.karmaDisabled)
 							{
-								this.updatePlayerKarma(player.getName(), amount
-										* config.karma.get(item) * -1);
-							}
-							else
-							{
-								this.updatePlayerKarma(player.getName(), amount
-										* config.karmaChange * -1);
+								if (hasKarma)
+								{
+									this.updatePlayerKarma(player.getName(), amount
+											* config.karma.get(item) * -1);
+								}
+								else
+								{
+									this.updatePlayerKarma(player.getName(), amount
+											* config.karmaChange * -1);
+								}
 							}
 						}
 						else
@@ -1140,45 +1175,48 @@ public class Commander implements CommandExecutor {
 						// Smoke effect
 						this.smokePlayer(player);
 						// Update karma
-						if (config.statickarma)
+						if(!config.karmaDisabled)
 						{
-							this.updatePlayerKarma(player.getName(), quantity
-									* config.karmaChange * -1);
-						}
-						else
-						{
-							// Check if given item has a multiplier
-							Item[] karmaList = config.karma.keySet().toArray(
-									new Item[0]);
-							boolean hasKarma = false;
-							for (Item k : karmaList)
+							if (config.statickarma)
 							{
-								if (k.areSame(item))
-								{
-									// Item karma needs to be adjusted
-									hasKarma = true;
-								}
-							}
-							if (hasKarma)
-							{
-								try
-								{
-									this.updatePlayerKarma(player.getName(),
-											quantity * config.karma.get(item));
-								}
-								catch (NullPointerException n)
-								{
-									// Found item, but there is no
-									// config for specific data value
-									// thus adjust using regular means
-									this.updatePlayerKarma(player.getName(),
-											quantity * config.karmaChange);
-								}
+								this.updatePlayerKarma(player.getName(), quantity
+										* config.karmaChange * -1);
 							}
 							else
 							{
-								this.updatePlayerKarma(player.getName(),
-										quantity * config.karmaChange);
+								// Check if given item has a multiplier
+								Item[] karmaList = config.karma.keySet().toArray(
+										new Item[0]);
+								boolean hasKarma = false;
+								for (Item k : karmaList)
+								{
+									if (k.areSame(item))
+									{
+										// Item karma needs to be adjusted
+										hasKarma = true;
+									}
+								}
+								if (hasKarma)
+								{
+									try
+									{
+										this.updatePlayerKarma(player.getName(),
+												quantity * config.karma.get(item));
+									}
+									catch (NullPointerException n)
+									{
+										// Found item, but there is no
+										// config for specific data value
+										// thus adjust using regular means
+										this.updatePlayerKarma(player.getName(),
+												quantity * config.karmaChange);
+									}
+								}
+								else
+								{
+									this.updatePlayerKarma(player.getName(),
+											quantity * config.karmaChange);
+								}
 							}
 						}
 					}
@@ -1232,57 +1270,60 @@ public class Commander implements CommandExecutor {
 						+ " Data: " + ChatColor.LIGHT_PURPLE + item.getData()
 						+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
 						+ item.isTool());
-				if (config.statickarma)
+				if(!config.karmaDisabled)
 				{
-					buf.append(ChatColor.GREEN + " Multiplier: "
-							+ ChatColor.YELLOW + config.karmaChange);
-					buf.append(ChatColor.GREEN + " Total Karma: "
-							+ ChatColor.YELLOW + ""
-							+ (config.karmaChange * quantity));
-				}
-				else
-				{
-					// Check if given item has a multiplier
-					Item[] karmaList = config.karma.keySet().toArray(
-							new Item[0]);
-					boolean hasKarma = false;
-					for (Item k : karmaList)
-					{
-						if (k.areSame(item))
-						{
-							// Item karma needs to be adjusted
-							hasKarma = true;
-						}
-					}
-					if (hasKarma)
-					{
-						try
-						{
-							buf.append(ChatColor.GREEN + " Multiplier: "
-									+ ChatColor.YELLOW + config.karma.get(item));
-							buf.append(ChatColor.GREEN + " Total Karma: "
-									+ ChatColor.YELLOW + ""
-									+ (config.karma.get(item) * quantity));
-						}
-						catch (NullPointerException n)
-						{
-							// Found item, but there is no
-							// config for specific data value
-							// thus adjust using regular means
-							buf.append(ChatColor.GREEN + " Multiplier: "
-									+ ChatColor.YELLOW + config.karmaChange);
-							buf.append(ChatColor.GREEN + " Total Karma: "
-									+ ChatColor.YELLOW + ""
-									+ (config.karmaChange * quantity));
-						}
-					}
-					else
+					if (config.statickarma)
 					{
 						buf.append(ChatColor.GREEN + " Multiplier: "
 								+ ChatColor.YELLOW + config.karmaChange);
 						buf.append(ChatColor.GREEN + " Total Karma: "
 								+ ChatColor.YELLOW + ""
 								+ (config.karmaChange * quantity));
+					}
+					else
+					{
+						// Check if given item has a multiplier
+						Item[] karmaList = config.karma.keySet().toArray(
+								new Item[0]);
+						boolean hasKarma = false;
+						for (Item k : karmaList)
+						{
+							if (k.areSame(item))
+							{
+								// Item karma needs to be adjusted
+								hasKarma = true;
+							}
+						}
+						if (hasKarma)
+						{
+							try
+							{
+								buf.append(ChatColor.GREEN + " Multiplier: "
+										+ ChatColor.YELLOW + config.karma.get(item));
+								buf.append(ChatColor.GREEN + " Total Karma: "
+										+ ChatColor.YELLOW + ""
+										+ (config.karma.get(item) * quantity));
+							}
+							catch (NullPointerException n)
+							{
+								// Found item, but there is no
+								// config for specific data value
+								// thus adjust using regular means
+								buf.append(ChatColor.GREEN + " Multiplier: "
+										+ ChatColor.YELLOW + config.karmaChange);
+								buf.append(ChatColor.GREEN + " Total Karma: "
+										+ ChatColor.YELLOW + ""
+										+ (config.karmaChange * quantity));
+							}
+						}
+						else
+						{
+							buf.append(ChatColor.GREEN + " Multiplier: "
+									+ ChatColor.YELLOW + config.karmaChange);
+							buf.append(ChatColor.GREEN + " Total Karma: "
+									+ ChatColor.YELLOW + ""
+									+ (config.karmaChange * quantity));
+						}
 					}
 				}
 				Map<Enchantment, Integer> enchantments = items
@@ -1328,16 +1369,14 @@ public class Commander implements CommandExecutor {
 		sender.sendMessage(ChatColor.BLUE + "===========" + ChatColor.GRAY
 				+ "Config" + ChatColor.BLUE + "===========");
 		sender.sendMessage(ChatColor.GRAY + "Effects: " + config.effects);
+		sender.sendMessage(ChatColor.GRAY + "Karma enabled: "
+				+ !config.karmaDisabled);
 		sender.sendMessage(ChatColor.GRAY + "Static karma: "
 				+ config.statickarma);
-		sender.sendMessage(ChatColor.GRAY + "Karma upper limit: "
-				+ config.upper);
-		sender.sendMessage(ChatColor.GRAY + "Karma upper %: "
-				+ config.upperPercent * 100 + "%");
-		sender.sendMessage(ChatColor.GRAY + "Karma lower limit: "
-				+ config.lower);
-		sender.sendMessage(ChatColor.GRAY + "Karma lower %: "
-				+ config.lowerPercent * 100 + "%");
+		sender.sendMessage(ChatColor.GRAY + "Karma lower-upper limit: "
+				+ config.lower +":" +config.upper);
+		sender.sendMessage(ChatColor.GRAY + "Karma lower/upper %: "
+				+ config.lowerPercent * 100 + "% /" + config.upperPercent * 100 + "%");
 		sender.sendMessage(ChatColor.GRAY + "Default karma: "
 				+ config.playerKarmaDefault);
 		sender.sendMessage(ChatColor.GRAY + "Default karma rate: "
@@ -1586,117 +1625,13 @@ public class Commander implements CommandExecutor {
 		}
 		else if (com.equals("reset"))
 		{
-			// Check if name was given
-			if (args.length > 2)
+			if(!config.karmaDisabled)
 			{
-				// attempt to parse name
-				String name = args[2];
-				// SQL query to get player count for specified name
-				String query = "SELECT COUNT(*) FROM players WHERE playername='"
-						+ name + "';";
-				ResultSet rs = ks.getLiteDB().select(query);
-				// Check ResultSet
-				boolean has = false;
-				try
+				// Check if name was given
+				if (args.length > 2)
 				{
-					if (rs.next())
-					{
-						// Check if only received 1 entry
-						if (rs.getInt(1) == 1)
-						{
-							// we have a single name
-							has = true;
-						}
-						else if (rs.getInt(1) > 1)
-						{
-							sender.sendMessage(ChatColor.RED
-									+ prefix
-									+ " Got more than one result. Possibly incomplete name?");
-						}
-						else
-						{
-							// Player not in database, therefore error
-							// on player part
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Player " + ChatColor.WHITE + name
-									+ ChatColor.RED + " not in database.");
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Player names are case sensitive.");
-						}
-					}
-					else
-					{
-						// Error in query...
-						sender.sendMessage(ChatColor.RED + prefix
-								+ " SQL query error");
-					}
-					rs.close();
-				}
-				catch (SQLException e)
-				{
-					// INFO Auto-generated catch block
-					sender.sendMessage(ChatColor.RED + prefix
-							+ "Could not reset " + name + "'s karma");
-					e.printStackTrace();
-				}
-				if (has)
-				{
-					int karma;
-					try
-					{
-						// Set to zero
-						karma = this.getPlayerKarma(name) * -1;
-						this.updatePlayerKarma(name, karma);
-						if (config.playerKarmaDefault != 0)
-						{
-							// Default was non-zero, so re-update to
-							// config's default
-							this.updatePlayerKarma(name,
-									config.playerKarmaDefault);
-						}
-						sender.sendMessage(ChatColor.YELLOW + prefix + " "
-								+ name + "'s karma reset");
-					}
-					catch (SQLException e)
-					{
-						// INFO Auto-generated catch block
-						sender.sendMessage(ChatColor.RED + prefix
-								+ "Could not reset " + name + "'s karma");
-						e.printStackTrace();
-					}
-
-				}
-			}
-			else
-			{
-				// did not give a player name, therefore error
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " No player name given.");
-			}
-			return true;
-		}
-		else if (com.equals("set"))
-		{
-			// Check if name was given
-			if (args.length > 2)
-			{
-				// attempt to parse name
-				String name = args[2];
-				// Check if amount was given
-				if (args.length > 3)
-				{
-					// Attempt to parse amount
-					int amount = 0;
-					try
-					{
-						amount = Integer.parseInt(args[3]);
-					}
-					catch (NumberFormatException e)
-					{
-						// Invalid integer given for amount
-						sender.sendMessage(ChatColor.RED + prefix + args[2]
-								+ " is not a valid integer");
-					}
+					// attempt to parse name
+					String name = args[2];
 					// SQL query to get player count for specified name
 					String query = "SELECT COUNT(*) FROM players WHERE playername='"
 							+ name + "';";
@@ -1742,7 +1677,7 @@ public class Commander implements CommandExecutor {
 					{
 						// INFO Auto-generated catch block
 						sender.sendMessage(ChatColor.RED + prefix
-								+ "Could not set " + name + "'s karma");
+								+ "Could not reset " + name + "'s karma");
 						e.printStackTrace();
 					}
 					if (has)
@@ -1750,9 +1685,8 @@ public class Commander implements CommandExecutor {
 						int karma;
 						try
 						{
-							// Set to given amount by using the difference
-							// between the two
-							karma = amount - this.getPlayerKarma(name);
+							// Set to zero
+							karma = this.getPlayerKarma(name) * -1;
 							this.updatePlayerKarma(name, karma);
 							if (config.playerKarmaDefault != 0)
 							{
@@ -1762,7 +1696,97 @@ public class Commander implements CommandExecutor {
 										config.playerKarmaDefault);
 							}
 							sender.sendMessage(ChatColor.YELLOW + prefix + " "
-									+ name + "'s karma set");
+									+ name + "'s karma reset");
+						}
+						catch (SQLException e)
+						{
+							// INFO Auto-generated catch block
+							sender.sendMessage(ChatColor.RED + prefix
+									+ "Could not reset " + name + "'s karma");
+							e.printStackTrace();
+						}
+
+					}
+				}
+				else
+				{
+					// did not give a player name, therefore error
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " No player name given.");
+				}
+			}
+			else
+			{
+				//Karma system disabled
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " Karma disabled.");
+			}
+			return true;
+		}
+		else if (com.equals("set"))
+		{
+			if(!config.karmaDisabled)
+			{
+				// Check if name was given
+				if (args.length > 2)
+				{
+					// attempt to parse name
+					String name = args[2];
+					// Check if amount was given
+					if (args.length > 3)
+					{
+						// Attempt to parse amount
+						int amount = 0;
+						try
+						{
+							amount = Integer.parseInt(args[3]);
+						}
+						catch (NumberFormatException e)
+						{
+							// Invalid integer given for amount
+							sender.sendMessage(ChatColor.RED + prefix + args[2]
+									+ " is not a valid integer");
+						}
+						// SQL query to get player count for specified name
+						String query = "SELECT COUNT(*) FROM players WHERE playername='"
+								+ name + "';";
+						ResultSet rs = ks.getLiteDB().select(query);
+						// Check ResultSet
+						boolean has = false;
+						try
+						{
+							if (rs.next())
+							{
+								// Check if only received 1 entry
+								if (rs.getInt(1) == 1)
+								{
+									// we have a single name
+									has = true;
+								}
+								else if (rs.getInt(1) > 1)
+								{
+									sender.sendMessage(ChatColor.RED
+											+ prefix
+											+ " Got more than one result. Possibly incomplete name?");
+								}
+								else
+								{
+									// Player not in database, therefore error
+									// on player part
+									sender.sendMessage(ChatColor.RED + prefix
+											+ " Player " + ChatColor.WHITE + name
+											+ ChatColor.RED + " not in database.");
+									sender.sendMessage(ChatColor.RED + prefix
+											+ " Player names are case sensitive.");
+								}
+							}
+							else
+							{
+								// Error in query...
+								sender.sendMessage(ChatColor.RED + prefix
+										+ " SQL query error");
+							}
+							rs.close();
 						}
 						catch (SQLException e)
 						{
@@ -1771,23 +1795,55 @@ public class Commander implements CommandExecutor {
 									+ "Could not set " + name + "'s karma");
 							e.printStackTrace();
 						}
+						if (has)
+						{
+							int karma;
+							try
+							{
+								// Set to given amount by using the difference
+								// between the two
+								karma = amount - this.getPlayerKarma(name);
+								this.updatePlayerKarma(name, karma);
+								if (config.playerKarmaDefault != 0)
+								{
+									// Default was non-zero, so re-update to
+									// config's default
+									this.updatePlayerKarma(name,
+											config.playerKarmaDefault);
+								}
+								sender.sendMessage(ChatColor.YELLOW + prefix + " "
+										+ name + "'s karma set");
+							}
+							catch (SQLException e)
+							{
+								// INFO Auto-generated catch block
+								sender.sendMessage(ChatColor.RED + prefix
+										+ "Could not set " + name + "'s karma");
+								e.printStackTrace();
+							}
 
+						}
+					}
+					else
+					{
+						// did not give a karma value, therefore error
+						sender.sendMessage(ChatColor.RED + prefix
+								+ " No karma amount given.");
 					}
 				}
 				else
 				{
-					// did not give a karma value, therefore error
+					// did not give a player name, therefore error
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " No karma amount given.");
+							+ " No player name given.");
 				}
 			}
 			else
 			{
-				// did not give a player name, therefore error
+				//Karma disabled
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " No player name given.");
+						+ " Karma disabled.");
 			}
-
 			return true;
 		}
 		else
@@ -1832,120 +1888,129 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void listMultipliers(CommandSender sender, int pageAdjust) {
-		if (!config.statickarma)
+		if(!config.karmaDisabled)
 		{
-			// Add player to page hashmap, if they're not in it
-			// so we know their position in the result list
-			if (!multiPage.containsKey(sender.getName()))
+			if (!config.statickarma)
 			{
-				multiPage.put(sender.getName(), 0);
-			}
-			else
-			{
-				// They already exist, so adjust if necessary
-				if (pageAdjust != 0)
+				// Add player to page hashmap, if they're not in it
+				// so we know their position in the result list
+				if (!multiPage.containsKey(sender.getName()))
 				{
-					int adj = multiPage.get(sender.getName()).intValue()
-							+ pageAdjust;
-					multiPage.put(sender.getName(), adj);
-				}
-			}
-			// Check if there is any entries in map
-			if (!config.karma.isEmpty())
-			{
-				// Set hashmap to array
-				Object[] array = config.karma.entrySet().toArray();
-				int num = array.length / limit;
-				double rem = (double) array.length % (double) limit;
-				boolean valid = true;
-				if (rem != 0)
-				{
-					num++;
-				}
-				if (multiPage.get(sender.getName()).intValue() < 0)
-				{
-					// They tried to use /ks prev when they're on page 0
-					sender.sendMessage(ChatColor.YELLOW + prefix
-							+ " Page does not exist");
-					// reset their current page back to 0
 					multiPage.put(sender.getName(), 0);
-					valid = false;
 				}
-				else if ((multiPage.get(sender.getName()).intValue()) * limit > array.length)
+				else
 				{
-					// They tried to use /ks next at the end of the list
-					sender.sendMessage(ChatColor.YELLOW + prefix
-							+ " Page does not exist");
-					// Revert to last page
-					multiPage.put(sender.getName(), num - 1);
-					valid = false;
-				}
-				if (valid)
-				{
-					// Header with amount of pages
-					sender.sendMessage(ChatColor.BLUE
-							+ "==="
-							+ ChatColor.GOLD
-							+ "Karma Multiplier"
-							+ ChatColor.BLUE
-							+ "==="
-							+ ChatColor.GREEN
-							+ "Page: "
-							+ ((multiPage.get(sender.getName()).intValue()) + 1)
-							+ " of " + num + ChatColor.BLUE + "===");
-					// list
-					for (int i = ((multiPage.get(sender.getName()).intValue()) * limit); i < ((multiPage
-							.get(sender.getName()).intValue()) * limit) + limit; i++)
+					// They already exist, so adjust if necessary
+					if (pageAdjust != 0)
 					{
-						// Don't try to pull something beyond the bounds
-						if (i < array.length)
+						int adj = multiPage.get(sender.getName()).intValue()
+								+ pageAdjust;
+						multiPage.put(sender.getName(), adj);
+					}
+				}
+				// Check if there is any entries in map
+				if (!config.karma.isEmpty())
+				{
+					// Set hashmap to array
+					Object[] array = config.karma.entrySet().toArray();
+					int num = array.length / limit;
+					double rem = (double) array.length % (double) limit;
+					boolean valid = true;
+					if (rem != 0)
+					{
+						num++;
+					}
+					if (multiPage.get(sender.getName()).intValue() < 0)
+					{
+						// They tried to use /ks prev when they're on page 0
+						sender.sendMessage(ChatColor.YELLOW + prefix
+								+ " Page does not exist");
+						// reset their current page back to 0
+						multiPage.put(sender.getName(), 0);
+						valid = false;
+					}
+					else if ((multiPage.get(sender.getName()).intValue()) * limit > array.length)
+					{
+						// They tried to use /ks next at the end of the list
+						sender.sendMessage(ChatColor.YELLOW + prefix
+								+ " Page does not exist");
+						// Revert to last page
+						multiPage.put(sender.getName(), num - 1);
+						valid = false;
+					}
+					if (valid)
+					{
+						// Header with amount of pages
+						sender.sendMessage(ChatColor.BLUE
+								+ "==="
+								+ ChatColor.GOLD
+								+ "Karma Multiplier"
+								+ ChatColor.BLUE
+								+ "==="
+								+ ChatColor.GREEN
+								+ "Page: "
+								+ ((multiPage.get(sender.getName()).intValue()) + 1)
+								+ " of " + num + ChatColor.BLUE + "===");
+						// list
+						for (int i = ((multiPage.get(sender.getName()).intValue()) * limit); i < ((multiPage
+								.get(sender.getName()).intValue()) * limit) + limit; i++)
 						{
-							@SuppressWarnings ("unchecked")
-							String out = ChatColor.WHITE
-									+ "Item: "
-									+ ChatColor.AQUA
-									// Thanks to DiddiZ for id -> material name
-									// using built-in class
-									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().name
-									+ ChatColor.WHITE
-									+ " Karma: "
-									+ ChatColor.GOLD
-									+ ((Map.Entry<Item, Integer>) array[i])
-											.getValue()
-									+ ChatColor.WHITE
-									+ " ID: "
-									+ ChatColor.LIGHT_PURPLE
-									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().itemId()
-									+ ChatColor.WHITE
-									+ " Data: "
-									+ ChatColor.LIGHT_PURPLE
-									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().itemData();
-							sender.sendMessage(out);
-						}
-						else
-						{
-							break;
+							// Don't try to pull something beyond the bounds
+							if (i < array.length)
+							{
+								@SuppressWarnings ("unchecked")
+								String out = ChatColor.WHITE
+										+ "Item: "
+										+ ChatColor.AQUA
+										// Thanks to DiddiZ for id -> material name
+										// using built-in class
+										+ ((Map.Entry<Item, Integer>) array[i])
+												.getKey().name
+										+ ChatColor.WHITE
+										+ " Karma: "
+										+ ChatColor.GOLD
+										+ ((Map.Entry<Item, Integer>) array[i])
+												.getValue()
+										+ ChatColor.WHITE
+										+ " ID: "
+										+ ChatColor.LIGHT_PURPLE
+										+ ((Map.Entry<Item, Integer>) array[i])
+												.getKey().itemId()
+										+ ChatColor.WHITE
+										+ " Data: "
+										+ ChatColor.LIGHT_PURPLE
+										+ ((Map.Entry<Item, Integer>) array[i])
+												.getKey().itemData();
+								sender.sendMessage(out);
+							}
+							else
+							{
+								break;
+							}
 						}
 					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.YELLOW
+							+ prefix
+							+ " No karma multipliers, all items have karma value of "
+							+ config.karmaChange);
 				}
 			}
 			else
 			{
 				sender.sendMessage(ChatColor.YELLOW
 						+ prefix
-						+ " No karma multipliers, all items have karma value of "
+						+ " Using static karma system, all items have karma value of "
 						+ config.karmaChange);
 			}
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.YELLOW
-					+ prefix
-					+ " Using static karma system, all items have karma value of "
-					+ config.karmaChange);
+			//Karma disabled
+			sender.sendMessage(ChatColor.RED + prefix
+					+ " Karma disabled.");
 		}
 	}
 

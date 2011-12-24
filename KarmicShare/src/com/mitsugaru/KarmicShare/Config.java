@@ -19,7 +19,7 @@ public class Config {
 	// Class variables
 	private KarmicShare plugin;
 	/* public String url, user, password; */
-	public boolean /* useMySQL, */statickarma, effects, debugTime;
+	public boolean /* useMySQL, */statickarma, effects, debugTime, karmaDisabled;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -56,6 +56,7 @@ public class Config {
 		defaults.put("karma.playerDefault", 0);
 		defaults.put("karma.changeDefault", 1);
 		defaults.put("karma.static", false);
+		defaults.put("karma.disabled", false);
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
 		// Insert defaults into config file if they're not present
@@ -87,8 +88,9 @@ public class Config {
 		effects = config.getBoolean("effects", true);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
+		karmaDisabled = config.getBoolean("karma.disabled", false);
 		// Load config for item specific karma if not using static karma
-		if (!statickarma)
+		if (!statickarma || !karmaDisabled)
 		{
 			this.loadKarmaMap();
 		}
@@ -195,8 +197,9 @@ public class Config {
 		effects = config.getBoolean("effects", true);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
+		karmaDisabled = config.getBoolean("karma.disabled", false);
 		// Load config for item specific karma if not using static karma
-		if (!statickarma)
+		if (!statickarma || !karmaDisabled)
 		{
 			// Clear old mappings
 			karma.clear();
