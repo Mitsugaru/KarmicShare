@@ -433,6 +433,7 @@ public class Commander implements CommandExecutor {
 					int itemid = 0;
 					int data = 0;
 					int amount = 1;
+					short dur = 0;
 					boolean has = false;
 					try
 					{
@@ -503,12 +504,14 @@ public class Commander implements CommandExecutor {
 							Item[] array = cache.keySet().toArray(new Item[0]);
 							for (int i = 0; i < array.length; i++)
 							{
-								if (temp.equals(array[i].name))
+								String cacheName = array[i].name.toLowerCase();
+								if (temp.equals(cacheName))
 								{
 									// Item is in cache, so get item id
 									// and data values
 									itemid = array[i].itemId();
 									data = array[i].getData();
+									dur = array[i].itemDurability();
 									has = true;
 									break;
 								}
@@ -530,12 +533,8 @@ public class Commander implements CommandExecutor {
 					// Check if pool contains item requested + amount
 					int total = 0;
 					// SQL query to see if item is in pool
-					// WARN this does not consolidate tools with
-					// different data
-					// Need another query specifically for tools that
-					// ignores data
 					//Create temp item to check if its a tool
-					Item temp = new Item(itemid, Byte.valueOf(""+data));
+					Item temp = new Item(itemid, Byte.valueOf(""+data), dur);
 					String query = "";
 					int poolAmount = 0;
 					boolean toolCheck = false;
@@ -588,6 +587,8 @@ public class Commander implements CommandExecutor {
 							e.printStackTrace();
 						}
 					}
+					//TODO separate check to see if its a potion and handle it
+					//via the durability info
 					else
 					{
 						//Not a tool
@@ -650,7 +651,7 @@ public class Commander implements CommandExecutor {
 						if (has)
 						{
 							final Item item = new Item(itemid, Byte.valueOf(""
-										+ data));
+										+ data), (short) 0);
 							boolean hasKarma = false;
 							if(!config.karmaDisabled)
 							{
@@ -1084,7 +1085,8 @@ public class Commander implements CommandExecutor {
 				{
 					int quantity = items.getAmount();
 					int data = items.getData().getData();
-					final Item item = new Item(itemid, Byte.valueOf("" + data));
+					short durability = items.getDurability();
+					final Item item = new Item(itemid, Byte.valueOf("" + data), durability);
 					boolean hasEnchantments = false;
 					String query = "";
 					if (item.isTool())
@@ -1116,11 +1118,13 @@ public class Commander implements CommandExecutor {
 									+ quantity
 									+ "','"
 									+ data
-									+ "','" + sb.toString() + "');";
+									+ "','" + durability + "','" + sb.toString() + "');";
 						}
 					}
 					// Not a tool or doesn't have enchantments, so treat as
 					// normal
+					//TODO separate boolean for potions
+					//format query against the durability
 					if (!hasEnchantments)
 					{
 						// Remove item from player inventory
@@ -1272,13 +1276,14 @@ public class Commander implements CommandExecutor {
 				if (itemid != 0)
 				{
 					int quantity = items.getAmount();
-					Item item = new Item(itemid, items.getData().getData());
+					Item item = new Item(itemid, items.getData().getData(), items.getDurability());
 					StringBuffer buf = new StringBuffer();
 					buf.append("Info: Name: " + ChatColor.AQUA + item.name
 							+ ChatColor.GREEN + " ID: " + ChatColor.LIGHT_PURPLE
 							+ itemid + ChatColor.GREEN + " Amount:"
 							+ ChatColor.GOLD + quantity + ChatColor.GREEN
 							+ " Data: " + ChatColor.LIGHT_PURPLE + item.getData()
+							+ ChatColor.GREEN + " Damage: " + items.getDurability()
 							+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
 							+ item.isTool());
 					if(!config.karmaDisabled)
@@ -1496,6 +1501,7 @@ public class Commander implements CommandExecutor {
 				// a map of all names, only the cache
 				int itemid = 0;
 				int data = 0;
+				short dur = 0;
 				// Player will always request at least 1 item
 				// TODO make default take amount configurable in YAML
 				int amount = 1;
@@ -1515,6 +1521,7 @@ public class Commander implements CommandExecutor {
 						{
 							itemid = Integer.parseInt(cut[0]);
 							data = Integer.parseInt(cut[1]);
+							dur = Short.parseShort(cut[1]);
 						}
 						catch (NumberFormatException r)
 						{
@@ -1592,8 +1599,8 @@ public class Commander implements CommandExecutor {
 						{
 							// Item not in database, therefore add
 							// it
-							query = "INSERT INTO items (itemid,amount,data) VALUES (" + itemid + ","
-									+ amount + "," + data + ");";
+							query = "INSERT INTO items (itemid,amount,data, durability) VALUES (" + itemid + ","
+									+ amount + "," + data + "," + dur +");";
 						}
 						// Needs to be outside of loop for
 						// whatever reason
@@ -1603,7 +1610,7 @@ public class Commander implements CommandExecutor {
 						// than one query.
 						rs.close();
 						ks.getLiteDB().standardQuery(query);
-						Item item = new Item(itemid, Byte.valueOf("" + data));
+						Item item = new Item(itemid, Byte.valueOf("" + data), dur);
 						sender.sendMessage(ChatColor.GREEN + prefix + " Added "
 								+ ChatColor.GOLD + amount + ChatColor.GREEN
 								+ " of " + ChatColor.AQUA + item.name
@@ -1892,7 +1899,7 @@ public class Commander implements CommandExecutor {
 				{
 					// update cache with current result set
 					Item i = new Item(itemlist.getInt("itemid"),
-							itemlist.getByte("data"));
+							itemlist.getByte("data"), itemlist.getShort("durability"));
 					cache.put(i, itemlist.getInt("amount"));
 				}
 				while (itemlist.next());
@@ -2082,7 +2089,7 @@ public class Commander implements CommandExecutor {
 				{
 					// update cache with current result set
 					Item i = new Item(itemlist.getInt("itemid"),
-							itemlist.getByte("data"));
+							itemlist.getByte("data"), itemlist.getShort("durability"));
 					if(i.isTool())
 					{
 						//add to current amount

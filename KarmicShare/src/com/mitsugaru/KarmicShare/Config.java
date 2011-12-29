@@ -121,14 +121,14 @@ public class Config {
 						int secondKey = Integer.parseInt(dataValue);
 						int secondValue = sec.getInt(dataValue);
 						karma.put(
-								new Item(key, Byte.parseByte("" + secondKey)),
+								new Item(key, Byte.parseByte("" + secondKey), (short) 0),
 								secondValue);
 					}
 				}
 				else
 				{
 					int value = karmaFile.getInt(entry);
-					karma.put(new Item(key, Byte.valueOf("" + 0)), value);
+					karma.put(new Item(key, Byte.valueOf("" + 0), (short) 0), value);
 				}
 			}
 			catch (final NumberFormatException ex)
@@ -172,6 +172,12 @@ public class Config {
 		{
 			//Add enchantments column
 			query = "ALTER TABLE items ADD enchantments TEXT;";
+			plugin.getLiteDB().standardQuery(query);
+		}
+		if(ver < 0.09)
+		{
+			//Add back durability column
+			query = "ALTER TABLE items ADD durability TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 		}
 
