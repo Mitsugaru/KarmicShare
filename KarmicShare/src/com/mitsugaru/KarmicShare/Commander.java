@@ -116,6 +116,7 @@ public class Commander implements CommandExecutor {
 			else if (com.equals("prev"))
 			{
 				// List, with previous page
+				this.listPool(sender, -1);
 			}
 			// Next page of item pool
 			else if (com.equals("next"))
@@ -454,6 +455,7 @@ public class Commander implements CommandExecutor {
 							{
 								itemid = Integer.parseInt(cut[0]);
 								data = Integer.parseInt(cut[1]);
+								dur = Short.parseShort(cut[1]);
 								if (args.length > 2)
 								{
 									// Grab amount as well if they gave
@@ -539,6 +541,7 @@ public class Commander implements CommandExecutor {
 					String query = "";
 					int poolAmount = 0;
 					boolean toolCheck = false;
+					boolean potionCheck = false;
 					if (temp.isTool())
 					{
 						// Handle tools
@@ -589,8 +592,66 @@ public class Commander implements CommandExecutor {
 							e.printStackTrace();
 						}
 					}
-					// TODO separate check to see if its a potion and handle it
-					// via the durability info
+
+					else if(temp.isPotion())
+					{
+						potionCheck = true;
+						//Separate check to see if its a potion and handle it
+						// via the durability info
+						query = "SELECT * FROM items WHERE itemid='" + itemid
+								+ "' AND durability='" + dur + "';";
+						ResultSet rs = ks.getLiteDB().select(query);
+
+						// Check ResultSet
+						try
+						{
+							if (rs.next())
+							{
+								// Item already in pool, check
+								// amount
+								poolAmount = rs.getInt("amount");
+								if (poolAmount >= amount)
+								{
+									// We have enough in pool that
+									// was requested
+									has = true;
+									total = poolAmount;
+								}
+								else if (poolAmount < amount)
+								{
+									// They requested too much, adjust
+									// amount to max
+									has = true;
+									amount = poolAmount;
+									total = poolAmount;
+									sender.sendMessage(ChatColor.YELLOW
+											+ prefix
+											+ " Requested too much. Adjusting to max.");
+								}
+							}
+							else
+							{
+								// Item not in database, therefore error
+								// on player part
+								rs.close();
+								player.sendMessage(ChatColor.RED + prefix
+										+ " Item not in pool...");
+								if (config.debugTime)
+								{
+									debugTime(sender, time);
+								}
+								return true;
+							}
+							rs.close();
+						}
+						catch (SQLException e)
+						{
+							// INFO Auto-generated catch block
+							player.sendMessage(ChatColor.RED + prefix
+									+ "Could not retrieve item in pool!");
+							e.printStackTrace();
+						}
+					}
 					else
 					{
 						// Not a tool
@@ -653,7 +714,7 @@ public class Commander implements CommandExecutor {
 						if (has)
 						{
 							final Item item = new Item(itemid, Byte.valueOf(""
-									+ data), (short) 0);
+									+ data), dur);
 							boolean hasKarma = false;
 							if (!config.karmaDisabled)
 							{
@@ -1012,11 +1073,70 @@ public class Commander implements CommandExecutor {
 									e.printStackTrace();
 								}
 							}
+							else if(potionCheck)
+							{
+								boolean full = false;
+								for(int i = 0; i < amount; i++)
+								{
+									if(!full)
+									{
+										// Generate item
+										final ItemStack give = new ItemStack(item.getItemTypeId(), 1, item.itemDurability());
+										HashMap<Integer, ItemStack> residual = player
+												.getInventory().addItem(give);
+										//Check if player
+										if (residual.size() != 0)
+										{
+											full = true;
+											amount -= residual.size();
+											if (amount == 0)
+											{
+												// Didn't actually give any items
+												// due
+												// to completely full inventory,
+												// therefore
+												// Notify player of their mistake
+												player.sendMessage(ChatColor.YELLOW
+														+ prefix
+														+ " Your inventory is completely full...");
+												if (config.debugTime)
+												{
+													debugTime(sender, time);
+												}
+												return true;
+											}
+										}
+									}
+								}
+								// Calculate new total
+								total -= amount;
+
+								if (total == 0)
+								{
+									// Drop record as there are none left
+									query = "DELETE FROM items WHERE amount='"
+											+ amount + "' AND itemid='"
+											+ itemid + "' AND durability='" + dur
+											+ "';";
+									ks.getLiteDB().standardQuery(query);
+									// Remove from cache list
+									cache.remove(item);
+								}
+								// Update amount to new total if there
+								// are items remaining
+								else
+								{
+									query = "UPDATE items SET amount='" + total
+											+ "' WHERE itemid='" + itemid
+											+ "' AND durability='" + dur + "';";
+									ks.getLiteDB().standardQuery(query);
+								}
+							}
 							else
 							{
 								// Handle non-tools
 								// Generate item
-								final ItemStack give = item.toItemStack(amount);
+								final ItemStack give = new ItemStack(item.getItemTypeId(), amount, item.itemDurability());
 								HashMap<Integer, ItemStack> residual = player
 										.getInventory().addItem(give);
 								if (residual.size() != 0)
@@ -1234,6 +1354,7 @@ public class Commander implements CommandExecutor {
 					}
 					else if (item.isPotion())
 					{
+						data = 0;
 						// Potion item
 						// Create SQL query to see if item is already in
 						// database
@@ -1391,9 +1512,10 @@ public class Commander implements CommandExecutor {
 							+ " Amount:" + ChatColor.GOLD + quantity
 							+ ChatColor.GREEN + " Data: "
 							+ ChatColor.LIGHT_PURPLE + item.getData()
-							+ ChatColor.GREEN + " Damage: "
+							+ ChatColor.GREEN + " Damage: " + ChatColor.LIGHT_PURPLE
 							+ items.getDurability() + ChatColor.GREEN
-							+ " Tool: " + ChatColor.GRAY + item.isTool());
+							+ " Tool: " + ChatColor.GRAY + item.isTool() + ChatColor.GREEN
+							+ " Potion: " + ChatColor.GRAY + item.isPotion());
 					if (!config.karmaDisabled)
 					{
 						if (config.statickarma)
@@ -1688,65 +1810,117 @@ public class Commander implements CommandExecutor {
 						return true;
 					}
 				}
+				//Create item object
+				final Item item = new Item(itemid, Byte.valueOf("" + data),
+						dur);
 				if (itemid != 0)
 				{
-					// Create SQL query to see if item is already in
-					// database
-					String query = "SELECT * FROM items WHERE itemid='"
-							+ itemid + "' AND data='" + data + "';";
-					ResultSet rs = ks.getLiteDB().select(query);
-					// Send Item to database
-					try
+					if(item.isPotion())
 					{
-						if (rs.next())
+						data = 0;
+						// Create SQL query to see if item is already in
+						// database
+						String query = "SELECT * FROM items WHERE itemid='"
+								+ itemid + "' AND durability='" + dur + "';";
+						ResultSet rs = ks.getLiteDB().select(query);
+						// Send Item to database
+						try
 						{
-							// here you know that there is at least
-							// one record
-							do
+							if (rs.next())
 							{
-								// TODO format initial or other query to include
-								// enchantments
-								int total = amount + rs.getInt("amount");
-								query = "UPDATE items SET amount='" + total
-										+ "' WHERE itemid='" + itemid
-										+ "' AND data='" + data + "';";
+								// here you know that there is at least
+								// one record
+								do
+								{
+									// TODO format initial or other query to include
+									// enchantments
+									int total = amount + rs.getInt("amount");
+									query = "UPDATE items SET amount='" + total
+											+ "' WHERE itemid='" + itemid
+											+ "' AND durability='" + dur + "';";
+								}
+								while (rs.next());
 							}
-							while (rs.next());
+							else
+							{
+								// Item not in database, therefore add
+								// it
+								query = "INSERT INTO items (itemid,amount,data, durability) VALUES ("
+										+ itemid
+										+ ","
+										+ amount
+										+ ","
+										+ data
+										+ ","
+										+ dur + ");";
+							}
+							rs.close();
+							ks.getLiteDB().standardQuery(query);
+							sender.sendMessage(ChatColor.GREEN + prefix + " Added "
+									+ ChatColor.GOLD + amount + ChatColor.GREEN
+									+ " of " + ChatColor.AQUA + item.name
+									+ ChatColor.GREEN + " to pool.");
 						}
-						else
+						catch (SQLException q)
 						{
-							// Item not in database, therefore add
-							// it
-							query = "INSERT INTO items (itemid,amount,data, durability) VALUES ("
-									+ itemid
-									+ ","
-									+ amount
-									+ ","
-									+ data
-									+ ","
-									+ dur + ");";
+							// INFO Auto-generated catch block
+							sender.sendMessage(ChatColor.RED + prefix
+									+ "Could not add item to pool!");
+							q.printStackTrace();
 						}
-						// Needs to be outside of loop for
-						// whatever reason
-						// so that it doesn't hang. Need to have
-						// an array of queries or
-						// Something if I'm going to do more
-						// than one query.
-						rs.close();
-						ks.getLiteDB().standardQuery(query);
-						Item item = new Item(itemid, Byte.valueOf("" + data),
-								dur);
-						sender.sendMessage(ChatColor.GREEN + prefix + " Added "
-								+ ChatColor.GOLD + amount + ChatColor.GREEN
-								+ " of " + ChatColor.AQUA + item.name
-								+ ChatColor.GREEN + " to pool.");
 					}
-					catch (SQLException q)
+					else
 					{
-						// INFO Auto-generated catch block
-						sender.sendMessage(ChatColor.RED + prefix
-								+ "Could not add item to pool!");
-						q.printStackTrace();
+						// Create SQL query to see if item is already in
+						// database
+						String query = "SELECT * FROM items WHERE itemid='"
+								+ itemid + "' AND data='" + data + "';";
+						ResultSet rs = ks.getLiteDB().select(query);
+						// Send Item to database
+						try
+						{
+							if (rs.next())
+							{
+								// here you know that there is at least
+								// one record
+								do
+								{
+									// TODO format initial or other query to include
+									// enchantments
+									int total = amount + rs.getInt("amount");
+									query = "UPDATE items SET amount='" + total
+											+ "' WHERE itemid='" + itemid
+											+ "' AND data='" + data + "';";
+								}
+								while (rs.next());
+							}
+							else
+							{
+								// Item not in database, therefore add
+								// it
+								query = "INSERT INTO items (itemid,amount,data, durability) VALUES ("
+										+ itemid
+										+ ","
+										+ amount
+										+ ","
+										+ data
+										+ ","
+										+ dur + ");";
+							}
+							rs.close();
+							ks.getLiteDB().standardQuery(query);
+							sender.sendMessage(ChatColor.GREEN + prefix + " Added "
+									+ ChatColor.GOLD + amount + ChatColor.GREEN
+									+ " of " + ChatColor.AQUA + item.name
+									+ ChatColor.GREEN + " to pool.");
+						}
+						catch (SQLException q)
+						{
+							// INFO Auto-generated catch block
+							sender.sendMessage(ChatColor.RED + prefix
+									+ "Could not add item to pool!");
+							q.printStackTrace();
+						}
 					}
 				}
 				else

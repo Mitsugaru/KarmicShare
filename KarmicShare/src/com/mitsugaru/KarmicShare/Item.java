@@ -17,7 +17,7 @@ import org.bukkit.material.Wool;
 public class Item extends MaterialData {
 	// Class variables
 	public String name;
-	public short durability;
+	private short durability;
 
 	/**
 	 * Constructor
@@ -235,6 +235,7 @@ public class Item extends MaterialData {
 					break;
 				case 8258:
 					name += "swift potion ex";
+					break;
 				case 8259:
 					name += "fire potion ex";
 					break;
@@ -407,6 +408,29 @@ public class Item extends MaterialData {
 		}
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj);
+	}
+
+	/**
+	 * Custom hashcode method to provide proper Item class
+	 * equals check. Especially useful for potions, since data
+	 * values are the same, but durability is not.
+	 *
+	 * @return Object's hashcode
+	 */
+	@Override
+	public int hashCode()
+	{
+		int hash = 0;
+		hash += this.getItemTypeId();
+		hash += this.getData();
+		hash += this.itemDurability();
+		return hash;
+	}
+
 	/**
 	 * Variant of equals(Object obj)
 	 *
@@ -469,12 +493,12 @@ public class Item extends MaterialData {
 	}
 
 	/**
-	 * Method to check if the item is a potion
+	 * Method to check if the item is a potion/glass bottle
 	 *
 	 * @return true if potion, else false;
 	 */
 	public boolean isPotion() {
-		if (this.getItemTypeId() == 373)
+		if (this.getItemTypeId() == 373 || this.getItemTypeId() == 374)
 			return true;
 		return false;
 	}
