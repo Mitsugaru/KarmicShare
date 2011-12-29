@@ -163,6 +163,55 @@ public class Item extends MaterialData {
 					break;
 			}
 		}
+		else if(i == 380)
+		{
+			name += "cauldron";
+		}
+		//Handle music discs
+		else if(i == 2256)
+		{
+			name += "13 disc";
+		}
+		else if(i == 2257)
+		{
+			name += "cat disc";
+		}
+		else if(i == 2258)
+		{
+			name += "blocks disc";
+		}
+		else if(i == 2259)
+		{
+			name += "chirp disc";
+		}
+		else if(i == 2260)
+		{
+			name += "far disc";
+		}
+		else if(i == 2261)
+		{
+			name += "mall disc";
+		}
+		else if(i == 2262)
+		{
+			name += "mellohi disc";
+		}
+		else if(i == 2263)
+		{
+			name += "stal disc";
+		}
+		else if(i == 2264)
+		{
+			name += "strad disc";
+		}
+		else if(i == 2265)
+		{
+			name += "ward disc";
+		}
+		else if(i == 2266)
+		{
+			name += "11 disc";
+		}
 		else
 		{
 			//For non special materials, just use Bukkit convention

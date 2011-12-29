@@ -1178,7 +1178,7 @@ public class Commander implements CommandExecutor {
 					{
 						ks.getLiteDB().standardQuery(query);
 						player.sendMessage(ChatColor.GREEN + prefix + " Added "
-								+ ChatColor.GOLD + quantity + " of "
+								+ ChatColor.GOLD + quantity + ChatColor.GREEN +" of "
 								+ ChatColor.AQUA + item.name + ChatColor.GREEN
 								+ " to pool.");
 						// Smoke effect
