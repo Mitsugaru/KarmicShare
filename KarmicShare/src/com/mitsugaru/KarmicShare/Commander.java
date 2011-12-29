@@ -1112,7 +1112,7 @@ public class Commander implements CommandExecutor {
 							// Remove trailing comma
 							sb.deleteCharAt(sb.length() - 1);
 							// Add new instance of item to database
-							query = "INSERT INTO items VALUES ('"
+							query = "INSERT INTO items (itemid,amount,data,durability,enchantments) VALUES ('"
 									+ itemid
 									+ "','"
 									+ quantity
@@ -1121,16 +1121,13 @@ public class Commander implements CommandExecutor {
 									+ "','" + durability + "','" + sb.toString() + "');";
 						}
 					}
+					// Remove item from player inventory
+					// Thanks to @nisovin for the following line
+					player.setItemInHand(null);
 					// Not a tool or doesn't have enchantments, so treat as
 					// normal
-					//TODO separate boolean for potions
-					//format query against the durability
-					if (!hasEnchantments)
+					if (!hasEnchantments && !item.isPotion())
 					{
-						// Remove item from player inventory
-						// Thanks to @nisovin for the following line
-						player.setItemInHand(null);
-
 						// Create SQL query to see if item is already in
 						// database
 						query = "SELECT * FROM items WHERE itemid='"
@@ -1157,18 +1154,62 @@ public class Commander implements CommandExecutor {
 							else
 							{
 								// Item not in database, therefore add it
-								query = "INSERT INTO items (itemid,amount,data) VALUES ("
+								query = "INSERT INTO items (itemid,amount,data,durability) VALUES ("
 										+ itemid
 										+ ","
 										+ quantity
 										+ ","
-										+ data
+										+ data + "," + durability
 										+ ");";
 							}
 							rs.close();
-							// Needs to be outside of loop for
-							// whatever reason
-							// so that it doesn't hang.
+						}
+						catch (SQLException e)
+						{
+							// INFO Auto-generated catch block
+							player.sendMessage(ChatColor.RED + prefix
+									+ "Could not query item pool!");
+							e.printStackTrace();
+						}
+					}
+					else if(item.isPotion())
+					{
+						//Potion item
+						// Create SQL query to see if item is already in
+						// database
+						query = "SELECT * FROM items WHERE itemid='"
+								+ itemid + "' AND durability='" + durability + "';";
+						ResultSet rs = ks.getLiteDB().select(query);
+
+						// Send Item to database
+						try
+						{
+							if (rs.next())
+							{
+								do
+								{
+									// For tools, look up for similar
+									// durability. Add amount that way
+									// if it exists
+									int total = quantity + rs.getInt("amount");
+									query = "UPDATE items SET amount='" + total
+											+ "' WHERE itemid='" + itemid
+											+ "' AND durability='" + durability + "';";
+								}
+								while (rs.next());
+							}
+							else
+							{
+								// Item not in database, therefore add it
+								query = "INSERT INTO items (itemid,amount,data,durability) VALUES ("
+										+ itemid
+										+ ","
+										+ quantity
+										+ ","
+										+ data + "," + durability
+										+ ");";
+							}
+							rs.close();
 						}
 						catch (SQLException e)
 						{

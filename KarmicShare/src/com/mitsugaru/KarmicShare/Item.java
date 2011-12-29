@@ -440,7 +440,23 @@ public class Item extends MaterialData {
 				// Both non-block, only check item id
 				if (this.getItemTypeId() == ((Item) obj).getItemTypeId())
 				{
-					return true;
+					//handle if dye or potion
+					if(this.itemId() == 351)
+					{
+						if(this.getData() == ((Item) obj).getData())
+						{
+							return true;
+						}
+					}
+					else if(this.itemId() == 373)
+					{
+						if(durability == ((Item) obj).itemDurability())
+						{
+							return true;
+						}
+					}
+					else
+						return true;
 				}
 			}
 		}
