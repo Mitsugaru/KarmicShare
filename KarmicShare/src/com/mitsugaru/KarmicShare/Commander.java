@@ -67,14 +67,14 @@ public class Commander implements CommandExecutor {
 		// See if any arguments were given
 		if (args.length == 0)
 		{
-			if(!config.karmaDisabled)
+			if (!config.karmaDisabled)
 			{
 				// Show player karma
 				this.showPlayerKarma(sender, args);
 			}
 			else
 			{
-				//karma system disabled
+				// karma system disabled
 				sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
 			}
 		}
@@ -199,83 +199,57 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void otherPlayerKarma(CommandSender sender, String[] args) {
-		//Check if karma is enabled
-		if(!config.karmaDisabled)
+		// Check if karma is enabled
+		if (!config.karmaDisabled)
 		{
-		// Check if name was given
-		if (args.length > 1)
-		{
-			// Check if they have the permission node
-			if (perm.checkPermission(sender, "KarmicShare.admin")
-					|| perm.checkPermission(sender, "KarmicShare.karma.other"))
+			// Check if name was given
+			if (args.length > 1)
 			{
-				// attempt to parse name
-				String name = args[1];
-				// SQL query to get player count for specified name
-				String query = "SELECT COUNT(*) FROM players WHERE playername='"
-						+ name + "'";
-				ResultSet rs = ks.getLiteDB().select(query);
-				// Check ResultSet
-				boolean has = false;
-				try
+				// Check if they have the permission node
+				if (perm.checkPermission(sender, "KarmicShare.admin")
+						|| perm.checkPermission(sender,
+								"KarmicShare.karma.other"))
 				{
-					if (rs.next())
+					// attempt to parse name
+					String name = args[1];
+					// SQL query to get player count for specified name
+					String query = "SELECT COUNT(*) FROM players WHERE playername='"
+							+ name + "'";
+					ResultSet rs = ks.getLiteDB().select(query);
+					// Check ResultSet
+					boolean has = false;
+					try
 					{
-						// Check if only received 1 entry
-						if (rs.getInt(1) == 1)
+						if (rs.next())
 						{
-							// we have a single name
-							has = true;
-						}
-						else if (rs.getInt(1) > 1)
-						{
-							sender.sendMessage(ChatColor.RED
-									+ prefix
-									+ " Got more than one result. Possibly incomplete name?");
+							// Check if only received 1 entry
+							if (rs.getInt(1) == 1)
+							{
+								// we have a single name
+								has = true;
+							}
+							else if (rs.getInt(1) > 1)
+							{
+								sender.sendMessage(ChatColor.RED
+										+ prefix
+										+ " Got more than one result. Possibly incomplete name?");
+							}
+							else
+							{
+								// Player not in database, therefore error
+								// on player part
+								sender.sendMessage(ChatColor.RED + prefix
+										+ " Player " + ChatColor.WHITE + name
+										+ ChatColor.RED + " not in database.");
+								sender.sendMessage(ChatColor.RED + prefix
+										+ " Player names are case sensitive.");
+							}
 						}
 						else
 						{
-							// Player not in database, therefore error
-							// on player part
+							// Error in query...
 							sender.sendMessage(ChatColor.RED + prefix
-									+ " Player " + ChatColor.WHITE + name
-									+ ChatColor.RED + " not in database.");
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Player names are case sensitive.");
-						}
-					}
-					else
-					{
-						// Error in query...
-						sender.sendMessage(ChatColor.RED + prefix
-								+ " SQL query error");
-					}
-					rs.close();
-				}
-				catch (SQLException e)
-				{
-					// INFO Auto-generated catch block
-					sender.sendMessage(ChatColor.RED + prefix
-							+ " Could not get " + name + "'s karma");
-					e.printStackTrace();
-				}
-				if (has)
-				{
-					// Grab default
-					int karma = config.playerKarmaDefault;
-					try
-					{
-						query = "SELECT * FROM players WHERE playername='"
-								+ name + "';";
-						rs = ks.getLiteDB().select(query);
-						if (rs.next())
-						{
-							do
-							{
-								// Grab player karma value
-								karma = rs.getInt("karma");
-							}
-							while (rs.next());
+									+ " SQL query error");
 						}
 						rs.close();
 					}
@@ -286,32 +260,59 @@ public class Commander implements CommandExecutor {
 								+ " Could not get " + name + "'s karma");
 						e.printStackTrace();
 					}
-					// Colorize karma
-					sender.sendMessage(this.colorizeKarma(karma));
+					if (has)
+					{
+						// Grab default
+						int karma = config.playerKarmaDefault;
+						try
+						{
+							query = "SELECT * FROM players WHERE playername='"
+									+ name + "';";
+							rs = ks.getLiteDB().select(query);
+							if (rs.next())
+							{
+								do
+								{
+									// Grab player karma value
+									karma = rs.getInt("karma");
+								}
+								while (rs.next());
+							}
+							rs.close();
+						}
+						catch (SQLException e)
+						{
+							// INFO Auto-generated catch block
+							sender.sendMessage(ChatColor.RED + prefix
+									+ " Could not get " + name + "'s karma");
+							e.printStackTrace();
+						}
+						// Colorize karma
+						sender.sendMessage(this.colorizeKarma(karma));
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED
+							+ " Lack permission: KarmicShare.karma.other");
 				}
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED
-						+ " Lack permission: KarmicShare.karma.other");
+				// did not give a player name, therefore error
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " No player name given.");
 			}
 		}
 		else
 		{
-			// did not give a player name, therefore error
-			sender.sendMessage(ChatColor.RED + prefix
-					+ " No player name given.");
-		}
-		}
-		else
-		{
-			//karma system disabled
+			// karma system disabled
 			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
 		}
 	}
 
 	private void valueCommand(CommandSender sender, String[] args) {
-		if(!config.karmaDisabled)
+		if (!config.karmaDisabled)
 		{
 			if (args.length > 1)
 			{
@@ -354,7 +355,7 @@ public class Commander implements CommandExecutor {
 		}
 		else
 		{
-			//karma system disabled
+			// karma system disabled
 			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
 		}
 	}
@@ -397,7 +398,7 @@ public class Commander implements CommandExecutor {
 			if (perm.checkPermission(sender, "KarmicShare.take"))
 			{
 				int karma = 0;
-				if(!config.karmaDisabled)
+				if (!config.karmaDisabled)
 				{
 					// Check karma before anything
 					karma = config.playerKarmaDefault;
@@ -533,27 +534,28 @@ public class Commander implements CommandExecutor {
 					// Check if pool contains item requested + amount
 					int total = 0;
 					// SQL query to see if item is in pool
-					//Create temp item to check if its a tool
-					Item temp = new Item(itemid, Byte.valueOf(""+data), dur);
+					// Create temp item to check if its a tool
+					Item temp = new Item(itemid, Byte.valueOf("" + data), dur);
 					String query = "";
 					int poolAmount = 0;
 					boolean toolCheck = false;
-					if(temp.isTool())
+					if (temp.isTool())
 					{
-						//Handle tools
+						// Handle tools
 						toolCheck = true;
-						//Grab all entries of the same tool id
+						// Grab all entries of the same tool id
 						String toolQuery = "SELECT * FROM items WHERE itemid='"
 								+ itemid + "';";
 						ResultSet toolRS = ks.getLiteDB().select(toolQuery);
 						try
 						{
-							if(toolRS.next())
+							if (toolRS.next())
 							{
 								do
 								{
 									poolAmount += toolRS.getInt("amount");
-								}while(toolRS.next());
+								}
+								while (toolRS.next());
 								if (poolAmount >= amount)
 								{
 									// We have enough in pool that
@@ -587,13 +589,13 @@ public class Commander implements CommandExecutor {
 							e.printStackTrace();
 						}
 					}
-					//TODO separate check to see if its a potion and handle it
-					//via the durability info
+					// TODO separate check to see if its a potion and handle it
+					// via the durability info
 					else
 					{
-						//Not a tool
-						query = "SELECT * FROM items WHERE itemid='"
-								+ itemid + "' AND data='" + data + "';";
+						// Not a tool
+						query = "SELECT * FROM items WHERE itemid='" + itemid
+								+ "' AND data='" + data + "';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Check ResultSet
@@ -651,9 +653,9 @@ public class Commander implements CommandExecutor {
 						if (has)
 						{
 							final Item item = new Item(itemid, Byte.valueOf(""
-										+ data), (short) 0);
+									+ data), (short) 0);
 							boolean hasKarma = false;
-							if(!config.karmaDisabled)
+							if (!config.karmaDisabled)
 							{
 								// Check karma again, before giving item, to
 								// adjust amount
@@ -726,10 +728,16 @@ public class Commander implements CommandExecutor {
 												// lower limit
 												// adjust amount given based
 												// on karma now
-												int tempKarma = Math.abs(karmaAdj) - Math.abs(config.lower);
-												int div = tempKarma/ config.karma.get(item);
-												int rem = tempKarma % config.karma.get(item);
-												if(rem != 0)
+												int tempKarma = Math
+														.abs(karmaAdj)
+														- Math.abs(config.lower);
+												int div = tempKarma
+														/ config.karma
+																.get(item);
+												int rem = tempKarma
+														% config.karma
+																.get(item);
+												if (rem != 0)
 												{
 													div++;
 												}
@@ -764,17 +772,22 @@ public class Commander implements CommandExecutor {
 											// thus adjust using regular
 											// means
 											karmaAdj = karma
-													+ (config.karmaChange * amount * -1);
+													+ (config.karmaChange
+															* amount * -1);
 											if (karmaAdj < config.lower)
 											{
 												// They went beyond the
 												// lower limit
 												// adjust amount given based
 												// on karma now
-												int tempKarma = Math.abs(karmaAdj) - Math.abs(config.lower);
-												int div = tempKarma/ config.karmaChange;
-												int rem = tempKarma % config.karmaChange;
-												if(rem != 0)
+												int tempKarma = Math
+														.abs(karmaAdj)
+														- Math.abs(config.lower);
+												int div = tempKarma
+														/ config.karmaChange;
+												int rem = tempKarma
+														% config.karmaChange;
+												if (rem != 0)
 												{
 													div++;
 												}
@@ -814,15 +827,19 @@ public class Commander implements CommandExecutor {
 											// limit
 											// adjust amount given based on
 											// karma now
-											int tempKarma = Math.abs(karmaAdj) - Math.abs(config.lower);
-											int div = tempKarma/ config.karmaChange;
-											int rem = tempKarma % config.karmaChange;
-											if(rem != 0)
+											int tempKarma = Math.abs(karmaAdj)
+													- Math.abs(config.lower);
+											int div = tempKarma
+													/ config.karmaChange;
+											int rem = tempKarma
+													% config.karmaChange;
+											if (rem != 0)
 											{
 												div++;
 											}
 											amount -= div;
-											amount = amount / config.karmaChange;
+											amount = amount
+													/ config.karmaChange;
 											if (amount <= 0)
 											{
 												// Cannot give any items as
@@ -847,13 +864,14 @@ public class Commander implements CommandExecutor {
 									}
 								}
 							}
-							//Handle tool generation
-							if(toolCheck)
+							// Handle tool generation
+							if (toolCheck)
 							{
-								//Grab all entries of the same tool id
+								// Grab all entries of the same tool id
 								String toolQuery = "SELECT * FROM items WHERE itemid='"
 										+ itemid + "';";
-								ResultSet toolRS = ks.getLiteDB().select(toolQuery);
+								ResultSet toolRS = ks.getLiteDB().select(
+										toolQuery);
 								try
 								{
 									int tempAmount = amount;
@@ -862,90 +880,125 @@ public class Commander implements CommandExecutor {
 									boolean en = false;
 									String residualToolQuery = "";
 									ArrayList<String> dropList = new ArrayList<String>();
-									if(toolRS.next())
+									if (toolRS.next())
 									{
 										do
 										{
-											//Generate item
-											ItemStack toolItem = new ItemStack(itemid, toolRS.getInt("amount"), toolRS.getShort("data"));
-											String enchant = toolRS.getString("enchantments");
-											if(!toolRS.wasNull())
+											// Generate item
+											ItemStack toolItem = new ItemStack(
+													itemid,
+													toolRS.getInt("amount"),
+													toolRS.getShort("data"));
+											String enchant = toolRS
+													.getString("enchantments");
+											if (!toolRS.wasNull())
 											{
-												//It had enchantments
+												// It had enchantments
 												en = true;
-												String[] cut = enchant.split("i");
-												for(int i = 0; i < cut.length; i++)
+												String[] cut = enchant
+														.split("i");
+												for (int i = 0; i < cut.length; i++)
 												{
-													String[] cutter = cut[i].split("v");
-													EnchantmentWrapper e = new EnchantmentWrapper(Integer.parseInt(cutter[0]));
-													toolItem.addUnsafeEnchantment(e.getEnchantment(), Integer.parseInt(cutter[1]));
+													String[] cutter = cut[i]
+															.split("v");
+													EnchantmentWrapper e = new EnchantmentWrapper(
+															Integer.parseInt(cutter[0]));
+													toolItem.addUnsafeEnchantment(
+															e.getEnchantment(),
+															Integer.parseInt(cutter[1]));
 												}
 											}
-											//Give item to player
+											// Give item to player
 											HashMap<Integer, ItemStack> toolResidual = player
-													.getInventory().addItem(toolItem);
-											if(toolResidual.size() != 0)
+													.getInventory().addItem(
+															toolItem);
+											if (toolResidual.size() != 0)
 											{
-												//Add back extra
+												// Add back extra
 												extra = true;
-												tempAmount += toolResidual.size();
+												tempAmount += toolResidual
+														.size();
 												amount -= tempAmount;
-												//Create appropriate query
-												if(en)
+												// Create appropriate query
+												if (en)
 												{
-													residualToolQuery = "UPDATE items SET amount='" + toolResidual.size()
-															+ "' WHERE itemid='" + itemid
-															+ "' AND data='" + data + "' AND enchantments='"+ enchant+";";
+													residualToolQuery = "UPDATE items SET amount='"
+															+ toolResidual
+																	.size()
+															+ "' WHERE itemid='"
+															+ itemid
+															+ "' AND data='"
+															+ data
+															+ "' AND enchantments='"
+															+ enchant + ";";
 												}
 												else
 												{
-													residualToolQuery = "UPDATE items SET amount='" + toolResidual.size()
-															+ "' WHERE itemid='" + itemid
-															+ "' AND data='" + data + "';";
+													residualToolQuery = "UPDATE items SET amount='"
+															+ toolResidual
+																	.size()
+															+ "' WHERE itemid='"
+															+ itemid
+															+ "' AND data='"
+															+ data + "';";
 												}
-												//Done
+												// Done
 												done = true;
 											}
 											else
 											{
-												//Update amount
-												tempAmount -= toolRS.getInt("amount");
-												//Add entry to drop list
-												if(en)
+												// Update amount
+												tempAmount -= toolRS
+														.getInt("amount");
+												// Add entry to drop list
+												if (en)
 												{
-													dropList.add("DELETE FROM items WHERE itemid='" + itemid
-															+ "' AND amount='"+ toolRS.getInt("amount") + "' AND data='" + toolRS.getShort("data")+ "' AND enchantments='"+ enchant+"';");
+													dropList.add("DELETE FROM items WHERE itemid='"
+															+ itemid
+															+ "' AND amount='"
+															+ toolRS.getInt("amount")
+															+ "' AND data='"
+															+ toolRS.getShort("data")
+															+ "' AND enchantments='"
+															+ enchant + "';");
 												}
 												else
 												{
-													dropList.add("DELETE FROM items WHERE itemid='" + itemid
-															+ "' AND amount='"+ toolRS.getInt("amount") + "' AND data='" + toolRS.getShort("data")+ "';");
+													dropList.add("DELETE FROM items WHERE itemid='"
+															+ itemid
+															+ "' AND amount='"
+															+ toolRS.getInt("amount")
+															+ "' AND data='"
+															+ toolRS.getShort("data")
+															+ "';");
 												}
 											}
-											if(tempAmount == 0)
+											if (tempAmount == 0)
 											{
-												//Done
+												// Done
 												done = true;
 											}
 											en = false;
-											if(!toolRS.next())
+											if (!toolRS.next())
 											{
 												done = true;
 											}
-										}while(!done);
+										}
+										while (!done);
 									}
-									//Close ResultSet
+									// Close ResultSet
 									toolRS.close();
-									//Add back extra
-									if(extra)
+									// Add back extra
+									if (extra)
 									{
-										ks.getLiteDB().standardQuery(residualToolQuery);
+										ks.getLiteDB().standardQuery(
+												residualToolQuery);
 										player.sendMessage(ChatColor.YELLOW
 												+ prefix
 												+ " Your inventory is completely full...");
 									}
-									//Drop entries
-									for(String s : dropList)
+									// Drop entries
+									for (String s : dropList)
 									{
 										ks.getLiteDB().standardQuery(s);
 									}
@@ -953,14 +1006,15 @@ public class Commander implements CommandExecutor {
 								catch (SQLException e)
 								{
 									// INFO Auto-generated catch block
-									player.sendMessage(ChatColor.RED + prefix
+									player.sendMessage(ChatColor.RED
+											+ prefix
 											+ "Could not retrieve item in pool!");
 									e.printStackTrace();
 								}
 							}
 							else
 							{
-								//Handle non-tools
+								// Handle non-tools
 								// Generate item
 								final ItemStack give = item.toItemStack(amount);
 								HashMap<Integer, ItemStack> residual = player
@@ -996,8 +1050,9 @@ public class Commander implements CommandExecutor {
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE amount='"
-											+ amount + "' AND itemid='" + itemid
-											+ "' AND data='" + data + "';";
+											+ amount + "' AND itemid='"
+											+ itemid + "' AND data='" + data
+											+ "';";
 									ks.getLiteDB().standardQuery(query);
 									// Remove from cache list
 									cache.remove(item);
@@ -1019,17 +1074,18 @@ public class Commander implements CommandExecutor {
 							// Smoke effect
 							this.smokePlayer(player);
 							// Update karma
-							if(!config.karmaDisabled)
+							if (!config.karmaDisabled)
 							{
 								if (hasKarma)
 								{
-									this.updatePlayerKarma(player.getName(), amount
-											* config.karma.get(item) * -1);
+									this.updatePlayerKarma(player.getName(),
+											amount * config.karma.get(item)
+													* -1);
 								}
 								else
 								{
-									this.updatePlayerKarma(player.getName(), amount
-											* config.karmaChange * -1);
+									this.updatePlayerKarma(player.getName(),
+											amount * config.karmaChange * -1);
 								}
 							}
 						}
@@ -1086,7 +1142,8 @@ public class Commander implements CommandExecutor {
 					int quantity = items.getAmount();
 					int data = items.getData().getData();
 					short durability = items.getDurability();
-					final Item item = new Item(itemid, Byte.valueOf("" + data), durability);
+					final Item item = new Item(itemid, Byte.valueOf("" + data),
+							durability);
 					boolean hasEnchantments = false;
 					String query = "";
 					if (item.isTool())
@@ -1118,7 +1175,10 @@ public class Commander implements CommandExecutor {
 									+ quantity
 									+ "','"
 									+ data
-									+ "','" + durability + "','" + sb.toString() + "');";
+									+ "','"
+									+ durability
+									+ "','"
+									+ sb.toString() + "');";
 						}
 					}
 					// Remove item from player inventory
@@ -1130,8 +1190,8 @@ public class Commander implements CommandExecutor {
 					{
 						// Create SQL query to see if item is already in
 						// database
-						query = "SELECT * FROM items WHERE itemid='"
-								+ itemid + "' AND data='" + data + "';";
+						query = "SELECT * FROM items WHERE itemid='" + itemid
+								+ "' AND data='" + data + "';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Send Item to database
@@ -1159,8 +1219,8 @@ public class Commander implements CommandExecutor {
 										+ ","
 										+ quantity
 										+ ","
-										+ data + "," + durability
-										+ ");";
+										+ data
+										+ "," + durability + ");";
 							}
 							rs.close();
 						}
@@ -1172,13 +1232,13 @@ public class Commander implements CommandExecutor {
 							e.printStackTrace();
 						}
 					}
-					else if(item.isPotion())
+					else if (item.isPotion())
 					{
-						//Potion item
+						// Potion item
 						// Create SQL query to see if item is already in
 						// database
-						query = "SELECT * FROM items WHERE itemid='"
-								+ itemid + "' AND durability='" + durability + "';";
+						query = "SELECT * FROM items WHERE itemid='" + itemid
+								+ "' AND durability='" + durability + "';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Send Item to database
@@ -1194,7 +1254,8 @@ public class Commander implements CommandExecutor {
 									int total = quantity + rs.getInt("amount");
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
-											+ "' AND durability='" + durability + "';";
+											+ "' AND durability='" + durability
+											+ "';";
 								}
 								while (rs.next());
 							}
@@ -1206,8 +1267,8 @@ public class Commander implements CommandExecutor {
 										+ ","
 										+ quantity
 										+ ","
-										+ data + "," + durability
-										+ ");";
+										+ data
+										+ "," + durability + ");";
 							}
 							rs.close();
 						}
@@ -1223,24 +1284,24 @@ public class Commander implements CommandExecutor {
 					{
 						ks.getLiteDB().standardQuery(query);
 						player.sendMessage(ChatColor.GREEN + prefix + " Added "
-								+ ChatColor.GOLD + quantity + ChatColor.GREEN +" of "
-								+ ChatColor.AQUA + item.name + ChatColor.GREEN
-								+ " to pool.");
+								+ ChatColor.GOLD + quantity + ChatColor.GREEN
+								+ " of " + ChatColor.AQUA + item.name
+								+ ChatColor.GREEN + " to pool.");
 						// Smoke effect
 						this.smokePlayer(player);
 						// Update karma
-						if(!config.karmaDisabled)
+						if (!config.karmaDisabled)
 						{
 							if (config.statickarma)
 							{
-								this.updatePlayerKarma(player.getName(), quantity
-										* config.karmaChange * -1);
+								this.updatePlayerKarma(player.getName(),
+										quantity * config.karmaChange * -1);
 							}
 							else
 							{
 								// Check if given item has a multiplier
-								Item[] karmaList = config.karma.keySet().toArray(
-										new Item[0]);
+								Item[] karmaList = config.karma.keySet()
+										.toArray(new Item[0]);
 								boolean hasKarma = false;
 								for (Item k : karmaList)
 								{
@@ -1254,16 +1315,20 @@ public class Commander implements CommandExecutor {
 								{
 									try
 									{
-										this.updatePlayerKarma(player.getName(),
-												quantity * config.karma.get(item));
+										this.updatePlayerKarma(
+												player.getName(),
+												quantity
+														* config.karma
+																.get(item));
 									}
 									catch (NullPointerException n)
 									{
 										// Found item, but there is no
 										// config for specific data value
 										// thus adjust using regular means
-										this.updatePlayerKarma(player.getName(),
-												quantity * config.karmaChange);
+										this.updatePlayerKarma(
+												player.getName(), quantity
+														* config.karmaChange);
 									}
 								}
 								else
@@ -1303,7 +1368,7 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void inspectItem(CommandSender sender, String[] args) {
-		//Permission check
+		// Permission check
 		if (perm.checkPermission(sender, "KarmicShare.info"))
 		{
 			// Inspect item in hand
@@ -1317,17 +1382,19 @@ public class Commander implements CommandExecutor {
 				if (itemid != 0)
 				{
 					int quantity = items.getAmount();
-					Item item = new Item(itemid, items.getData().getData(), items.getDurability());
+					Item item = new Item(itemid, items.getData().getData(),
+							items.getDurability());
 					StringBuffer buf = new StringBuffer();
 					buf.append("Info: Name: " + ChatColor.AQUA + item.name
-							+ ChatColor.GREEN + " ID: " + ChatColor.LIGHT_PURPLE
-							+ itemid + ChatColor.GREEN + " Amount:"
-							+ ChatColor.GOLD + quantity + ChatColor.GREEN
-							+ " Data: " + ChatColor.LIGHT_PURPLE + item.getData()
-							+ ChatColor.GREEN + " Damage: " + items.getDurability()
-							+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
-							+ item.isTool());
-					if(!config.karmaDisabled)
+							+ ChatColor.GREEN + " ID: "
+							+ ChatColor.LIGHT_PURPLE + itemid + ChatColor.GREEN
+							+ " Amount:" + ChatColor.GOLD + quantity
+							+ ChatColor.GREEN + " Data: "
+							+ ChatColor.LIGHT_PURPLE + item.getData()
+							+ ChatColor.GREEN + " Damage: "
+							+ items.getDurability() + ChatColor.GREEN
+							+ " Tool: " + ChatColor.GRAY + item.isTool());
+					if (!config.karmaDisabled)
 					{
 						if (config.statickarma)
 						{
@@ -1355,10 +1422,14 @@ public class Commander implements CommandExecutor {
 							{
 								try
 								{
-									buf.append(ChatColor.GREEN + " Multiplier: "
-											+ ChatColor.YELLOW + config.karma.get(item));
-									buf.append(ChatColor.GREEN + " Total Karma: "
-											+ ChatColor.YELLOW + ""
+									buf.append(ChatColor.GREEN
+											+ " Multiplier: "
+											+ ChatColor.YELLOW
+											+ config.karma.get(item));
+									buf.append(ChatColor.GREEN
+											+ " Total Karma: "
+											+ ChatColor.YELLOW
+											+ ""
 											+ (config.karma.get(item) * quantity));
 								}
 								catch (NullPointerException n)
@@ -1366,9 +1437,12 @@ public class Commander implements CommandExecutor {
 									// Found item, but there is no
 									// config for specific data value
 									// thus adjust using regular means
-									buf.append(ChatColor.GREEN + " Multiplier: "
-											+ ChatColor.YELLOW + config.karmaChange);
-									buf.append(ChatColor.GREEN + " Total Karma: "
+									buf.append(ChatColor.GREEN
+											+ " Multiplier: "
+											+ ChatColor.YELLOW
+											+ config.karmaChange);
+									buf.append(ChatColor.GREEN
+											+ " Total Karma: "
 											+ ChatColor.YELLOW + ""
 											+ (config.karmaChange * quantity));
 								}
@@ -1402,7 +1476,8 @@ public class Commander implements CommandExecutor {
 									+ e.getValue().intValue() + ", ");
 						}
 					}
-					player.sendMessage(ChatColor.GREEN + prefix + buf.toString());
+					player.sendMessage(ChatColor.GREEN + prefix
+							+ buf.toString());
 				}
 				else
 				{
@@ -1414,7 +1489,8 @@ public class Commander implements CommandExecutor {
 			else
 			{
 				// Console cannot inspect items
-				sender.sendMessage(prefix + " Cannot use this command as console.");
+				sender.sendMessage(prefix
+						+ " Cannot use this command as console.");
 			}
 		}
 		else
@@ -1437,9 +1513,10 @@ public class Commander implements CommandExecutor {
 		sender.sendMessage(ChatColor.GRAY + "Static karma: "
 				+ config.statickarma);
 		sender.sendMessage(ChatColor.GRAY + "Karma lower-upper limit: "
-				+ config.lower +":" +config.upper);
+				+ config.lower + ":" + config.upper);
 		sender.sendMessage(ChatColor.GRAY + "Karma lower/upper %: "
-				+ config.lowerPercent * 100 + "% /" + config.upperPercent * 100 + "%");
+				+ config.lowerPercent * 100 + "% /" + config.upperPercent * 100
+				+ "%");
 		sender.sendMessage(ChatColor.GRAY + "Default karma: "
 				+ config.playerKarmaDefault);
 		sender.sendMessage(ChatColor.GRAY + "Default karma rate: "
@@ -1640,8 +1717,14 @@ public class Commander implements CommandExecutor {
 						{
 							// Item not in database, therefore add
 							// it
-							query = "INSERT INTO items (itemid,amount,data, durability) VALUES (" + itemid + ","
-									+ amount + "," + data + "," + dur +");";
+							query = "INSERT INTO items (itemid,amount,data, durability) VALUES ("
+									+ itemid
+									+ ","
+									+ amount
+									+ ","
+									+ data
+									+ ","
+									+ dur + ");";
 						}
 						// Needs to be outside of loop for
 						// whatever reason
@@ -1651,7 +1734,8 @@ public class Commander implements CommandExecutor {
 						// than one query.
 						rs.close();
 						ks.getLiteDB().standardQuery(query);
-						Item item = new Item(itemid, Byte.valueOf("" + data), dur);
+						Item item = new Item(itemid, Byte.valueOf("" + data),
+								dur);
 						sender.sendMessage(ChatColor.GREEN + prefix + " Added "
 								+ ChatColor.GOLD + amount + ChatColor.GREEN
 								+ " of " + ChatColor.AQUA + item.name
@@ -1693,7 +1777,7 @@ public class Commander implements CommandExecutor {
 		}
 		else if (com.equals("reset"))
 		{
-			if(!config.karmaDisabled)
+			if (!config.karmaDisabled)
 			{
 				// Check if name was given
 				if (args.length > 2)
@@ -1785,15 +1869,14 @@ public class Commander implements CommandExecutor {
 			}
 			else
 			{
-				//Karma system disabled
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Karma disabled.");
+				// Karma system disabled
+				sender.sendMessage(ChatColor.RED + prefix + " Karma disabled.");
 			}
 			return true;
 		}
 		else if (com.equals("set"))
 		{
-			if(!config.karmaDisabled)
+			if (!config.karmaDisabled)
 			{
 				// Check if name was given
 				if (args.length > 2)
@@ -1842,9 +1925,11 @@ public class Commander implements CommandExecutor {
 									// Player not in database, therefore error
 									// on player part
 									sender.sendMessage(ChatColor.RED + prefix
-											+ " Player " + ChatColor.WHITE + name
-											+ ChatColor.RED + " not in database.");
-									sender.sendMessage(ChatColor.RED + prefix
+											+ " Player " + ChatColor.WHITE
+											+ name + ChatColor.RED
+											+ " not in database.");
+									sender.sendMessage(ChatColor.RED
+											+ prefix
 											+ " Player names are case sensitive.");
 								}
 							}
@@ -1879,8 +1964,8 @@ public class Commander implements CommandExecutor {
 									this.updatePlayerKarma(name,
 											config.playerKarmaDefault);
 								}
-								sender.sendMessage(ChatColor.YELLOW + prefix + " "
-										+ name + "'s karma set");
+								sender.sendMessage(ChatColor.YELLOW + prefix
+										+ " " + name + "'s karma set");
 							}
 							catch (SQLException e)
 							{
@@ -1908,9 +1993,8 @@ public class Commander implements CommandExecutor {
 			}
 			else
 			{
-				//Karma disabled
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Karma disabled.");
+				// Karma disabled
+				sender.sendMessage(ChatColor.RED + prefix + " Karma disabled.");
 			}
 			return true;
 		}
@@ -1940,7 +2024,8 @@ public class Commander implements CommandExecutor {
 				{
 					// update cache with current result set
 					Item i = new Item(itemlist.getInt("itemid"),
-							itemlist.getByte("data"), itemlist.getShort("durability"));
+							itemlist.getByte("data"),
+							itemlist.getShort("durability"));
 					cache.put(i, itemlist.getInt("amount"));
 				}
 				while (itemlist.next());
@@ -1956,7 +2041,7 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void listMultipliers(CommandSender sender, int pageAdjust) {
-		if(!config.karmaDisabled)
+		if (!config.karmaDisabled)
 		{
 			if (!config.statickarma)
 			{
@@ -1997,7 +2082,8 @@ public class Commander implements CommandExecutor {
 						multiPage.put(sender.getName(), 0);
 						valid = false;
 					}
-					else if ((multiPage.get(sender.getName()).intValue()) * limit > array.length)
+					else if ((multiPage.get(sender.getName()).intValue())
+							* limit > array.length)
 					{
 						// They tried to use /ks next at the end of the list
 						sender.sendMessage(ChatColor.YELLOW + prefix
@@ -2020,8 +2106,10 @@ public class Commander implements CommandExecutor {
 								+ ((multiPage.get(sender.getName()).intValue()) + 1)
 								+ " of " + num + ChatColor.BLUE + "===");
 						// list
-						for (int i = ((multiPage.get(sender.getName()).intValue()) * limit); i < ((multiPage
-								.get(sender.getName()).intValue()) * limit) + limit; i++)
+						for (int i = ((multiPage.get(sender.getName())
+								.intValue()) * limit); i < ((multiPage
+								.get(sender.getName()).intValue()) * limit)
+								+ limit; i++)
 						{
 							// Don't try to pull something beyond the bounds
 							if (i < array.length)
@@ -2030,7 +2118,8 @@ public class Commander implements CommandExecutor {
 								String out = ChatColor.WHITE
 										+ "Item: "
 										+ ChatColor.AQUA
-										// Thanks to DiddiZ for id -> material name
+										// Thanks to DiddiZ for id -> material
+										// name
 										// using built-in class
 										+ ((Map.Entry<Item, Integer>) array[i])
 												.getKey().name
@@ -2076,9 +2165,8 @@ public class Commander implements CommandExecutor {
 		}
 		else
 		{
-			//Karma disabled
-			sender.sendMessage(ChatColor.RED + prefix
-					+ " Karma disabled.");
+			// Karma disabled
+			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled.");
 		}
 	}
 
@@ -2091,6 +2179,7 @@ public class Commander implements CommandExecutor {
 	 * @param Integer
 	 *            of the page to change to, if needed. Zero shows current page.
 	 */
+	@SuppressWarnings ("unchecked")
 	private void listPool(CommandSender sender, int pageAdjust) {
 		// Get list of items from database
 		ResultSet itemlist = ks.getLiteDB().select("SELECT * FROM items;");
@@ -2114,11 +2203,11 @@ public class Commander implements CommandExecutor {
 						page.put(sender.getName(), adj);
 					}
 				}
-				//Clear all tool entry amounts to refresh properly
+				// Clear all tool entry amounts to refresh properly
 				Item[] toolClear = cache.keySet().toArray(new Item[0]);
-				for(int i = 0; i < toolClear.length; i++)
+				for (int i = 0; i < toolClear.length; i++)
 				{
-					if(toolClear[i].isTool())
+					if (toolClear[i].isTool())
 					{
 						cache.remove(toolClear[i]);
 					}
@@ -2130,12 +2219,13 @@ public class Commander implements CommandExecutor {
 				{
 					// update cache with current result set
 					Item i = new Item(itemlist.getInt("itemid"),
-							itemlist.getByte("data"), itemlist.getShort("durability"));
-					if(i.isTool())
+							itemlist.getByte("data"),
+							itemlist.getShort("durability"));
+					if (i.isTool())
 					{
-						//add to current amount
+						// add to current amount
 						int itemAmount = itemlist.getInt("amount");
-						if(cache.containsKey(i))
+						if (cache.containsKey(i))
 						{
 							itemAmount += cache.get(i).intValue();
 						}
@@ -2191,30 +2281,37 @@ public class Commander implements CommandExecutor {
 						// Don't try to pull something beyond the bounds
 						if (i < array.length)
 						{
-							@SuppressWarnings ("unchecked")
-							String out = ChatColor.WHITE
-									+ "Item: "
+							StringBuilder sb = new StringBuilder();
+							sb.append(ChatColor.WHITE + "Item: "
 									+ ChatColor.AQUA
 									// Thanks to DiddiZ for id -> material name
 									// using built-in class
 									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().name
-									+ ChatColor.WHITE
+											.getKey().name);
+							sb.append(ChatColor.WHITE
 									+ " Amount: "
 									+ ChatColor.GOLD
 									+ ((Map.Entry<Item, Integer>) array[i])
-											.getValue()
-									+ ChatColor.WHITE
+											.getValue());
+							sb.append(ChatColor.WHITE
 									+ " ID: "
 									+ ChatColor.LIGHT_PURPLE
 									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().itemId()
-									+ ChatColor.WHITE
-									+ " Data: "
-									+ ChatColor.LIGHT_PURPLE
-									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().itemData();
-							sender.sendMessage(out);
+											.getKey().itemId());
+							sb.append(ChatColor.WHITE + " Data: "
+									+ ChatColor.LIGHT_PURPLE);
+							if (((Map.Entry<Item, Integer>) array[i]).getKey()
+									.isPotion())
+							{
+								sb.append(((Map.Entry<Item, Integer>) array[i])
+										.getKey().itemDurability());
+							}
+							else
+							{
+								sb.append(((Map.Entry<Item, Integer>) array[i])
+										.getKey().itemData());
+							}
+							sender.sendMessage(sb.toString());
 						}
 						else
 						{
