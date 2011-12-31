@@ -25,7 +25,6 @@ public class KarmicShare extends JavaPlugin {
 	private PermCheck perm;
 
 	// IDEA max amount of total items in pool?
-	// TODO Enchantments
 	// IDEA Score board on karma?
 	// TODO Mod commands to remove items
 
@@ -49,10 +48,6 @@ public class KarmicShare extends JavaPlugin {
 
 	}
 
-	// TODO implement onLoad() ?
-	// Gets called before enable
-	// DiddiZ has it so that it does SQL and config
-	// As well as self-updater
 	@Override
 	public void onLoad()
 	{
@@ -92,7 +87,7 @@ public class KarmicShare extends JavaPlugin {
 		config.checkUpdate();
 
 		//Create permission handler
-		perm = new PermCheck();
+		perm = new PermCheck(this);
 
 		// Grab Commander to handle commands
 		commander = new Commander(this);

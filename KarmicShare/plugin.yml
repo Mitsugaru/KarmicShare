@@ -11,6 +11,8 @@ description: Command-based item sharing with karma system
 authors:
   - Mitsugaru
 
+softdepend: [Vault, PermissionsEX]
+
 commands:
   ks:
     description: Root command for KarmicShare

@@ -1,8 +1,11 @@
 package com.mitsugaru.KarmicShare;
 
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -16,14 +19,31 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
  *
  */
 public class PermCheck {
+	private Permission perm;
+	private boolean hasVault;
 
 	/**
 	 * Constructor
-	 * May not really be needed. Had thought I needed it
-	 * earlier, but now... meh.
 	 */
-	public PermCheck()
+	public PermCheck(KarmicShare ks)
 	{
+		if(ks.getServer().getPluginManager().getPlugin("Vault") != null)
+		{
+			hasVault = true;
+			RegisteredServiceProvider<Permission> permissionProvider = ks
+				.getServer()
+				.getServicesManager()
+				.getRegistration(net.milkbowl.vault.permission.Permission.class);
+			if (permissionProvider != null)
+			{
+				perm = permissionProvider.getProvider();
+			}
+		}
+		else
+		{
+			hasVault = false;
+		}
+
 	}
 
 	/**
@@ -34,6 +54,10 @@ public class PermCheck {
 	 */
 	public boolean checkPermission(CommandSender sender, String node)
 	{
+		if(hasVault)
+		{
+			return perm.has(sender, node);
+		}
 		if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx"))
 		{
 			//Pex only supports player check, no CommandSender objects
@@ -48,7 +72,7 @@ public class PermCheck {
 				}
 			}
 		}
-		//If not using PEX, OR if sender is not a player
+		//If not using PEX / Vault, OR if sender is not a player (in PEX only case)
 		//Attempt to use SuperPerms
 		if(sender.hasPermission(node))
 		{
