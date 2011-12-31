@@ -18,13 +18,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class KarmicShare extends JavaPlugin {
 	// Class variables
 	private SQLite database;
-	private static Logger syslog;
+	private Logger syslog;
 	private final static String prefix = "[KarmicShare]";
 	private Commander commander;
 	private Config config;
 	private PermCheck perm;
 
-	// IDEA max amount of total items in pool?
 	// IDEA Score board on karma?
 	// TODO Mod commands to remove items
 
@@ -33,9 +32,6 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	@Override
 	public void onDisable() {
-		// TODO IDK of anything else to do :\
-		// maybe clear out memory by setting stuff to null?
-		// dunno how safe that is
 		//Save config
 		this.saveConfig();
 		// Disconnect from sql database? Dunno if necessary
