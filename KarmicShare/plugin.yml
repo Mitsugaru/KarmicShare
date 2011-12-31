@@ -45,7 +45,7 @@ permissions:
         description: Allows user to inspect items
         default: op
     KarmicShare.admin:
-        description: Allows user to take clear item pool
+        description: Allows user to administrate plugin
         default: op
         children:
             KarmicShare.karma.other: true
