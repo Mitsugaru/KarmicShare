@@ -18,7 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class KarmicShare extends JavaPlugin {
 	// Class variables
 	private SQLite database;
-	private Logger syslog;
+	private static Logger syslog;
 	private final static String prefix = "[KarmicShare]";
 	private Commander commander;
 	private Config config;

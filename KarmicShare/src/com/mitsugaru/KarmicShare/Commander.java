@@ -378,6 +378,13 @@ public class Commander implements CommandExecutor {
 			}
 			catch (NumberFormatException e)
 			{
+				//TODO this is where I would catch the item's
+				//partial name. Probably use regex and see if
+				//an item's name in cache matches.
+				//Will need to modify listPool to accept regex
+				//Can't think of a good way to page through this
+				//new list without having a hashmap per custom
+				//cache, and I really don't want to do that :\
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Invalid integer for page number");
 			}
@@ -1228,7 +1235,6 @@ public class Commander implements CommandExecutor {
 					player.sendMessage(ChatColor.RED + prefix
 							+ " Need an item name or id");
 				}
-				// TODO remove highest durability tool first
 			}
 			else
 			{
@@ -1681,7 +1687,6 @@ public class Commander implements CommandExecutor {
 	 * @param sender
 	 *            to display to
 	 */
-	// TODO Expand on commands as necessary
 	private void displayHelp(CommandSender sender) {
 		sender.sendMessage(ChatColor.BLUE + "=====" + ChatColor.RED
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
@@ -1736,9 +1741,6 @@ public class Commander implements CommandExecutor {
 		{
 			if (args.length > 2)
 			{
-				// TODO allow for players to use item name
-				// Might not do, simply because I don't have
-				// a map of all names, only the cache
 				int itemid = 0;
 				int data = 0;
 				short dur = 0;
@@ -1754,8 +1756,6 @@ public class Commander implements CommandExecutor {
 					if (args[2].contains(":"))
 					{
 						// Attempt to parse as itemid:data
-						// TODO parse as strings as well?
-						// Be extra work
 						String[] cut = args[2].split(":");
 						try
 						{
@@ -1775,9 +1775,6 @@ public class Commander implements CommandExecutor {
 					{
 						// They gave a non-integer
 						// Try and parse the string as material
-						// TODO parse names with more than one word
-						// ought to parse until hit parse int success as
-						// amount
 						final Material mat = Material.matchMaterial(args[2]);
 						if (mat == null)
 						{
@@ -1832,8 +1829,6 @@ public class Commander implements CommandExecutor {
 								// one record
 								do
 								{
-									// TODO format initial or other query to include
-									// enchantments
 									int total = amount + rs.getInt("amount");
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
@@ -1885,8 +1880,6 @@ public class Commander implements CommandExecutor {
 								// one record
 								do
 								{
-									// TODO format initial or other query to include
-									// enchantments
 									int total = amount + rs.getInt("amount");
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
@@ -2567,7 +2560,6 @@ public class Commander implements CommandExecutor {
 			{
 				do
 				{
-					// TODO Catch multiple names via count(*) query
 					// Grab player karma value
 					karma = rs.getInt("karma");
 				}
