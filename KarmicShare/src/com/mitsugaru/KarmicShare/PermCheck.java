@@ -73,8 +73,8 @@ public class PermCheck {
 			}
 		}
 		//If not using PEX / Vault, OR if sender is not a player (in PEX only case)
-		//Attempt to use SuperPerms
-		if(sender.hasPermission(node))
+		//Attempt to use SuperPerms or op
+		if(sender.isOp() || sender.hasPermission(node))
 		{
 			return true;
 		}
