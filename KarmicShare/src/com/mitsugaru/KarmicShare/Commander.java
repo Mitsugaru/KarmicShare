@@ -47,7 +47,7 @@ public class Commander implements CommandExecutor {
 	public Commander(KarmicShare karmicShare) {
 		// Instantiate variables
 		ks = karmicShare;
-		prefix = ks.getPluginPrefix();
+		prefix = KarmicShare.prefix;
 		config = ks.getPluginConfig();
 		perm = ks.getPermissionHandler();
 		limit = config.listlimit;

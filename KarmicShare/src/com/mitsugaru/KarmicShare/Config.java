@@ -19,7 +19,7 @@ public class Config {
 	// Class variables
 	private KarmicShare plugin;
 	/* public String url, user, password; */
-	public boolean /* useMySQL, */statickarma, effects, debugTime, karmaDisabled;
+	public boolean /* useMySQL, */statickarma, effects, debugTime, karmaDisabled, chests;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -28,8 +28,7 @@ public class Config {
 
 	// IDEA Ability to change the colors for all parameters
 	// such as item name, amount, data value, id value, enchantment name,
-	// enchantment lvl
-	// page numbers, maybe even header titles
+	// enchantment lvl, page numbers, maybe even header titles
 	/**
 	 * Constructor and initializer
 	 *
@@ -59,6 +58,7 @@ public class Config {
 		defaults.put("karma.disabled", false);
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
+		defaults.put("chests", true);
 		// Insert defaults into config file if they're not present
 		for (final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -86,6 +86,7 @@ public class Config {
 		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
 		karmaChange = config.getInt("karma.changeDefault", 1);
 		effects = config.getBoolean("effects", true);
+		chests = config.getBoolean("chests", true);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
@@ -121,7 +122,7 @@ public class Config {
 						int secondKey = Integer.parseInt(dataValue);
 						int secondValue = sec.getInt(dataValue);
 						karma.put(
-								new Item(key, Byte.parseByte("" + secondKey), (short) 0),
+								new Item(key, Byte.parseByte("" + secondKey), (short) secondKey),
 								secondValue);
 					}
 				}
@@ -138,7 +139,7 @@ public class Config {
 			}
 		}
 		plugin.getLogger().info(
-				plugin.getPluginPrefix() + " Loaded custom karma values");
+				KarmicShare.prefix + " Loaded custom karma values");
 	}
 
 	/**
@@ -153,7 +154,7 @@ public class Config {
 		{
 			// Update to latest version
 			plugin.getLogger().info(
-					plugin.getPluginPrefix() + " Updating to v"
+					KarmicShare.prefix + " Updating to v"
 							+ plugin.getDescription().getVersion());
 			this.update();
 		}
@@ -180,7 +181,6 @@ public class Config {
 			query = "ALTER TABLE items ADD durability TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 		}
-
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
@@ -201,6 +201,7 @@ public class Config {
 		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
 		karmaChange = config.getInt("karma.changeDefault", 1);
 		effects = config.getBoolean("effects", true);
+		chests = config.getBoolean("chests", false);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
@@ -214,7 +215,7 @@ public class Config {
 		}
 		// Check bounds
 		this.boundsCheck();
-		plugin.getLogger().info(plugin.getPluginPrefix() + " Config reloaded");
+		plugin.getLogger().info(KarmicShare.prefix + " Config reloaded");
 	}
 
 	/**
@@ -229,7 +230,7 @@ public class Config {
 			lower = -200;
 			plugin.getLogger()
 					.warning(
-							plugin.getPluginPrefix()
+							KarmicShare.prefix
 									+ " Upper limit is smaller than lower limit. Reverting to defaults.");
 		}
 		//Check that we don't go beyond what the database can handle, via smallint
@@ -239,7 +240,7 @@ public class Config {
 			lower = -200;
 			plugin.getLogger()
 					.warning(
-							plugin.getPluginPrefix()
+							KarmicShare.prefix
 									+ " Upper/lower limit is beyond bounds. Reverting to defaults.");
 		}
 		// Check percentages
@@ -249,7 +250,7 @@ public class Config {
 			lowerPercent = 0.15;
 			plugin.getLogger()
 					.warning(
-							plugin.getPluginPrefix()
+							KarmicShare.prefix
 									+ " Upper %-age is smaller than lower %-age. Reverting to defaults.");
 		}
 		else if (upperPercent > 1.0 || lowerPercent < 0)
@@ -258,7 +259,7 @@ public class Config {
 			lowerPercent = 0.15;
 			plugin.getLogger()
 					.warning(
-							plugin.getPluginPrefix()
+							KarmicShare.prefix
 									+ " Upper %-age and/or lower %-age are beyond bounds. Reverting to defaults.");
 		}
 		// Check that the default karma is actually in range.
@@ -268,7 +269,7 @@ public class Config {
 			playerKarmaDefault = upper - ((lower + upper) / 2);
 			plugin.getLogger()
 					.warning(
-							plugin.getPluginPrefix()
+							KarmicShare.prefix
 									+ " Player karma default is out of range. Using average of the two.");
 		}
 		// Check that default karma change is not negative.
@@ -277,7 +278,7 @@ public class Config {
 			karmaChange = 1;
 			plugin.getLogger()
 					.warning(
-							plugin.getPluginPrefix()
+							KarmicShare.prefix
 									+ " Default karma rate is negative. Using default.");
 		}
 		// Check that list is actually going to output something, based on limit
@@ -286,7 +287,7 @@ public class Config {
 		{
 			listlimit = 10;
 			plugin.getLogger().warning(
-					plugin.getPluginPrefix()
+					KarmicShare.prefix
 							+ " List limit is lower than 1. Using default.");
 		}
 	}
@@ -346,7 +347,7 @@ public class Config {
 			{
 				// INFO Auto-generated catch block
 				plugin.getLogger().warning(
-						plugin.getPluginPrefix()
+						KarmicShare.prefix
 								+ " File I/O Exception on saving karma list");
 				e1.printStackTrace();
 			}

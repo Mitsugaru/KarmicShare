@@ -13,13 +13,16 @@ import java.util.logging.Logger;
 
 import lib.PatPeter.SQLibrary.SQLite;
 
+import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class KarmicShare extends JavaPlugin {
 	// Class variables
 	private SQLite database;
 	private Logger syslog;
-	private final static String prefix = "[KarmicShare]";
+	public static final String prefix = "[KarmicShare]";
 	private Commander commander;
 	private Config config;
 	private PermCheck perm;
@@ -89,6 +92,25 @@ public class KarmicShare extends JavaPlugin {
 		commander = new Commander(this);
 		getCommand("ks").setExecutor(commander);
 
+		//Grab plugin manager
+		final PluginManager pm = this.getServer().getPluginManager();
+
+		if (pm.isPluginEnabled("Spout"))
+		{
+			KSBlockListener blockListener = new KSBlockListener(this);
+			KSInventoryListener invListener = new KSInventoryListener(this);
+			KSPlayerListener playerListener = new KSPlayerListener(this);
+			pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
+			pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Normal, this);
+			pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
+			pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
+			pm.registerEvent(Event.Type.CUSTOM_EVENT, invListener, Priority.Normal, this);
+			pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Monitor, this);
+		}
+		else
+		{
+			syslog.warning(prefix + " Spout not found. Cannot use physical chests.");
+		}
 		syslog.info(prefix + " KarmicShare v" + this.getDescription().getVersion() + " enabled");
 	}
 
@@ -104,15 +126,6 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	public Logger getLogger() {
 		return syslog;
-	}
-
-	/**
-	 * Returns the plugin's prefix
-	 *
-	 * @return String of plugin prefix
-	 */
-	public String getPluginPrefix() {
-		return prefix;
 	}
 
 	/**
