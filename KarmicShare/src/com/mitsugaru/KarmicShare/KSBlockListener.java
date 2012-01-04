@@ -160,36 +160,36 @@ public class KSBlockListener extends BlockListener {
 								ChatColor.GREEN + KarmicShare.prefix
 										+ " Chest linked to pool.");
 					}
-					else if (chest.isDoubleChest())
+				}
+				else if (chest.isDoubleChest())
+				{
+					if (chest.attachedBlock().getRelative(BlockFace.UP)
+							.getType().equals(Material.WALL_SIGN))
 					{
-						if (chest.attachedBlock().getRelative(BlockFace.UP)
-								.getType().equals(Material.WALL_SIGN))
+						boolean exists = false;
+						final Sign sign = (Sign) chest.attachedBlock()
+								.getRelative(BlockFace.UP).getState();
+						for (String s : sign.getLines())
 						{
-							boolean exists = false;
-							sign = (Sign) chest.attachedBlock()
-									.getRelative(BlockFace.UP).getState();
-							for (String s : sign.getLines())
+							if (ChatColor.stripColor(s).equalsIgnoreCase(
+									"[KarmicShare]"))
 							{
-								if (ChatColor.stripColor(s).equalsIgnoreCase(
-										"[KarmicShare]"))
-								{
-									// Sign already exists
-									exists = true;
-								}
+								// Sign already exists
+								exists = true;
 							}
-							if (!exists)
-							{
-								// Reformat sign
-								sign.setLine(0, "");
-								sign.setLine(1, ChatColor.AQUA
-										+ "[KarmicShare]");
-								sign.setLine(2, "Page:");
-								sign.setLine(3, "1");
-								sign.update();
-								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.prefix
-												+ " Chest linked to pool.");
-							}
+						}
+						if (exists)
+						{
+							// Reformat sign
+							sign.setLine(0, "");
+							sign.setLine(1, ChatColor.AQUA
+									+ "[KarmicShare]");
+							sign.setLine(2, "Page:");
+							sign.setLine(3, "1");
+							sign.update();
+							event.getPlayer().sendMessage(
+									ChatColor.GREEN + KarmicShare.prefix
+											+ " Chest linked to pool.");
 						}
 					}
 				}
