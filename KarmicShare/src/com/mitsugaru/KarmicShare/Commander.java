@@ -1277,7 +1277,7 @@ public class Commander implements CommandExecutor {
 						// Is a tool, check for enchantments
 						Map<Enchantment, Integer> enchantments = items
 								.getEnchantments();
-						if (!items.getEnchantments().isEmpty())
+						if (!enchantments.isEmpty())
 						{
 							// Tool has enchantments
 							hasEnchantments = true;
@@ -1422,7 +1422,7 @@ public class Commander implements CommandExecutor {
 							if (config.statickarma)
 							{
 								this.updatePlayerKarma(player.getName(),
-										quantity * config.karmaChange * -1);
+										quantity * config.karmaChange);
 							}
 							else
 							{
@@ -2553,6 +2553,7 @@ public class Commander implements CommandExecutor {
 		String query = "SELECT * FROM players WHERE playername='" + name + "';";
 		ResultSet rs = ks.getLiteDB().select(query);
 		int karma = config.playerKarmaDefault;
+		boolean has = false;
 		// Retrieve karma from database
 		try
 		{
@@ -2562,17 +2563,18 @@ public class Commander implements CommandExecutor {
 				{
 					// Grab player karma value
 					karma = rs.getInt("karma");
+					has = true;
 				}
 				while (rs.next());
 			}
-			else
+			rs.close();
+			if(!has)
 			{
 				// Player not in database, therefore add them
 				query = "INSERT INTO players VALUES ('" + name + "','" + karma
 						+ "');";
 				ks.getLiteDB().standardQuery(query);
 			}
-			rs.close();
 		}
 		catch (SQLException e)
 		{
@@ -2665,5 +2667,10 @@ public class Commander implements CommandExecutor {
 				return (ChatColor.YELLOW + prefix + " Karma: " + karma);
 			}
 		}
+	}
+
+	public Map<Item, Integer> getCache()
+	{
+		return cache;
 	}
 }

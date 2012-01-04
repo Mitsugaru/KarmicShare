@@ -36,22 +36,38 @@ public class KSPlayerListener extends PlayerListener {
 			//TODO update?
 			if(block.getType().equals(Material.CHEST))
 			{
-				plugin.getLogger().info("Right Click Chest");
 				if(block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
 				{
 					Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
 					if(ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase("[KarmicShare]"))
 					{
-						BetterChest chest = new BetterChest((Chest) block.getState());
-						if(chest.isDoubleChest())
+						if (plugin.getPermissionHandler().checkPermission(
+								event.getPlayer(), "KarmicShare.chest"))
 						{
-							BetterChest adj = new BetterChest((Chest) chest.attached());
-							chest = adj;
+							BetterChest chest = new BetterChest((Chest) block.getState());
+							if(chest.isDoubleChest())
+							{
+								BetterChest adj = new BetterChest((Chest) chest.attached());
+								chest = adj;
+							}
+							chest.getInventory().clear();
+							chest.update();
+							if(plugin.getPluginConfig().chests)
+							{
+								populateChest(chest.getInventory());
+								chest.update();
+							}
 						}
-						chest.getInventory().clear();
-						chest.update();
-						populateChest(chest.getInventory());
-						chest.update();
+						else
+						{
+							plugin.getLogger().info("Player does not have permission");
+							event.getPlayer()
+									.sendMessage(
+											ChatColor.RED
+													+ KarmicShare.prefix
+													+ " Lack permission: KarmicShare.chest");
+							event.setCancelled(true);
+						}
 					}
 				}
 				else
@@ -67,12 +83,29 @@ public class KSPlayerListener extends PlayerListener {
 								Sign sign = (Sign) adjBlock.getRelative(BlockFace.UP).getState();
 								if(ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase("[KarmicShare]"))
 								{
+									if (plugin.getPermissionHandler().checkPermission(
+											event.getPlayer(), "KarmicShare.chest"))
+									{
 									//populate chests
 									BetterChest chest = new BetterChest((Chest) block.getState());
 									chest.getInventory().clear();
 									chest.update();
-									populateChest(chest.getInventory());
-									chest.update();
+									if(plugin.getPluginConfig().chests)
+									{
+										populateChest(chest.getInventory());
+										chest.update();
+									}
+									}
+									else
+									{
+										plugin.getLogger().info("Player does not have permission");
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Lack permission: KarmicShare.chest");
+										event.setCancelled(true);
+									}
 								}
 							}
 						}
@@ -93,8 +126,22 @@ public class KSPlayerListener extends PlayerListener {
 					Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
 					if(ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase("[KarmicShare]"))
 					{
+						if (plugin.getPermissionHandler().checkPermission(
+								event.getPlayer(), "KarmicShare.chest"))
+						{
 						//TODO cycle
 						//TODO update sign to proper page
+						}
+						else
+						{
+							plugin.getLogger().info("Player does not have permission");
+							event.getPlayer()
+									.sendMessage(
+											ChatColor.RED
+													+ KarmicShare.prefix
+													+ " Lack permission: KarmicShare.chest");
+							event.setCancelled(true);
+						}
 					}
 				}
 				else
@@ -110,8 +157,22 @@ public class KSPlayerListener extends PlayerListener {
 								Sign sign = (Sign) adjBlock.getRelative(BlockFace.UP).getState();
 								if(ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase("[KarmicShare]"))
 								{
+									if (plugin.getPermissionHandler().checkPermission(
+											event.getPlayer(), "KarmicShare.chest"))
+									{
 									//TODO cycle
 									//TODO update sign to proper page
+									}
+									else
+									{
+										plugin.getLogger().info("Player does not have permission");
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Lack permission: KarmicShare.chest");
+										event.setCancelled(true);
+									}
 								}
 							}
 						}

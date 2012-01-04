@@ -27,6 +27,8 @@ permissions:
             KarmicShare.take: true
             KarmicShare.admin: true
             KarmicShare.info: true
+            KarmicShare.sign: true
+            KarmicShare.chest: true
             KarmicShare.karma.other: true
         default: op
     KarmicShare.karma:
@@ -43,6 +45,12 @@ permissions:
         default: op
     KarmicShare.info:
         description: Allows user to inspect items
+        default: op
+    KarmicShare.chest:
+        description: Allows user to use the chests
+        default: op
+    KarmicShare.sign:
+        description: Allows user to make/destroy associated signs for chests
         default: op
     KarmicShare.admin:
         description: Allows user to administrate plugin

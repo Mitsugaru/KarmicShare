@@ -35,7 +35,7 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	@Override
 	public void onDisable() {
-		//Save config
+		// Save config
 		this.saveConfig();
 		// Disconnect from sql database? Dunno if necessary
 		if (database.checkConnection())
@@ -48,8 +48,7 @@ public class KarmicShare extends JavaPlugin {
 	}
 
 	@Override
-	public void onLoad()
-	{
+	public void onLoad() {
 		// Logger
 		syslog = this.getServer().getLogger();
 		// Config
@@ -82,40 +81,57 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	@Override
 	public void onEnable() {
-		//Config update
+		// Config update
 		config.checkUpdate();
 
-		//Create permission handler
+		// Create permission handler
 		perm = new PermCheck(this);
 
 		// Grab Commander to handle commands
 		commander = new Commander(this);
 		getCommand("ks").setExecutor(commander);
 
-		//Grab plugin manager
+		// Grab plugin manager
 		final PluginManager pm = this.getServer().getPluginManager();
 
-		if (pm.isPluginEnabled("Spout"))
+		//Generate listeners
+		KSBlockListener blockListener = new KSBlockListener(this);
+		KSPlayerListener playerListener = new KSPlayerListener(this);
+		pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener,
+				Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener,
+				Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener,
+				Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener,
+				Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener,
+				Priority.Normal, this);
+		if (config.chests)
 		{
-			KSBlockListener blockListener = new KSBlockListener(this);
-			KSInventoryListener invListener = new KSInventoryListener(this);
-			KSPlayerListener playerListener = new KSPlayerListener(this);
-			pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
-			pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Normal, this);
-			pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Normal, this);
-			pm.registerEvent(Event.Type.CUSTOM_EVENT, invListener, Priority.Normal, this);
-			pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Monitor, this);
+			//Check for Spout plugin
+			if (pm.isPluginEnabled("Spout"))
+			{
+				KSInventoryListener invListener = new KSInventoryListener(this);
+				pm.registerEvent(Event.Type.CUSTOM_EVENT, invListener,
+						Priority.Normal, this);
+			}
+			else
+			{
+				syslog.warning(prefix
+						+ " Spout not found. Cannot use physical chests.");
+			}
 		}
-		else
-		{
-			syslog.warning(prefix + " Spout not found. Cannot use physical chests.");
-		}
-		syslog.info(prefix + " KarmicShare v" + this.getDescription().getVersion() + " enabled");
+		syslog.info(prefix + " KarmicShare v"
+				+ this.getDescription().getVersion() + " enabled");
 	}
 
-	public PermCheck getPermissionHandler()
+	public Commander getCommander()
 	{
+		return commander;
+	}
+
+	public PermCheck getPermissionHandler() {
 		return perm;
 	}
 
@@ -129,9 +145,9 @@ public class KarmicShare extends JavaPlugin {
 	}
 
 	/**
-	 *  Returns SQLite database
+	 * Returns SQLite database
 	 *
-	 *  @return SQLite database
+	 * @return SQLite database
 	 */
 	public SQLite getLiteDB() {
 		return database;
