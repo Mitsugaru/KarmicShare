@@ -121,9 +121,18 @@ public class Config {
 					{
 						int secondKey = Integer.parseInt(dataValue);
 						int secondValue = sec.getInt(dataValue);
-						karma.put(
-								new Item(key, Byte.parseByte("" + secondKey), (short) secondKey),
-								secondValue);
+						if(key!=373)
+						{
+							karma.put(
+									new Item(key, Byte.parseByte("" + secondKey), (short) secondKey),
+									secondValue);
+						}
+						else
+						{
+							karma.put(
+									new Item(key, Byte.parseByte("" + 0), (short) secondKey),
+									secondValue);
+						}
 					}
 				}
 				else
