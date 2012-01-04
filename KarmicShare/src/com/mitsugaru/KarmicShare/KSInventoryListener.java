@@ -430,7 +430,7 @@ public class KSInventoryListener extends InventoryListener {
 		}
 		else
 		{
-			// Not a tool
+			// Not a tool or potion
 			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
 					+ "' AND data='" + item.getData().getData() + "';";
 			ResultSet rs = plugin.getLiteDB().select(query);
@@ -730,7 +730,7 @@ public class KSInventoryListener extends InventoryListener {
 								toolQuery = "SELECT * FROM items WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
-										+ item.getData()
+										+ item.getData().getData()
 										+ "' AND enchantments='"
 										+ sb.toString() + "';";
 								ResultSet toolRS = plugin.getLiteDB().select(
@@ -740,24 +740,24 @@ public class KSInventoryListener extends InventoryListener {
 									if (amount == toolRS.getInt("amount"))
 									{
 										// DROP
-										query = "DELETE FROM items WHERE itemid='"
+										toolQuery = "DELETE FROM items WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND amount='"
 												+ amount
 												+ "' AND data='"
-												+ toolRS.getShort("data")
+												+ item.getData().getData()
 												+ "' AND enchantments='"
 												+ sb.toString() + "';";
 									}
 									else
 									{
 										// UPDATE
-										query = "UPDATE items SET amount='"
+										toolQuery = "UPDATE items SET amount='"
 												+ (toolRS.getInt("amount") - amount)
 												+ "' WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND data='"
-												+ toolRS.getShort("data")
+												+ item.getData().getData()
 												+ "' AND enchantments='"
 												+ sb.toString() + "';";
 									}
@@ -770,7 +770,7 @@ public class KSInventoryListener extends InventoryListener {
 								toolQuery = "SELECT * FROM items WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
-										+ item.getData() + "';";
+										+ item.getData().getData() + "';";
 								ResultSet toolRS = plugin.getLiteDB().select(
 										toolQuery);
 								if (toolRS.next())
@@ -778,29 +778,29 @@ public class KSInventoryListener extends InventoryListener {
 									if (amount == toolRS.getInt("amount"))
 									{
 										// DROP
-										query = "DELETE FROM items WHERE itemid='"
+										toolQuery = "DELETE FROM items WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND amount='"
 												+ amount
 												+ "' AND data='"
-												+ toolRS.getShort("data")
+												+ item.getData().getData()
 												+ "';";
 									}
 									else
 									{
 										// UPDATE
-										query = "UPDATE items SET amount='"
+										toolQuery = "UPDATE items SET amount='"
 												+ (toolRS.getInt("amount") - amount)
 												+ "' WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND data='"
-												+ toolRS.getShort("data")
+												+ item.getData().getData()
 												+ "';";
 									}
 								}
 								toolRS.close();
 							}
-							plugin.getLiteDB().standardQuery(query);
+							plugin.getLiteDB().standardQuery(toolQuery);
 						}
 						catch (SQLException e)
 						{
