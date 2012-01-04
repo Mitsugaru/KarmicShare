@@ -167,6 +167,7 @@ public class Item extends MaterialData {
 		}
 		else if (i == 373)
 		{
+			this.setData(Byte.valueOf("" + 0));
 			// Handle potions based on durability
 			switch (durability)
 			{
