@@ -22,7 +22,6 @@ import com.splatbang.betterchest.BetterChest;
 public class KSPlayerListener extends PlayerListener {
 	private KarmicShare plugin;
 	private static final BlockFace[] nav = {BlockFace.NORTH,BlockFace.SOUTH,BlockFace.EAST,BlockFace.WEST};
-	//TODO cache
 
 	public KSPlayerListener(KarmicShare karmicShare) {
 		plugin = karmicShare;

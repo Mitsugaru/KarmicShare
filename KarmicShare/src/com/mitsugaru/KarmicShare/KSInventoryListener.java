@@ -83,77 +83,16 @@ public class KSInventoryListener extends InventoryListener {
 					}
 					if (kschest)
 					{
-						if (event.isShiftClick())
+						if (event.isLeftClick())
 						{
-							// We don't care about the cursor as it doesn't
-							// get changed on a shift click
-							if (event.getItem() != null)
+							if (event.isShiftClick())
 							{
-								if (fromChest)
+								// We don't care about the cursor as it doesn't
+								// get changed on a shift click
+								if (event.getItem() != null)
 								{
-									if (takeItem(event.getPlayer(),
-											event.getItem()))
+									if (fromChest)
 									{
-										event.setResult(Event.Result.ALLOW);
-									}
-									else
-									{
-										event.setResult(Event.Result.DENY);
-										event.setCancelled(true);
-									}
-								}
-								else
-								{
-
-									if (giveItem(event.getPlayer(),
-											event.getItem()))
-									{
-										if (chest.getInventory().firstEmpty() == -1)
-										{
-											event.setResult(Event.Result.ALLOW);
-											// Handle if inventory is full
-											event.setItem(null);
-										}
-									}
-									else
-									{
-										event.setResult(Event.Result.DENY);
-										event.setCancelled(true);
-									}
-								}
-							}
-						}
-						else
-						{
-							if (event.getItem() != null
-									&& event.getCursor() != null)
-							{
-
-								if (event.getItem().getType()
-										.equals(event.getCursor().getType()))
-								{
-									if (giveItem(event.getPlayer(),
-											event.getCursor()))
-									{
-										event.setResult(Event.Result.ALLOW);
-									}
-									else
-									{
-										event.setResult(Event.Result.DENY);
-										event.setCancelled(true);
-									}
-								}
-								else
-								{
-									// When switching, put item first, then
-									// attempt to take item
-									plugin.getLogger().info(
-											event.getCursor().toString());
-									if (giveItem(event.getPlayer(),
-											event.getCursor()))
-									{
-										plugin.getLogger().info(
-												event.getItem().toString());
 										if (takeItem(event.getPlayer(),
 												event.getItem()))
 										{
@@ -167,40 +106,115 @@ public class KSInventoryListener extends InventoryListener {
 									}
 									else
 									{
+
+										if (giveItem(event.getPlayer(),
+												event.getItem()))
+										{
+											if (chest.getInventory()
+													.firstEmpty() == -1)
+											{
+												event.setResult(Event.Result.ALLOW);
+												// Handle if inventory is full
+												event.setItem(null);
+											}
+										}
+										else
+										{
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									}
+								}
+							}
+							else
+							{
+								if (event.getItem() != null
+										&& event.getCursor() != null)
+								{
+
+									if (event
+											.getItem()
+											.getType()
+											.equals(event.getCursor().getType()))
+									{
+										if (giveItem(event.getPlayer(),
+												event.getCursor()))
+										{
+											event.setResult(Event.Result.ALLOW);
+										}
+										else
+										{
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									}
+									else
+									{
+										// When switching, put item first, then
+										// attempt to take item
+										plugin.getLogger().info(
+												event.getCursor().toString());
+										if (giveItem(event.getPlayer(),
+												event.getCursor()))
+										{
+											plugin.getLogger().info(
+													event.getItem().toString());
+											if (takeItem(event.getPlayer(),
+													event.getItem()))
+											{
+												event.setResult(Event.Result.ALLOW);
+											}
+											else
+											{
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+										else
+										{
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									}
+								}
+								else if (event.getItem() != null)
+								{
+									if (takeItem(event.getPlayer(),
+											event.getItem()))
+									{
+										event.setResult(Event.Result.ALLOW);
+									}
+									else
+									{
+										event.setResult(Event.Result.DENY);
+										event.setCancelled(true);
+									}
+								}
+								else if (event.getCursor() != null)
+								{
+
+									// they clicked on an item in chest
+									if (giveItem(event.getPlayer(),
+											event.getCursor()))
+									{
+										event.setResult(Event.Result.ALLOW);
+									}
+									else
+									{
 										event.setResult(Event.Result.DENY);
 										event.setCancelled(true);
 									}
 								}
 							}
-							else if (event.getItem() != null)
-							{
-								if (takeItem(event.getPlayer(), event.getItem()))
-								{
-									event.setResult(Event.Result.ALLOW);
-								}
-								else
-								{
-									event.setResult(Event.Result.DENY);
-									event.setCancelled(true);
-								}
-							}
-							else if (event.getCursor() != null)
-							{
-
-								// they clicked on an item in chest
-								if (giveItem(event.getPlayer(),
-										event.getCursor()))
-								{
-									event.setResult(Event.Result.ALLOW);
-								}
-								else
-								{
-									event.setResult(Event.Result.DENY);
-									event.setCancelled(true);
-								}
-							}
+							// TODO repopulate
 						}
-						// TODO repopulate
+						else
+						{
+							event.getPlayer().sendMessage(ChatColor.RED + KarmicShare.prefix
+									+ " Not allowed to right-click in chest");
+							event.setResult(Event.Result.DENY);
+							event.setCancelled(true);
+						}
 					}
 				}
 			}
@@ -1034,10 +1048,10 @@ public class KSInventoryListener extends InventoryListener {
 			{
 				if (plugin.getCommander().getCache().containsKey(i))
 				{
-					int cacheAmount = plugin.getCommander().getCache()
-							.get(i).intValue();
-						plugin.getCommander().getCache()
-								.put(i, (cacheAmount + item.getAmount()));
+					int cacheAmount = plugin.getCommander().getCache().get(i)
+							.intValue();
+					plugin.getCommander().getCache()
+							.put(i, (cacheAmount + item.getAmount()));
 				}
 				else
 				{
