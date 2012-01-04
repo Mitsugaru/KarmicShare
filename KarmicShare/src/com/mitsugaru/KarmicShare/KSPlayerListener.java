@@ -57,8 +57,21 @@ public class KSPlayerListener extends PlayerListener {
 							chest.update();
 							if (plugin.getPluginConfig().chests)
 							{
-								populateChest(chest.getInventory());
-								chest.update();
+								int page = 1;
+								try
+								{
+									page = Integer.parseInt(sign.getLine(3));
+									populateChest(chest.getInventory(), page, chest.isDoubleChest());
+									chest.update();
+								}
+								catch(NumberFormatException n)
+								{
+									event.getPlayer()
+									.sendMessage(
+											ChatColor.RED
+													+ KarmicShare.prefix
+													+ " Sign has wrong formatting. Remake sign.");
+								}
 							}
 						}
 						else
@@ -100,8 +113,21 @@ public class KSPlayerListener extends PlayerListener {
 										chest.update();
 										if (plugin.getPluginConfig().chests)
 										{
-											populateChest(chest.getInventory());
-											chest.update();
+											int page = 1;
+											try
+											{
+												page = Integer.parseInt(sign.getLine(3));
+												populateChest(chest.getInventory(), page, chest.isDoubleChest());
+												chest.update();
+											}
+											catch(NumberFormatException n)
+											{
+												event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+											}
 										}
 									}
 									else
@@ -144,8 +170,7 @@ public class KSPlayerListener extends PlayerListener {
 								{
 									int page = grabNextPage(
 											Integer.parseInt(""
-													+ sign.getLine(3)),
-											54);
+													+ sign.getLine(3)), 54);
 									sign.setLine(3, "" + page);
 									sign.update();
 								}
@@ -164,8 +189,7 @@ public class KSPlayerListener extends PlayerListener {
 								{
 									int page = grabNextPage(
 											Integer.parseInt(""
-													+ sign.getLine(3)),
-											27);
+													+ sign.getLine(3)), 27);
 									sign.setLine(3, "" + page);
 									sign.update();
 								}
@@ -178,7 +202,7 @@ public class KSPlayerListener extends PlayerListener {
 															+ " Sign has wrong formatting. Remake sign.");
 								}
 							}
-							//TODO clear + repopulate
+							// TODO clear + repopulate
 						}
 						else
 						{
@@ -254,7 +278,7 @@ public class KSPlayerListener extends PlayerListener {
 																		+ " Sign has wrong formatting. Remake sign.");
 											}
 										}
-										//TODO clear + repopulate
+										// TODO clear + repopulate
 									}
 									else
 									{
@@ -277,7 +301,8 @@ public class KSPlayerListener extends PlayerListener {
 	private int grabNextPage(int current, int limit) {
 		int page = 1;
 		// Grab total items
-		ResultSet count = plugin.getLiteDB().select("SELECT COUNT(*) FROM items;");
+		ResultSet count = plugin.getLiteDB().select(
+				"SELECT COUNT(*) FROM items;");
 		try
 		{
 			if (count.next())
@@ -322,9 +347,16 @@ public class KSPlayerListener extends PlayerListener {
 		return page;
 	}
 
-	private void populateChest(Inventory inventory) {
+	private void populateChest(Inventory inventory, int page, boolean isDouble) {
 		try
 		{
+			int count = 0;
+			int limit = 27;
+			if (isDouble)
+			{
+				limit = 54;
+			}
+			int start = (page - 1) * limit;
 			ResultSet itemList = plugin.getLiteDB().select(
 					"SELECT * FROM items;");
 			if (itemList.next())
@@ -332,42 +364,47 @@ public class KSPlayerListener extends PlayerListener {
 				boolean done = false;
 				do
 				{
-					// Generate item
-					int id = itemList.getInt("itemid");
-					byte data = itemList.getByte("data");
-					short dur = itemList.getShort("durability");
-					ItemStack item = new ItemStack(id, 1, dur, data);
-					Item meta = new Item(id, data, dur);
-					// If tool
-					if (meta.isTool())
+					if (count >= start)
 					{
-						// Check for enchantments
-						String enchantments = itemList
-								.getString("enchantments");
-						if (!itemList.wasNull())
+						// Generate item
+						int id = itemList.getInt("itemid");
+						byte data = itemList.getByte("data");
+						short dur = itemList.getShort("durability");
+						ItemStack item = new ItemStack(id, 1, dur, data);
+						Item meta = new Item(id, data, dur);
+						// If tool
+						if (meta.isTool())
 						{
-							String[] cut = enchantments.split("i");
-							for (int i = 0; i < cut.length; i++)
+							// Check for enchantments
+							String enchantments = itemList
+									.getString("enchantments");
+							if (!itemList.wasNull())
 							{
-								String[] cutter = cut[i].split("v");
-								EnchantmentWrapper e = new EnchantmentWrapper(
-										Integer.parseInt(cutter[0]));
-								item.addUnsafeEnchantment(e.getEnchantment(),
-										Integer.parseInt(cutter[1]));
+								String[] cut = enchantments.split("i");
+								for (int i = 0; i < cut.length; i++)
+								{
+									String[] cutter = cut[i].split("v");
+									EnchantmentWrapper e = new EnchantmentWrapper(
+											Integer.parseInt(cutter[0]));
+									item.addUnsafeEnchantment(
+											e.getEnchantment(),
+											Integer.parseInt(cutter[1]));
+								}
 							}
 						}
+						if (meta.isPotion())
+						{
+							// Remove data for full potion compatibility
+							item = new ItemStack(id, 1, dur);
+						}
+						HashMap<Integer, ItemStack> residual = inventory
+								.addItem(item);
+						if (!residual.isEmpty())
+						{
+							done = true;
+						}
 					}
-					if (meta.isPotion())
-					{
-						// Remove data for full potion compatibility
-						item = new ItemStack(id, 1, dur);
-					}
-					HashMap<Integer, ItemStack> residual = inventory
-							.addItem(item);
-					if (!residual.isEmpty())
-					{
-						done = true;
-					}
+					count++;
 				}
 				while (itemList.next() && !done);
 			}

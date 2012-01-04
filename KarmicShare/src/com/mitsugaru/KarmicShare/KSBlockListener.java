@@ -49,6 +49,9 @@ public class KSBlockListener extends BlockListener {
 							event.setLine(1, ChatColor.AQUA + "[KarmicShare]");
 							event.setLine(2, "Page:");
 							event.setLine(3, "1");
+							event.getPlayer().sendMessage(
+									ChatColor.GREEN + KarmicShare.prefix
+											+ " Chest linked to pool.");
 						}
 						else
 						{
@@ -110,6 +113,9 @@ public class KSBlockListener extends BlockListener {
 						sign.setLine(2, "Page:");
 						sign.setLine(3, "1");
 						sign.update();
+						event.getPlayer().sendMessage(
+								ChatColor.GREEN + KarmicShare.prefix
+										+ " Chest linked to pool.");
 					}
 				}
 			}
@@ -131,6 +137,9 @@ public class KSBlockListener extends BlockListener {
 							sign.setLine(2, "Page:");
 							sign.setLine(3, "1");
 							sign.update();
+							event.getPlayer().sendMessage(
+									ChatColor.GREEN + KarmicShare.prefix
+											+ " Chest linked to pool.");
 						}
 					}
 				}
@@ -163,6 +172,9 @@ public class KSBlockListener extends BlockListener {
 						// Update sign
 						sign.setLine(1, ChatColor.DARK_RED + "[KarmicShare]");
 						sign.update();
+						event.getPlayer().sendMessage(
+								ChatColor.YELLOW + KarmicShare.prefix
+										+ " Chest unlinked from pool.");
 					}
 				}
 				else if (chest.isDoubleChest())
@@ -196,6 +208,9 @@ public class KSBlockListener extends BlockListener {
 								.getRelative(BlockFace.DOWN).getState());
 						chest.getInventory().clear();
 						chest.update();
+						event.getPlayer().sendMessage(
+								ChatColor.YELLOW + KarmicShare.prefix
+										+ " Chest unlinked from pool.");
 					}
 					else
 					{
