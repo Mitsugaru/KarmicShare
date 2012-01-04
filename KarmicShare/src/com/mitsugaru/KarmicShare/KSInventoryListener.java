@@ -960,7 +960,6 @@ public class KSInventoryListener extends InventoryListener {
 			final Item i = new Item(item.getTypeId(), item.getData().getData(),
 					item.getDurability());
 			// Check if its a tool
-			boolean hasEnchantments = false;
 			String query = "";
 			if (i.isTool())
 			{
@@ -969,7 +968,6 @@ public class KSInventoryListener extends InventoryListener {
 				if (!enchantments.isEmpty())
 				{
 					// Tool has enchantments
-					hasEnchantments = true;
 					StringBuilder sb = new StringBuilder();
 					for (Map.Entry<Enchantment, Integer> e : enchantments
 							.entrySet())
@@ -992,6 +990,57 @@ public class KSInventoryListener extends InventoryListener {
 							+ sb.toString()
 							+ "');";
 					plugin.getLiteDB().standardQuery(query);
+				}
+				else
+				{
+					// Normal tool
+					// Create SQL query to see if item is already in
+					// database
+					query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+							+ "' AND data='" + item.getData().getData() + "';";
+					ResultSet rs = plugin.getLiteDB().select(query);
+
+					// Send Item to database
+					try
+					{
+						if (rs.next())
+						{
+							do
+							{
+								// For tools, look up for similar
+								// durability. Add amount that way
+								// if it exists
+								int total = item.getAmount() + rs.getInt("amount");
+								query = "UPDATE items SET amount='" + total
+										+ "' WHERE itemid='" + item.getTypeId()
+										+ "' AND data='" + item.getData().getData()
+										+ "';";
+							}
+							while (rs.next());
+						}
+						else
+						{
+							// Item not in database, therefore add it
+							query = "INSERT INTO items (itemid,amount,data,durability) VALUES ("
+									+ item.getTypeId()
+									+ ","
+									+ item.getAmount()
+									+ ","
+									+ item.getData().getData()
+									+ ","
+									+ item.getDurability() + ");";
+						}
+						rs.close();
+						plugin.getLiteDB().standardQuery(query);
+					}
+					catch (SQLException e)
+					{
+						// INFO Auto-generated catch block
+						player.sendMessage(ChatColor.RED + KarmicShare.prefix
+								+ "Could not query item pool!");
+						e.printStackTrace();
+						return false;
+					}
 				}
 			}
 			else if (i.isPotion())
@@ -1043,7 +1092,7 @@ public class KSInventoryListener extends InventoryListener {
 					return false;
 				}
 			}
-			else if (!i.isPotion() && !hasEnchantments)
+			else
 			{
 				// Normal item
 				// Create SQL query to see if item is already in
