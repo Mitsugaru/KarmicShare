@@ -323,13 +323,13 @@ public class KSPlayerListener extends PlayerListener {
 					if (page < 0)
 					{
 						// Was negative... return it to first page
-						return 1;
+						page = 1;
 					}
 					else if (page > num)
 					{
 						// Going to page beyond the total items, cycle back to
 						// first
-						return 1;
+						page = 1;
 					}
 					// Otherwise, its a valid page number, so send it off
 				}
