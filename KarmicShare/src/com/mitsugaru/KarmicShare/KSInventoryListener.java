@@ -16,6 +16,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.getspout.spoutapi.event.inventory.InventoryClickEvent;
 import org.getspout.spoutapi.event.inventory.InventoryListener;
@@ -34,69 +35,267 @@ public class KSInventoryListener extends InventoryListener {
 		// This will verify that it was a block
 		if (event.getLocation() != null)
 		{
-			// Verify that it is a chest
-			final Block block = event.getLocation().getBlock();
-			if (block.getType().equals(Material.CHEST))
+			// Valid slot numbers are not negative
+			if (event.getSlot() >= 0)
 			{
-				// Don't know if getInventory null check is necessary
-				if (event.getInventory() != null
-						&& plugin.getPluginConfig().chests)
+				// Verify that it is a chest
+				final Block block = event.getLocation().getBlock();
+				if (block.getType().equals(Material.CHEST))
 				{
-					boolean kschest = false;
-					boolean fromChest = false;
-					final BetterChest chest = new BetterChest(
-							(Chest) block.getState());
-					if (!event.getInventory().equals(
-							event.getPlayer().getInventory()))
+					// Don't know if getInventory null check is necessary
+					if (event.getInventory() != null
+							&& plugin.getPluginConfig().chests)
 					{
-						fromChest = true;
-					}
-					if (fromChest || event.isShiftClick())
-					{
-						// Player is working on inventory that is not theirs
-						// Verify that it is one of our chests
-						if (block.getRelative(BlockFace.UP).getType()
-								.equals(Material.WALL_SIGN))
+						boolean kschest = false;
+						boolean fromChest = false;
+						final BetterChest chest = new BetterChest(
+								(Chest) block.getState());
+						if (!event.getInventory().equals(
+								event.getPlayer().getInventory()))
 						{
-							final Sign sign = (Sign) block.getRelative(
-									BlockFace.UP).getState();
-							if (ChatColor.stripColor(sign.getLine(1))
-									.equalsIgnoreCase("[KarmicShare]"))
-							{
-								kschest = true;
-							}
+							fromChest = true;
 						}
-						else if (chest.isDoubleChest())
+						if (fromChest || event.isShiftClick())
 						{
-							if (chest.attachedBlock().getRelative(BlockFace.UP)
-									.getType().equals(Material.WALL_SIGN))
+							// Player is working on inventory that is not theirs
+							// Verify that it is one of our chests
+							if (block.getRelative(BlockFace.UP).getType()
+									.equals(Material.WALL_SIGN))
 							{
-								final Sign sign = (Sign) chest.attachedBlock()
-										.getRelative(BlockFace.UP).getState();
+								final Sign sign = (Sign) block.getRelative(
+										BlockFace.UP).getState();
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase("[KarmicShare]"))
 								{
 									kschest = true;
 								}
 							}
-						}
-					}
-					if (kschest)
-					{
-						if (event.isLeftClick())
-						{
-							if (event.isShiftClick())
+							else if (chest.isDoubleChest())
 							{
-								// We don't care about the cursor as it doesn't
-								// get changed on a shift click
-								if (event.getItem() != null)
+								if (chest.attachedBlock()
+										.getRelative(BlockFace.UP).getType()
+										.equals(Material.WALL_SIGN))
 								{
-									if (fromChest)
+									final Sign sign = (Sign) chest
+											.attachedBlock()
+											.getRelative(BlockFace.UP)
+											.getState();
+									if (ChatColor.stripColor(sign.getLine(1))
+											.equalsIgnoreCase("[KarmicShare]"))
+									{
+										kschest = true;
+									}
+								}
+							}
+						}
+						if (kschest)
+						{
+							if (event.isLeftClick())
+							{
+								if (event.isShiftClick())
+								{
+									// We don't care about the cursor as it
+									// doesn't
+									// get changed on a shift click
+									if (event.getItem() != null)
+									{
+										if (fromChest)
+										{
+											if (takeItem(event.getPlayer(),
+													event.getItem()))
+											{
+												event.setResult(Event.Result.ALLOW);
+												if (hasItem(event.getPlayer(),
+														event.getItem()))
+												{
+													final ItemStack temp = event
+															.getItem();
+													temp.setAmount(1);
+													final Repopulate task = new Repopulate(
+															event.getInventory(),
+															temp, event
+																	.getSlot());
+													int id = plugin
+															.getServer()
+															.getScheduler()
+															.scheduleSyncDelayedTask(
+																	plugin,
+																	task, 10);
+													if (id == -1)
+													{
+														event.getPlayer()
+																.sendMessage(
+																		ChatColor.YELLOW
+																				+ KarmicShare.prefix
+																				+ "Could not repopulate slot.");
+													}
+												}
+											}
+											else
+											{
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+										else
+										{
+
+											if (giveItem(event.getPlayer(),
+													event.getItem()))
+											{
+												if (chest
+														.getInventory()
+														.contains(
+																event.getItem()
+																		.getTypeId()))
+												{
+													//Chest already contains it, do not stack
+													event.setResult(Event.Result.ALLOW);
+													event.setItem(null);
+												}
+												else if (chest.getInventory()
+														.firstEmpty() == -1)
+												{
+													event.setResult(Event.Result.ALLOW);
+													// Handle if inventory is
+													// full
+													event.setItem(null);
+												}
+											}
+											else
+											{
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+									}
+								}
+								else
+								{
+									if (event.getItem() != null
+											&& event.getCursor() != null)
+									{
+
+										if (event
+												.getItem()
+												.getType()
+												.equals(event.getCursor()
+														.getType()))
+										{
+											if (giveItem(event.getPlayer(),
+													event.getCursor()))
+											{
+												event.setResult(Event.Result.ALLOW);
+												final ItemStack temp = event
+														.getItem();
+												temp.setAmount(1);
+												final Repopulate task = new Repopulate(
+														event.getInventory(),
+														temp, event.getSlot());
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task,
+																10);
+												if (id == -1)
+												{
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+											}
+											else
+											{
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+										else
+										{
+											// When switching, put item first,
+											// then
+											// attempt to take item
+											if (giveItem(event.getPlayer(),
+													event.getCursor()))
+											{
+												if (takeItem(event.getPlayer(),
+														event.getItem()))
+												{
+													event.setResult(Event.Result.ALLOW);
+													if (hasItem(
+															event.getPlayer(),
+															event.getItem()))
+													{
+														final ItemStack temp = event
+																.getItem();
+														temp.setAmount(1);
+														final Repopulate task = new Repopulate(
+																event.getInventory(),
+																temp,
+																event.getSlot());
+														int id = plugin
+																.getServer()
+																.getScheduler()
+																.scheduleSyncDelayedTask(
+																		plugin,
+																		task,
+																		10);
+														if (id == -1)
+														{
+															event.getPlayer()
+																	.sendMessage(
+																			ChatColor.YELLOW
+																					+ KarmicShare.prefix
+																					+ "Could not repopulate slot.");
+														}
+													}
+												}
+												else
+												{
+													event.setResult(Event.Result.DENY);
+													event.setCancelled(true);
+												}
+											}
+											else
+											{
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+									}
+									else if (event.getItem() != null)
 									{
 										if (takeItem(event.getPlayer(),
 												event.getItem()))
 										{
 											event.setResult(Event.Result.ALLOW);
+											if (hasItem(event.getPlayer(),
+													event.getItem()))
+											{
+												final ItemStack temp = event
+														.getItem();
+												temp.setAmount(1);
+												final Repopulate task = new Repopulate(
+														event.getInventory(),
+														temp, event.getSlot());
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task,
+																10);
+												if (id == -1)
+												{
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+											}
 										}
 										else
 										{
@@ -104,19 +303,14 @@ public class KSInventoryListener extends InventoryListener {
 											event.setCancelled(true);
 										}
 									}
-									else
+									else if (event.getCursor() != null)
 									{
 
+										// they clicked on an item in chest
 										if (giveItem(event.getPlayer(),
-												event.getItem()))
+												event.getCursor()))
 										{
-											if (chest.getInventory()
-													.firstEmpty() == -1)
-											{
-												event.setResult(Event.Result.ALLOW);
-												// Handle if inventory is full
-												event.setItem(null);
-											}
+											event.setResult(Event.Result.ALLOW);
 										}
 										else
 										{
@@ -128,97 +322,153 @@ public class KSInventoryListener extends InventoryListener {
 							}
 							else
 							{
-								if (event.getItem() != null
-										&& event.getCursor() != null)
-								{
-
-									if (event
-											.getItem()
-											.getType()
-											.equals(event.getCursor().getType()))
-									{
-										if (giveItem(event.getPlayer(),
-												event.getCursor()))
-										{
-											event.setResult(Event.Result.ALLOW);
-										}
-										else
-										{
-											event.setResult(Event.Result.DENY);
-											event.setCancelled(true);
-										}
-									}
-									else
-									{
-										// When switching, put item first, then
-										// attempt to take item
-										plugin.getLogger().info(
-												event.getCursor().toString());
-										if (giveItem(event.getPlayer(),
-												event.getCursor()))
-										{
-											plugin.getLogger().info(
-													event.getItem().toString());
-											if (takeItem(event.getPlayer(),
-													event.getItem()))
-											{
-												event.setResult(Event.Result.ALLOW);
-											}
-											else
-											{
-												event.setResult(Event.Result.DENY);
-												event.setCancelled(true);
-											}
-										}
-										else
-										{
-											event.setResult(Event.Result.DENY);
-											event.setCancelled(true);
-										}
-									}
-								}
-								else if (event.getItem() != null)
-								{
-									if (takeItem(event.getPlayer(),
-											event.getItem()))
-									{
-										event.setResult(Event.Result.ALLOW);
-									}
-									else
-									{
-										event.setResult(Event.Result.DENY);
-										event.setCancelled(true);
-									}
-								}
-								else if (event.getCursor() != null)
-								{
-
-									// they clicked on an item in chest
-									if (giveItem(event.getPlayer(),
-											event.getCursor()))
-									{
-										event.setResult(Event.Result.ALLOW);
-									}
-									else
-									{
-										event.setResult(Event.Result.DENY);
-										event.setCancelled(true);
-									}
-								}
+								event.getPlayer()
+										.sendMessage(
+												ChatColor.RED
+														+ KarmicShare.prefix
+														+ " Not allowed to right-click in chest");
+								event.setResult(Event.Result.DENY);
+								event.setCancelled(true);
 							}
-							// TODO repopulate
-						}
-						else
-						{
-							event.getPlayer().sendMessage(ChatColor.RED + KarmicShare.prefix
-									+ " Not allowed to right-click in chest");
-							event.setResult(Event.Result.DENY);
-							event.setCancelled(true);
 						}
 					}
 				}
 			}
 		}
+	}
+
+	public boolean hasItem(Player player, ItemStack item) {
+		// Check if pool contains item requested + amount
+		boolean has = false;
+		// SQL query to see if item is in pool
+		// Create temp item to check if its a tool
+		final Item temp = new Item(item.getTypeId(), item.getData().getData(),
+				item.getDurability());
+		String query = "";
+		int poolAmount = 0;
+		if (temp.isTool())
+		{
+			// Handle tools
+			// Grab all entries of the same tool id
+			String toolQuery = "SELECT * FROM items WHERE itemid='"
+					+ item.getTypeId() + "';";
+			ResultSet toolRS = plugin.getLiteDB().select(toolQuery);
+			try
+			{
+				if (toolRS.next())
+				{
+					do
+					{
+						poolAmount += toolRS.getInt("amount");
+					}
+					while (toolRS.next());
+					if (poolAmount >= item.getAmount())
+					{
+						// We have enough in pool that
+						// was requested
+						has = true;
+					}
+				}
+				else
+				{
+					has = false;
+				}
+				toolRS.close();
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+						+ "Could not retrieve item in pool!");
+				e.printStackTrace();
+				return false;
+			}
+		}
+
+		else if (temp.isPotion())
+		{
+			// Separate check to see if its a potion and handle it
+			// via the durability info
+			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+					+ "' AND durability='" + item.getDurability() + "';";
+			ResultSet rs = plugin.getLiteDB().select(query);
+
+			// Check ResultSet
+			try
+			{
+				if (rs.next())
+				{
+					// Item already in pool, check
+					// amount
+					poolAmount = rs.getInt("amount");
+					if (poolAmount >= item.getAmount())
+					{
+						// We have enough in pool that
+						// was requested
+						has = true;
+					}
+				}
+				else
+				{
+					// Item not in database, therefore error
+					// on player part
+					rs.close();
+					player.sendMessage(ChatColor.RED + KarmicShare.prefix
+							+ " Item not in pool...");
+					return false;
+				}
+				rs.close();
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+						+ "Could not retrieve item in pool!");
+				e.printStackTrace();
+				return false;
+			}
+		}
+		else
+		{
+			// Not a tool
+			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+					+ "' AND data='" + item.getData().getData() + "';";
+			ResultSet rs = plugin.getLiteDB().select(query);
+
+			// Check ResultSet
+			try
+			{
+				if (rs.next())
+				{
+					// Item already in pool, check
+					// amount
+					poolAmount = rs.getInt("amount");
+					if (poolAmount >= item.getAmount())
+					{
+						// We have enough in pool that
+						// was requested
+						has = true;
+					}
+				}
+				else
+				{
+					// Item not in database, therefore error
+					// on player part
+					rs.close();
+					return false;
+				}
+				rs.close();
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+						+ "Could not retrieve item in pool!");
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return has;
 	}
 
 	public boolean takeItem(Player player, ItemStack item) {
@@ -252,144 +502,11 @@ public class KSInventoryListener extends InventoryListener {
 					return false;
 				}
 			}
-
-			// Check if pool contains item requested + amount
-			int amount = 1;
-			boolean has = false;
-			// SQL query to see if item is in pool
-			// Create temp item to check if its a tool
+			int amount = item.getAmount();
+			String query = "";
+			boolean has = this.hasItem(player, item);
 			Item temp = new Item(item.getTypeId(), item.getData().getData(),
 					item.getDurability());
-			String query = "";
-			int poolAmount = 0;
-			boolean toolCheck = false;
-			boolean potionCheck = false;
-			if (temp.isTool())
-			{
-				// Handle tools
-				toolCheck = true;
-				// Grab all entries of the same tool id
-				String toolQuery = "SELECT * FROM items WHERE itemid='"
-						+ item.getTypeId() + "';";
-				ResultSet toolRS = plugin.getLiteDB().select(toolQuery);
-				try
-				{
-					if (toolRS.next())
-					{
-						do
-						{
-							poolAmount += toolRS.getInt("amount");
-						}
-						while (toolRS.next());
-						if (poolAmount >= amount)
-						{
-							// We have enough in pool that
-							// was requested
-							has = true;
-						}
-					}
-					else
-					{
-						has = false;
-					}
-					toolRS.close();
-				}
-				catch (SQLException e)
-				{
-					// INFO Auto-generated catch block
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
-							+ "Could not retrieve item in pool!");
-					e.printStackTrace();
-					return false;
-				}
-			}
-
-			else if (temp.isPotion())
-			{
-				potionCheck = true;
-				// Separate check to see if its a potion and handle it
-				// via the durability info
-				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-						+ "' AND durability='" + item.getDurability() + "';";
-				ResultSet rs = plugin.getLiteDB().select(query);
-
-				// Check ResultSet
-				try
-				{
-					if (rs.next())
-					{
-						// Item already in pool, check
-						// amount
-						poolAmount = rs.getInt("amount");
-						if (poolAmount >= amount)
-						{
-							// We have enough in pool that
-							// was requested
-							has = true;
-						}
-					}
-					else
-					{
-						// Item not in database, therefore error
-						// on player part
-						rs.close();
-						player.sendMessage(ChatColor.RED + KarmicShare.prefix
-								+ " Item not in pool...");
-						return false;
-					}
-					rs.close();
-				}
-				catch (SQLException e)
-				{
-					// INFO Auto-generated catch block
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
-							+ "Could not retrieve item in pool!");
-					e.printStackTrace();
-					return false;
-				}
-			}
-			else
-			{
-				// Not a tool
-				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-						+ "' AND data='" + item.getData().getData() + "';";
-				ResultSet rs = plugin.getLiteDB().select(query);
-
-				// Check ResultSet
-				try
-				{
-					if (rs.next())
-					{
-						// Item already in pool, check
-						// amount
-						poolAmount = rs.getInt("amount");
-						if (poolAmount >= amount)
-						{
-							// We have enough in pool that
-							// was requested
-							has = true;
-						}
-					}
-					else
-					{
-						// Item not in database, therefore error
-						// on player part
-						rs.close();
-						player.sendMessage(ChatColor.RED + KarmicShare.prefix
-								+ " Item not in pool...");
-						return false;
-					}
-					rs.close();
-				}
-				catch (SQLException e)
-				{
-					// INFO Auto-generated catch block
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
-							+ "Could not retrieve item in pool!");
-					e.printStackTrace();
-					return false;
-				}
-			}
 			try
 			{
 				if (has)
@@ -592,7 +709,7 @@ public class KSInventoryListener extends InventoryListener {
 							}
 						}
 					}
-					if (toolCheck)
+					if (temp.isTool())
 					{
 						// Handle tools
 						try
@@ -695,7 +812,7 @@ public class KSInventoryListener extends InventoryListener {
 							return false;
 						}
 					}
-					else if (potionCheck)
+					else if (temp.isPotion())
 					{
 						query = "SELECT * FROM items WHERE itemid='"
 								+ item.getTypeId() + "' AND durability='"
@@ -1190,5 +1307,23 @@ public class KSInventoryListener extends InventoryListener {
 				repeat++;
 			}
 		}
+	}
+
+	class Repopulate implements Runnable {
+		int slot;
+		ItemStack item;
+		Inventory inventory;
+
+		public Repopulate(Inventory inv, ItemStack i, int s) {
+			inventory = inv;
+			item = i;
+			slot = s;
+		}
+
+		@Override
+		public void run() {
+			inventory.setItem(slot, item);
+		}
+
 	}
 }

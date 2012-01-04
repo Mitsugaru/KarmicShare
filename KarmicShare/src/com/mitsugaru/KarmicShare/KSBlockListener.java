@@ -219,7 +219,15 @@ public class KSBlockListener extends BlockListener {
 			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 					"[KarmicShare]"))
 			{
-				event.setCancelled(true);
+				//Find chest
+				if (event.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST)
+				{
+					//Clear
+					BetterChest chest = new BetterChest((Chest) sign.getBlock()
+							.getRelative(BlockFace.DOWN).getState());
+					chest.getInventory().clear();
+					chest.update();
+				}
 			}
 		}
 	}

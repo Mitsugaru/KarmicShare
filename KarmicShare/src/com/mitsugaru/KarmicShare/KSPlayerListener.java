@@ -59,7 +59,6 @@ public class KSPlayerListener extends PlayerListener {
 						}
 						else
 						{
-							plugin.getLogger().info("Player does not have permission");
 							event.getPlayer()
 									.sendMessage(
 											ChatColor.RED
@@ -97,7 +96,6 @@ public class KSPlayerListener extends PlayerListener {
 									}
 									else
 									{
-										plugin.getLogger().info("Player does not have permission");
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
@@ -133,7 +131,6 @@ public class KSPlayerListener extends PlayerListener {
 						}
 						else
 						{
-							plugin.getLogger().info("Player does not have permission");
 							event.getPlayer()
 									.sendMessage(
 											ChatColor.RED
@@ -164,7 +161,6 @@ public class KSPlayerListener extends PlayerListener {
 									}
 									else
 									{
-										plugin.getLogger().info("Player does not have permission");
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
