@@ -146,6 +146,59 @@ public class KSPlayerListener extends PlayerListener {
 				}
 
 			}
+			else if(block.getType().equals(Material.WALL_SIGN))
+			{
+				Sign sign = (Sign) block.getState();
+				if (ChatColor.stripColor(sign.getLine(1))
+						.equalsIgnoreCase("[KarmicShare]"))
+				{
+					if (block.getRelative(BlockFace.DOWN).getType().equals(Material.CHEST))
+					{
+						BetterChest chest = new BetterChest(
+								(Chest) block.getRelative(BlockFace.DOWN).getState());
+						if (chest.isDoubleChest())
+						{
+							try
+							{
+								int page = grabNextPage(
+										Integer.parseInt(""
+												+ sign.getLine(3)),
+										54);
+								sign.setLine(3, "" + page);
+								sign.update();
+							}
+							catch (NumberFormatException e)
+							{
+								event.getPlayer()
+										.sendMessage(
+												ChatColor.RED
+														+ KarmicShare.prefix
+														+ " Sign has wrong formatting. Remake sign.");
+							}
+						}
+						else
+						{
+							try
+							{
+								int page = grabNextPage(
+										Integer.parseInt(""
+												+ sign.getLine(3)),
+										27);
+								sign.setLine(3, "" + page);
+								sign.update();
+							}
+							catch (NumberFormatException e)
+							{
+								event.getPlayer()
+										.sendMessage(
+												ChatColor.RED
+														+ KarmicShare.prefix
+														+ " Sign has wrong formatting. Remake sign.");
+							}
+						}
+					}
+				}
+			}
 		}
 		else if (event.getAction() == Action.LEFT_CLICK_BLOCK)
 		{
@@ -290,6 +343,59 @@ public class KSPlayerListener extends PlayerListener {
 										event.setCancelled(true);
 									}
 								}
+							}
+						}
+					}
+				}
+			}
+			else if(block.getType().equals(Material.WALL_SIGN))
+			{
+				Sign sign = (Sign) block.getState();
+				if (ChatColor.stripColor(sign.getLine(1))
+						.equalsIgnoreCase("[KarmicShare]"))
+				{
+					if (block.getRelative(BlockFace.DOWN).getType().equals(Material.CHEST))
+					{
+						BetterChest chest = new BetterChest(
+								(Chest) block.getRelative(BlockFace.DOWN).getState());
+						if (chest.isDoubleChest())
+						{
+							try
+							{
+								int page = grabNextPage(
+										Integer.parseInt(""
+												+ sign.getLine(3)),
+										54);
+								sign.setLine(3, "" + page);
+								sign.update();
+							}
+							catch (NumberFormatException e)
+							{
+								event.getPlayer()
+										.sendMessage(
+												ChatColor.RED
+														+ KarmicShare.prefix
+														+ " Sign has wrong formatting. Remake sign.");
+							}
+						}
+						else
+						{
+							try
+							{
+								int page = grabNextPage(
+										Integer.parseInt(""
+												+ sign.getLine(3)),
+										27);
+								sign.setLine(3, "" + page);
+								sign.update();
+							}
+							catch (NumberFormatException e)
+							{
+								event.getPlayer()
+										.sendMessage(
+												ChatColor.RED
+														+ KarmicShare.prefix
+														+ " Sign has wrong formatting. Remake sign.");
 							}
 						}
 					}
