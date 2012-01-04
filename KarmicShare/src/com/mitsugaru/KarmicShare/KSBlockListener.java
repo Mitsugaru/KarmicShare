@@ -178,6 +178,9 @@ public class KSBlockListener extends BlockListener {
 							// Empty chest as it has spawned items
 							chest.getInventory().clear();
 							chest.update();
+							// Update sign to reset page
+							sign.setLine(3, "1");
+							sign.update();
 						}
 					}
 				}
