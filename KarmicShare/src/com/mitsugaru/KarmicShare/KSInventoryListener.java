@@ -101,7 +101,7 @@ public class KSInventoryListener extends InventoryListener {
 									{
 										if (fromChest)
 										{
-											/*if (takeItem(event.getPlayer(),
+											if (takeItem(event.getPlayer(),
 													event.getItem()))
 											{
 												event.setResult(Event.Result.ALLOW);
@@ -111,7 +111,7 @@ public class KSInventoryListener extends InventoryListener {
 													final ItemStack temp = event
 															.getItem();
 													temp.setAmount(1);
-													final Repopulate task = new Repopulate(
+													Repopulate task = new Repopulate(
 															event.getInventory(),
 															temp, event
 																	.getSlot());
@@ -120,7 +120,7 @@ public class KSInventoryListener extends InventoryListener {
 															.getScheduler()
 															.scheduleSyncDelayedTask(
 																	plugin,
-																	task, 10);
+																	task, 5);
 													if (id == -1)
 													{
 														event.getPlayer()
@@ -129,18 +129,55 @@ public class KSInventoryListener extends InventoryListener {
 																				+ KarmicShare.prefix
 																				+ "Could not repopulate slot.");
 													}
+													task = new Repopulate(
+															event.getPlayer().getInventory(),
+															temp);
+													id = plugin
+															.getServer()
+															.getScheduler()
+															.scheduleSyncDelayedTask(
+																	plugin,
+																	task, 1);
+													if (id == -1)
+													{
+														event.getPlayer()
+																.sendMessage(
+																		ChatColor.YELLOW
+																				+ KarmicShare.prefix
+																				+ "Could not give item.");
+													}
+													event.setItem(null);
+												}
+												else
+												{
+													final ItemStack temp = event
+															.getItem();
+													temp.setAmount(1);
+													final Repopulate task = new Repopulate(
+															event.getPlayer().getInventory(),
+															temp);
+													int id = plugin
+															.getServer()
+															.getScheduler()
+															.scheduleSyncDelayedTask(
+																	plugin,
+																	task, 1);
+													if (id == -1)
+													{
+														event.getPlayer()
+																.sendMessage(
+																		ChatColor.YELLOW
+																				+ KarmicShare.prefix
+																				+ "Could not give item.");
+													}
+													event.setItem(null);
 												}
 											}
 											else
-											{*/
-											event.getPlayer()
-											.sendMessage(
-													ChatColor.YELLOW
-															+ KarmicShare.prefix
-															+ " Shift click is disabled when grabbing from chest.");
+											{
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
-											/*}*/
+											}
 										}
 										else
 										{
@@ -202,7 +239,7 @@ public class KSInventoryListener extends InventoryListener {
 														.getScheduler()
 														.scheduleSyncDelayedTask(
 																plugin, task,
-																10);
+																5);
 												if (id == -1)
 												{
 													event.getPlayer()
@@ -247,7 +284,7 @@ public class KSInventoryListener extends InventoryListener {
 																.scheduleSyncDelayedTask(
 																		plugin,
 																		task,
-																		10);
+																		5);
 														if (id == -1)
 														{
 															event.getPlayer()
@@ -291,7 +328,7 @@ public class KSInventoryListener extends InventoryListener {
 														.getScheduler()
 														.scheduleSyncDelayedTask(
 																plugin, task,
-																10);
+																5);
 												if (id == -1)
 												{
 													event.getPlayer()
@@ -1368,6 +1405,13 @@ public class KSInventoryListener extends InventoryListener {
 		ItemStack item;
 		Inventory inventory;
 
+		public Repopulate(Inventory inv, ItemStack i)
+		{
+			slot = -999;
+			inventory = inv;
+			item = i;
+		}
+
 		public Repopulate(Inventory inv, ItemStack i, int s) {
 			inventory = inv;
 			item = i;
@@ -1376,7 +1420,14 @@ public class KSInventoryListener extends InventoryListener {
 
 		@Override
 		public void run() {
-			inventory.setItem(slot, item);
+			if(slot >= 0)
+			{
+				inventory.setItem(slot, item);
+			}
+			else
+			{
+				inventory.addItem(item);
+			}
 		}
 
 	}
