@@ -54,6 +54,9 @@ public class Commander implements CommandExecutor {
 		time = 0;
 	}
 
+	//TODO refactor parsing the input string for when adding/taking items
+	//and player has specified the item. Throw it into a method for
+	//ks take and ks admin add to utilize
 	/**
 	 * Command handler
 	 */
@@ -1934,13 +1937,28 @@ public class Commander implements CommandExecutor {
 		{
 			if (sender instanceof Player)
 			{
-				int id = ks.getServer().getScheduler().scheduleAsyncDelayedTask(ks, new ConfirmDrain((Player) sender));
-				if(id == -1)
+				int id = ks
+						.getServer()
+						.getScheduler()
+						.scheduleAsyncDelayedTask(ks,
+								new ConfirmDrain((Player) sender));
+				if (id == -1)
 				{
-					sender.sendMessage(ChatColor.YELLOW + KarmicShare.prefix + " Could not schedule confirmation.");
+					sender.sendMessage(ChatColor.YELLOW + KarmicShare.prefix
+							+ " Could not schedule confirmation.");
 				}
 			}
-
+			else
+			{
+				// Sent from console
+				// Wipe table
+				final String query = "DELETE FROM items";
+				ks.getLiteDB().standardQuery(query);
+				ks.getLogger().info(prefix + "Items table cleared");
+				sender.sendMessage(ChatColor.GREEN + prefix
+						+ " Item pool emptied.");
+				cache.clear();
+			}
 			return true;
 		}
 		else if (com.equals("reload"))
@@ -2009,30 +2027,45 @@ public class Commander implements CommandExecutor {
 					}
 					if (has)
 					{
-						int karma;
-						try
+						if (sender instanceof Player)
 						{
-							// Set to zero
-							karma = this.getPlayerKarma(name) * -1;
-							this.updatePlayerKarma(name, karma);
-							if (config.playerKarmaDefault != 0)
+							ks.getServer()
+									.getScheduler()
+									.scheduleAsyncDelayedTask(
+											ks,
+											new ConfirmPlayerKarmaReset(
+													(Player) sender, name));
+						}
+						else
+						{
+							// Sent via console
+							int karma;
+							try
 							{
-								// Default was non-zero, so re-update to
-								// config's default
-								this.updatePlayerKarma(name,
-										config.playerKarmaDefault);
+								// Set to zero
+								karma = ks.getCommander().getPlayerKarma(name)
+										* -1;
+								ks.getCommander()
+										.updatePlayerKarma(name, karma);
+								if (config.playerKarmaDefault != 0)
+								{
+									// Default was non-zero, so re-update to
+									// config's default
+									ks.getCommander().updatePlayerKarma(name,
+											config.playerKarmaDefault);
+								}
+								sender.sendMessage(ChatColor.YELLOW + prefix
+										+ " " + name + "'s karma reset");
 							}
-							sender.sendMessage(ChatColor.YELLOW + prefix + " "
-									+ name + "'s karma reset");
+							catch (SQLException e)
+							{
+								// INFO Auto-generated catch block
+								sender.sendMessage(ChatColor.RED + prefix
+										+ "Could not reset " + name
+										+ "'s karma");
+								e.printStackTrace();
+							}
 						}
-						catch (SQLException e)
-						{
-							// INFO Auto-generated catch block
-							sender.sendMessage(ChatColor.RED + prefix
-									+ "Could not reset " + name + "'s karma");
-							e.printStackTrace();
-						}
-
 					}
 				}
 				else
@@ -2681,19 +2714,18 @@ public class Commander implements CommandExecutor {
 		return cache;
 	}
 
-	class ConfirmDrain implements Runnable
-	{
+	class ConfirmDrain implements Runnable {
 		private Player player;
 
-		public ConfirmDrain(Player p)
-		{
+		public ConfirmDrain(Player p) {
 			player = p;
 		}
 
-		public void run()
-		{
-			String answer = ks.ask(player,
-						ChatColor.YELLOW + prefix + ChatColor.DARK_AQUA + "Delete ALL items in pool? No recovery......", ChatColor.GREEN + "yes", ChatColor.RED + "no");
+		public void run() {
+			String answer = ks.ask(player, ChatColor.YELLOW + prefix
+					+ ChatColor.DARK_AQUA
+					+ " Delete ALL items in pool? No recovery...",
+					ChatColor.GREEN + "yes", ChatColor.RED + "no");
 			if (answer.equals("yes"))
 			{
 				// Wipe table
@@ -2708,6 +2740,56 @@ public class Commander implements CommandExecutor {
 			{
 				player.sendMessage(ChatColor.YELLOW + prefix
 						+ " Drain cancelled.");
+			}
+		}
+	}
+
+	class ConfirmPlayerKarmaReset implements Runnable {
+		private String name;
+		private Player sender;
+
+		public ConfirmPlayerKarmaReset(Player p, String n) {
+			name = n;
+			sender = p;
+		}
+
+		@Override
+		public void run() {
+			String answer = ks.ask(sender, ChatColor.YELLOW + prefix
+					+ ChatColor.DARK_AQUA + " Reset " + ChatColor.GOLD + name
+					+ ChatColor.DARK_AQUA + "'s karma?", ChatColor.GREEN
+					+ "yes", ChatColor.RED + "no");
+			if (answer.equals("yes"))
+			{
+				int karma;
+				try
+				{
+					// Set to zero
+					karma = ks.getCommander().getPlayerKarma(name) * -1;
+					ks.getCommander().updatePlayerKarma(name, karma);
+					if (config.playerKarmaDefault != 0)
+					{
+						// Default was non-zero, so re-update to
+						// config's default
+						ks.getCommander().updatePlayerKarma(name,
+								config.playerKarmaDefault);
+					}
+					sender.sendMessage(ChatColor.GREEN + prefix + " " + name
+							+ "'s karma reset");
+				}
+				catch (SQLException e)
+				{
+					// INFO Auto-generated catch block
+					sender.sendMessage(ChatColor.RED + prefix
+							+ "Could not reset " + name + "'s karma");
+					e.printStackTrace();
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.YELLOW + prefix
+						+ ChatColor.DARK_AQUA + " Karma reset for " + ChatColor.GOLD + name
+						+ ChatColor.DARK_AQUA + " cancelled.");
 			}
 		}
 	}
