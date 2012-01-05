@@ -48,15 +48,14 @@ public class KSBlockListener extends BlockListener {
 						if (event.getBlock().getRelative(BlockFace.DOWN)
 								.getType().equals(Material.CHEST))
 						{
-								// Reformat sign
-								event.setLine(0, "");
-								event.setLine(1, ChatColor.AQUA
-										+ "[KarmicShare]");
-								event.setLine(2, "Page:");
-								event.setLine(3, "1");
-								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.prefix
-												+ " Chest linked to pool.");
+							// Reformat sign
+							event.setLine(0, "");
+							event.setLine(1, ChatColor.AQUA + "[KarmicShare]");
+							event.setLine(2, "Page:");
+							event.setLine(3, "1");
+							event.getPlayer().sendMessage(
+									ChatColor.GREEN + KarmicShare.prefix
+											+ " Chest linked to pool.");
 						}
 						else
 						{
@@ -182,8 +181,7 @@ public class KSBlockListener extends BlockListener {
 						{
 							// Reformat sign
 							sign.setLine(0, "");
-							sign.setLine(1, ChatColor.AQUA
-									+ "[KarmicShare]");
+							sign.setLine(1, ChatColor.AQUA + "[KarmicShare]");
 							sign.setLine(2, "Page:");
 							sign.setLine(3, "1");
 							sign.update();
@@ -249,19 +247,35 @@ public class KSBlockListener extends BlockListener {
 			else if (material.equals(Material.WALL_SIGN))
 			{
 				final Sign sign = (Sign) event.getBlock().getState();
-				if (event.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST)
+				boolean has = false;
+				for (String s : sign.getLines())
+				{
+					if (ChatColor.stripColor(s).equalsIgnoreCase(
+							"[KarmicShare]"))
+					{
+						// Sign already exists
+						has = true;
+					}
+				}
+				if (has)
 				{
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), "KarmicShare.sign"))
 					{
-						BetterChest chest = new BetterChest((Chest) sign
-								.getBlock().getRelative(BlockFace.DOWN)
-								.getState());
-						chest.getInventory().clear();
-						chest.update();
-						event.getPlayer().sendMessage(
-								ChatColor.YELLOW + KarmicShare.prefix
-										+ " Chest unlinked from pool.");
+						if (event.getBlock().getRelative(BlockFace.DOWN)
+								.getType().equals(Material.CHEST))
+						{
+
+							BetterChest chest = new BetterChest((Chest) sign
+									.getBlock().getRelative(BlockFace.DOWN)
+									.getState());
+							chest.getInventory().clear();
+							chest.update();
+							event.getPlayer().sendMessage(
+									ChatColor.YELLOW + KarmicShare.prefix
+											+ " Chest unlinked from pool.");
+						}
+
 					}
 					else
 					{
