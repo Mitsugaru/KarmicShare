@@ -48,6 +48,7 @@ public class KSInventoryListener extends InventoryListener {
 					{
 						boolean kschest = false;
 						boolean fromChest = false;
+						String group = "global";
 						final BetterChest chest = new BetterChest(
 								(Chest) block.getState());
 						if (!event.getInventory().equals(
@@ -68,6 +69,7 @@ public class KSInventoryListener extends InventoryListener {
 										.equalsIgnoreCase("[KarmicShare]"))
 								{
 									kschest = true;
+									group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 								}
 							}
 							else if (chest.isDoubleChest())
@@ -84,6 +86,7 @@ public class KSInventoryListener extends InventoryListener {
 											.equalsIgnoreCase("[KarmicShare]"))
 									{
 										kschest = true;
+										group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 									}
 								}
 							}
@@ -102,11 +105,11 @@ public class KSInventoryListener extends InventoryListener {
 										if (fromChest)
 										{
 											if (takeItem(event.getPlayer(),
-													event.getItem()))
+													event.getItem(), group))
 											{
 												event.setResult(Event.Result.ALLOW);
 												if (hasItem(event.getPlayer(),
-														event.getItem()))
+														event.getItem(), group))
 												{
 													final ItemStack temp = event
 															.getItem();
@@ -183,7 +186,7 @@ public class KSInventoryListener extends InventoryListener {
 										{
 
 											if (giveItem(event.getPlayer(),
-													event.getItem()))
+													event.getItem(), group))
 											{
 												if (chest
 														.getInventory()
@@ -225,7 +228,7 @@ public class KSInventoryListener extends InventoryListener {
 														.getType()))
 										{
 											if (giveItem(event.getPlayer(),
-													event.getCursor()))
+													event.getCursor(), group))
 											{
 												event.setResult(Event.Result.ALLOW);
 												final ItemStack temp = event
@@ -261,15 +264,15 @@ public class KSInventoryListener extends InventoryListener {
 											// then
 											// attempt to take item
 											if (giveItem(event.getPlayer(),
-													event.getCursor()))
+													event.getCursor(), group))
 											{
 												if (takeItem(event.getPlayer(),
-														event.getItem()))
+														event.getItem(), group))
 												{
 													event.setResult(Event.Result.ALLOW);
 													if (hasItem(
 															event.getPlayer(),
-															event.getItem()))
+															event.getItem(), group))
 													{
 														final ItemStack temp = event
 																.getItem();
@@ -311,11 +314,11 @@ public class KSInventoryListener extends InventoryListener {
 									else if (event.getItem() != null)
 									{
 										if (takeItem(event.getPlayer(),
-												event.getItem()))
+												event.getItem(), group))
 										{
 											event.setResult(Event.Result.ALLOW);
 											if (hasItem(event.getPlayer(),
-													event.getItem()))
+													event.getItem(), group))
 											{
 												final ItemStack temp = event
 														.getItem();
@@ -350,7 +353,7 @@ public class KSInventoryListener extends InventoryListener {
 
 										// they clicked on an item in chest
 										if (giveItem(event.getPlayer(),
-												event.getCursor()))
+												event.getCursor(), group))
 										{
 											event.setResult(Event.Result.ALLOW);
 										}
@@ -379,7 +382,7 @@ public class KSInventoryListener extends InventoryListener {
 		}
 	}
 
-	public boolean hasItem(Player player, ItemStack item) {
+	public boolean hasItem(Player player, ItemStack item, String group) {
 		// Check if pool contains item requested + amount
 		boolean has = false;
 		// SQL query to see if item is in pool
@@ -393,7 +396,7 @@ public class KSInventoryListener extends InventoryListener {
 			// Handle tools
 			// Grab all entries of the same tool id
 			String toolQuery = "SELECT * FROM items WHERE itemid='"
-					+ item.getTypeId() + "';";
+					+ item.getTypeId() + "' AND groups='"+ group +"';";
 			ResultSet toolRS = plugin.getLiteDB().select(toolQuery);
 			try
 			{
@@ -432,7 +435,7 @@ public class KSInventoryListener extends InventoryListener {
 			// Separate check to see if its a potion and handle it
 			// via the durability info
 			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-					+ "' AND durability='" + item.getDurability() + "';";
+					+ "' AND durability='" + item.getDurability() + "' AND groups='"+ group +"';";
 			ResultSet rs = plugin.getLiteDB().select(query);
 
 			// Check ResultSet
@@ -474,7 +477,7 @@ public class KSInventoryListener extends InventoryListener {
 		{
 			// Not a tool or potion
 			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-					+ "' AND data='" + item.getData().getData() + "';";
+					+ "' AND data='" + item.getData().getData() + "' AND groups='"+ group +"';";
 			ResultSet rs = plugin.getLiteDB().select(query);
 
 			// Check ResultSet
@@ -513,7 +516,7 @@ public class KSInventoryListener extends InventoryListener {
 		return has;
 	}
 
-	public boolean takeItem(Player player, ItemStack item) {
+	public boolean takeItem(Player player, ItemStack item, String group) {
 		// Check if they have "take" permission
 		if (plugin.getPermissionHandler().checkPermission(player,
 				"KarmicShare.take"))
@@ -546,7 +549,7 @@ public class KSInventoryListener extends InventoryListener {
 			}
 			int amount = item.getAmount();
 			String query = "";
-			boolean has = this.hasItem(player, item);
+			boolean has = this.hasItem(player, item, group);
 			Item temp = new Item(item.getTypeId(), item.getData().getData(),
 					item.getDurability());
 			try
@@ -774,7 +777,7 @@ public class KSInventoryListener extends InventoryListener {
 										+ "' AND data='"
 										+ item.getData().getData()
 										+ "' AND enchantments='"
-										+ sb.toString() + "';";
+										+ sb.toString() + "' AND groups='"+ group +"';";
 								ResultSet toolRS = plugin.getLiteDB().select(
 										toolQuery);
 								if (toolRS.next())
@@ -789,7 +792,7 @@ public class KSInventoryListener extends InventoryListener {
 												+ "' AND data='"
 												+ item.getData().getData()
 												+ "' AND enchantments='"
-												+ sb.toString() + "';";
+												+ sb.toString() + "' AND groups='"+ group +"';";
 									}
 									else
 									{
@@ -801,7 +804,7 @@ public class KSInventoryListener extends InventoryListener {
 												+ "' AND data='"
 												+ item.getData().getData()
 												+ "' AND enchantments='"
-												+ sb.toString() + "';";
+												+ sb.toString() + "' AND groups='"+ group +"';";
 									}
 								}
 								toolRS.close();
@@ -812,7 +815,7 @@ public class KSInventoryListener extends InventoryListener {
 								toolQuery = "SELECT * FROM items WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
-										+ item.getData().getData() + "';";
+										+ item.getData().getData() + "' AND groups='"+ group +"';";
 								ResultSet toolRS = plugin.getLiteDB().select(
 										toolQuery);
 								if (toolRS.next())
@@ -826,7 +829,7 @@ public class KSInventoryListener extends InventoryListener {
 												+ amount
 												+ "' AND data='"
 												+ item.getData().getData()
-												+ "';";
+												+ "' AND groups='"+ group +"';";
 									}
 									else
 									{
@@ -837,7 +840,7 @@ public class KSInventoryListener extends InventoryListener {
 												+ item.getTypeId()
 												+ "' AND data='"
 												+ item.getData().getData()
-												+ "';";
+												+ "' AND groups='"+ group +"';";
 									}
 								}
 								toolRS.close();
@@ -858,7 +861,7 @@ public class KSInventoryListener extends InventoryListener {
 					{
 						query = "SELECT * FROM items WHERE itemid='"
 								+ item.getTypeId() + "' AND durability='"
-								+ item.getDurability() + "';";
+								+ item.getDurability() + "' AND groups='"+ group +"';";
 						ResultSet rs = plugin.getLiteDB().select(query);
 						try
 						{
@@ -870,7 +873,7 @@ public class KSInventoryListener extends InventoryListener {
 									query = "DELETE FROM items WHERE itemid='"
 											+ item.getTypeId()
 											+ "' AND durability='"
-											+ item.getDurability() + "';";
+											+ item.getDurability() + "' AND groups='"+ group +"';";
 								}
 								else
 								{
@@ -879,7 +882,7 @@ public class KSInventoryListener extends InventoryListener {
 											+ "' WHERE itemid='"
 											+ item.getTypeId()
 											+ "' AND durability='"
-											+ item.getDurability() + "';";
+											+ item.getDurability() + "' AND groups='"+ group +"';";
 								}
 							}
 							rs.close();
@@ -899,7 +902,7 @@ public class KSInventoryListener extends InventoryListener {
 					{
 						query = "SELECT * FROM items WHERE itemid='"
 								+ item.getTypeId() + "' AND data='"
-								+ item.getData().getData() + "';";
+								+ item.getData().getData() + "' AND groups='"+ group +"';";
 						ResultSet rs = plugin.getLiteDB().select(query);
 						try
 						{
@@ -910,7 +913,7 @@ public class KSInventoryListener extends InventoryListener {
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
-											+ item.getData().getData() + "';";
+											+ item.getData().getData() + "' AND groups='"+ group +"';";
 								}
 								else
 								{
@@ -918,7 +921,7 @@ public class KSInventoryListener extends InventoryListener {
 											+ (rs.getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
-											+ item.getData().getData() + "';";
+											+ item.getData().getData() + "' AND groups='"+ group +"';";
 								}
 							}
 							rs.close();
@@ -995,7 +998,7 @@ public class KSInventoryListener extends InventoryListener {
 		return false;
 	}
 
-	public boolean giveItem(Player player, ItemStack item) {
+	public boolean giveItem(Player player, ItemStack item, String group) {
 		if (plugin.getPermissionHandler().checkPermission(player,
 				"KarmicShare.give"))
 		{
@@ -1020,7 +1023,7 @@ public class KSInventoryListener extends InventoryListener {
 					// Remove trailing comma
 					sb.deleteCharAt(sb.length() - 1);
 					// Add new instance of item to database
-					query = "INSERT INTO items (itemid,amount,data,durability,enchantments) VALUES ('"
+					query = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
 							+ item.getTypeId()
 							+ "','"
 							+ item.getAmount()
@@ -1030,7 +1033,7 @@ public class KSInventoryListener extends InventoryListener {
 							+ item.getDurability()
 							+ "','"
 							+ sb.toString()
-							+ "');";
+							+ "','" + group +"');";
 					plugin.getLiteDB().standardQuery(query);
 				}
 				else
@@ -1039,7 +1042,7 @@ public class KSInventoryListener extends InventoryListener {
 					// Create SQL query to see if item is already in
 					// database
 					query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-							+ "' AND data='" + item.getData().getData() + "';";
+							+ "' AND data='" + item.getData().getData() + "' AND groups='"+ group +"';";
 					ResultSet rs = plugin.getLiteDB().select(query);
 
 					// Send Item to database
@@ -1056,21 +1059,21 @@ public class KSInventoryListener extends InventoryListener {
 								query = "UPDATE items SET amount='" + total
 										+ "' WHERE itemid='" + item.getTypeId()
 										+ "' AND data='" + item.getData().getData()
-										+ "';";
+										+ "' AND groups='"+ group +"';";
 							}
 							while (rs.next());
 						}
 						else
 						{
 							// Item not in database, therefore add it
-							query = "INSERT INTO items (itemid,amount,data,durability) VALUES ("
+							query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
 									+ item.getTypeId()
-									+ ","
+									+ "','"
 									+ item.getAmount()
-									+ ","
+									+ "','"
 									+ item.getData().getData()
-									+ ","
-									+ item.getDurability() + ");";
+									+ "','"
+									+ item.getDurability() + "','"+group+"');";
 						}
 						rs.close();
 						plugin.getLiteDB().standardQuery(query);
@@ -1092,7 +1095,7 @@ public class KSInventoryListener extends InventoryListener {
 				// Create SQL query to see if item is already in
 				// database
 				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-						+ "' AND durability='" + item.getDurability() + "';";
+						+ "' AND durability='" + item.getDurability() + "' AND groups='"+ group +"';";
 				ResultSet rs = plugin.getLiteDB().select(query);
 
 				// Send Item to database
@@ -1109,18 +1112,18 @@ public class KSInventoryListener extends InventoryListener {
 							query = "UPDATE items SET amount='" + total
 									+ "' WHERE itemid='" + item.getTypeId()
 									+ "' AND durability='"
-									+ item.getDurability() + "';";
+									+ item.getDurability() + "' AND groups='"+ group +"';";
 						}
 						while (rs.next());
 					}
 					else
 					{
 						// Item not in database, therefore add it
-						query = "INSERT INTO items (itemid,amount,data,durability) VALUES ("
+						query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId()
-								+ ","
+								+ "','"
 								+ item.getAmount()
-								+ ",0," + item.getDurability() + ");";
+								+ "','0','" + item.getDurability() + "','"+group+"');";
 					}
 					rs.close();
 					plugin.getLiteDB().standardQuery(query);
@@ -1140,7 +1143,7 @@ public class KSInventoryListener extends InventoryListener {
 				// Create SQL query to see if item is already in
 				// database
 				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
-						+ "' AND data='" + item.getData().getData() + "';";
+						+ "' AND data='" + item.getData().getData() + "' AND groups='"+ group +"';";
 				ResultSet rs = plugin.getLiteDB().select(query);
 
 				// Send Item to database
@@ -1157,21 +1160,21 @@ public class KSInventoryListener extends InventoryListener {
 							query = "UPDATE items SET amount='" + total
 									+ "' WHERE itemid='" + item.getTypeId()
 									+ "' AND data='" + item.getData().getData()
-									+ "';";
+									+ "' AND groups='"+ group +"';";
 						}
 						while (rs.next());
 					}
 					else
 					{
 						// Item not in database, therefore add it
-						query = "INSERT INTO items (itemid,amount,data,durability) VALUES ("
+						query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId()
-								+ ","
+								+ "','"
 								+ item.getAmount()
-								+ ","
+								+ "','"
 								+ item.getData().getData()
-								+ ","
-								+ item.getDurability() + ");";
+								+ "','"
+								+ item.getDurability() + "','"+group+"');";
 					}
 					rs.close();
 					plugin.getLiteDB().standardQuery(query);

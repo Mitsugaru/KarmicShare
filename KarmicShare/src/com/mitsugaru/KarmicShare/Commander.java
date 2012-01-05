@@ -274,12 +274,13 @@ public class Commander implements CommandExecutor {
 					if(!groupExists(sender, group))
 					{
 						//Create group
-						ks.getLiteDB().standardQuery("INSERT INTO groups VALUES(" + group +");");
+						ks.getLiteDB().standardQuery("INSERT INTO groups (groupname) VALUES ('" + group +"');");
 						sender.sendMessage(ChatColor.GREEN + prefix + " Group " + ChatColor.GRAY + group + ChatColor.GREEN + " created");
 						if(sender instanceof Player)
 						{
 							//add player to group
 							addPlayerToGroup(sender, ((Player) sender).getName(), group);
+							sender.sendMessage(ChatColor.GREEN + prefix + " Added " + ChatColor.GOLD + ((Player) sender).getName() + ChatColor.GREEN + " to " + ChatColor.GRAY + group);
 						}
 						else
 						{
@@ -2728,6 +2729,7 @@ public class Commander implements CommandExecutor {
 			}
 			return true;
 		}
+		//TODO admin command to remove groups
 		return false;
 	}
 

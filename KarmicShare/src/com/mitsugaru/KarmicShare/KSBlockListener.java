@@ -45,12 +45,18 @@ public class KSBlockListener extends BlockListener {
 					else
 					{
 						String groupName = "global";
-						if(!ChatColor.stripColor(event.getLine(0)).equals(""))
+						if(!ChatColor.stripColor(event.getLine(0)).equalsIgnoreCase(""))
 						{
 							//Group chest
 							if(validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
 							{
-								groupName = ChatColor.stripColor(event.getLine(0)).toLowerCase();
+								groupName = event.getLine(0);
+							}
+							else
+							{
+								event.getPlayer().sendMessage(
+										ChatColor.YELLOW + KarmicShare.prefix
+												+ " Group " + ChatColor.GRAY + event.getLine(0) + ChatColor.YELLOW + " not found");
 							}
 						}
 						//Check if its a chest
@@ -66,9 +72,18 @@ public class KSBlockListener extends BlockListener {
 										+ "[KarmicShare]");
 								event.setLine(2, "Page:");
 								event.setLine(3, "1");
-								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.prefix
-												+ " Chest linked to pool.");
+								if(!ChatColor.stripColor(groupName).equalsIgnoreCase("global"))
+								{
+									event.getPlayer().sendMessage(
+											ChatColor.GREEN + KarmicShare.prefix
+													+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(groupName).toLowerCase());
+								}
+								else
+								{
+									event.getPlayer().sendMessage(
+											ChatColor.GREEN + KarmicShare.prefix
+													+ " Chest linked to pool.");
+								}
 							}
 							else
 							{
@@ -169,9 +184,18 @@ public class KSBlockListener extends BlockListener {
 						sign.setLine(2, "Page:");
 						sign.setLine(3, "1");
 						sign.update();
-						event.getPlayer().sendMessage(
-								ChatColor.GREEN + KarmicShare.prefix
-										+ " Chest linked to pool.");
+						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
+						{
+							event.getPlayer().sendMessage(
+									ChatColor.GREEN + KarmicShare.prefix
+											+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
+						}
+						else
+						{
+							event.getPlayer().sendMessage(
+									ChatColor.GREEN + KarmicShare.prefix
+											+ " Chest linked to pool.");
+						}
 					}
 				}
 				else if (chest.isDoubleChest())
@@ -198,9 +222,18 @@ public class KSBlockListener extends BlockListener {
 							sign.setLine(2, "Page:");
 							sign.setLine(3, "1");
 							sign.update();
-							event.getPlayer().sendMessage(
-									ChatColor.GREEN + KarmicShare.prefix
-											+ " Chest linked to pool.");
+							if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
+							{
+								event.getPlayer().sendMessage(
+										ChatColor.GREEN + KarmicShare.prefix
+												+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
+							}
+							else
+							{
+								event.getPlayer().sendMessage(
+										ChatColor.GREEN + KarmicShare.prefix
+												+ " Chest linked to pool.");
+							}
 						}
 					}
 				}
@@ -232,17 +265,17 @@ public class KSBlockListener extends BlockListener {
 						// Update sign
 						sign.setLine(1, ChatColor.DARK_RED + "[KarmicShare]");
 						sign.update();
-						if(sign.getLine(0).equals(""))
+						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 						{
 							event.getPlayer().sendMessage(
-								ChatColor.YELLOW + KarmicShare.prefix
-										+ " Chest unlinked from pool.");
+									ChatColor.YELLOW + KarmicShare.prefix
+											+ " Chest unlinked from " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 						}
 						else
 						{
 							event.getPlayer().sendMessage(
 									ChatColor.YELLOW + KarmicShare.prefix
-											+ " Chest unlinked from " + ChatColor.GRAY + sign.getLine(0));
+											+ " Chest unlinked from pool.");
 						}
 					}
 				}
@@ -293,17 +326,17 @@ public class KSBlockListener extends BlockListener {
 									.getState());
 							chest.getInventory().clear();
 							chest.update();
-							if(sign.getLine(0).equals(""))
+							if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 							{
 								event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.prefix
-											+ " Chest unlinked from pool.");
+										ChatColor.YELLOW + KarmicShare.prefix
+												+ " Chest unlinked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 							}
 							else
 							{
 								event.getPlayer().sendMessage(
 										ChatColor.YELLOW + KarmicShare.prefix
-												+ " Chest unlinked from " + ChatColor.GRAY + sign.getLine(0));
+												+ " Chest unlinked to pool.");
 							}
 						}
 

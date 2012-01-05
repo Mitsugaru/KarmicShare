@@ -42,6 +42,7 @@ public class KSPlayerListener extends PlayerListener {
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							"[KarmicShare]"))
 					{
+						final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), "KarmicShare.chest"))
 						{
@@ -61,7 +62,7 @@ public class KSPlayerListener extends PlayerListener {
 								try
 								{
 									page = Integer.parseInt(sign.getLine(3));
-									populateChest(chest.getInventory(), page, chest.isDoubleChest());
+									populateChest(chest.getInventory(), page, chest.isDoubleChest(), group);
 									chest.update();
 								}
 								catch(NumberFormatException n)
@@ -102,6 +103,7 @@ public class KSPlayerListener extends PlayerListener {
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase("[KarmicShare]"))
 								{
+									final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 									if (plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.chest"))
@@ -117,7 +119,7 @@ public class KSPlayerListener extends PlayerListener {
 											try
 											{
 												page = Integer.parseInt(sign.getLine(3));
-												populateChest(chest.getInventory(), page, chest.isDoubleChest());
+												populateChest(chest.getInventory(), page, chest.isDoubleChest(), group);
 												chest.update();
 											}
 											catch(NumberFormatException n)
@@ -152,6 +154,7 @@ public class KSPlayerListener extends PlayerListener {
 				if (ChatColor.stripColor(sign.getLine(1))
 						.equalsIgnoreCase("[KarmicShare]"))
 				{
+					final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 					if (block.getRelative(BlockFace.DOWN).getType().equals(Material.CHEST))
 					{
 						BetterChest chest = new BetterChest(
@@ -163,7 +166,7 @@ public class KSPlayerListener extends PlayerListener {
 								int page = grabNextPage(
 										Integer.parseInt(""
 												+ sign.getLine(3)),
-										54);
+										54, group);
 								sign.setLine(3, "" + page);
 								sign.update();
 							}
@@ -183,7 +186,7 @@ public class KSPlayerListener extends PlayerListener {
 								int page = grabNextPage(
 										Integer.parseInt(""
 												+ sign.getLine(3)),
-										27);
+										27, group);
 								sign.setLine(3, "" + page);
 								sign.update();
 							}
@@ -212,6 +215,7 @@ public class KSPlayerListener extends PlayerListener {
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							"[KarmicShare]"))
 					{
+						final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), "KarmicShare.chest"))
 						{
@@ -223,7 +227,7 @@ public class KSPlayerListener extends PlayerListener {
 								{
 									int page = grabNextPage(
 											Integer.parseInt(""
-													+ sign.getLine(3)), 54);
+													+ sign.getLine(3)), 54, group);
 									sign.setLine(3, "" + page);
 									sign.update();
 								}
@@ -242,7 +246,7 @@ public class KSPlayerListener extends PlayerListener {
 								{
 									int page = grabNextPage(
 											Integer.parseInt(""
-													+ sign.getLine(3)), 27);
+													+ sign.getLine(3)), 27, group);
 									sign.setLine(3, "" + page);
 									sign.update();
 								}
@@ -285,6 +289,7 @@ public class KSPlayerListener extends PlayerListener {
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase("[KarmicShare]"))
 								{
+									String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 									if (plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.chest"))
@@ -298,7 +303,7 @@ public class KSPlayerListener extends PlayerListener {
 												int page = grabNextPage(
 														Integer.parseInt(""
 																+ sign.getLine(3)),
-														54);
+														54, group);
 												sign.setLine(3, "" + page);
 												sign.update();
 											}
@@ -318,7 +323,7 @@ public class KSPlayerListener extends PlayerListener {
 												int page = grabNextPage(
 														Integer.parseInt(""
 																+ sign.getLine(3)),
-														27);
+														27, group);
 												sign.setLine(3, "" + page);
 												sign.update();
 											}
@@ -354,6 +359,7 @@ public class KSPlayerListener extends PlayerListener {
 				if (ChatColor.stripColor(sign.getLine(1))
 						.equalsIgnoreCase("[KarmicShare]"))
 				{
+					final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 					if (block.getRelative(BlockFace.DOWN).getType().equals(Material.CHEST))
 					{
 						BetterChest chest = new BetterChest(
@@ -365,7 +371,7 @@ public class KSPlayerListener extends PlayerListener {
 								int page = grabNextPage(
 										Integer.parseInt(""
 												+ sign.getLine(3)),
-										54);
+										54, group);
 								sign.setLine(3, "" + page);
 								sign.update();
 							}
@@ -385,7 +391,7 @@ public class KSPlayerListener extends PlayerListener {
 								int page = grabNextPage(
 										Integer.parseInt(""
 												+ sign.getLine(3)),
-										27);
+										27, group);
 								sign.setLine(3, "" + page);
 								sign.update();
 							}
@@ -404,11 +410,11 @@ public class KSPlayerListener extends PlayerListener {
 		}
 	}
 
-	private int grabNextPage(int current, int limit) {
+	private int grabNextPage(int current, int limit, String group) {
 		int page = 1;
 		// Grab total items
 		ResultSet count = plugin.getLiteDB().select(
-				"SELECT COUNT(*) FROM items;");
+				"SELECT COUNT(*) FROM items WHERE groups='" + group + "';");
 		try
 		{
 			if (count.next())
@@ -453,7 +459,7 @@ public class KSPlayerListener extends PlayerListener {
 		return page;
 	}
 
-	private void populateChest(Inventory inventory, int page, boolean isDouble) {
+	private void populateChest(Inventory inventory, int page, boolean isDouble, String group) {
 		try
 		{
 			int count = 0;
@@ -464,7 +470,7 @@ public class KSPlayerListener extends PlayerListener {
 			}
 			int start = (page - 1) * limit;
 			ResultSet itemList = plugin.getLiteDB().select(
-					"SELECT * FROM items;");
+					"SELECT * FROM items WHERE groups='" + group + "';");
 			if (itemList.next())
 			{
 				boolean done = false;
