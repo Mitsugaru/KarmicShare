@@ -1066,7 +1066,7 @@ public class Commander implements CommandExecutor {
 						toolCheck = true;
 						// Grab all entries of the same tool id
 						String toolQuery = "SELECT * FROM items WHERE itemid='"
-								+ itemid + "' AND group='global';";
+								+ itemid + "' AND groups='global';";
 						ResultSet toolRS = ks.getLiteDB().select(toolQuery);
 						try
 						{
@@ -1117,7 +1117,7 @@ public class Commander implements CommandExecutor {
 						// Separate check to see if its a potion and handle it
 						// via the durability info
 						query = "SELECT * FROM items WHERE itemid='" + itemid
-								+ "' AND durability='" + dur + "' AND group='global';";
+								+ "' AND durability='" + dur + "' AND groups='global';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Check ResultSet
@@ -1174,7 +1174,7 @@ public class Commander implements CommandExecutor {
 					{
 						// Not a tool
 						query = "SELECT * FROM items WHERE itemid='" + itemid
-								+ "' AND data='" + data + "' AND group='global';";
+								+ "' AND data='" + data + "' AND groups='global';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Check ResultSet
@@ -1448,7 +1448,7 @@ public class Commander implements CommandExecutor {
 							{
 								// Grab all entries of the same tool id
 								String toolQuery = "SELECT * FROM items WHERE itemid='"
-										+ itemid + "' AND group='global';";
+										+ itemid + "' AND groups='global';";
 								ResultSet toolRS = ks.getLiteDB().select(
 										toolQuery);
 								try
@@ -1509,7 +1509,7 @@ public class Commander implements CommandExecutor {
 															+ "' AND data='"
 															+ data
 															+ "' AND enchantments='"
-															+ enchant + " AND group='global';";
+															+ enchant + " AND groups='global';";
 												}
 												else
 												{
@@ -1519,7 +1519,7 @@ public class Commander implements CommandExecutor {
 															+ "' WHERE itemid='"
 															+ itemid
 															+ "' AND data='"
-															+ data + "' AND group='global';";
+															+ data + "' AND groups='global';";
 												}
 												// Done
 												done = true;
@@ -1639,7 +1639,7 @@ public class Commander implements CommandExecutor {
 									query = "DELETE FROM items WHERE amount='"
 											+ amount + "' AND itemid='"
 											+ itemid + "' AND durability='"
-											+ dur + "' AND group='global';";
+											+ dur + "' AND groups='global';";
 									ks.getLiteDB().standardQuery(query);
 									// Remove from cache list
 									cache.remove(item);
@@ -1650,7 +1650,7 @@ public class Commander implements CommandExecutor {
 								{
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
-											+ "' AND durability='" + dur + "' AND group='global';";
+											+ "' AND durability='" + dur + "' AND groups='global';";
 									ks.getLiteDB().standardQuery(query);
 								}
 							}
@@ -1696,7 +1696,7 @@ public class Commander implements CommandExecutor {
 									query = "DELETE FROM items WHERE amount='"
 											+ amount + "' AND itemid='"
 											+ itemid + "' AND data='" + data
-											+ "' AND group='global';";
+											+ "' AND groups='global';";
 									ks.getLiteDB().standardQuery(query);
 									// Remove from cache list
 									cache.remove(item);
@@ -1707,7 +1707,7 @@ public class Commander implements CommandExecutor {
 								{
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
-											+ "' AND data='" + data + "' AND group='global';";
+											+ "' AND data='" + data + "' AND groups='global';";
 									ks.getLiteDB().standardQuery(query);
 								}
 							}
@@ -1834,7 +1834,7 @@ public class Commander implements CommandExecutor {
 						// Create SQL query to see if item is already in
 						// database
 						query = "SELECT * FROM items WHERE itemid='" + itemid
-								+ "' AND data='" + data + "' AND group='global';";
+								+ "' AND data='" + data + "' AND groups='global';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Send Item to database
@@ -1850,7 +1850,7 @@ public class Commander implements CommandExecutor {
 									int total = quantity + rs.getInt("amount");
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
-											+ "' AND data='" + data + "' AND group='global';";
+											+ "' AND data='" + data + "' AND groups='global';";
 								}
 								while (rs.next());
 							}
@@ -1882,7 +1882,7 @@ public class Commander implements CommandExecutor {
 						// Create SQL query to see if item is already in
 						// database
 						query = "SELECT * FROM items WHERE itemid='" + itemid
-								+ "' AND durability='" + durability + "' AND group='global';";
+								+ "' AND durability='" + durability + "' AND groups='global';";
 						ResultSet rs = ks.getLiteDB().select(query);
 
 						// Send Item to database
@@ -1899,7 +1899,7 @@ public class Commander implements CommandExecutor {
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
 											+ "' AND durability='" + durability
-											+ "' AND group='global';";
+											+ "' AND groups='global';";
 								}
 								while (rs.next());
 							}
@@ -2338,7 +2338,7 @@ public class Commander implements CommandExecutor {
 						// Create SQL query to see if item is already in
 						// database
 						String query = "SELECT * FROM items WHERE itemid='"
-								+ itemid + "' AND durability='" + dur + "' AND group='global';";
+								+ itemid + "' AND durability='" + dur + "' AND groups='global';";
 						ResultSet rs = ks.getLiteDB().select(query);
 						// Send Item to database
 						try
@@ -2352,7 +2352,7 @@ public class Commander implements CommandExecutor {
 									int total = amount + rs.getInt("amount");
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
-											+ "' AND durability='" + dur + "' AND group='global';";
+											+ "' AND durability='" + dur + "' AND groups='global';";
 								}
 								while (rs.next());
 							}
@@ -2388,7 +2388,7 @@ public class Commander implements CommandExecutor {
 						// Create SQL query to see if item is already in
 						// database
 						String query = "SELECT * FROM items WHERE itemid='"
-								+ itemid + "' AND data='" + data + "' AND group='global';";
+								+ itemid + "' AND data='" + data + "' AND groups='global';";
 						ResultSet rs = ks.getLiteDB().select(query);
 						// Send Item to database
 						try
@@ -2402,7 +2402,7 @@ public class Commander implements CommandExecutor {
 									int total = amount + rs.getInt("amount");
 									query = "UPDATE items SET amount='" + total
 											+ "' WHERE itemid='" + itemid
-											+ "' AND data='" + data + "' AND group='global';";
+											+ "' AND data='" + data + "' AND groups='global';";
 								}
 								while (rs.next());
 							}
@@ -2736,7 +2736,7 @@ public class Commander implements CommandExecutor {
 	 */
 	private void updateCache(CommandSender sender) {
 		// Get list of items from database
-		ResultSet itemlist = ks.getLiteDB().select("SELECT * FROM items WHERE group='global';");
+		ResultSet itemlist = ks.getLiteDB().select("SELECT * FROM items WHERE groups='global';");
 		try
 		{
 			if (itemlist.next())
@@ -3342,7 +3342,7 @@ public class Commander implements CommandExecutor {
 			if (answer.equals("yes"))
 			{
 				// Wipe table
-				final String query = "DELETE FROM items WHERE group='global'";
+				final String query = "DELETE FROM items WHERE groups='global'";
 				ks.getLiteDB().standardQuery(query);
 				ks.getLogger().info(prefix + " Global items table cleared");
 				player.sendMessage(ChatColor.GREEN + prefix

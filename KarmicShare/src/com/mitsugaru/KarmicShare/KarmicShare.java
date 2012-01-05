@@ -68,7 +68,7 @@ public class KarmicShare extends JavaPlugin {
 		if (!database.checkTable("items"))
 		{
 			syslog.info(prefix + " Created item table");
-			database.createTable("CREATE TABLE `items` (`itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `group` TEXT);");
+			database.createTable("CREATE TABLE `items` (`itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT);");
 		}
 		// Check if player table exists
 		if (!database.checkTable("players"))
