@@ -101,7 +101,7 @@ public class KSInventoryListener extends InventoryListener {
 									{
 										if (fromChest)
 										{
-											if (takeItem(event.getPlayer(),
+											/*if (takeItem(event.getPlayer(),
 													event.getItem()))
 											{
 												event.setResult(Event.Result.ALLOW);
@@ -132,10 +132,15 @@ public class KSInventoryListener extends InventoryListener {
 												}
 											}
 											else
-											{
+											{*/
+											event.getPlayer()
+											.sendMessage(
+													ChatColor.YELLOW
+															+ KarmicShare.prefix
+															+ " Shift click is disabled when grabbing from chest.");
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
-											}
+											/*}*/
 										}
 										else
 										{

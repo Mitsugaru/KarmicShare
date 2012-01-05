@@ -1636,6 +1636,7 @@ public class Commander implements CommandExecutor {
 		sender.sendMessage(ChatColor.BLUE + "===========" + ChatColor.GRAY
 				+ "Config" + ChatColor.BLUE + "===========");
 		sender.sendMessage(ChatColor.GRAY + "Effects: " + config.effects);
+		sender.sendMessage(ChatColor.GRAY + "Chests: " + config.chests);
 		sender.sendMessage(ChatColor.GRAY + "Karma enabled: "
 				+ !config.karmaDisabled);
 		sender.sendMessage(ChatColor.GRAY + "Static karma: "
