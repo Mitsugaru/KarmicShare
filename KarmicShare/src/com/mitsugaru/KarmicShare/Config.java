@@ -181,33 +181,33 @@ public class Config {
 		if(ver < 0.08)
 		{
 			//Add enchantments column
-			plugin.getLogger().info("Altering items table to add enchantments column.");
+			plugin.getLogger().info(KarmicShare.prefix + " Altering items table to add enchantments column.");
 			query = "ALTER TABLE items ADD enchantments TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 		}
 		if(ver < 0.09)
 		{
 			//Add back durability column
-			plugin.getLogger().info("Altering items table to add durability column.");
+			plugin.getLogger().info(KarmicShare.prefix + " Altering items table to add durability column.");
 			query = "ALTER TABLE items ADD durability TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 		}
 		if(ver < 0.14)
 		{
 			//Add groups to players table
-			plugin.getLogger().info("Altering player table to add groups column.");
+			plugin.getLogger().info(KarmicShare.prefix + " Altering player table to add groups column.");
 			query = "ALTER TABLE players ADD groups TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 			//Add group column to item table
-			plugin.getLogger().info("Altering items table to add group column.");
+			plugin.getLogger().info(KarmicShare.prefix + " Altering items table to add group column.");
 			query = "ALTER TABLE items ADD groups TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 			//Add all current items to global
-			plugin.getLogger().info("Altering item table to set all items to global group.");
+			plugin.getLogger().info(KarmicShare.prefix + " Altering item table to set all items to global group.");
 			query = "UPDATE items SET groups='global';";
 			plugin.getLiteDB().standardQuery(query);
 			//Add the GLOBAL group
-			plugin.getLogger().info("Adding global group to groups table.");
+			plugin.getLogger().info(KarmicShare.prefix + " Adding global group to groups table.");
 			query = "INSERT INTO groups (groupname) VALUES ('global');";
 			plugin.getLiteDB().standardQuery(query);
 		}
