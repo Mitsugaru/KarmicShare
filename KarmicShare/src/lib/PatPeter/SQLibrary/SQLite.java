@@ -295,7 +295,9 @@ public class SQLite extends DatabaseHandler {
 			dbm = this.open().getMetaData();
 			ResultSet tables = dbm.getTables(null, null, table, null);
 			if (tables.next())
-			  has = true;
+			{
+				has = true;
+			}
 			tables.close();
 			return has;
 		} catch (SQLException e) {

@@ -190,6 +190,21 @@ public class Config {
 			query = "ALTER TABLE items ADD durability TEXT;";
 			plugin.getLiteDB().standardQuery(query);
 		}
+		if(ver < 0.14)
+		{
+			//Add groups to players table
+			query = "ALTER TABLE players ADD groups TEXT;";
+			plugin.getLiteDB().standardQuery(query);
+			//Add group column to item table
+			query = "ALTER TABLE items ADD group TEXT;";
+			plugin.getLiteDB().standardQuery(query);
+			//Add all current items to global
+			query = "UPDATE items SET group='global'";
+			plugin.getLiteDB().standardQuery(query);
+			//Add the GLOBAL group
+			query = "INSERT INTO groups VALUES(global);";
+			plugin.getLiteDB().standardQuery(query);
+		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();

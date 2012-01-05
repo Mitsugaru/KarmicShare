@@ -68,7 +68,7 @@ public class KarmicShare extends JavaPlugin {
 		if (!database.checkTable("items"))
 		{
 			syslog.info(prefix + " Created item table");
-			database.createTable("CREATE TABLE `items` (`itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT);");
+			database.createTable("CREATE TABLE `items` (`itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `group` TEXT);");
 		}
 		// Check if player table exists
 		if (!database.checkTable("players"))
@@ -79,7 +79,12 @@ public class KarmicShare extends JavaPlugin {
 			// and bad.
 			// Past certain boundary, do not increase/decrease.
 			// Boundary must be within 30000 high or low, as per SMALLINT
-			database.createTable("CREATE TABLE `players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL,UNIQUE (`playername`));");
+			database.createTable("CREATE TABLE `players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
+		}
+		if(!database.checkTable("groups"))
+		{
+			syslog.info(prefix + " Created groups table");
+			database.createTable("CREATE TABLE `groups` (`groupname` TEXT NOT NULL, UNIQUE (`groupname`));");
 		}
 	}
 

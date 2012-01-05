@@ -1,11 +1,15 @@
 package com.mitsugaru.KarmicShare;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -28,55 +32,65 @@ public class KSBlockListener extends BlockListener {
 	public void onSignChange(final SignChangeEvent event) {
 		if (!event.isCancelled())
 		{
-			boolean has = false;
-			for (String line : event.getLines())
-			{
-				if (ChatColor.stripColor(line)
-						.equalsIgnoreCase("[KarmicShare]"))
-				{
-					has = true;
-				}
-			}
-			if (has)
+			if (ChatColor.stripColor(event.getLine(1)).equalsIgnoreCase(
+					"[KarmicShare]"))
 			{
 				if (plugin.getPermissionHandler().checkPermission(
 						event.getPlayer(), "KarmicShare.sign"))
 				{
-					if (plugin.getPluginConfig().chests)
+					if (!ChatColor.stripColor(event.getLine(2)).equals(""))
 					{
-						// Thanks to Wolvereness for the following code
-						if (event.getBlock().getRelative(BlockFace.DOWN)
-								.getType().equals(Material.CHEST))
-						{
-							// Reformat sign
-							event.setLine(0, "");
-							event.setLine(1, ChatColor.AQUA + "[KarmicShare]");
-							event.setLine(2, "Page:");
-							event.setLine(3, "1");
-							event.getPlayer().sendMessage(
-									ChatColor.GREEN + KarmicShare.prefix
-											+ " Chest linked to pool.");
-						}
-						else
-						{
-							// Reformat sign
-							event.setLine(0, "");
-							event.setLine(1, ChatColor.DARK_RED
-									+ "[KarmicShare]");
-							event.setLine(2, "Page:");
-							event.setLine(3, "1");
-							event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.prefix
-											+ " No chest found!");
-						}
+						// Player sign
 					}
 					else
 					{
-						event.getPlayer().sendMessage(
-								ChatColor.RED + KarmicShare.prefix
-										+ " Chests access disabled");
-						// Cancel event
-						event.setCancelled(true);
+						String groupName = "global";
+						if(!ChatColor.stripColor(event.getLine(0)).equals(""))
+						{
+							//Group chest
+							if(validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
+							{
+								groupName = ChatColor.stripColor(event.getLine(0)).toLowerCase();
+							}
+						}
+						//Check if its a chest
+						if (plugin.getPluginConfig().chests)
+						{
+							// Thanks to Wolvereness for the following code
+							if (event.getBlock().getRelative(BlockFace.DOWN)
+									.getType().equals(Material.CHEST))
+							{
+								// Reformat sign
+								event.setLine(0, groupName);
+								event.setLine(1, ChatColor.AQUA
+										+ "[KarmicShare]");
+								event.setLine(2, "Page:");
+								event.setLine(3, "1");
+								event.getPlayer().sendMessage(
+										ChatColor.GREEN + KarmicShare.prefix
+												+ " Chest linked to pool.");
+							}
+							else
+							{
+								// Reformat sign
+								event.setLine(0, groupName);
+								event.setLine(1, ChatColor.DARK_RED
+										+ "[KarmicShare]");
+								event.setLine(2, "Page:");
+								event.setLine(3, "1");
+								event.getPlayer().sendMessage(
+										ChatColor.YELLOW + KarmicShare.prefix
+												+ " No chest found!");
+							}
+						}
+						else
+						{
+							event.getPlayer().sendMessage(
+									ChatColor.RED + KarmicShare.prefix
+											+ " Chests access disabled");
+							// Cancel event
+							event.setCancelled(true);
+						}
 					}
 				}
 				else
@@ -145,12 +159,12 @@ public class KSBlockListener extends BlockListener {
 								"[KarmicShare]"))
 						{
 							has = true;
+							//TODO check that it isn't a player karma sign
 						}
 					}
 					if (has)
 					{
 						// Reformat sign
-						sign.setLine(0, "");
 						sign.setLine(1, ChatColor.AQUA + "[KarmicShare]");
 						sign.setLine(2, "Page:");
 						sign.setLine(3, "1");
@@ -180,7 +194,6 @@ public class KSBlockListener extends BlockListener {
 						if (exists)
 						{
 							// Reformat sign
-							sign.setLine(0, "");
 							sign.setLine(1, ChatColor.AQUA + "[KarmicShare]");
 							sign.setLine(2, "Page:");
 							sign.setLine(3, "1");
@@ -219,9 +232,18 @@ public class KSBlockListener extends BlockListener {
 						// Update sign
 						sign.setLine(1, ChatColor.DARK_RED + "[KarmicShare]");
 						sign.update();
-						event.getPlayer().sendMessage(
+						if(sign.getLine(0).equals(""))
+						{
+							event.getPlayer().sendMessage(
 								ChatColor.YELLOW + KarmicShare.prefix
 										+ " Chest unlinked from pool.");
+						}
+						else
+						{
+							event.getPlayer().sendMessage(
+									ChatColor.YELLOW + KarmicShare.prefix
+											+ " Chest unlinked from " + ChatColor.GRAY + sign.getLine(0));
+						}
 					}
 				}
 				else if (chest.isDoubleChest())
@@ -271,9 +293,18 @@ public class KSBlockListener extends BlockListener {
 									.getState());
 							chest.getInventory().clear();
 							chest.update();
-							event.getPlayer().sendMessage(
+							if(sign.getLine(0).equals(""))
+							{
+								event.getPlayer().sendMessage(
 									ChatColor.YELLOW + KarmicShare.prefix
 											+ " Chest unlinked from pool.");
+							}
+							else
+							{
+								event.getPlayer().sendMessage(
+										ChatColor.YELLOW + KarmicShare.prefix
+												+ " Chest unlinked from " + ChatColor.GRAY + sign.getLine(0));
+							}
 						}
 
 					}
@@ -313,5 +344,27 @@ public class KSBlockListener extends BlockListener {
 				}
 			}
 		}
+	}
+
+	public boolean validGroup(Player sender, String group)
+	{
+		boolean valid = false;
+		try
+		{
+			ResultSet rs = plugin.getLiteDB().select("SELECT * FROM groups WHERE groupname='" + group + "';");
+			if(rs.next())
+			{
+				valid = true;
+			}
+			rs.close();
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+		return valid;
 	}
 }
