@@ -11,7 +11,7 @@ description: Command-based item sharing with karma system
 authors:
   - Mitsugaru
 
-softdepend: [Vault, PermissionsEX, Spout, LogBlockQuestioner,]
+softdepend: [Vault, PermissionsEX, Spout]
 
 commands:
   ks:
