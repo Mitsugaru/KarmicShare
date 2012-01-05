@@ -9,14 +9,20 @@
  */
 package com.mitsugaru.KarmicShare;
 
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import lib.PatPeter.SQLibrary.SQLite;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import de.diddiz.LogBlockQuestioner.LogBlockQuestionerPlayerListener;
+import de.diddiz.LogBlockQuestioner.Question;
+import de.diddiz.LogBlockQuestioner.QuestionsReaper;
 
 public class KarmicShare extends JavaPlugin {
 	// Class variables
@@ -26,6 +32,7 @@ public class KarmicShare extends JavaPlugin {
 	private Commander commander;
 	private Config config;
 	private PermCheck perm;
+	private final Vector<Question> questions = new Vector<Question>();
 
 	// IDEA Score board on karma?
 	// TODO Mod commands to remove items
@@ -94,6 +101,11 @@ public class KarmicShare extends JavaPlugin {
 		// Grab plugin manager
 		final PluginManager pm = this.getServer().getPluginManager();
 
+			//Use bundled package of logblockquestioner.
+			this.getServer().getPluginManager().registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, new LogBlockQuestionerPlayerListener(questions), Priority.Normal, this);
+			this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new QuestionsReaper(questions), 15000, 15000);
+
+
 		//Generate listeners
 		KSBlockListener blockListener = new KSBlockListener(this);
 		KSPlayerListener playerListener = new KSPlayerListener(this);
@@ -160,5 +172,11 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	public Config getPluginConfig() {
 		return config;
+	}
+
+	public String ask(Player respondent, String questionMessage, String... answers) {
+		final Question question = new Question(respondent, questionMessage, answers);
+		questions.add(question);
+		return question.ask();
 	}
 }

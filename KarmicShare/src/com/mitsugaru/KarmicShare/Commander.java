@@ -378,13 +378,13 @@ public class Commander implements CommandExecutor {
 			}
 			catch (NumberFormatException e)
 			{
-				//TODO this is where I would catch the item's
-				//partial name. Probably use regex and see if
-				//an item's name in cache matches.
-				//Will need to modify listPool to accept regex
-				//Can't think of a good way to page through this
-				//new list without having a hashmap per custom
-				//cache, and I really don't want to do that :\
+				// TODO this is where I would catch the item's
+				// partial name. Probably use regex and see if
+				// an item's name in cache matches.
+				// Will need to modify listPool to accept regex
+				// Can't think of a good way to page through this
+				// new list without having a hashmap per custom
+				// cache, and I really don't want to do that :\
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Invalid integer for page number");
 			}
@@ -600,10 +600,10 @@ public class Commander implements CommandExecutor {
 						}
 					}
 
-					else if(temp.isPotion())
+					else if (temp.isPotion())
 					{
 						potionCheck = true;
-						//Separate check to see if its a potion and handle it
+						// Separate check to see if its a potion and handle it
 						// via the durability info
 						query = "SELECT * FROM items WHERE itemid='" + itemid
 								+ "' AND durability='" + dur + "';";
@@ -1080,29 +1080,33 @@ public class Commander implements CommandExecutor {
 									e.printStackTrace();
 								}
 							}
-							else if(potionCheck)
+							else if (potionCheck)
 							{
 								boolean full = false;
-								for(int i = 0; i < amount; i++)
+								for (int i = 0; i < amount; i++)
 								{
-									if(!full)
+									if (!full)
 									{
 										// Generate item
-										final ItemStack give = new ItemStack(item.getItemTypeId(), 1, item.itemDurability());
+										final ItemStack give = new ItemStack(
+												item.getItemTypeId(), 1,
+												item.itemDurability());
 										HashMap<Integer, ItemStack> residual = player
 												.getInventory().addItem(give);
-										//Check if player
+										// Check if player
 										if (residual.size() != 0)
 										{
 											full = true;
 											amount -= residual.size();
 											if (amount == 0)
 											{
-												// Didn't actually give any items
+												// Didn't actually give any
+												// items
 												// due
 												// to completely full inventory,
 												// therefore
-												// Notify player of their mistake
+												// Notify player of their
+												// mistake
 												player.sendMessage(ChatColor.YELLOW
 														+ prefix
 														+ " Your inventory is completely full...");
@@ -1123,8 +1127,8 @@ public class Commander implements CommandExecutor {
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE amount='"
 											+ amount + "' AND itemid='"
-											+ itemid + "' AND durability='" + dur
-											+ "';";
+											+ itemid + "' AND durability='"
+											+ dur + "';";
 									ks.getLiteDB().standardQuery(query);
 									// Remove from cache list
 									cache.remove(item);
@@ -1143,7 +1147,9 @@ public class Commander implements CommandExecutor {
 							{
 								// Handle non-tools
 								// Generate item
-								final ItemStack give = new ItemStack(item.getItemTypeId(), amount, item.itemDurability());
+								final ItemStack give = new ItemStack(
+										item.getItemTypeId(), amount,
+										item.itemDurability());
 								HashMap<Integer, ItemStack> residual = player
 										.getInventory().addItem(give);
 								if (residual.size() != 0)
@@ -1518,10 +1524,11 @@ public class Commander implements CommandExecutor {
 							+ " Amount:" + ChatColor.GOLD + quantity
 							+ ChatColor.GREEN + " Data: "
 							+ ChatColor.LIGHT_PURPLE + item.getData()
-							+ ChatColor.GREEN + " Damage: " + ChatColor.LIGHT_PURPLE
-							+ items.getDurability() + ChatColor.GREEN
-							+ " Tool: " + ChatColor.GRAY + item.isTool() + ChatColor.GREEN
-							+ " Potion: " + ChatColor.GRAY + item.isPotion());
+							+ ChatColor.GREEN + " Damage: "
+							+ ChatColor.LIGHT_PURPLE + items.getDurability()
+							+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
+							+ item.isTool() + ChatColor.GREEN + " Potion: "
+							+ ChatColor.GRAY + item.isPotion());
 					if (!config.karmaDisabled)
 					{
 						if (config.statickarma)
@@ -1808,12 +1815,11 @@ public class Commander implements CommandExecutor {
 						return true;
 					}
 				}
-				//Create item object
-				final Item item = new Item(itemid, Byte.valueOf("" + data),
-						dur);
+				// Create item object
+				final Item item = new Item(itemid, Byte.valueOf("" + data), dur);
 				if (itemid != 0)
 				{
-					if(item.isPotion())
+					if (item.isPotion())
 					{
 						data = 0;
 						// Create SQL query to see if item is already in
@@ -1847,15 +1853,14 @@ public class Commander implements CommandExecutor {
 										+ amount
 										+ ","
 										+ data
-										+ ","
-										+ dur + ");";
+										+ "," + dur + ");";
 							}
 							rs.close();
 							ks.getLiteDB().standardQuery(query);
-							sender.sendMessage(ChatColor.GREEN + prefix + " Added "
-									+ ChatColor.GOLD + amount + ChatColor.GREEN
-									+ " of " + ChatColor.AQUA + item.name
-									+ ChatColor.GREEN + " to pool.");
+							sender.sendMessage(ChatColor.GREEN + prefix
+									+ " Added " + ChatColor.GOLD + amount
+									+ ChatColor.GREEN + " of " + ChatColor.AQUA
+									+ item.name + ChatColor.GREEN + " to pool.");
 						}
 						catch (SQLException q)
 						{
@@ -1898,15 +1903,14 @@ public class Commander implements CommandExecutor {
 										+ amount
 										+ ","
 										+ data
-										+ ","
-										+ dur + ");";
+										+ "," + dur + ");";
 							}
 							rs.close();
 							ks.getLiteDB().standardQuery(query);
-							sender.sendMessage(ChatColor.GREEN + prefix + " Added "
-									+ ChatColor.GOLD + amount + ChatColor.GREEN
-									+ " of " + ChatColor.AQUA + item.name
-									+ ChatColor.GREEN + " to pool.");
+							sender.sendMessage(ChatColor.GREEN + prefix
+									+ " Added " + ChatColor.GOLD + amount
+									+ ChatColor.GREEN + " of " + ChatColor.AQUA
+									+ item.name + ChatColor.GREEN + " to pool.");
 						}
 						catch (SQLException q)
 						{
@@ -1928,12 +1932,15 @@ public class Commander implements CommandExecutor {
 		}
 		else if (com.equals("drain"))
 		{
-			// Wipe table
-			final String query = "DELETE FROM items";
-			ks.getLiteDB().standardQuery(query);
-			ks.getLogger().info(prefix + "Items table cleared");
-			sender.sendMessage(ChatColor.GREEN + prefix + " Item pool emptied.");
-			cache.clear();
+			if (sender instanceof Player)
+			{
+				int id = ks.getServer().getScheduler().scheduleAsyncDelayedTask(ks, new ConfirmDrain((Player) sender));
+				if(id == -1)
+				{
+					sender.sendMessage(ChatColor.YELLOW + KarmicShare.prefix + " Could not schedule confirmation.");
+				}
+			}
+
 			return true;
 		}
 		else if (com.equals("reload"))
@@ -2569,7 +2576,7 @@ public class Commander implements CommandExecutor {
 				while (rs.next());
 			}
 			rs.close();
-			if(!has)
+			if (!has)
 			{
 				// Player not in database, therefore add them
 				query = "INSERT INTO players VALUES ('" + name + "','" + karma
@@ -2670,8 +2677,38 @@ public class Commander implements CommandExecutor {
 		}
 	}
 
-	public Map<Item, Integer> getCache()
-	{
+	public Map<Item, Integer> getCache() {
 		return cache;
+	}
+
+	class ConfirmDrain implements Runnable
+	{
+		private Player player;
+
+		public ConfirmDrain(Player p)
+		{
+			player = p;
+		}
+
+		public void run()
+		{
+			String answer = ks.ask(player,
+						ChatColor.YELLOW + prefix + ChatColor.DARK_AQUA + "Delete ALL items in pool? No recovery......", ChatColor.GREEN + "yes", ChatColor.RED + "no");
+			if (answer.equals("yes"))
+			{
+				// Wipe table
+				final String query = "DELETE FROM items";
+				ks.getLiteDB().standardQuery(query);
+				ks.getLogger().info(prefix + "Items table cleared");
+				player.sendMessage(ChatColor.GREEN + prefix
+						+ " Item pool emptied.");
+				cache.clear();
+			}
+			else
+			{
+				player.sendMessage(ChatColor.YELLOW + prefix
+						+ " Drain cancelled.");
+			}
+		}
 	}
 }
