@@ -1968,7 +1968,7 @@ public class Commander implements CommandExecutor {
 										+ quantity
 										+ ","
 										+ data
-										+ "," + durability + ",global);";
+										+ "," + durability + ",'global');";
 							}
 							rs.close();
 						}
@@ -2018,7 +2018,7 @@ public class Commander implements CommandExecutor {
 										+ quantity
 										+ ","
 										+ data
-										+ "," + durability + ",global);";
+										+ "," + durability + ",'global');";
 							}
 							rs.close();
 						}
@@ -2480,7 +2480,7 @@ public class Commander implements CommandExecutor {
 										+ amount
 										+ ","
 										+ data
-										+ "," + dur + ",global);";
+										+ "," + dur + ",'global');";
 							}
 							rs.close();
 							ks.getLiteDB().standardQuery(query);
@@ -2532,7 +2532,7 @@ public class Commander implements CommandExecutor {
 										+ amount
 										+ ","
 										+ data
-										+ "," + dur + ",global);";
+										+ "," + dur + ",'global');";
 							}
 							rs.close();
 							ks.getLiteDB().standardQuery(query);
