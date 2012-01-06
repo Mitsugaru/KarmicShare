@@ -30,8 +30,8 @@ permissions:
             KarmicShare.sign: true
             KarmicShare.chest: true
             KarmicShare.karma.other: true
-            KarmicShare.ignore.karma: true
-            KarmicShare.ignore.group: true
+            KarmicShare.commands.give: true
+            KarmicShare.commands.take: true
         default: op
     KarmicShare.karma:
         description: Allows user view their karma
@@ -61,8 +61,20 @@ permissions:
         description: Ignores groups. User is of all groups.
         default: false
     KarmicShare.ignore.*:
-        description: Allows user to administrate plugin
+        description: Allows user to ignore all the things.
         default: false
+        children:
+            KarmicShare.ignore.karma: true
+            KarmicShare.ignore.group: true
+    KarmicShare.commands.give:
+        description: Allows usage for command /ks give
+        default: op
+    KarmicShare.commands.take:
+        description: Allows usage for command /ks take
+        default: op
+    KarmicShare.commands.*:
+        description: Allows user to use all restricted commands
+        default: op
         children:
             KarmicShare.ignore.karma: true
             KarmicShare.ignore.group: true
