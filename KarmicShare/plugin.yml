@@ -30,6 +30,8 @@ permissions:
             KarmicShare.sign: true
             KarmicShare.chest: true
             KarmicShare.karma.other: true
+            KarmicShare.ignore.karma: true
+            KarmicShare.ignore.group: true
         default: op
     KarmicShare.karma:
         description: Allows user view their karma
@@ -52,6 +54,18 @@ permissions:
     KarmicShare.sign:
         description: Allows user to make/destroy associated signs for chests
         default: op
+    KarmicShare.ignore.karma:
+        description: Ignores karma. User's karma does not change.
+        default: op
+    KarmicShare.ignore.group:
+        description: Ignores groups. User is of all groups.
+        default: op
+    KarmicShare.ignore.*:
+        description: Allows user to administrate plugin
+        default: op
+        children:
+            KarmicShare.ignore.karma: true
+            KarmicShare.ignore.group: true
     KarmicShare.admin:
         description: Allows user to administrate plugin
         default: op

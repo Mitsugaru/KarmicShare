@@ -49,7 +49,7 @@ public class KSPlayerListener extends PlayerListener {
 								event.getPlayer(), "KarmicShare.chest"))
 						{
 							if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
-									group))
+									group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 							{
 								BetterChest chest = new BetterChest(
 										(Chest) block.getState());
@@ -127,7 +127,7 @@ public class KSPlayerListener extends PlayerListener {
 													"KarmicShare.chest"))
 									{
 										if (playerHasGroup(event.getPlayer(), event.getPlayer()
-												.getName(), group))
+												.getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 										{
 											// populate chests
 											BetterChest chest = new BetterChest(
@@ -199,7 +199,7 @@ public class KSPlayerListener extends PlayerListener {
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), "KarmicShare.chest"))
 					{
-						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group))
+						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -288,7 +288,7 @@ public class KSPlayerListener extends PlayerListener {
 								event.getPlayer(), "KarmicShare.chest"))
 						{
 							if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
-									group))
+									group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 							{
 								BetterChest chest = new BetterChest(
 										(Chest) block.getState());
@@ -377,7 +377,7 @@ public class KSPlayerListener extends PlayerListener {
 													"KarmicShare.chest"))
 									{
 										if (playerHasGroup(event.getPlayer(), event.getPlayer()
-												.getName(), group))
+												.getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 										{
 											BetterChest chest = new BetterChest(
 													(Chest) block.getState());
@@ -460,7 +460,7 @@ public class KSPlayerListener extends PlayerListener {
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), "KarmicShare.chest"))
 					{
-						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group))
+						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
