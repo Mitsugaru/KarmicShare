@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
@@ -75,11 +76,31 @@ public class Commander implements CommandExecutor {
 			{
 				// Show player karma
 				this.showPlayerKarma(sender, args);
+
 			}
 			else
 			{
 				// karma system disabled
 				sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
+			}
+			if(sender instanceof Player)
+			{
+				final StringBuilder sb = new StringBuilder();
+				for(String s : playerGroups(sender, sender.getName()))
+				{
+					sb.append(s + " : ");
+				}
+				//Remove trailing characters
+				try
+				{
+					sb.deleteCharAt(sb.length()-3);
+					sender.sendMessage(ChatColor.YELLOW + prefix + " Groups: " + sb.toString());
+				}
+				catch(StringIndexOutOfBoundsException e)
+				{
+					sender.sendMessage(ChatColor.YELLOW + prefix + " No groups");
+				}
+
 			}
 		}
 		else
@@ -217,6 +238,8 @@ public class Commander implements CommandExecutor {
 								+ " : Sets player's karma to value");
 						sender.sendMessage(ChatColor.GREEN + "/ks admin drain"
 								+ ChatColor.YELLOW + " : Empty item pool");
+						sender.sendMessage(ChatColor.GREEN + "/ks admin group remove <group>"
+								+ ChatColor.YELLOW + " : Remove group from database");
 						sender.sendMessage(ChatColor.GREEN + "/ks admin reload"
 								+ ChatColor.YELLOW + " : Reload configuration");
 					}
@@ -350,7 +373,7 @@ public class Commander implements CommandExecutor {
 				}
 				else if(playerHasGroup(sender, name, group))
 				{
-					sender.sendMessage(ChatColor.YELLOW + prefix
+					sender.sendMessage(ChatColor.YELLOW + prefix +" "
 							+ ChatColor.AQUA + name + ChatColor.YELLOW + " is already in "+ ChatColor.GRAY + group);
 					return true;
 				}
@@ -481,7 +504,7 @@ public class Commander implements CommandExecutor {
 			{
 				//Grab group name if given
 					//force group names to lower case
-					group = args[3].toLowerCase();
+					group = args[2].toLowerCase();
 					if(sender instanceof Player)
 					{
 						if(!playerHasGroup(sender, ((Player) sender).getName(), group))
@@ -603,6 +626,7 @@ public class Commander implements CommandExecutor {
 						StringBuilder sb = new StringBuilder();
 						for(String s : groups.split("&"))
 						{
+							ks.getLogger().info(s);
 							//Add back all groups excluding specified group
 							if(!s.equals(group))
 							{
@@ -611,6 +635,7 @@ public class Commander implements CommandExecutor {
 						}
 						//Remove trailing ampersand
 						sb.deleteCharAt(sb.length()-1);
+						groups = sb.toString();
 					}
 					//Else, it was their only group, so clear it.
 				}
@@ -1505,22 +1530,16 @@ public class Commander implements CommandExecutor {
 													residualToolQuery = "UPDATE items SET amount='"
 															+ toolResidual
 																	.size()
-															+ "' WHERE itemid='"
-															+ itemid
-															+ "' AND data='"
-															+ data
-															+ "' AND enchantments='"
-															+ enchant + " AND groups='global';";
+															+ "' WHERE id='"
+															+ toolRS.getInt("id") + "';";
 												}
 												else
 												{
 													residualToolQuery = "UPDATE items SET amount='"
 															+ toolResidual
 																	.size()
-															+ "' WHERE itemid='"
-															+ itemid
-															+ "' AND data='"
-															+ data + "' AND groups='global';";
+															+ "' WHERE id='"
+															+ toolRS.getInt("id") + "';";
 												}
 												// Done
 												done = true;
@@ -1533,24 +1552,13 @@ public class Commander implements CommandExecutor {
 												// Add entry to drop list
 												if (en)
 												{
-													dropList.add("DELETE FROM items WHERE itemid='"
-															+ itemid
-															+ "' AND amount='"
-															+ toolRS.getInt("amount")
-															+ "' AND data='"
-															+ toolRS.getShort("data")
-															+ "' AND enchantments='"
-															+ enchant + "';");
+													dropList.add("DELETE FROM items WHERE id='"
+															+ toolRS.getInt("id") + "';");
 												}
 												else
 												{
-													dropList.add("DELETE FROM items WHERE itemid='"
-															+ itemid
-															+ "' AND amount='"
-															+ toolRS.getInt("amount")
-															+ "' AND data='"
-															+ toolRS.getShort("data")
-															+ "';");
+													dropList.add("DELETE FROM items WHERE id='"
+															+ toolRS.getInt("id") + "';");
 												}
 											}
 											if (tempAmount == 0)
@@ -2544,12 +2552,16 @@ public class Commander implements CommandExecutor {
 					{
 						if (sender instanceof Player)
 						{
-							ks.getServer()
+							int i = ks.getServer()
 									.getScheduler()
 									.scheduleAsyncDelayedTask(
 											ks,
 											new ConfirmPlayerKarmaReset(
 													(Player) sender, name));
+							if(i == -1)
+							{
+								sender.sendMessage(ChatColor.YELLOW + prefix + " Could not schedule task.");
+							}
 						}
 						else
 						{
@@ -2730,6 +2742,60 @@ public class Commander implements CommandExecutor {
 			return true;
 		}
 		//TODO admin command to remove groups
+		else if(com.equals("group"))
+		{
+			// Check for second com
+			if (args.length > 2)
+			{
+				final String groupCom = args[2];
+				if(groupCom.equals("remove"))
+				{
+					if(args.length > 3)
+					{
+						final String group = args[3];
+						if(groupExists(sender, group))
+						{
+							if (sender instanceof Player)
+							{
+								int i = ks.getServer()
+										.getScheduler()
+										.scheduleAsyncDelayedTask(
+												ks,
+												new ConfirmRemoveGroup(
+														(Player) sender, group));
+								if(i == -1)
+								{
+									sender.sendMessage(ChatColor.YELLOW + prefix + " Could not schedule task.");
+								}
+							}
+							else
+							{
+								// Sent via console
+								int i = ks.getServer()
+								.getScheduler()
+								.scheduleAsyncDelayedTask(
+										ks,
+										new RemoveGroupTask(
+												sender, group));
+								if(i == -1)
+								{
+									sender.sendMessage(ChatColor.YELLOW + prefix + " Could not schedule task.");
+								}
+							}
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + prefix + " Group "+ ChatColor.GRAY + group + ChatColor.RED + " does not exist");
+						}
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + prefix + " Missing group name.");
+						return false;
+					}
+				}
+			}
+		}
 		return false;
 	}
 
@@ -3250,6 +3316,45 @@ public class Commander implements CommandExecutor {
 		return valid;
 	}
 
+	private List<String> playerGroups(CommandSender sender, String name)
+	{
+		List<String> list = new ArrayList<String>();
+		try
+		{
+			boolean hasGroups = false;
+			String groups = "";
+			ResultSet rs = ks.getLiteDB().select("SELECT * FROM players WHERE playername='" + name + "';");
+			if(rs.next())
+			{
+				groups = rs.getString("groups");
+				if(!rs.wasNull())
+				{
+					if(!groups.equals(""))
+					{
+						hasGroups = true;
+					}
+				}
+			}
+			rs.close();
+			if(hasGroups)
+			{
+				String[] split = groups.split("&");
+				for(String s : split)
+				{
+					list.add(s);
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+		return list;
+	}
+
 	public boolean playerInGroup(CommandSender sender, String group, String name)
 	{
 		boolean valid = false;
@@ -3260,7 +3365,7 @@ public class Commander implements CommandExecutor {
 			ResultSet rs = ks.getLiteDB().select("SELECT * FROM players WHERE playername='" + name + "';");
 			if(rs.next())
 			{
-				groups = rs.getString("group");
+				groups = rs.getString("groups");
 				if(!rs.wasNull())
 				{
 					if(!groups.equals(""))
@@ -3408,5 +3513,127 @@ public class Commander implements CommandExecutor {
 						+ " cancelled.");
 			}
 		}
+	}
+
+	class ConfirmRemoveGroup implements Runnable
+	{
+		private String group;
+		private Player sender;
+
+		public ConfirmRemoveGroup(Player sender, String group) {
+			this.sender = sender;
+			this.group = group;
+		}
+
+		@Override
+		public void run() {
+			String answer = ks.ask(sender, ChatColor.YELLOW + prefix
+					+ ChatColor.DARK_AQUA + " Remove group " + ChatColor.GOLD + group
+					+ ChatColor.DARK_AQUA + "? ", ChatColor.GREEN
+					+ "yes", ChatColor.RED + "no");
+			if (answer.equals("yes"))
+			{
+				sender.sendMessage("This could take a while...");
+				int i = ks.getServer().getScheduler().scheduleAsyncDelayedTask(ks, new RemoveGroupTask(sender, group));
+				if(i == -1)
+				{
+					sender.sendMessage(ChatColor.YELLOW + prefix +" Could not schedule task");
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.YELLOW + prefix
+						+ ChatColor.DARK_AQUA + " Cancelled removal of "
+						+ ChatColor.GOLD + group);
+			}
+		}
+	}
+
+	class RemoveGroupTask implements Runnable
+	{
+		CommandSender sender;
+		String group;
+		Map<String, String> queries = new HashMap<String, String>();
+
+		public RemoveGroupTask(CommandSender sender, String group)
+		{
+			this.sender = sender;
+			this.group = group;
+		}
+
+		@Override
+		public void run() {
+			try
+			{
+				ResultSet rs = ks.getLiteDB().select("SELECT * FROM players");
+				if(rs.next())
+				{
+					do
+					{
+						boolean has = false;
+						String groups = rs.getString("groups");
+						if(!rs.wasNull())
+						{
+							if(groups.contains("&"))
+							{
+								//they have multiple groups
+								for(String s : groups.split("&"))
+								{
+									if(s.equals(group))
+									{
+										has = true;
+									}
+								}
+							}
+							else
+							{
+								//they only have one group
+								if(groups.equals(group))
+								{
+									has = true;
+								}
+							}
+							if(has)
+							{
+								if(groups.contains("&"))
+								{
+									//Multigroup
+									StringBuilder sb = new StringBuilder();
+									for(String s : groups.split("&"))
+									{
+										ks.getLogger().info(s);
+										//Add back all groups excluding specified group
+										if(!s.equals(group))
+										{
+											sb.append(s + "&");
+										}
+									}
+									//Remove trailing ampersand
+									sb.deleteCharAt(sb.length()-1);
+									groups = sb.toString();
+									queries.put(rs.getString("playername"), groups);
+								}
+								//Else, it was their only group, so clear it.
+								queries.put(rs.getString("playername"), "");
+							}
+						}
+					}while(rs.next());
+				}
+				rs.close();
+				for(Map.Entry<String, String> entry : queries.entrySet())
+				{
+					ks.getLiteDB().standardQuery("UPDATE players SET groups='" + entry.getValue() +"' WHERE playername='" + entry.getKey() +"';");
+				}
+				sender.sendMessage(ChatColor.YELLOW + prefix + " Done removing group " + ChatColor.GRAY + group);
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " SQL error");
+				e.printStackTrace();
+			}
+		}
+
 	}
 }

@@ -8,10 +8,15 @@ package com.mitsugaru.KarmicShare;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -194,17 +199,41 @@ public class Config {
 		}
 		if(ver < 0.14)
 		{
+			//Revamp item table
+			try
+			{
+				plugin.getLogger().info(KarmicShare.prefix + " Revamping item table");
+				query = "SELECT * FROM items;";
+				final List<ZeroPointFourteenItemObject> fourteen = new ArrayList<ZeroPointFourteenItemObject>();
+				ResultSet rs = plugin.getLiteDB().select(query);
+				if(rs.next())
+				{
+					do
+					{
+						fourteen.add(new ZeroPointFourteenItemObject(rs.getInt("itemid"), rs.getInt("amount"), rs.getByte("data"), rs.getShort("durability"), rs.getString("enchantments")));
+					}while(rs.next());
+				}
+				rs.close();
+				//Drop item table
+				plugin.getLiteDB().standardQuery("DROP TABLE items;");
+				//Create new table
+				plugin.getLiteDB().createTable("CREATE TABLE `items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT);");
+				//Add back items
+				for(ZeroPointFourteenItemObject bak : fourteen)
+				{
+					final String fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('" + bak.itemid + "','" + bak.amount + "','" + bak.data + "','" + bak.durability + "','" + bak.enchantments + "','global');";
+					plugin.getLiteDB().standardQuery(fourteenItemQuery);
+				}
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				plugin.getLogger().warning(KarmicShare.prefix + " SQL Exception");
+				e.printStackTrace();
+			}
 			//Add groups to players table
 			plugin.getLogger().info(KarmicShare.prefix + " Altering player table to add groups column.");
 			query = "ALTER TABLE players ADD groups TEXT;";
-			plugin.getLiteDB().standardQuery(query);
-			//Add group column to item table
-			plugin.getLogger().info(KarmicShare.prefix + " Altering items table to add group column.");
-			query = "ALTER TABLE items ADD groups TEXT;";
-			plugin.getLiteDB().standardQuery(query);
-			//Add all current items to global
-			plugin.getLogger().info(KarmicShare.prefix + " Altering item table to set all items to global group.");
-			query = "UPDATE items SET groups='global';";
 			plugin.getLiteDB().standardQuery(query);
 			//Add the GLOBAL group
 			plugin.getLogger().info(KarmicShare.prefix + " Adding global group to groups table.");
@@ -383,5 +412,22 @@ public class Config {
 			}
 		}
 		return karmaFile;
+	}
+
+	class ZeroPointFourteenItemObject
+	{
+		public int itemid, amount;
+		public byte data;
+		public short durability;
+		public String enchantments;
+
+		public ZeroPointFourteenItemObject(int id, int quantity, byte dv, short dur, String en)
+		{
+			itemid = id;
+			amount = quantity;
+			data = dv;
+			durability = dur;
+			enchantments = en;
+		}
 	}
 }

@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -42,37 +43,53 @@ public class KSPlayerListener extends PlayerListener {
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							"[KarmicShare]"))
 					{
-						final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
+						final String group = ChatColor.stripColor(
+								sign.getLine(0)).toLowerCase();
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), "KarmicShare.chest"))
 						{
-							BetterChest chest = new BetterChest(
-									(Chest) block.getState());
-							if (chest.isDoubleChest())
+							if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
+									group))
 							{
-								BetterChest adj = new BetterChest(
-										(Chest) chest.attached());
-								chest = adj;
+								BetterChest chest = new BetterChest(
+										(Chest) block.getState());
+								if (chest.isDoubleChest())
+								{
+									BetterChest adj = new BetterChest(
+											(Chest) chest.attached());
+									chest = adj;
+								}
+								chest.getInventory().clear();
+								chest.update();
+								if (plugin.getPluginConfig().chests)
+								{
+									int page = 1;
+									try
+									{
+										page = Integer
+												.parseInt(sign.getLine(3));
+										populateChest(chest.getInventory(),
+												page, chest.isDoubleChest(),
+												group);
+										chest.update();
+									}
+									catch (NumberFormatException n)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
+								}
 							}
-							chest.getInventory().clear();
-							chest.update();
-							if (plugin.getPluginConfig().chests)
+							else
 							{
-								int page = 1;
-								try
-								{
-									page = Integer.parseInt(sign.getLine(3));
-									populateChest(chest.getInventory(), page, chest.isDoubleChest(), group);
-									chest.update();
-								}
-								catch(NumberFormatException n)
-								{
-									event.getPlayer()
-									.sendMessage(
-											ChatColor.RED
-													+ KarmicShare.prefix
-													+ " Sign has wrong formatting. Remake sign.");
-								}
+								event.getPlayer().sendMessage(
+										ChatColor.RED + KarmicShare.prefix
+												+ " Not part of group "
+												+ ChatColor.GRAY + group);
+								event.setCancelled(true);
 							}
 						}
 						else
@@ -103,33 +120,55 @@ public class KSPlayerListener extends PlayerListener {
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase("[KarmicShare]"))
 								{
-									final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
+									final String group = ChatColor.stripColor(
+											sign.getLine(0)).toLowerCase();
 									if (plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.chest"))
 									{
-										// populate chests
-										BetterChest chest = new BetterChest(
-												(Chest) block.getState());
-										chest.getInventory().clear();
-										chest.update();
-										if (plugin.getPluginConfig().chests)
+										if (playerHasGroup(event.getPlayer(), event.getPlayer()
+												.getName(), group))
 										{
-											int page = 1;
-											try
+											// populate chests
+											BetterChest chest = new BetterChest(
+													(Chest) block.getState());
+											chest.getInventory().clear();
+											chest.update();
+											if (plugin.getPluginConfig().chests)
 											{
-												page = Integer.parseInt(sign.getLine(3));
-												populateChest(chest.getInventory(), page, chest.isDoubleChest(), group);
-												chest.update();
+												int page = 1;
+												try
+												{
+													page = Integer
+															.parseInt(sign
+																	.getLine(3));
+													populateChest(
+															chest.getInventory(),
+															page,
+															chest.isDoubleChest(),
+															group);
+													chest.update();
+												}
+												catch (NumberFormatException n)
+												{
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.RED
+																			+ KarmicShare.prefix
+																			+ " Sign has wrong formatting. Remake sign.");
+												}
 											}
-											catch(NumberFormatException n)
-											{
-												event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.prefix
-																+ " Sign has wrong formatting. Remake sign.");
-											}
+										}
+										else
+										{
+											event.getPlayer()
+													.sendMessage(
+															ChatColor.RED
+																	+ KarmicShare.prefix
+																	+ " Not part of group "
+																	+ ChatColor.GRAY
+																	+ group);
+											event.setCancelled(true);
 										}
 									}
 									else
@@ -148,57 +187,85 @@ public class KSPlayerListener extends PlayerListener {
 				}
 
 			}
-			else if(block.getType().equals(Material.WALL_SIGN))
+			else if (block.getType().equals(Material.WALL_SIGN))
 			{
 				Sign sign = (Sign) block.getState();
-				if (ChatColor.stripColor(sign.getLine(1))
-						.equalsIgnoreCase("[KarmicShare]"))
+				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
+						"[KarmicShare]"))
 				{
-					final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
-					if (block.getRelative(BlockFace.DOWN).getType().equals(Material.CHEST))
+					final String group = ChatColor.stripColor(sign.getLine(0))
+							.toLowerCase();
+
+					if (plugin.getPermissionHandler().checkPermission(
+							event.getPlayer(), "KarmicShare.chest"))
 					{
-						BetterChest chest = new BetterChest(
-								(Chest) block.getRelative(BlockFace.DOWN).getState());
-						if (chest.isDoubleChest())
+						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group))
 						{
-							try
+							if (block.getRelative(BlockFace.DOWN).getType()
+									.equals(Material.CHEST))
 							{
-								int page = grabNextPage(
-										Integer.parseInt(""
-												+ sign.getLine(3)),
-										54, group);
-								sign.setLine(3, "" + page);
-								sign.update();
-							}
-							catch (NumberFormatException e)
-							{
-								event.getPlayer()
-										.sendMessage(
-												ChatColor.RED
-														+ KarmicShare.prefix
-														+ " Sign has wrong formatting. Remake sign.");
+								BetterChest chest = new BetterChest(
+										(Chest) block.getRelative(
+												BlockFace.DOWN).getState());
+								if (chest.isDoubleChest())
+								{
+									try
+									{
+										int page = grabNextPage(
+												Integer.parseInt(""
+														+ sign.getLine(3)), 54,
+												group);
+										sign.setLine(3, "" + page);
+										sign.update();
+									}
+									catch (NumberFormatException e)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
+								}
+								else
+								{
+									try
+									{
+										int page = grabNextPage(
+												Integer.parseInt(""
+														+ sign.getLine(3)), 27,
+												group);
+										sign.setLine(3, "" + page);
+										sign.update();
+									}
+									catch (NumberFormatException e)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
+								}
 							}
 						}
 						else
 						{
-							try
-							{
-								int page = grabNextPage(
-										Integer.parseInt(""
-												+ sign.getLine(3)),
-										27, group);
-								sign.setLine(3, "" + page);
-								sign.update();
-							}
-							catch (NumberFormatException e)
-							{
-								event.getPlayer()
-										.sendMessage(
-												ChatColor.RED
-														+ KarmicShare.prefix
-														+ " Sign has wrong formatting. Remake sign.");
-							}
+							event.getPlayer().sendMessage(
+									ChatColor.RED + KarmicShare.prefix
+											+ " Not part of group "
+											+ ChatColor.GRAY + group);
+							event.setCancelled(true);
 						}
+					}
+					else
+					{
+						event.getPlayer()
+								.sendMessage(
+										ChatColor.RED
+												+ KarmicShare.prefix
+												+ " Lack permission: KarmicShare.chest");
+						event.setCancelled(true);
 					}
 				}
 			}
@@ -215,51 +282,65 @@ public class KSPlayerListener extends PlayerListener {
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							"[KarmicShare]"))
 					{
-						final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
+						final String group = ChatColor.stripColor(
+								sign.getLine(0)).toLowerCase();
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), "KarmicShare.chest"))
 						{
-							BetterChest chest = new BetterChest(
-									(Chest) block.getState());
-							if (chest.isDoubleChest())
+							if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
+									group))
 							{
-								try
+								BetterChest chest = new BetterChest(
+										(Chest) block.getState());
+								if (chest.isDoubleChest())
 								{
-									int page = grabNextPage(
-											Integer.parseInt(""
-													+ sign.getLine(3)), 54, group);
-									sign.setLine(3, "" + page);
-									sign.update();
+									try
+									{
+										int page = grabNextPage(
+												Integer.parseInt(""
+														+ sign.getLine(3)), 54,
+												group);
+										sign.setLine(3, "" + page);
+										sign.update();
+									}
+									catch (NumberFormatException e)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
 								}
-								catch (NumberFormatException e)
+								else
 								{
-									event.getPlayer()
-											.sendMessage(
-													ChatColor.RED
-															+ KarmicShare.prefix
-															+ " Sign has wrong formatting. Remake sign.");
+									try
+									{
+										int page = grabNextPage(
+												Integer.parseInt(""
+														+ sign.getLine(3)), 27,
+												group);
+										sign.setLine(3, "" + page);
+										sign.update();
+									}
+									catch (NumberFormatException e)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
 								}
 							}
 							else
 							{
-								try
-								{
-									int page = grabNextPage(
-											Integer.parseInt(""
-													+ sign.getLine(3)), 27, group);
-									sign.setLine(3, "" + page);
-									sign.update();
-								}
-								catch (NumberFormatException e)
-								{
-									event.getPlayer()
-											.sendMessage(
-													ChatColor.RED
-															+ KarmicShare.prefix
-															+ " Sign has wrong formatting. Remake sign.");
-								}
+								event.getPlayer().sendMessage(
+										ChatColor.RED + KarmicShare.prefix
+												+ " Not part of group "
+												+ ChatColor.GRAY + group);
+								event.setCancelled(true);
 							}
-							// TODO clear + repopulate
 						}
 						else
 						{
@@ -289,54 +370,69 @@ public class KSPlayerListener extends PlayerListener {
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase("[KarmicShare]"))
 								{
-									String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
+									String group = ChatColor.stripColor(
+											sign.getLine(0)).toLowerCase();
 									if (plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.chest"))
 									{
-										BetterChest chest = new BetterChest(
-												(Chest) block.getState());
-										if (chest.isDoubleChest())
+										if (playerHasGroup(event.getPlayer(), event.getPlayer()
+												.getName(), group))
 										{
-											try
+											BetterChest chest = new BetterChest(
+													(Chest) block.getState());
+											if (chest.isDoubleChest())
 											{
-												int page = grabNextPage(
-														Integer.parseInt(""
-																+ sign.getLine(3)),
-														54, group);
-												sign.setLine(3, "" + page);
-												sign.update();
+												try
+												{
+													int page = grabNextPage(
+															Integer.parseInt(""
+																	+ sign.getLine(3)),
+															54, group);
+													sign.setLine(3, "" + page);
+													sign.update();
+												}
+												catch (NumberFormatException e)
+												{
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.RED
+																			+ KarmicShare.prefix
+																			+ " Sign has wrong formatting. Remake sign.");
+												}
 											}
-											catch (NumberFormatException e)
+											else
 											{
-												event.getPlayer()
-														.sendMessage(
-																ChatColor.RED
-																		+ KarmicShare.prefix
-																		+ " Sign has wrong formatting. Remake sign.");
+												try
+												{
+													int page = grabNextPage(
+															Integer.parseInt(""
+																	+ sign.getLine(3)),
+															27, group);
+													sign.setLine(3, "" + page);
+													sign.update();
+												}
+												catch (NumberFormatException e)
+												{
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.RED
+																			+ KarmicShare.prefix
+																			+ " Sign has wrong formatting. Remake sign.");
+												}
 											}
 										}
 										else
 										{
-											try
-											{
-												int page = grabNextPage(
-														Integer.parseInt(""
-																+ sign.getLine(3)),
-														27, group);
-												sign.setLine(3, "" + page);
-												sign.update();
-											}
-											catch (NumberFormatException e)
-											{
-												event.getPlayer()
-														.sendMessage(
-																ChatColor.RED
-																		+ KarmicShare.prefix
-																		+ " Sign has wrong formatting. Remake sign.");
-											}
+											event.getPlayer()
+													.sendMessage(
+															ChatColor.RED
+																	+ KarmicShare.prefix
+																	+ " Not part of group "
+																	+ ChatColor.GRAY
+																	+ group);
+											event.setCancelled(true);
 										}
-										// TODO clear + repopulate
 									}
 									else
 									{
@@ -353,57 +449,84 @@ public class KSPlayerListener extends PlayerListener {
 					}
 				}
 			}
-			else if(block.getType().equals(Material.WALL_SIGN))
+			else if (block.getType().equals(Material.WALL_SIGN))
 			{
 				Sign sign = (Sign) block.getState();
-				if (ChatColor.stripColor(sign.getLine(1))
-						.equalsIgnoreCase("[KarmicShare]"))
+				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
+						"[KarmicShare]"))
 				{
-					final String group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
-					if (block.getRelative(BlockFace.DOWN).getType().equals(Material.CHEST))
+					final String group = ChatColor.stripColor(sign.getLine(0))
+							.toLowerCase();
+					if (plugin.getPermissionHandler().checkPermission(
+							event.getPlayer(), "KarmicShare.chest"))
 					{
-						BetterChest chest = new BetterChest(
-								(Chest) block.getRelative(BlockFace.DOWN).getState());
-						if (chest.isDoubleChest())
+						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group))
 						{
-							try
+							if (block.getRelative(BlockFace.DOWN).getType()
+									.equals(Material.CHEST))
 							{
-								int page = grabNextPage(
-										Integer.parseInt(""
-												+ sign.getLine(3)),
-										54, group);
-								sign.setLine(3, "" + page);
-								sign.update();
-							}
-							catch (NumberFormatException e)
-							{
-								event.getPlayer()
-										.sendMessage(
-												ChatColor.RED
-														+ KarmicShare.prefix
-														+ " Sign has wrong formatting. Remake sign.");
+								BetterChest chest = new BetterChest(
+										(Chest) block.getRelative(
+												BlockFace.DOWN).getState());
+								if (chest.isDoubleChest())
+								{
+									try
+									{
+										int page = grabNextPage(
+												Integer.parseInt(""
+														+ sign.getLine(3)), 54,
+												group);
+										sign.setLine(3, "" + page);
+										sign.update();
+									}
+									catch (NumberFormatException e)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
+								}
+								else
+								{
+									try
+									{
+										int page = grabNextPage(
+												Integer.parseInt(""
+														+ sign.getLine(3)), 27,
+												group);
+										sign.setLine(3, "" + page);
+										sign.update();
+									}
+									catch (NumberFormatException e)
+									{
+										event.getPlayer()
+												.sendMessage(
+														ChatColor.RED
+																+ KarmicShare.prefix
+																+ " Sign has wrong formatting. Remake sign.");
+									}
+								}
 							}
 						}
 						else
 						{
-							try
-							{
-								int page = grabNextPage(
-										Integer.parseInt(""
-												+ sign.getLine(3)),
-										27, group);
-								sign.setLine(3, "" + page);
-								sign.update();
-							}
-							catch (NumberFormatException e)
-							{
-								event.getPlayer()
-										.sendMessage(
-												ChatColor.RED
-														+ KarmicShare.prefix
-														+ " Sign has wrong formatting. Remake sign.");
-							}
+							event.getPlayer().sendMessage(
+									ChatColor.RED + KarmicShare.prefix
+											+ " Not part of group "
+											+ ChatColor.GRAY + group);
+							event.setCancelled(true);
 						}
+					}
+					else
+					{
+						event.getPlayer()
+								.sendMessage(
+										ChatColor.RED
+												+ KarmicShare.prefix
+												+ " Lack permission: KarmicShare.chest");
+						event.setCancelled(true);
 					}
 				}
 			}
@@ -459,7 +582,8 @@ public class KSPlayerListener extends PlayerListener {
 		return page;
 	}
 
-	private void populateChest(Inventory inventory, int page, boolean isDouble, String group) {
+	private void populateChest(Inventory inventory, int page, boolean isDouble,
+			String group) {
 		try
 		{
 			int count = 0;
@@ -535,5 +659,98 @@ public class KSPlayerListener extends PlayerListener {
 					ChatColor.RED + KarmicShare.prefix + "SQL error.");
 			e.printStackTrace();
 		}
+	}
+
+	private boolean playerHasGroup(CommandSender sender, String name, String group)
+	{
+		if(group.equals("global"))
+		{
+			return true;
+		}
+		boolean has = false;
+		try
+		{
+			//Insures that the player is added to the database
+			getPlayerKarma(name);
+			String groups = "";
+			ResultSet rs = plugin.getLiteDB().select("SELECT * FROM players WHERE playername='" + name + "';");
+			if(rs.next())
+			{
+				groups = rs.getString("groups");
+				if(!rs.wasNull())
+				{
+					if(groups.contains("&"))
+					{
+						//they have multiple groups
+						for(String s : groups.split("&"))
+						{
+							if(s.equals(group))
+							{
+								has = true;
+							}
+						}
+					}
+					else
+					{
+						//they only have one group
+						if(groups.equals(group))
+						{
+							has = true;
+						}
+					}
+				}
+			}
+			rs.close();
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+		return has;
+	}
+
+	/**
+	 * Retrieves karma value of a player from the database. Forces player to be
+	 * added to database if they don't exist
+	 *
+	 * @param Player
+	 *            name
+	 * @return karma value associated with name
+	 */
+	private int getPlayerKarma(String name) throws SQLException {
+		String query = "SELECT * FROM players WHERE playername='" + name + "';";
+		ResultSet rs = plugin.getLiteDB().select(query);
+		int karma = plugin.getPluginConfig().playerKarmaDefault;
+		boolean has = false;
+		// Retrieve karma from database
+		try
+		{
+			if (rs.next())
+			{
+				do
+				{
+					// Grab player karma value
+					karma = rs.getInt("karma");
+					has = true;
+				}
+				while (rs.next());
+			}
+			rs.close();
+			if (!has)
+			{
+				// Player not in database, therefore add them
+				query = "INSERT INTO players (playername,karma) VALUES ('"
+						+ name + "','" + karma + "');";
+				plugin.getLiteDB().standardQuery(query);
+			}
+		}
+		catch (SQLException e)
+		{
+			throw e;
+		}
+		return karma;
 	}
 }
