@@ -209,7 +209,16 @@ public class Config {
 				{
 					do
 					{
-						fourteen.add(new ZeroPointFourteenItemObject(rs.getInt("itemid"), rs.getInt("amount"), rs.getByte("data"), rs.getShort("durability"), rs.getString("enchantments")));
+						String enchantments = rs.getString("enchantments");
+						if(!rs.wasNull())
+						{
+							fourteen.add(new ZeroPointFourteenItemObject(rs.getInt("itemid"), rs.getInt("amount"), rs.getByte("data"), rs.getShort("durability"), enchantments));
+						}
+						else
+						{
+							fourteen.add(new ZeroPointFourteenItemObject(rs.getInt("itemid"), rs.getInt("amount"), rs.getByte("data"), rs.getShort("durability"), ""));
+						}
+
 					}while(rs.next());
 				}
 				rs.close();
@@ -220,7 +229,15 @@ public class Config {
 				//Add back items
 				for(ZeroPointFourteenItemObject bak : fourteen)
 				{
-					final String fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('" + bak.itemid + "','" + bak.amount + "','" + bak.data + "','" + bak.durability + "','" + bak.enchantments + "','global');";
+					String fourteenItemQuery = "";
+					if(bak.enchantments.equals(""))
+					{
+						fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('" + bak.itemid + "','" + bak.amount + "','" + bak.data + "','" + bak.durability + "','global');";
+					}
+					else
+					{
+						fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('" + bak.itemid + "','" + bak.amount + "','" + bak.data + "','" + bak.durability + "','" + bak.enchantments + "','global');";
+					}
 					plugin.getLiteDB().standardQuery(fourteenItemQuery);
 				}
 			}

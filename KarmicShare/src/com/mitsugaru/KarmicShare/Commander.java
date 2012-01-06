@@ -2752,7 +2752,11 @@ public class Commander implements CommandExecutor {
 				{
 					if(args.length > 3)
 					{
-						final String group = args[3];
+						final String group = args[3].toLowerCase();
+						if(group.equals("global"))
+						{
+							sender.sendMessage(ChatColor.RED + prefix + " Cannot remove the global group.");
+						}
 						if(groupExists(sender, group))
 						{
 							if (sender instanceof Player)
