@@ -116,13 +116,14 @@ public class KSInventoryListener extends InventoryListener {
 													final ItemStack temp = event
 															.getItem();
 													temp.setAmount(1);
-													Repopulate task = new Repopulate(
-															event.getInventory(),
-															temp, event
-																	.getSlot());
+
 													if (temp.getEnchantments()
 															.size() == 0)
 													{
+														Repopulate task = new Repopulate(
+																event.getInventory(),
+																temp, event
+																		.getSlot());
 														int id = plugin
 																.getServer()
 																.getScheduler()
@@ -137,17 +138,18 @@ public class KSInventoryListener extends InventoryListener {
 																					+ KarmicShare.prefix
 																					+ "Could not repopulate slot.");
 														}
-														task = new Repopulate(
-																event.getPlayer()
-																		.getInventory(),
-																temp);
+
 													}
+													Repopulate playerTask = new Repopulate(
+															event.getPlayer()
+																	.getInventory(),
+															temp);
 													int id = plugin
 															.getServer()
 															.getScheduler()
 															.scheduleSyncDelayedTask(
 																	plugin,
-																	task, 1);
+																	playerTask, 1);
 													if (id == -1)
 													{
 														event.getPlayer()

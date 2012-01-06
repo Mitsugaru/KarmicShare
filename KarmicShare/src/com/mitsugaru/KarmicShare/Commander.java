@@ -88,12 +88,12 @@ public class Commander implements CommandExecutor {
 				final StringBuilder sb = new StringBuilder();
 				for (String s : playerGroups(sender, sender.getName()))
 				{
-					sb.append(s + " : ");
+					sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA + "-");
 				}
 				// Remove trailing characters
 				try
 				{
-					sb.deleteCharAt(sb.length() - 3);
+					sb.deleteCharAt(sb.length() - 1);
 					sender.sendMessage(ChatColor.YELLOW + prefix + " Groups: "
 							+ sb.toString());
 				}
