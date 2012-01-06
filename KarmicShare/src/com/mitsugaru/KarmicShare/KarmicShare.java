@@ -9,11 +9,18 @@
  */
 package com.mitsugaru.KarmicShare;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Logger;
 
 import lib.PatPeter.SQLibrary.SQLite;
 
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -32,6 +39,8 @@ public class KarmicShare extends JavaPlugin {
 	private Commander commander;
 	private Config config;
 	private PermCheck perm;
+	public ConsoleCommandSender console;
+	private int cleantask;
 	private final Vector<Question> questions = new Vector<Question>();
 
 	// IDEA Score board on karma?
@@ -44,7 +53,12 @@ public class KarmicShare extends JavaPlugin {
 	public void onDisable() {
 		// Save config
 		this.saveConfig();
-		// Disconnect from sql database? Dunno if necessary
+		//Stop cleaner task
+		if(cleantask != -1)
+		{
+			getServer().getScheduler().cancelTask(cleantask);
+		}
+		// Disconnect from sql database
 		if (database.checkConnection())
 		{
 			// Close connection
@@ -93,6 +107,8 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	@Override
 	public void onEnable() {
+		// Get console:
+		console = this.getServer().getConsoleSender();
 		// Config update
 		config.checkUpdate();
 
@@ -139,6 +155,12 @@ public class KarmicShare extends JavaPlugin {
 						+ " Spout not found. Cannot use physical chests.");
 			}
 		}
+		//Create cleaner task
+		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this, new CleanupTask(console), 72000, 72000);
+		if(cleantask == -1)
+		{
+			syslog.warning(prefix + " Could not create cleaner task.");
+		}
 		syslog.info(prefix + " KarmicShare v"
 				+ this.getDescription().getVersion() + " enabled");
 	}
@@ -183,5 +205,46 @@ public class KarmicShare extends JavaPlugin {
 		final Question question = new Question(respondent, questionMessage, answers);
 		questions.add(question);
 		return question.ask();
+	}
+
+	class CleanupTask implements Runnable
+	{
+		private CommandSender sender;
+
+		public CleanupTask(CommandSender sender)
+		{
+			this.sender = sender;
+		}
+
+		@Override
+		public void run()
+		{
+			try
+			{
+				final List<Integer> ids = new ArrayList<Integer>();
+				ResultSet rs = getLiteDB().select("SELECT * FROM items WHERE amount<='0'");
+				if(rs.next())
+				{
+					do
+					{
+						//Grab id of bad entry
+						ids.add(rs.getInt("id"));
+					}while(rs.next());
+				}
+				rs.close();
+				for(Integer id : ids)
+				{
+					//Drop entries
+					getLiteDB().standardQuery("DROP FROM items WHERE id='" + id.intValue() + "';");
+				}
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " SQL error");
+				e.printStackTrace();
+			}
+		}
 	}
 }
