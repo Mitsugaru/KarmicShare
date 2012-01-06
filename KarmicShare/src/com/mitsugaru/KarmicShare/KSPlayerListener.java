@@ -717,7 +717,7 @@ public class KSPlayerListener extends PlayerListener {
 										String[] cutter = cut[s].split("v");
 										EnchantmentWrapper e = new EnchantmentWrapper(
 												Integer.parseInt(cutter[0]));
-										item.addUnsafeEnchantment(
+										add.addUnsafeEnchantment(
 												e.getEnchantment(),
 												Integer.parseInt(cutter[1]));
 									}
