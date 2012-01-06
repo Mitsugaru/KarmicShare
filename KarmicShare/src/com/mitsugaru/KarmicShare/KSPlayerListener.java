@@ -548,7 +548,11 @@ public class KSPlayerListener extends PlayerListener {
 					if(!all.wasNull())
 					{
 						final ItemStack item = new ItemStack(all.getInt("itemid"), amount);
-						final int maxStack = item.getType().getMaxStackSize();
+						int maxStack = item.getType().getMaxStackSize();
+						if(maxStack <= 0)
+						{
+							maxStack = 1;
+						}
 						int stacks = amount / maxStack;
 						final double rem = (double) amount % (double) maxStack;
 						if(rem != 0)
@@ -672,7 +676,11 @@ public class KSPlayerListener extends PlayerListener {
 					short dur = itemList.getShort("durability");
 					ItemStack item = new ItemStack(id, amount, dur, data);
 					//Generate psudo item to calculate slots taken up
-					final int maxStack = item.getType().getMaxStackSize();
+					int maxStack = item.getType().getMaxStackSize();
+					if(maxStack <= 0)
+					{
+						maxStack = 1;
+					}
 					int stacks = amount / maxStack;
 					final double rem = (double) amount % (double) maxStack;
 					if(rem != 0)
