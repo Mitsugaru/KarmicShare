@@ -1915,7 +1915,7 @@ public class Commander implements CommandExecutor {
 							// Remove trailing comma
 							sb.deleteCharAt(sb.length() - 1);
 							// Add new instance of item to database
-							query = "INSERT INTO items (itemid,amount,data,durability,enchantments,group) VALUES ('"
+							query = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
 									+ itemid
 									+ "','"
 									+ quantity
@@ -1962,7 +1962,7 @@ public class Commander implements CommandExecutor {
 							else
 							{
 								// Item not in database, therefore add it
-								query = "INSERT INTO items (itemid,amount,data,durability,group) VALUES ("
+								query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ("
 										+ itemid
 										+ ","
 										+ quantity
@@ -2012,7 +2012,7 @@ public class Commander implements CommandExecutor {
 							else
 							{
 								// Item not in database, therefore add it
-								query = "INSERT INTO items (itemid,amount,data,durability,group) VALUES ("
+								query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ("
 										+ itemid
 										+ ","
 										+ quantity
@@ -2474,7 +2474,7 @@ public class Commander implements CommandExecutor {
 							{
 								// Item not in database, therefore add
 								// it
-								query = "INSERT INTO items (itemid,amount,data, durability,group) VALUES ("
+								query = "INSERT INTO items (itemid,amount,data, durability,groups) VALUES ("
 										+ itemid
 										+ ","
 										+ amount
@@ -2526,7 +2526,7 @@ public class Commander implements CommandExecutor {
 							{
 								// Item not in database, therefore add
 								// it
-								query = "INSERT INTO items (itemid,amount,data, durability,group) VALUES ("
+								query = "INSERT INTO items (itemid,amount,data, durability,groups) VALUES ("
 										+ itemid
 										+ ","
 										+ amount
