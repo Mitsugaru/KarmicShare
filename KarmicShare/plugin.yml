@@ -2,11 +2,11 @@ name: KarmicShare
 
 main: com.mitsugaru.KarmicShare.KarmicShare
 
-version: 0.15
+version: 0.16
 
 website: http://dev.bukkit.org/server-mods/karmicshare/
 
-description: Command-based item sharing with karma system
+description: Community/Group item sharing with limiting karma system
 
 authors:
   - Mitsugaru
@@ -56,13 +56,13 @@ permissions:
         default: op
     KarmicShare.ignore.karma:
         description: Ignores karma. User's karma does not change.
-        default: op
+        default: false
     KarmicShare.ignore.group:
         description: Ignores groups. User is of all groups.
-        default: op
+        default: false
     KarmicShare.ignore.*:
         description: Allows user to administrate plugin
-        default: op
+        default: false
         children:
             KarmicShare.ignore.karma: true
             KarmicShare.ignore.group: true

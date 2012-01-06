@@ -202,23 +202,13 @@ public class KSInventoryListener extends InventoryListener {
 											if (giveItem(event.getPlayer(),
 													event.getItem(), group))
 											{
-												if (chest
-														.getInventory()
-														.contains(
-																event.getItem()
-																		.getTypeId()))
+												event.setResult(Event.Result.ALLOW);
+												if(event.getInventory().firstEmpty() < 0)
 												{
-													// Chest already contains
-													// it, do not stack
-													event.setResult(Event.Result.ALLOW);
 													event.setItem(null);
 												}
-												else if (chest.getInventory()
-														.firstEmpty() == -1)
+												if(event.getInventory().contains(event.getItem().getTypeId()))
 												{
-													event.setResult(Event.Result.ALLOW);
-													// Handle if inventory is
-													// full
 													event.setItem(null);
 												}
 											}
@@ -265,6 +255,7 @@ public class KSInventoryListener extends InventoryListener {
 																			+ KarmicShare.prefix
 																			+ "Could not repopulate slot.");
 												}
+												event.setItem(null);
 											}
 											else
 											{
@@ -316,6 +307,8 @@ public class KSInventoryListener extends InventoryListener {
 															}
 														}
 													}
+													//Set stack to 1
+													event.getCursor().setAmount(1);
 												}
 												else
 												{
@@ -380,6 +373,7 @@ public class KSInventoryListener extends InventoryListener {
 												event.getCursor(), group))
 										{
 											event.setResult(Event.Result.ALLOW);
+											event.getCursor().setAmount(1);
 										}
 										else
 										{
@@ -480,12 +474,8 @@ public class KSInventoryListener extends InventoryListener {
 				}
 				else
 				{
-					// Item not in database, therefore error
-					// on player part
-					rs.close();
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
-							+ " Item not in pool...");
-					return false;
+					// Item not in database
+					has =  false;
 				}
 				rs.close();
 			}
@@ -523,10 +513,8 @@ public class KSInventoryListener extends InventoryListener {
 				}
 				else
 				{
-					// Item not in database, therefore error
-					// on player part
-					rs.close();
-					return false;
+					// Item not in database
+					has =  false;
 				}
 				rs.close();
 			}
@@ -618,7 +606,7 @@ public class KSInventoryListener extends InventoryListener {
 											/ plugin.getPluginConfig().karmaChange;
 									if (amount == 0)
 									{
-										// Cannot give any items as
+										// Cannot get any items as
 										// they'd go beyond
 										// karma limit
 										player.sendMessage(ChatColor.RED
@@ -849,7 +837,7 @@ public class KSInventoryListener extends InventoryListener {
 										toolQuery);
 								if (toolRS.next())
 								{
-									if (amount == toolRS.getInt("amount"))
+									if ((toolRS.getInt("amount") - amount) <= 0)
 									{
 										// DROP
 										toolQuery = "DELETE FROM items WHERE itemid='"
@@ -900,7 +888,7 @@ public class KSInventoryListener extends InventoryListener {
 						{
 							if (rs.next())
 							{
-								if (amount == rs.getInt("amount"))
+								if ((rs.getInt("amount") - amount) <= 0)
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE itemid='"
@@ -944,7 +932,7 @@ public class KSInventoryListener extends InventoryListener {
 						{
 							if (rs.next())
 							{
-								if (amount == rs.getInt("amount"))
+								if ((rs.getInt("amount")- amount) <= 0)
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE itemid='"
@@ -1156,8 +1144,6 @@ public class KSInventoryListener extends InventoryListener {
 				{
 					if (rs.next())
 					{
-						do
-						{
 							// For potions, look up for similar
 							// durability. Add amount that way
 							// if it exists
@@ -1167,8 +1153,6 @@ public class KSInventoryListener extends InventoryListener {
 									+ "' AND durability='"
 									+ item.getDurability() + "' AND groups='"
 									+ group + "';";
-						}
-						while (rs.next());
 					}
 					else
 					{

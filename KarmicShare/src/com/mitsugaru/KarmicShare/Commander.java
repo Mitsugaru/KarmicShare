@@ -1727,7 +1727,7 @@ public class Commander implements CommandExecutor {
 								// Calculate new total
 								total -= amount;
 
-								if (total == 0)
+								if (total <= 0)
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE amount='"
@@ -1765,7 +1765,7 @@ public class Commander implements CommandExecutor {
 									// Calculate new amount removed from
 									// pool
 									amount -= residual.size();
-									if (amount == 0)
+									if (amount <= 0)
 									{
 										// Didn't actually give any items
 										// due
@@ -1785,7 +1785,7 @@ public class Commander implements CommandExecutor {
 								// Calculate new total
 								total -= amount;
 
-								if (total == 0)
+								if (total <= 0)
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM items WHERE amount='"
