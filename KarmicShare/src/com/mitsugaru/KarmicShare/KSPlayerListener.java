@@ -533,6 +533,71 @@ public class KSPlayerListener extends PlayerListener {
 		}
 	}
 
+	private int grabNextPage(int current, int limit, String group)
+	{
+		//Calculate number of slots
+		int slots = 0;
+		ResultSet all = plugin.getLiteDB().select("SELECT * FROM items WHERE groups='" + group + "';");
+		try
+		{
+			if(all.next())
+			{
+				do
+				{
+					final int amount = all.getInt("amount");
+					if(!all.wasNull())
+					{
+						final ItemStack item = new ItemStack(all.getInt("itemid"), amount);
+						final int maxStack = item.getType().getMaxStackSize();
+						int stacks = amount / maxStack;
+						final double rem = (double) amount % (double) maxStack;
+						if(rem != 0)
+						{
+							stacks++;
+						}
+						slots += stacks;
+					}
+				}while(all.next());
+			}
+			all.close();
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			plugin.getLogger().warning(
+					ChatColor.RED + KarmicShare.prefix + "SQL error.");
+			e.printStackTrace();
+		}
+		//if no slots, return 1
+		if(slots <= 0)
+		{
+			return 1;
+		}
+		//Calculate pages
+		int pageTotal = slots / limit;
+		final double rem = (double) slots % (double) limit;
+		if(rem != 0)
+		{
+			pageTotal++;
+		}
+		int page = current + 1;
+		if (page <= 0)
+		{
+			// Was negative... return it to first page
+			page = 1;
+		}
+		//Allow for empty page
+		else if (page > (pageTotal +1))
+		{
+			// Going to page beyond the total items, cycle back to
+			// first
+			page = 1;
+		}
+		return page;
+	}
+
+	//OLD METHOD
+	/*
 	private int grabNextPage(int current, int limit, String group) {
 		int page = 1;
 		// Grab total items
@@ -555,7 +620,7 @@ public class KSPlayerListener extends PlayerListener {
 					}
 					// increment current page
 					page = current + 1;
-					if (page < 0)
+					if (page <= 0)
 					{
 						// Was negative... return it to first page
 						page = 1;
@@ -580,8 +645,126 @@ public class KSPlayerListener extends PlayerListener {
 			e.printStackTrace();
 		}
 		return page;
+	}*/
+
+	private void populateChest(Inventory inventory, int page, boolean isDouble,
+			String group) {
+		try
+		{
+			int count = 0;
+			int limit = 27;
+			if (isDouble)
+			{
+				limit = 54;
+			}
+			int start = (page - 1) * limit;
+			ResultSet itemList = plugin.getLiteDB().select(
+					"SELECT * FROM items WHERE groups='" + group + "';");
+			if (itemList.next())
+			{
+				boolean done = false;
+				do
+				{
+					// Generate item
+					int id = itemList.getInt("itemid");
+					int amount = itemList.getInt("amount");
+					byte data = itemList.getByte("data");
+					short dur = itemList.getShort("durability");
+					ItemStack item = new ItemStack(id, amount, dur, data);
+					//Generate psudo item to calculate slots taken up
+					final int maxStack = item.getType().getMaxStackSize();
+					int stacks = amount / maxStack;
+					final double rem = (double) amount % (double) maxStack;
+					if(rem != 0)
+					{
+						stacks++;
+					}
+					for(int x = 0; x < stacks; x++)
+					{
+						ItemStack add = item.clone();
+						if(amount < maxStack)
+						{
+							add.setAmount(amount);
+						}
+						else
+						{
+							add.setAmount(maxStack);
+							amount -= maxStack;
+						}
+
+					if (count >= start)
+					{
+						Item meta = new Item(id, data, dur);
+						// If tool
+						if (meta.isTool())
+						{
+								// Check for enchantments
+								String enchantments = itemList
+										.getString("enchantments");
+								if (!itemList.wasNull())
+								{
+									String[] cut = enchantments.split("i");
+									for (int s = 0; s < cut.length; s++)
+									{
+										String[] cutter = cut[s].split("v");
+										EnchantmentWrapper e = new EnchantmentWrapper(
+												Integer.parseInt(cutter[0]));
+										item.addUnsafeEnchantment(
+												e.getEnchantment(),
+												Integer.parseInt(cutter[1]));
+									}
+								}
+								final HashMap<Integer, ItemStack> residual = inventory
+										.addItem(add);
+								if (!residual.isEmpty())
+								{
+									done = true;
+								}
+						}
+						else if (meta.isPotion())
+						{
+								// Remove data for full potion compatibility
+								item = new ItemStack(id, 1, dur);
+								final HashMap<Integer, ItemStack> residual = inventory
+										.addItem(add);
+								if (!residual.isEmpty())
+								{
+									done = true;
+								}
+						}
+						else
+						{
+							final HashMap<Integer, ItemStack> residual = inventory
+									.addItem(add);
+							if (!residual.isEmpty())
+							{
+								done = true;
+							}
+						}
+					}
+					count++;
+					}
+				}
+				while (itemList.next() && !done);
+			}
+			else
+			{
+				// No items to add.
+				inventory.clear();
+			}
+			// Close select
+			itemList.close();
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			plugin.getLogger().warning(
+					ChatColor.RED + KarmicShare.prefix + "SQL error.");
+			e.printStackTrace();
+		}
 	}
 
+	/*//OLD METHOD
 	private void populateChest(Inventory inventory, int page, boolean isDouble,
 			String group) {
 		try
@@ -659,7 +842,7 @@ public class KSPlayerListener extends PlayerListener {
 					ChatColor.RED + KarmicShare.prefix + "SQL error.");
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	private boolean playerHasGroup(CommandSender sender, String name, String group)
 	{

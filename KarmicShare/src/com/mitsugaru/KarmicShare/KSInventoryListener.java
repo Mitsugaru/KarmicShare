@@ -95,6 +95,8 @@ public class KSInventoryListener extends InventoryListener {
 						}
 						if (kschest)
 						{
+							try
+							{
 							if (event.isLeftClick())
 							{
 								if (event.isShiftClick())
@@ -106,88 +108,55 @@ public class KSInventoryListener extends InventoryListener {
 									{
 										if (fromChest)
 										{
-											if (takeItem(event.getPlayer(),
-													event.getItem(), group))
+											final int amount = takeItem(event.getPlayer(),
+													event.getItem(), group);
+											final int original = event.getItem().getAmount();
+											if (amount == event.getItem().getAmount())
 											{
 												event.setResult(Event.Result.ALLOW);
-												if (hasItem(event.getPlayer(),
-														event.getItem(), group))
+												final ItemStack bak = event.getItem().clone();
+												final Repopulate task = new Repopulate(
+														event.getPlayer().getInventory(),
+														bak);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin,
+																task, 1);
+												if (id == -1)
 												{
-													final ItemStack temp = event
-															.getItem();
-													temp.setAmount(1);
-
-													if (temp.getEnchantments()
-															.size() == 0)
-													{
-														Repopulate task = new Repopulate(
-																event.getInventory(),
-																temp, event
-																		.getSlot());
-														int id = plugin
-																.getServer()
-																.getScheduler()
-																.scheduleSyncDelayedTask(
-																		plugin,
-																		task, 5);
-														if (id == -1)
-														{
-															event.getPlayer()
-																	.sendMessage(
-																			ChatColor.YELLOW
-																					+ KarmicShare.prefix
-																					+ "Could not repopulate slot.");
-														}
-
-													}
-													Repopulate playerTask = new Repopulate(
-															event.getPlayer()
-																	.getInventory(),
-															temp);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	playerTask, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not give item.");
-													}
-													event.setItem(null);
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
 												}
-												else
+												event.setItem(null);
+											}
+											else if(amount < event.getItem().getAmount() && amount > 0)
+											{
+												event.setResult(Event.Result.ALLOW);
+												event.getItem().setAmount(amount);
+												final ItemStack bak = event.getItem().clone();
+												bak.setAmount(original - amount);
+												final Repopulate task = new Repopulate(
+														event.getInventory(),
+														bak, event
+																.getSlot());
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin,
+																task, 5);
+												if (id == -1)
 												{
-													final ItemStack temp = event
-															.getItem();
-													if (temp.getEnchantments()
-															.size() == 0)
-													{
-														temp.setAmount(1);
-														final Repopulate task = new Repopulate(
-																event.getPlayer()
-																		.getInventory(),
-																temp);
-														int id = plugin
-																.getServer()
-																.getScheduler()
-																.scheduleSyncDelayedTask(
-																		plugin,
-																		task, 1);
-														if (id == -1)
-														{
-															event.getPlayer()
-																	.sendMessage(
-																			ChatColor.YELLOW
-																					+ KarmicShare.prefix
-																					+ "Could not give item.");
-														}
-													}
-													event.setItem(null);
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
 												}
 											}
 											else
@@ -198,19 +167,29 @@ public class KSInventoryListener extends InventoryListener {
 										}
 										else
 										{
-
 											if (giveItem(event.getPlayer(),
 													event.getItem(), group))
 											{
 												event.setResult(Event.Result.ALLOW);
-												if(event.getInventory().firstEmpty() < 0)
+												final ItemStack item = event.getItem().clone();
+												final Repopulate task = new Repopulate(
+														chest.getInventory(),
+														item);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin,
+																task, 5);
+												if (id == -1)
 												{
-													event.setItem(null);
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
 												}
-												if(event.getInventory().contains(event.getItem().getTypeId()))
-												{
-													event.setItem(null);
-												}
+												event.setItem(null);
 											}
 											else
 											{
@@ -236,7 +215,7 @@ public class KSInventoryListener extends InventoryListener {
 													event.getCursor(), group))
 											{
 												event.setResult(Event.Result.ALLOW);
-												final ItemStack temp = event
+												/*final ItemStack temp = event
 														.getItem();
 												temp.setAmount(1);
 												final Repopulate task = new Repopulate(
@@ -255,7 +234,7 @@ public class KSInventoryListener extends InventoryListener {
 																			+ KarmicShare.prefix
 																			+ "Could not repopulate slot.");
 												}
-												event.setItem(null);
+												event.setItem(null);*/
 											}
 											else
 											{
@@ -271,11 +250,13 @@ public class KSInventoryListener extends InventoryListener {
 											if (giveItem(event.getPlayer(),
 													event.getCursor(), group))
 											{
-												if (takeItem(event.getPlayer(),
-														event.getItem(), group))
+												final int amount = takeItem(event.getPlayer(),
+														event.getItem(), group);
+												final int original = event.getItem().getAmount();
+												if (amount == event.getItem().getAmount())
 												{
 													event.setResult(Event.Result.ALLOW);
-													if (hasItem(
+													/*if (hasItem(
 															event.getPlayer(),
 															event.getItem(),
 															group))
@@ -308,7 +289,32 @@ public class KSInventoryListener extends InventoryListener {
 														}
 													}
 													//Set stack to 1
-													event.getCursor().setAmount(1);
+													event.getCursor().setAmount(1);*/
+												}
+												else if(amount < event.getItem().getAmount() && amount > 0)
+												{
+													event.setResult(Event.Result.ALLOW);
+													event.getItem().setAmount(amount);
+													final ItemStack bak = event.getItem().clone();
+													bak.setAmount(original - amount);
+													final Repopulate task = new Repopulate(
+															event.getInventory(),
+															bak, event
+																	.getSlot());
+													int id = plugin
+															.getServer()
+															.getScheduler()
+															.scheduleSyncDelayedTask(
+																	plugin,
+																	task, 5);
+													if (id == -1)
+													{
+														event.getPlayer()
+																.sendMessage(
+																		ChatColor.YELLOW
+																				+ KarmicShare.prefix
+																				+ "Could not repopulate slot.");
+													}
 												}
 												else
 												{
@@ -325,11 +331,13 @@ public class KSInventoryListener extends InventoryListener {
 									}
 									else if (event.getItem() != null)
 									{
-										if (takeItem(event.getPlayer(),
-												event.getItem(), group))
+										final int amount = takeItem(event.getPlayer(),
+												event.getItem(), group);
+										final int original = event.getItem().getAmount();
+										if (amount == event.getItem().getAmount())
 										{
 											event.setResult(Event.Result.ALLOW);
-											if (hasItem(event.getPlayer(),
+											/*if (hasItem(event.getPlayer(),
 													event.getItem(), group))
 											{
 												final ItemStack temp = event
@@ -357,6 +365,31 @@ public class KSInventoryListener extends InventoryListener {
 																				+ "Could not repopulate slot.");
 													}
 												}
+											}*/
+										}
+										else if(amount < event.getItem().getAmount() && amount > 0)
+										{
+											event.setResult(Event.Result.ALLOW);
+											event.getItem().setAmount(amount);
+											final ItemStack bak = event.getItem().clone();
+											bak.setAmount(original - amount);
+											final Repopulate task = new Repopulate(
+													event.getInventory(),
+													bak, event
+															.getSlot());
+											int id = plugin
+													.getServer()
+													.getScheduler()
+													.scheduleSyncDelayedTask(
+															plugin,
+															task, 5);
+											if (id == -1)
+											{
+												event.getPlayer()
+														.sendMessage(
+																ChatColor.YELLOW
+																		+ KarmicShare.prefix
+																		+ "Could not repopulate slot.");
 											}
 										}
 										else
@@ -373,7 +406,7 @@ public class KSInventoryListener extends InventoryListener {
 												event.getCursor(), group))
 										{
 											event.setResult(Event.Result.ALLOW);
-											event.getCursor().setAmount(1);
+											/*event.getCursor().setAmount(1);*/
 										}
 										else
 										{
@@ -392,6 +425,11 @@ public class KSInventoryListener extends InventoryListener {
 														+ " Not allowed to right-click in chest");
 								event.setResult(Event.Result.DENY);
 								event.setCancelled(true);
+							}
+							}
+							catch(NullPointerException e)
+							{
+								e.printStackTrace();
 							}
 						}
 					}
@@ -530,7 +568,7 @@ public class KSInventoryListener extends InventoryListener {
 		return has;
 	}
 
-	private boolean takeItem(Player player, ItemStack item, String group) {
+	private int takeItem(Player player, ItemStack item, String group) {
 		// Check if they have "take" permission
 		if (plugin.getPermissionHandler().checkPermission(player,
 				"KarmicShare.take"))
@@ -553,7 +591,7 @@ public class KSInventoryListener extends InventoryListener {
 							player.sendMessage(ChatColor.RED
 									+ KarmicShare.prefix
 									+ "Your karma is at the limit!");
-							return false;
+							return -1;
 						}
 					}
 					catch (SQLException e1)
@@ -562,7 +600,7 @@ public class KSInventoryListener extends InventoryListener {
 						player.sendMessage(ChatColor.RED + KarmicShare.prefix
 								+ " Could not retrieve player karma");
 						e1.printStackTrace();
-						return false;
+						return -1;
 					}
 				}
 			}
@@ -604,7 +642,7 @@ public class KSInventoryListener extends InventoryListener {
 											- Math.abs(karma);
 									amount = amount
 											/ plugin.getPluginConfig().karmaChange;
-									if (amount == 0)
+									if (amount <= 0)
 									{
 										// Cannot get any items as
 										// they'd go beyond
@@ -612,7 +650,7 @@ public class KSInventoryListener extends InventoryListener {
 										player.sendMessage(ChatColor.RED
 												+ KarmicShare.prefix
 												+ " Not enough karma to take item");
-										return false;
+										return -1;
 									}
 									else
 									{
@@ -673,7 +711,7 @@ public class KSInventoryListener extends InventoryListener {
 												player.sendMessage(ChatColor.RED
 														+ KarmicShare.prefix
 														+ " Not enough karma to take item");
-												return false;
+												return -1;
 											}
 											else
 											{
@@ -716,7 +754,7 @@ public class KSInventoryListener extends InventoryListener {
 												player.sendMessage(ChatColor.RED
 														+ KarmicShare.prefix
 														+ " Not enough karma to take item");
-												return false;
+												return -1;
 											}
 											else
 											{
@@ -765,7 +803,7 @@ public class KSInventoryListener extends InventoryListener {
 											player.sendMessage(ChatColor.RED
 													+ KarmicShare.prefix
 													+ " Not enough karma to take item");
-											return false;
+											return -1;
 										}
 										else
 										{
@@ -874,7 +912,7 @@ public class KSInventoryListener extends InventoryListener {
 									+ KarmicShare.prefix
 									+ "Could not retrieve item in pool!");
 							e.printStackTrace();
-							return false;
+							return -1;
 						}
 					}
 					else if (temp.isPotion())
@@ -918,7 +956,7 @@ public class KSInventoryListener extends InventoryListener {
 									+ KarmicShare.prefix
 									+ "Could not retrieve item in pool!");
 							e.printStackTrace();
-							return false;
+							return -1;
 						}
 					}
 					else
@@ -960,7 +998,7 @@ public class KSInventoryListener extends InventoryListener {
 									+ KarmicShare.prefix
 									+ "Could not retrieve item in pool!");
 							e.printStackTrace();
-							return false;
+							return -1;
 						}
 					}
 					// Smoke effect
@@ -994,7 +1032,7 @@ public class KSInventoryListener extends InventoryListener {
 						{
 							int cacheAmount = plugin.getCommander().getCache()
 									.get(temp).intValue();
-							if ((cacheAmount - amount) == 0)
+							if ((cacheAmount - amount) <= 0)
 							{
 								plugin.getCommander().getCache().remove(temp);
 							}
@@ -1010,7 +1048,7 @@ public class KSInventoryListener extends InventoryListener {
 				{
 					player.sendMessage(ChatColor.RED + KarmicShare.prefix
 							+ " Item is no longer available.");
-					return false;
+					return -1;
 				}
 			}
 			catch (SQLException e)
@@ -1019,16 +1057,16 @@ public class KSInventoryListener extends InventoryListener {
 				player.sendMessage(ChatColor.RED + KarmicShare.prefix
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
-				return false;
+				return -1;
 			}
-			return true;
+			return amount;
 		}
 		else
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.prefix
 					+ " Lack permission: KarmicShare.take");
 		}
-		return false;
+		return -1;
 	}
 
 	private boolean giveItem(Player player, ItemStack item, String group) {

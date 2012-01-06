@@ -3254,7 +3254,7 @@ public class Commander implements CommandExecutor {
 	@SuppressWarnings ("unchecked")
 	private void listPool(CommandSender sender, int pageAdjust) {
 		// Get list of items from database
-		ResultSet itemlist = ks.getLiteDB().select("SELECT * FROM items;");
+		ResultSet itemlist = ks.getLiteDB().select("SELECT * FROM items WHERE groups='global';");
 		try
 		{
 			if (itemlist.next())
