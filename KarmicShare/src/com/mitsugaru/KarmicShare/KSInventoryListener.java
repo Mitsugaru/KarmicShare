@@ -136,11 +136,10 @@ public class KSInventoryListener extends InventoryListener {
 											}
 											else if(amount < event.getItem().getAmount() && amount > 0)
 											{
-												event.setResult(Event.Result.ALLOW);
-												event.getItem().setAmount(amount);
+												event.setResult(Event.Result.DENY);
 												final ItemStack bak = event.getItem().clone();
 												bak.setAmount(original - amount);
-												final Repopulate task = new Repopulate(
+												Repopulate task = new Repopulate(
 														event.getInventory(),
 														bak, event
 																.getSlot());
@@ -157,6 +156,25 @@ public class KSInventoryListener extends InventoryListener {
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
 																			+ "Could not repopulate slot.");
+												}
+												final ItemStack give = event.getItem().clone();
+												give.setAmount(amount);
+												task = new Repopulate(
+														event.getPlayer().getInventory(),
+														give);
+												id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin,
+																task, 5);
+												if (id == -1)
+												{
+													event.getPlayer()
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not give item.");
 												}
 											}
 											else
