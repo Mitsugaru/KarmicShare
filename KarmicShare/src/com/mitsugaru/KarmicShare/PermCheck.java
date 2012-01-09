@@ -54,10 +54,7 @@ public class PermCheck {
 	 */
 	public boolean checkPermission(CommandSender sender, String node)
 	{
-		if(hasVault)
-		{
-			return perm.has(sender, node);
-		}
+		//Use PEX first
 		if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx"))
 		{
 			//Pex only supports player check, no CommandSender objects
@@ -71,6 +68,11 @@ public class PermCheck {
 					return true;
 				}
 			}
+		}
+		//Use vault if we have it
+		if(hasVault)
+		{
+			return perm.has(sender, node);
 		}
 		//If not using PEX / Vault, OR if sender is not a player (in PEX only case)
 		//Attempt to use SuperPerms or op

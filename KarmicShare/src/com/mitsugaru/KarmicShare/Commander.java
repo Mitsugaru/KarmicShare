@@ -452,9 +452,8 @@ public class Commander implements CommandExecutor {
 			if (args.length > 2)
 			{
 				// Grab group name if given
-
 				// force group names to lower case
-					group = args[3].toLowerCase();
+					group = args[2].toLowerCase();
 					if (sender instanceof Player)
 					{
 						if (!playerHasGroup(sender,
@@ -510,7 +509,7 @@ public class Commander implements CommandExecutor {
 							if(p != null)
 							{
 								p.sendMessage(ChatColor.GREEN + prefix
-										+ " You have been rmoved from " + ChatColor.GRAY
+										+ " You have been removed from " + ChatColor.GRAY
 										+ group);
 							}
 						}
@@ -535,7 +534,7 @@ public class Commander implements CommandExecutor {
 		}
 		else if (com.equals("leave"))
 		{
-			if(args.length < 2)
+			if(args.length > 2)
 			{
 				String group = "";
 				for(int i = 2; i < args.length; i++)
@@ -657,7 +656,10 @@ public class Commander implements CommandExecutor {
 						sb.deleteCharAt(sb.length() - 1);
 						groups = sb.toString();
 					}
-					// Else, it was their only group, so clear it.
+					else
+					{
+						groups = "";
+					}
 				}
 			}
 			rs.close();
