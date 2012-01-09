@@ -287,6 +287,7 @@ public class Commander implements CommandExecutor {
 		return true;
 	}
 
+	//TODO need permission nodes for groups
 	private boolean groupCommand(CommandSender sender, String[] args) {
 		// Show group commands help menu
 		final String com = args[1];

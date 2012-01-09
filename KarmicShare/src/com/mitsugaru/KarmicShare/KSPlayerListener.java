@@ -533,7 +533,6 @@ public class KSPlayerListener extends PlayerListener {
 		}
 	}
 
-	//TODO change pages to double to support the entire page limit of 999999999999999
 	private int grabNextPage(int current, int limit, String group)
 	{
 		//Calculate number of slots
@@ -584,6 +583,12 @@ public class KSPlayerListener extends PlayerListener {
 		if(rem != 0)
 		{
 			pageTotal++;
+		}
+		//Check against maximum
+		if(current >= Integer.MAX_VALUE)
+		{
+			//Cycle back as we're at the max value for an integer
+			return 1;
 		}
 		int page = current + 1;
 		if (page <= 0)
