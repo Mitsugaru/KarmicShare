@@ -382,36 +382,44 @@ public class Config {
 		{
 			// TODO all-inclusive defaults
 			// Defaults
-			karmaFile.set("15", 2);
-			karmaFile.set("265", 3);
-			karmaFile.set("264", 27);
-			karmaFile.set("331", 2);
 			karmaFile.set("14", 5);
-			karmaFile.set("266", 6);
-			karmaFile.set("41", 54);
-			karmaFile.set("35.0", 5);
-			karmaFile.set("35.1", 5);
-			karmaFile.set("35.2", 5);
-			karmaFile.set("35.3", 5);
-			karmaFile.set("35.4", 5);
-			karmaFile.set("35.5", 5);
-			karmaFile.set("35.6", 5);
-			karmaFile.set("35.7", 5);
-			karmaFile.set("35.8", 5);
-			karmaFile.set("35.9", 5);
-			karmaFile.set("35.10", 5);
-			karmaFile.set("35.11", 5);
-			karmaFile.set("35.12", 5);
-			karmaFile.set("35.13", 5);
-			karmaFile.set("35.14", 5);
-			karmaFile.set("35.15", 5);
+			karmaFile.set("15", 2);
+			karmaFile.set("17.0", 2);
+			karmaFile.set("17.1", 2);
+			karmaFile.set("17.2", 2);
 			karmaFile.set("19", 10);
 			karmaFile.set("20", 3);
-			karmaFile.set("102", 12);
-			karmaFile.set("351.4", 4);
 			karmaFile.set("22", 36);
-			karmaFile.set("264", 25);
+			karmaFile.set("24", 2);
+			karmaFile.set("35.0", 2);
+			karmaFile.set("35.1", 2);
+			karmaFile.set("35.2", 2);
+			karmaFile.set("35.3", 2);
+			karmaFile.set("35.4", 2);
+			karmaFile.set("35.5", 2);
+			karmaFile.set("35.6", 2);
+			karmaFile.set("35.7", 2);
+			karmaFile.set("35.8", 2);
+			karmaFile.set("35.9", 2);
+			karmaFile.set("35.10", 2);
+			karmaFile.set("35.11", 2);
+			karmaFile.set("35.12", 2);
+			karmaFile.set("35.13", 2);
+			karmaFile.set("35.14", 2);
+			karmaFile.set("35.15", 2);
+			karmaFile.set("41", 54);
+			karmaFile.set("45", 6);
+			karmaFile.set("47", 6);
+			karmaFile.set("49", 6);
 			karmaFile.set("57", 225);
+			karmaFile.set("89", 4);
+			karmaFile.set("102", 12);
+			karmaFile.set("264", 25);
+			karmaFile.set("265", 3);
+			karmaFile.set("266", 6);
+			karmaFile.set("322", 10);
+			karmaFile.set("331", 2);
+			karmaFile.set("351.4", 4);
 			// Insert defaults into config file if they're not present
 			try
 			{
