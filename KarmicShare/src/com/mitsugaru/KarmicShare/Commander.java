@@ -58,7 +58,7 @@ public class Commander implements CommandExecutor {
 
 	// TODO refactor parsing the input string for when adding/taking items
 	// and player has specified the item. Throw it into a method for
-	// ks take and ks admin add to utilize
+	// ks take and ks admin add to utilize, as well as chest access
 	/**
 	 * Command handler
 	 */
@@ -357,118 +357,103 @@ public class Commander implements CommandExecutor {
 		}
 		else if (com.equals("add"))
 		{
-			try
+			// Grab group name
+			String group = "";
+			if (args.length > 2)
 			{
-				String name = expandName(args[2]);
-				if (name == null)
+				// force group names to lower case
+				group = args[2].toLowerCase();
+				if (sender instanceof Player)
 				{
-					name = args[2];
-				}
-				// Grab group name if given
-				String group = "";
-				if (args.length > 3)
-				{
-					// force group names to lower case
-					group = args[3].toLowerCase();
-					if (sender instanceof Player)
+					if (!playerHasGroup(sender, ((Player) sender).getName(),
+							group))
 					{
-						if (!playerHasGroup(sender,
-								((Player) sender).getName(), group))
-						{
-							sender.sendMessage(ChatColor.RED
-									+ prefix
-									+ " Cannot add players to groups you're not in.");
-							return true;
-						}
-					}
-				}
-				else
-				{
-					// Group name was not given
-					// Grab default group
-					if (sender instanceof Player)
-					{
-						group = getPlayerGroup(sender,
-								((Player) sender).getName());
-					}
-					else
-					{
-						sender.sendMessage(ChatColor.RED + prefix
-								+ " Non-player must specify group");
-						return false;
-					}
-				}
-				if (group.equals(""))
-				{
-					sender.sendMessage(ChatColor.RED + prefix
-							+ " You're not in a group.");
-					return true;
-				}
-				else if (playerHasGroup(sender, name, group))
-				{
-					sender.sendMessage(ChatColor.YELLOW + prefix + " "
-							+ ChatColor.AQUA + name + ChatColor.YELLOW
-							+ " is already in " + ChatColor.GRAY + group);
-					return true;
-				}
-				if (!group.matches(GROUP_NAME_REGEX))
-				{
-					sender.sendMessage(ChatColor.RED + prefix
-							+ " Group name must be alphanumeric");
-					return true;
-				}
-				else
-				{
-					if (groupExists(sender, group))
-					{
-						// Grab player on server
-						Player other = ks.getServer().getPlayer(name);
-						if (other != null)
-						{
-							// add other player to group
-							addPlayerToGroup(sender, other.getName(), group);
-							sender.sendMessage(ChatColor.GREEN + prefix
-									+ " Added " + ChatColor.GOLD + name
-									+ ChatColor.GREEN + " to " + ChatColor.GRAY
-									+ group);
-						}
-						else
-						{
-							sender.sendMessage(ChatColor.YELLOW
-									+ prefix
-									+ " Can only add players if they're online.");
-						}
-					}
-					else
-					{
-						sender.sendMessage(ChatColor.RED + prefix + " Group "
-								+ ChatColor.GRAY + group + ChatColor.RED
-								+ " does not exist");
+						sender.sendMessage(ChatColor.RED
+								+ prefix
+								+ " Cannot add players to groups you're not in.");
+						return true;
 					}
 				}
 			}
-			catch (IndexOutOfBoundsException e)
+			else
+			{
+				// Group name was not given
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Must specify group");
+					return false;
+			}
+			if (!group.matches(GROUP_NAME_REGEX))
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Player name not given");
-				return false;
+						+ " Group name must be alphanumeric");
+				return true;
+			}
+			if (args.length > 3)
+			{
+				// Grab all names
+				for (int i = 3; i < args.length; i++)
+				{
+					String name = expandName(args[i]);
+					if (name == null)
+					{
+						name = args[i];
+					}
+
+					else if (playerHasGroup(sender, name, group))
+					{
+						sender.sendMessage(ChatColor.YELLOW + prefix + " "
+								+ ChatColor.AQUA + name + ChatColor.YELLOW
+								+ " is already in " + ChatColor.GRAY + group);
+						return true;
+					}
+					else
+					{
+						if (groupExists(sender, group))
+						{
+							// Grab player on server
+							Player other = ks.getServer().getPlayer(name);
+							if (other != null)
+							{
+								// add other player to group
+								addPlayerToGroup(sender, other.getName(), group);
+								sender.sendMessage(ChatColor.GREEN + prefix
+										+ " Added " + ChatColor.GOLD + name
+										+ ChatColor.GREEN + " to " + ChatColor.GRAY
+										+ group);
+								other.sendMessage(ChatColor.GREEN + prefix
+										+ " You have been added to " + ChatColor.GRAY
+										+ group);
+							}
+							else
+							{
+								sender.sendMessage(ChatColor.YELLOW
+										+ prefix
+										+ " Can only add players if they're online.");
+							}
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + prefix + " Group "
+									+ ChatColor.GRAY + group + ChatColor.RED
+									+ " does not exist");
+						}
+					}
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + prefix + " Must specify player");
 			}
 			return true;
 		}
 		else if (com.equals("remove"))
 		{
-			try
+			String group = "";
+			if (args.length > 2)
 			{
-				String name = expandName(args[2]);
-				if (name == null)
-				{
-					name = args[2];
-				}
 				// Grab group name if given
-				String group = "";
-				if (args.length > 3)
-				{
-					// force group names to lower case
+
+				// force group names to lower case
 					group = args[3].toLowerCase();
 					if (sender instanceof Player)
 					{
@@ -481,65 +466,69 @@ public class Commander implements CommandExecutor {
 							return true;
 						}
 					}
-				}
-				else
-				{
-					// Group name was not given
-					// Grab default group
-					if (sender instanceof Player)
-					{
-						group = getPlayerGroup(sender,
-								((Player) sender).getName());
-					}
-					else
+					if (!group.matches(GROUP_NAME_REGEX))
 					{
 						sender.sendMessage(ChatColor.RED + prefix
-								+ " Non-player must specify group");
-						return false;
+								+ " Group name must be alphanumeric");
+						return true;
 					}
-				}
-				if (group.equals(""))
-				{
+			}
+			else
+			{
+				// Group name was not given
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " You're not in a group.");
-					return true;
-				}
-				else if (!playerHasGroup(sender, name, group))
+							+ " Must specify group");
+					return false;
+			}
+			if (args.length > 3)
+			{
+				for(int i = 3; i < args.length; i++)
 				{
-					sender.sendMessage(ChatColor.YELLOW + prefix
-							+ ChatColor.AQUA + name + ChatColor.YELLOW
-							+ " not in " + ChatColor.GRAY + group);
-					return true;
-				}
-				if (!group.matches(GROUP_NAME_REGEX))
-				{
-					sender.sendMessage(ChatColor.RED + prefix
-							+ " Group name must be alphanumeric");
-					return true;
-				}
-				else
-				{
-					if (groupExists(sender, group))
+					String name = expandName(args[i]);
+					if (name == null)
 					{
-						// remove other player to group
-						removePlayerFromGroup(sender, name, group);
-						sender.sendMessage(ChatColor.GREEN + prefix
-								+ " Removed " + ChatColor.GOLD + name
-								+ ChatColor.GREEN + " from " + ChatColor.GRAY
-								+ group);
+						name = args[i];
+					}
+					if (!playerHasGroup(sender, name, group))
+					{
+						sender.sendMessage(ChatColor.YELLOW + prefix
+								+ ChatColor.AQUA + name + ChatColor.YELLOW
+								+ " not in " + ChatColor.GRAY + group);
+						return true;
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + prefix + " Group "
-								+ ChatColor.GRAY + group + ChatColor.RED
-								+ " does not exist");
+						if (groupExists(sender, group))
+						{
+							// remove other player to group
+							removePlayerFromGroup(sender, name, group);
+							sender.sendMessage(ChatColor.GREEN + prefix
+									+ " Removed " + ChatColor.GOLD + name
+									+ ChatColor.GREEN + " from " + ChatColor.GRAY
+									+ group);
+							final Player p = ks.getServer().getPlayer(name);
+							if(p != null)
+							{
+								p.sendMessage(ChatColor.GREEN + prefix
+										+ " You have been rmoved from " + ChatColor.GRAY
+										+ group);
+							}
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + prefix + " Group "
+									+ ChatColor.GRAY + group + ChatColor.RED
+									+ " does not exist");
+						}
 					}
 				}
+
 			}
-			catch (IndexOutOfBoundsException e)
+			else
 			{
+				// Player name was not given
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Player name not given");
+						+ " Must specify player");
 				return false;
 			}
 			return true;
@@ -3011,17 +3000,18 @@ public class Commander implements CommandExecutor {
 				{
 					try
 					{
-						String name = expandName(args[3]);
-						if (name == null)
-						{
-							name = args[3];
-						}
-						// Grab group name if given
 						String group = "";
-						if (args.length > 4)
+						if (args.length > 3)
 						{
+							// Grab group name if given
 							// force group names to lower case
-							group = args[4].toLowerCase();
+							group = args[3].toLowerCase();
+							if (!group.matches(GROUP_NAME_REGEX))
+							{
+								sender.sendMessage(ChatColor.RED + prefix
+										+ " Group name must be alphanumeric");
+								return true;
+							}
 						}
 						else
 						{
@@ -3030,38 +3020,58 @@ public class Commander implements CommandExecutor {
 									+ " Admin command must specify group");
 							return false;
 						}
-						if (playerHasGroup(sender, name, group))
+						if (args.length > 4)
 						{
-							sender.sendMessage(ChatColor.YELLOW + prefix + " "
-									+ ChatColor.AQUA + name + ChatColor.YELLOW
-									+ " is already in " + ChatColor.GRAY
-									+ group);
-							return true;
-						}
-						if (!group.matches(GROUP_NAME_REGEX))
-						{
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Group name must be alphanumeric");
-							return true;
+							for(int i = 4; i < args.length; i++)
+							{
+								String name = expandName(args[i]);
+								if (name == null)
+								{
+									name = args[i];
+								}
+								if (playerHasGroup(sender, name, group))
+								{
+									sender.sendMessage(ChatColor.YELLOW + prefix + " "
+											+ ChatColor.AQUA + name + ChatColor.YELLOW
+											+ " is already in " + ChatColor.GRAY
+											+ group);
+									return true;
+								}
+								else
+								{
+									if (groupExists(sender, group))
+									{
+										// add player to group
+										addPlayerToGroup(sender, name, group);
+										sender.sendMessage(ChatColor.GREEN + prefix
+												+ " Added " + ChatColor.GOLD + name
+												+ ChatColor.GREEN + " to "
+												+ ChatColor.GRAY + group);
+										final Player p = ks.getServer().getPlayer("name");
+										if(p != null)
+										{
+											p.sendMessage(ChatColor.GREEN + prefix
+												+ " You have been added to "
+												+ ChatColor.GRAY + group);
+										}
+									}
+									else
+									{
+										sender.sendMessage(ChatColor.RED + prefix
+												+ " Group " + ChatColor.GRAY + group
+												+ ChatColor.RED + " does not exist");
+									}
+								}
+							}
 						}
 						else
 						{
-							if (groupExists(sender, group))
-							{
-								// add player to group
-								addPlayerToGroup(sender, name, group);
-								sender.sendMessage(ChatColor.GREEN + prefix
-										+ " Added " + ChatColor.GOLD + name
-										+ ChatColor.GREEN + " to "
-										+ ChatColor.GRAY + group);
-							}
-							else
-							{
-								sender.sendMessage(ChatColor.RED + prefix
-										+ " Group " + ChatColor.GRAY + group
-										+ ChatColor.RED + " does not exist");
-							}
+							// Player name was not given
+							sender.sendMessage(ChatColor.RED + prefix
+									+ " Admin command must specify player(s)");
+							return false;
 						}
+
 					}
 					catch (IndexOutOfBoundsException e)
 					{
@@ -3075,17 +3085,18 @@ public class Commander implements CommandExecutor {
 				{
 					try
 					{
-						String name = expandName(args[2]);
-						if (name == null)
-						{
-							name = args[2];
-						}
 						// Grab group name if given
 						String group = "";
 						if (args.length > 3)
 						{
 							// force group names to lower case
 							group = args[3].toLowerCase();
+							if (!group.matches(GROUP_NAME_REGEX))
+							{
+								sender.sendMessage(ChatColor.RED + prefix
+										+ " Group name must be alphanumeric");
+								return true;
+							}
 						}
 						else
 						{
@@ -3094,37 +3105,57 @@ public class Commander implements CommandExecutor {
 									+ " Admin must specify group");
 							return false;
 						}
-						if (!playerHasGroup(sender, name, group))
+						if (args.length > 4)
 						{
-							sender.sendMessage(ChatColor.YELLOW + prefix
-									+ ChatColor.AQUA + name + ChatColor.YELLOW
-									+ " not in " + ChatColor.GRAY + group);
-							return true;
-						}
-						if (!group.matches(GROUP_NAME_REGEX))
-						{
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Group name must be alphanumeric");
-							return true;
+							for(int i = 4; i < args.length; i++)
+							{
+								String name = expandName(args[i]);
+								if (name == null)
+								{
+									name = args[i];
+								}
+								if (!playerHasGroup(sender, name, group))
+								{
+									sender.sendMessage(ChatColor.YELLOW + prefix
+											+ ChatColor.AQUA + name + ChatColor.YELLOW
+											+ " not in " + ChatColor.GRAY + group);
+									return true;
+								}
+								else
+								{
+									if (groupExists(sender, group))
+									{
+										// remove other player to group
+										removePlayerFromGroup(sender, name, group);
+										sender.sendMessage(ChatColor.GREEN + prefix
+												+ " Removed " + ChatColor.GOLD + name
+												+ ChatColor.GREEN + " from "
+												+ ChatColor.GRAY + group);
+										final Player p = ks.getServer().getPlayer("name");
+										if(p != null)
+										{
+											p.sendMessage(ChatColor.GREEN + prefix
+												+ " You have been removed from "
+												+ ChatColor.GRAY + group);
+										}
+									}
+									else
+									{
+										sender.sendMessage(ChatColor.RED + prefix
+												+ " Group " + ChatColor.GRAY + group
+												+ ChatColor.RED + " does not exist");
+									}
+								}
+							}
 						}
 						else
 						{
-							if (groupExists(sender, group))
-							{
-								// remove other player to group
-								removePlayerFromGroup(sender, name, group);
-								sender.sendMessage(ChatColor.GREEN + prefix
-										+ " Removed " + ChatColor.GOLD + name
-										+ ChatColor.GREEN + " from "
-										+ ChatColor.GRAY + group);
-							}
-							else
-							{
-								sender.sendMessage(ChatColor.RED + prefix
-										+ " Group " + ChatColor.GRAY + group
-										+ ChatColor.RED + " does not exist");
-							}
+							// Player name was not given
+							sender.sendMessage(ChatColor.RED + prefix
+									+ " Admin must specify player(s)");
+							return false;
 						}
+
 					}
 					catch (IndexOutOfBoundsException e)
 					{
