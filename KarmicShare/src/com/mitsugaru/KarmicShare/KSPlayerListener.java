@@ -533,6 +533,7 @@ public class KSPlayerListener extends PlayerListener {
 		}
 	}
 
+	//TODO change pages to double to support the entire page limit of 999999999999999
 	private int grabNextPage(int current, int limit, String group)
 	{
 		//Calculate number of slots
