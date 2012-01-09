@@ -438,7 +438,7 @@ public class Config {
 		return karmaFile;
 	}
 
-	class ZeroPointFourteenItemObject
+	static class ZeroPointFourteenItemObject
 	{
 		public int itemid, amount;
 		public byte data;

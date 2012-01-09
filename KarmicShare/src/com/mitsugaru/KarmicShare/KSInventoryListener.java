@@ -1506,7 +1506,7 @@ public class KSInventoryListener extends InventoryListener {
 		}
 	}
 
-	class Repopulate implements Runnable {
+	static class Repopulate implements Runnable {
 		int slot;
 		ItemStack item;
 		Inventory inventory;
