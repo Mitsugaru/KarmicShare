@@ -190,15 +190,15 @@ public class Commander implements CommandExecutor {
 							+ "/ks group create <name>" + ChatColor.YELLOW
 							+ " : Creates a new group");
 					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group add <player> [group]"
+							+ "/ks group add <group> <player> [player2] ..."
 							+ ChatColor.YELLOW
 							+ " : Adds a player to the group");
 					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group remove <player> [group]"
+							+ "/ks group remove <group> <player> [player2] ..."
 							+ ChatColor.YELLOW
 							+ " : Removes player from the group");
 					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group leave <group>" + ChatColor.YELLOW
+							+ "/ks group leave <group> [group2] ..." + ChatColor.YELLOW
 							+ " : Leave group");
 				}
 			}
@@ -251,11 +251,11 @@ public class Commander implements CommandExecutor {
 								+ ChatColor.YELLOW
 								+ " : Remove group from database");
 						sender.sendMessage(ChatColor.GREEN
-								+ "/ks admin group add <player> <group>"
+								+ "/ks admin group add  <group> <player> [player2] ..."
 								+ ChatColor.YELLOW
 								+ " : Force add player to group");
 						sender.sendMessage(ChatColor.GREEN
-								+ "/ks admin group remove <player> <group>"
+								+ "/ks admin group remove  <group> <player> [player2] ..."
 								+ ChatColor.YELLOW
 								+ " : Force remove player to group");
 						sender.sendMessage(ChatColor.GREEN + "/ks admin reload"
@@ -535,82 +535,56 @@ public class Commander implements CommandExecutor {
 		}
 		else if (com.equals("leave"))
 		{
-			String group = "";
-			try
+			if(args.length < 2)
 			{
-				// Grab group name if given
-				// force group names to lower case
-				group = args[2].toLowerCase();
-				if (sender instanceof Player)
+				String group = "";
+				for(int i = 2; i < args.length; i++)
 				{
-					if (!playerHasGroup(sender, ((Player) sender).getName(),
-							group))
+					group = args[i].toLowerCase();
+				}
+				if (!playerHasGroup(sender, sender.getName(), group))
+				{
+					sender.sendMessage(ChatColor.YELLOW + prefix + ChatColor.AQUA
+							+ sender.getName() + ChatColor.YELLOW + " not in "
+							+ ChatColor.GRAY + group);
+					return true;
+				}
+				if (!group.matches(GROUP_NAME_REGEX))
+				{
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Group name must be alphanumeric");
+					return true;
+				}
+				else
+				{
+					if (groupExists(sender, group))
 					{
-						sender.sendMessage(ChatColor.RED
-								+ prefix
-								+ " Cannot remove players from groups you're not in.");
-						return true;
+						// remove other player to group
+						removePlayerFromGroup(sender, sender.getName(), group);
+						sender.sendMessage(ChatColor.GREEN + prefix + " Removed "
+								+ ChatColor.GOLD + sender.getName()
+								+ ChatColor.GREEN + " from " + ChatColor.GRAY
+								+ group);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + prefix + " Group "
+								+ ChatColor.GRAY + group + ChatColor.RED
+								+ " does not exist");
 					}
 				}
 			}
-
-			catch (IndexOutOfBoundsException e)
-			{
-				// Group name was not given
-				// Grab default group
-				if (sender instanceof Player)
-				{
-					group = getPlayerGroup(sender, ((Player) sender).getName());
-				}
-				else
-				{
-					sender.sendMessage(ChatColor.RED + prefix
-							+ " Non-player must specify group");
-					return false;
-				}
-			}
-			if (group.equals(""))
-			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " You're not in a group.");
-				return true;
-			}
-			else if (!playerHasGroup(sender, sender.getName(), group))
-			{
-				sender.sendMessage(ChatColor.YELLOW + prefix + ChatColor.AQUA
-						+ sender.getName() + ChatColor.YELLOW + " not in "
-						+ ChatColor.GRAY + group);
-				return true;
-			}
-			if (!group.matches(GROUP_NAME_REGEX))
-			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Group name must be alphanumeric");
-				return true;
-			}
 			else
 			{
-				if (groupExists(sender, group))
-				{
-					// remove other player to group
-					removePlayerFromGroup(sender, sender.getName(), group);
-					sender.sendMessage(ChatColor.GREEN + prefix + " Removed "
-							+ ChatColor.GOLD + sender.getName()
-							+ ChatColor.GREEN + " from " + ChatColor.GRAY
-							+ group);
-				}
-				else
-				{
-					sender.sendMessage(ChatColor.RED + prefix + " Group "
-							+ ChatColor.GRAY + group + ChatColor.RED
-							+ " does not exist");
-				}
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " Must specify a group");
 			}
 			return true;
 		}
 		return false;
 	}
 
+	@SuppressWarnings ("unused")
 	private String getPlayerGroup(CommandSender sender, String name) {
 		String out = "";
 		try
