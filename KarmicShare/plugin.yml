@@ -2,7 +2,7 @@ name: KarmicShare
 
 main: com.mitsugaru.KarmicShare.KarmicShare
 
-version: 0.18
+version: 0.19
 
 website: http://dev.bukkit.org/server-mods/karmicshare/
 
@@ -29,6 +29,7 @@ permissions:
             KarmicShare.info: true
             KarmicShare.sign: true
             KarmicShare.chest: true
+            KarmicShare.group: true
             KarmicShare.karma.other: true
             KarmicShare.commands.give: true
             KarmicShare.commands.take: true
@@ -54,6 +55,9 @@ permissions:
     KarmicShare.sign:
         description: Allows user to make/destroy associated signs for chests
         default: op
+    KarmicShare.group:
+        description: Allows user to use group commands
+        default: op
     KarmicShare.ignore.karma:
         description: Ignores karma. User's karma does not change.
         default: false
@@ -76,8 +80,8 @@ permissions:
         description: Allows user to use all restricted commands
         default: op
         children:
-            KarmicShare.ignore.karma: true
-            KarmicShare.ignore.group: true
+            KarmicShare.commands.give: true
+            KarmicShare.commands.take: true
     KarmicShare.admin:
         description: Allows user to administrate plugin
         default: op

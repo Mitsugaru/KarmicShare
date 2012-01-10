@@ -164,43 +164,51 @@ public class Commander implements CommandExecutor {
 			// Admin command
 			else if (com.equals("group"))
 			{
-				if (args.length > 1)
+				if (perm.checkPermission(sender, "KarmicShare.group"))
 				{
-					// They have a parameter, thus
-					// parse in adminCommand method
-					if (!this.groupCommand(sender, args))
+					if (args.length > 1)
 					{
-						// Bad command
-						sender.sendMessage(ChatColor.RED
-								+ prefix
-								+ " Syntax error. Use /ks group for list of commands");
+						// They have a parameter, thus
+						// parse in adminCommand method
+						if (!this.groupCommand(sender, args))
+						{
+							// Bad command
+							sender.sendMessage(ChatColor.RED
+									+ prefix
+									+ " Syntax error. Use /ks group for list of commands");
+						}
+						if (config.debugTime)
+						{
+							debugTime(sender, time);
+						}
+						return true;
 					}
-					if (config.debugTime)
+					else
 					{
-						debugTime(sender, time);
+						// Show group commands help menu
+						sender.sendMessage(ChatColor.BLUE + "==="
+								+ ChatColor.LIGHT_PURPLE + "KarmicShare Group"
+								+ ChatColor.BLUE + "===");
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks group create <name>" + ChatColor.YELLOW
+								+ " : Creates a new group");
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks group add <group> <player> [player2] ..."
+								+ ChatColor.YELLOW
+								+ " : Adds a player to the group");
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks group remove <group> <player> [player2] ..."
+								+ ChatColor.YELLOW
+								+ " : Removes player from the group");
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks group leave <group> [group2] ..." + ChatColor.YELLOW
+								+ " : Leave group");
 					}
-					return true;
 				}
 				else
 				{
-					// Show group commands help menu
-					sender.sendMessage(ChatColor.BLUE + "==="
-							+ ChatColor.LIGHT_PURPLE + "KarmicShare Group"
-							+ ChatColor.BLUE + "===");
-					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group create <name>" + ChatColor.YELLOW
-							+ " : Creates a new group");
-					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group add <group> <player> [player2] ..."
-							+ ChatColor.YELLOW
-							+ " : Adds a player to the group");
-					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group remove <group> <player> [player2] ..."
-							+ ChatColor.YELLOW
-							+ " : Removes player from the group");
-					sender.sendMessage(ChatColor.GREEN
-							+ "/ks group leave <group> [group2] ..." + ChatColor.YELLOW
-							+ " : Leave group");
+					sender.sendMessage(ChatColor.RED
+							+ " Lack permission: KarmicShare.group");
 				}
 			}
 			// Admin command
