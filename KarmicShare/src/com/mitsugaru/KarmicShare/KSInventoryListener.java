@@ -114,16 +114,30 @@ public class KSInventoryListener extends InventoryListener {
 											if (amount == event.getItem().getAmount())
 											{
 												event.setResult(Event.Result.ALLOW);
-												final ItemStack bak = event.getItem().clone();
+												event.setResult(Event.Result.ALLOW);
+												ItemStack item;
+												if(event.getItem().getEnchantments().isEmpty())
+												{
+													item = event.getItem().clone();
+												}
+												else
+												{
+													//Handle enchantments
+													item = new ItemStack(event.getItem().getTypeId(), event.getItem().getAmount(), event.getItem().getDurability(), event.getItem().getData().getData());
+													for(Map.Entry<Enchantment, Integer> enchantment :event.getItem().getEnchantments().entrySet())
+													{
+														item.addUnsafeEnchantment(enchantment.getKey(), enchantment.getValue().intValue());
+													}
+												}
 												final Repopulate task = new Repopulate(
 														event.getPlayer().getInventory(),
-														bak);
+														item);
 												int id = plugin
 														.getServer()
 														.getScheduler()
 														.scheduleSyncDelayedTask(
 																plugin,
-																task, 1);
+																task, 5);
 												if (id == -1)
 												{
 													event.getPlayer()
@@ -189,7 +203,20 @@ public class KSInventoryListener extends InventoryListener {
 													event.getItem(), group))
 											{
 												event.setResult(Event.Result.ALLOW);
-												final ItemStack item = event.getItem().clone();
+												ItemStack item;
+												if(event.getItem().getEnchantments().isEmpty())
+												{
+													item = event.getItem().clone();
+												}
+												else
+												{
+													//Handle enchantments
+													item = new ItemStack(event.getItem().getTypeId(), event.getItem().getAmount(), event.getItem().getDurability(), event.getItem().getData().getData());
+													for(Map.Entry<Enchantment, Integer> enchantment :event.getItem().getEnchantments().entrySet())
+													{
+														item.addUnsafeEnchantment(enchantment.getKey(), enchantment.getValue().intValue());
+													}
+												}
 												final Repopulate task = new Repopulate(
 														chest.getInventory(),
 														item);
@@ -233,17 +260,29 @@ public class KSInventoryListener extends InventoryListener {
 													event.getCursor(), group))
 											{
 												event.setResult(Event.Result.ALLOW);
-												/*final ItemStack temp = event
-														.getItem();
-												temp.setAmount(1);
+												ItemStack item;
+												if(event.getCursor().getEnchantments().isEmpty())
+												{
+													item = event.getCursor().clone();
+												}
+												else
+												{
+													//Handle enchantments
+													item = new ItemStack(event.getCursor().getTypeId(), event.getCursor().getAmount(), event.getCursor().getDurability(), event.getCursor().getData().getData());
+													for(Map.Entry<Enchantment, Integer> enchantment :event.getCursor().getEnchantments().entrySet())
+													{
+														item.addUnsafeEnchantment(enchantment.getKey(), enchantment.getValue().intValue());
+													}
+												}
 												final Repopulate task = new Repopulate(
-														event.getInventory(),
-														temp, event.getSlot());
+														chest.getInventory(),
+														item);
 												int id = plugin
 														.getServer()
 														.getScheduler()
 														.scheduleSyncDelayedTask(
-																plugin, task, 5);
+																plugin,
+																task, 5);
 												if (id == -1)
 												{
 													event.getPlayer()
@@ -252,7 +291,7 @@ public class KSInventoryListener extends InventoryListener {
 																			+ KarmicShare.prefix
 																			+ "Could not repopulate slot.");
 												}
-												event.setItem(null);*/
+												event.setItem(null);
 											}
 											else
 											{
@@ -424,7 +463,6 @@ public class KSInventoryListener extends InventoryListener {
 												event.getCursor(), group))
 										{
 											event.setResult(Event.Result.ALLOW);
-											/*event.getCursor().setAmount(1);*/
 										}
 										else
 										{
