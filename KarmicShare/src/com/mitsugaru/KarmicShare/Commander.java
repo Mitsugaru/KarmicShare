@@ -59,6 +59,7 @@ public class Commander implements CommandExecutor {
 	// TODO refactor parsing the input string for when adding/taking items
 	// and player has specified the item. Throw it into a method for
 	// ks take and ks admin add to utilize, as well as chest access
+	// Probably make a separate karma class to handle this all
 	/**
 	 * Command handler
 	 */
