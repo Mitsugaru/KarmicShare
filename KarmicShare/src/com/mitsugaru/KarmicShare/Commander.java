@@ -1687,13 +1687,38 @@ public class Commander implements CommandExecutor {
 								else if (potionCheck)
 								{
 									boolean full = false;
-									for (int i = 0; i < amount; i++)
+									//TODO this might be a duplicate
+									final ItemStack potionStack = new ItemStack(item.getItemTypeId(), amount);
+									int maxStack = potionStack.getType().getMaxStackSize();
+									if(maxStack <= 0)
+									{
+										maxStack = 1;
+									}
+									int stacks = amount / maxStack;
+									final double rem = (double) amount % (double) maxStack;
+									if(rem != 0)
+									{
+										stacks++;
+									}
+									int potionTotal = amount;
+									for (int i = 0; i < stacks; i++)
 									{
 										if (!full)
 										{
+											//Calculate the amount to give
+											int potionAmount = 1;
+											if(potionTotal >= maxStack)
+											{
+												potionAmount = maxStack;
+											}
+											else
+											{
+												potionAmount = potionTotal;
+											}
+											potionTotal = potionTotal - potionAmount;
 											// Generate item
 											final ItemStack give = new ItemStack(
-													item.getItemTypeId(), 1,
+													item.getItemTypeId(), potionAmount,
 													item.itemDurability());
 											HashMap<Integer, ItemStack> residual = player
 													.getInventory().addItem(
@@ -1703,7 +1728,7 @@ public class Commander implements CommandExecutor {
 											{
 												full = true;
 												amount -= residual.size();
-												if (amount == 0)
+												if (amount <= 0)
 												{
 													// Didn't actually give any
 													// items
