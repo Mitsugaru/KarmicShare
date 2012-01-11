@@ -31,8 +31,9 @@ permissions:
             KarmicShare.chest: true
             KarmicShare.group: true
             KarmicShare.karma.other: true
-            KarmicShare.commands.give: true
-            KarmicShare.commands.take: true
+            KarmicShare.commands.*: true
+            KarmicShare.group.*: true
+            KarmicShare.admin.*: true
         default: op
     KarmicShare.karma:
         description: Allows user view their karma
@@ -149,3 +150,7 @@ permissions:
             KarmicShare.admin.drain: true
             KarmicShare.admin.reload: true
             KarmicShare.admin.group: true
+            KarmicShare.admin.group.create: true
+            KarmicShare.admin.group.delete: true
+            KarmicShare.admin.group.add: true
+            KarmicShare.admin.group.remove: true
