@@ -474,6 +474,16 @@ public class KSInventoryListener extends InventoryListener {
 							}
 							else
 							{
+								//Handle right shift click
+								if (event.isShiftClick())
+								{
+
+								}
+								else
+								{
+									//Normal right click
+								}
+								//TODO handle right clicks with appropriate logic
 								event.getPlayer()
 										.sendMessage(
 												ChatColor.RED

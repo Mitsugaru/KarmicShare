@@ -56,15 +56,35 @@ permissions:
         description: Allows user to make/destroy associated signs for chests
         default: op
     KarmicShare.group:
-        description: Allows user to use group commands
+        description: Allows user to access to group commands
         default: op
+    KarmicShare.group.create:
+        description: Allows user to create groups
+        default: op
+    KarmicShare.group.add:
+        description: Allows user to add players to groups
+        default: op
+    KarmicShare.group.remove:
+        description: Allows user to remove players from groups
+        default: op
+    KarmicShare.group.leave:
+        description: Allows user to leave groups
+        default: op
+    KarmicShare.group.*:
+        description: Allows user to use all group commands
+        default: op
+        children:
+            KarmicShare.group.create: true
+            KarmicShare.group.add: true
+            KarmicShare.group.remove: true
+            KarmicShare.group.leave: true
     KarmicShare.ignore.karma:
         description: Ignores karma. User's karma does not change.
         default: false
     KarmicShare.ignore.group:
         description: Ignores groups. User is of all groups.
         default: false
-    KarmicShare.ignore.*:
+    KarmicShare.ignore:
         description: Allows user to ignore all the things.
         default: false
         children:
@@ -82,9 +102,50 @@ permissions:
         children:
             KarmicShare.commands.give: true
             KarmicShare.commands.take: true
-    KarmicShare.admin:
+    KarmicShare.admin.add:
+        description: Allows admin to add items to the pool
+        default: op
+    KarmicShare.admin.reset:
+        description: Allows admin to reset a player's karma
+        default: op
+    KarmicShare.admin.set:
+        description: Allows admin to set a player's karma
+        default: op
+    KarmicShare.admin.drain:
+        description: Allows admin to drain an item pool
+        default: op
+    KarmicShare.admin.reload:
+        description: Allows admin to reload config
+        default: op
+    KarmicShare.admin.group.create:
+        description: Allows admin to create groups
+        default: op
+    KarmicShare.admin.group.delete:
+        description: Allows admin to delete groups
+        default: op
+    KarmicShare.admin.group.add:
+        description: Allows admin to force add players to groups
+        default: op
+    KarmicShare.admin.group.remove:
+        description: Allows admin to force remove players from groups
+        default: op
+    KarmicShare.admin.group.*:
+        description: Allows admin to administrate groups
+        default: op
+        children:
+            KarmicShare.admin.group.create: true
+            KarmicShare.admin.group.delete: true
+            KarmicShare.admin.group.add: true
+            KarmicShare.admin.group.remove: true
+    KarmicShare.admin.*:
         description: Allows user to administrate plugin
         default: op
         children:
             KarmicShare.karma.other: true
             KarmicShare.info: true
+            KarmicShare.admin.add: true
+            KarmicShare.admin.reset: true
+            KarmicShare.admin.set: true
+            KarmicShare.admin.drain: true
+            KarmicShare.admin.reload: true
+            KarmicShare.admin.group: true
