@@ -97,12 +97,20 @@ permissions:
     KarmicShare.commands.take:
         description: Allows usage for command /ks take
         default: op
+    KarmicShare.commands.list:
+        description: Allows usage for command /ks list
+        default: op
+    KarmicShare.commands.value:
+        description: Allows usage for command /ks value
+        default: op
     KarmicShare.commands.*:
         description: Allows user to use all restricted commands
         default: op
         children:
             KarmicShare.commands.give: true
             KarmicShare.commands.take: true
+            KarmicShare.commands.list: true
+            KarmicShare.commands.value: true
     KarmicShare.admin.add:
         description: Allows admin to add items to the pool
         default: op

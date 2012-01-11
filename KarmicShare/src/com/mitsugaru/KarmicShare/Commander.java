@@ -73,36 +73,48 @@ public class Commander implements CommandExecutor {
 		// See if any arguments were given
 		if (args.length == 0)
 		{
-			if (!config.karmaDisabled)
+			// Check if they have "karma" permission
+			if (perm.checkPermission(sender, "KarmicShare.karma"))
 			{
-				// Show player karma
-				this.showPlayerKarma(sender, args);
+				if (!config.karmaDisabled)
+				{
+					// Show player karma
+					this.showPlayerKarma(sender, args);
 
+				}
+				else
+				{
+					// karma system disabled
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Karma disabled");
+				}
+				if (sender instanceof Player)
+				{
+					final StringBuilder sb = new StringBuilder();
+					for (String s : playerGroups(sender, sender.getName()))
+					{
+						sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA
+								+ "-");
+					}
+					// Remove trailing characters
+					try
+					{
+						sb.deleteCharAt(sb.length() - 1);
+						sender.sendMessage(ChatColor.YELLOW + prefix
+								+ " Groups: " + sb.toString());
+					}
+					catch (StringIndexOutOfBoundsException e)
+					{
+						sender.sendMessage(ChatColor.YELLOW + prefix
+								+ " No groups");
+					}
+
+				}
 			}
 			else
 			{
-				// karma system disabled
-				sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
-			}
-			if (sender instanceof Player)
-			{
-				final StringBuilder sb = new StringBuilder();
-				for (String s : playerGroups(sender, sender.getName()))
-				{
-					sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA + "-");
-				}
-				// Remove trailing characters
-				try
-				{
-					sb.deleteCharAt(sb.length() - 1);
-					sender.sendMessage(ChatColor.YELLOW + prefix + " Groups: "
-							+ sb.toString());
-				}
-				catch (StringIndexOutOfBoundsException e)
-				{
-					sender.sendMessage(ChatColor.YELLOW + prefix + " No groups");
-				}
-
+				sender.sendMessage(ChatColor.RED + prefix
+						+ " Lack permission: KarmicShare.karma");
 			}
 		}
 		else
@@ -142,24 +154,56 @@ public class Commander implements CommandExecutor {
 			// Previous page of item pool
 			else if (com.equals("prev"))
 			{
-				// List, with previous page
-				this.listPool(sender, -1);
+				if (perm.checkPermission(sender, "KarmicShare.commands.list"))
+				{
+					// List, with previous page
+					this.listPool(sender, -1);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Lack permission: KarmicShare.commands.list");
+				}
 			}
 			// Next page of item pool
 			else if (com.equals("next"))
 			{
-				// List with next page
-				this.listPool(sender, 1);
+				if (perm.checkPermission(sender, "KarmicShare.commands.list"))
+				{
+					// List with next page
+					this.listPool(sender, 1);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Lack permission: KarmicShare.commands.list");
+				}
 			}
 			// List items in pool
 			else if (com.equals("list"))
 			{
-				this.listCommand(sender, args);
+				if (perm.checkPermission(sender, "KarmicShare.commands.list"))
+				{
+					this.listCommand(sender, args);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Lack permission: KarmicShare.commands.list");
+				}
 			}
 			// Ask for karma multipliers / page through muliplier list
 			else if (com.equals("value"))
 			{
-				this.valueCommand(sender, args);
+				if (perm.checkPermission(sender, "Karmicshare.commands.value"))
+				{
+					this.valueCommand(sender, args);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Lack permission: KarmicShare.commands.value");
+				}
 			}
 			// Admin command
 			else if (com.equals("group"))
@@ -2451,22 +2495,19 @@ public class Commander implements CommandExecutor {
 		if (sender instanceof Player)
 		{
 			Player player = (Player) sender;
-			// Check if they have "karma" permission
-			if (perm.checkPermission(sender, "KarmicShare.karma"))
+
+			try
 			{
-				try
-				{
-					// Retrieve karma from database and colorize
-					sender.sendMessage(this.colorizeKarma(getPlayerKarma(player
-							.getName())));
-				}
-				catch (SQLException e)
-				{
-					// INFO Auto-generated catch block
-					player.sendMessage(ChatColor.RED + prefix
-							+ "Could not obtain player karma!");
-					e.printStackTrace();
-				}
+				// Retrieve karma from database and colorize
+				sender.sendMessage(this.colorizeKarma(getPlayerKarma(player
+						.getName())));
+			}
+			catch (SQLException e)
+			{
+				// INFO Auto-generated catch block
+				player.sendMessage(ChatColor.RED + prefix
+						+ "Could not obtain player karma!");
+				e.printStackTrace();
 			}
 		}
 	}
