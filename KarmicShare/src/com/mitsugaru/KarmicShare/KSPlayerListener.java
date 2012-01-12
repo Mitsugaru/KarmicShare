@@ -214,7 +214,7 @@ public class KSPlayerListener extends PlayerListener {
 										int page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
-												group);
+												group, true);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -234,7 +234,7 @@ public class KSPlayerListener extends PlayerListener {
 										int page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
-												group);
+												group, true);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -299,7 +299,7 @@ public class KSPlayerListener extends PlayerListener {
 										int page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
-												group);
+												group, false);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -319,7 +319,7 @@ public class KSPlayerListener extends PlayerListener {
 										int page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
-												group);
+												group, false);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -388,7 +388,7 @@ public class KSPlayerListener extends PlayerListener {
 													int page = grabNextPage(
 															Integer.parseInt(""
 																	+ sign.getLine(3)),
-															54, group);
+															54, group, false);
 													sign.setLine(3, "" + page);
 													sign.update();
 												}
@@ -408,7 +408,7 @@ public class KSPlayerListener extends PlayerListener {
 													int page = grabNextPage(
 															Integer.parseInt(""
 																	+ sign.getLine(3)),
-															27, group);
+															27, group, false);
 													sign.setLine(3, "" + page);
 													sign.update();
 												}
@@ -475,7 +475,7 @@ public class KSPlayerListener extends PlayerListener {
 										int page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
-												group);
+												group, false);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -495,7 +495,7 @@ public class KSPlayerListener extends PlayerListener {
 										int page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
-												group);
+												group, false);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -533,7 +533,7 @@ public class KSPlayerListener extends PlayerListener {
 		}
 	}
 
-	private int grabNextPage(int current, int limit, String group)
+	private int grabNextPage(int current, int limit, String group, boolean backwards)
 	{
 		//Calculate number of slots
 		int slots = 0;
@@ -590,11 +590,19 @@ public class KSPlayerListener extends PlayerListener {
 			//Cycle back as we're at the max value for an integer
 			return 1;
 		}
-		int page = current + 1;
+		int page = 1;
+		if(backwards)
+		{
+			page = current - 1;
+		}
+		else
+		{
+			page = current + 1;
+		}
 		if (page <= 0)
 		{
-			// Was negative... return it to first page
-			page = 1;
+			// Was negative or zero, loop back to max page
+			page = (pageTotal  +1);
 		}
 		//Allow for empty page
 		else if (page > (pageTotal +1))
