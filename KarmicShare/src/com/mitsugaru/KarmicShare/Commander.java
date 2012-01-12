@@ -42,7 +42,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Constructor
-	 *
+	 * 
 	 * @param karmicShare
 	 *            plugin
 	 */
@@ -276,107 +276,89 @@ public class Commander implements CommandExecutor {
 			// Admin command
 			else if (com.equals("admin"))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.admin"))
+				if (args.length > 1)
 				{
-					if (args.length > 1)
+					// They have a parameter, thus
+					// parse in adminCommand method
+					if (!this.adminCommand(sender, args))
 					{
-						// They have a parameter, thus
-						// parse in adminCommand method
-						if (!this.adminCommand(sender, args))
-						{
-							// Bad command
-							sender.sendMessage(ChatColor.RED
-									+ prefix
-									+ " Syntax error. Use /ks admin for list of commands");
-						}
-						if (config.debugTime)
-						{
-							debugTime(sender, time);
-						}
-						return true;
+						// Bad command
+						sender.sendMessage(ChatColor.RED
+								+ prefix
+								+ " Syntax error. Use /ks admin for list of commands");
 					}
-					else
+					if (config.debugTime)
 					{
-						// Show admin commands help menu
-						sender.sendMessage(ChatColor.BLUE + "==="
-								+ ChatColor.RED + "KarmicShare Admin"
-								+ ChatColor.BLUE + "===");
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.add"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin add <item>[:data] [amount]"
-									+ ChatColor.YELLOW
-									+ " : Add item(s) to pool");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.reset"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin reset <player>"
-									+ ChatColor.YELLOW
-									+ " : Resets player's karma");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.set"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin set <player> <karma>"
-									+ ChatColor.YELLOW
-									+ " : Sets player's karma to value");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.drain"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin drain" + ChatColor.YELLOW
-									+ " : Empty item pool");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.group.create"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin group create <group>"
-									+ ChatColor.YELLOW
-									+ " : Create group in database");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.group.delete"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin group delete <group>"
-									+ ChatColor.YELLOW
-									+ " : Remove group from database");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.group.add"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin group add  <group> <player> [player2] ..."
-									+ ChatColor.YELLOW
-									+ " : Force add player to group");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.group.remove"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin group remove  <group> <player> [player2] ..."
-									+ ChatColor.YELLOW
-									+ " : Force remove player to group");
-						}
-						if (perm.checkPermission(sender,
-								"KarmicShare.admin.reload"))
-						{
-							sender.sendMessage(ChatColor.GREEN
-									+ "/ks admin reload" + ChatColor.YELLOW
-									+ " : Reload configuration");
-						}
+						debugTime(sender, time);
 					}
+					return true;
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED
-							+ " Lack permission: KarmicShare.admin");
+					// Show admin commands help menu
+					sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.RED
+							+ "KarmicShare Admin" + ChatColor.BLUE + "===");
+					if (perm.checkPermission(sender, "KarmicShare.admin.add"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin add <item>[:data] [amount]"
+								+ ChatColor.YELLOW + " : Add item(s) to pool");
+					}
+					if (perm.checkPermission(sender, "KarmicShare.admin.reset"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin reset <player>" + ChatColor.YELLOW
+								+ " : Resets player's karma");
+					}
+					if (perm.checkPermission(sender, "KarmicShare.admin.set"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin set <player> <karma>"
+								+ ChatColor.YELLOW
+								+ " : Sets player's karma to value");
+					}
+					if (perm.checkPermission(sender, "KarmicShare.admin.drain"))
+					{
+						sender.sendMessage(ChatColor.GREEN + "/ks admin drain"
+								+ ChatColor.YELLOW + " : Empty item pool");
+					}
+					if (perm.checkPermission(sender,
+							"KarmicShare.admin.group.create"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin group create <group>"
+								+ ChatColor.YELLOW
+								+ " : Create group in database");
+					}
+					if (perm.checkPermission(sender,
+							"KarmicShare.admin.group.delete"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin group delete <group>"
+								+ ChatColor.YELLOW
+								+ " : Remove group from database");
+					}
+					if (perm.checkPermission(sender,
+							"KarmicShare.admin.group.add"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin group add  <group> <player> [player2] ..."
+								+ ChatColor.YELLOW
+								+ " : Force add player to group");
+					}
+					if (perm.checkPermission(sender,
+							"KarmicShare.admin.group.remove"))
+					{
+						sender.sendMessage(ChatColor.GREEN
+								+ "/ks admin group remove  <group> <player> [player2] ..."
+								+ ChatColor.YELLOW
+								+ " : Force remove player to group");
+					}
+					if (perm.checkPermission(sender, "KarmicShare.admin.reload"))
+					{
+						sender.sendMessage(ChatColor.GREEN + "/ks admin reload"
+								+ ChatColor.YELLOW + " : Reload configuration");
+					}
 				}
 			}
 			// Other player karma lookup
@@ -2519,7 +2501,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Show the help menu, with commands and description
-	 *
+	 * 
 	 * @param sender
 	 *            to display to
 	 */
@@ -3624,7 +3606,7 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Lists the items in the pool. Allows for pagination of the cache of items
 	 * in pool.
-	 *
+	 * 
 	 * @param CommandSender
 	 *            of the "list" command so we know who we're outputting to
 	 * @param Integer
@@ -3794,10 +3776,10 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Provides a smoke effect for the player.
-	 *
+	 * 
 	 * http://forums.bukkit.org/threads/smoke-effect-yes-i-know-others-have-
 	 * asked.29492/
-	 *
+	 * 
 	 * @param Player
 	 *            that should get the effect
 	 * @author Adamki11s
@@ -3829,7 +3811,7 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Retrieves karma value of a player from the database. Forces player to be
 	 * added to database if they don't exist
-	 *
+	 * 
 	 * @param Player
 	 *            name
 	 * @return karma value associated with name
@@ -3870,7 +3852,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Updates the player's karma
-	 *
+	 * 
 	 * @param Name
 	 *            of player
 	 * @param Amount
@@ -3916,7 +3898,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Colorizes the karma based on percentages in the config file
-	 *
+	 * 
 	 * @param player
 	 *            karma
 	 * @return Appropriate string with color codes
@@ -4060,7 +4042,7 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Attempts to look up full name based on who's on the server Given a
 	 * partial name
-	 *
+	 * 
 	 * @author Frigid, edited by Raphfrk and petteyg359
 	 */
 	private String expandName(String Name) {
