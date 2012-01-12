@@ -157,7 +157,6 @@ permissions:
             KarmicShare.admin.set: true
             KarmicShare.admin.drain: true
             KarmicShare.admin.reload: true
-            KarmicShare.admin.group: true
             KarmicShare.admin.group.create: true
             KarmicShare.admin.group.delete: true
             KarmicShare.admin.group.add: true
