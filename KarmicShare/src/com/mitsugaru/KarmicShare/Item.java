@@ -520,7 +520,7 @@ public class Item extends MaterialData {
 	 * @return true if it matches a known tool, else false
 	 */
 	public boolean isTool(int id) {
-		final int[] tool = { 256, 257, 258, 259, 267, 268, 269, 270, 271, 272,
+		final int[] tool = { 256, 257, 258, 259, 261, 267, 268, 269, 270, 271, 272,
 				273, 274, 275, 276, 277, 278, 279, 283, 284, 285, 286, 290,
 				291, 292, 293, 294, 298, 299, 300, 301, 302, 303, 304, 305,
 				306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317 };
