@@ -93,7 +93,7 @@ public class KSInventoryListener extends InventoryListener {
 								}
 							}
 						}
-						if (kschest)
+						if (kschest && plugin.hasSpout)
 						{
 							try
 							{

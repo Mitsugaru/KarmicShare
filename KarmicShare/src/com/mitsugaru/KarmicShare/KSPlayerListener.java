@@ -61,7 +61,7 @@ public class KSPlayerListener extends PlayerListener {
 								}
 								chest.getInventory().clear();
 								chest.update();
-								if (plugin.getPluginConfig().chests)
+								if (plugin.getPluginConfig().chests && plugin.hasSpout)
 								{
 									int page = 1;
 									try
@@ -81,6 +81,11 @@ public class KSPlayerListener extends PlayerListener {
 																+ KarmicShare.prefix
 																+ " Sign has wrong formatting. Remake sign.");
 									}
+								}
+								else
+								{
+									event.getPlayer().sendMessage(ChatColor.RED + KarmicShare.prefix
+											+ " Spout not found. Cannot use physical chests.");
 								}
 							}
 							else

@@ -33,7 +33,8 @@ public class KarmicShare extends JavaPlugin {
 	private Config config;
 	private PermCheck perm;
 	private int cleantask;
-	private final Vector<Question> questions = new Vector<Question>();
+	public final Vector<Question> questions = new Vector<Question>();
+	public boolean hasSpout;
 
 	// IDEA Score board on karma?
 	// TODO Mod commands to remove items
@@ -144,9 +145,11 @@ public class KarmicShare extends JavaPlugin {
 				KSInventoryListener invListener = new KSInventoryListener(this);
 				pm.registerEvent(Event.Type.CUSTOM_EVENT, invListener,
 						Priority.Normal, this);
+				hasSpout = true;
 			}
 			else
 			{
+				hasSpout = false;
 				syslog.warning(prefix
 						+ " Spout not found. Cannot use physical chests.");
 			}

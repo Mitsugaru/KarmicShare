@@ -6,7 +6,7 @@ import org.bukkit.event.player.PlayerListener;
 
 public class LogBlockQuestionerPlayerListener extends PlayerListener
 {
-	private final Vector<Question> questions;
+	public final Vector<Question> questions;
 
 	public LogBlockQuestionerPlayerListener(Vector<Question> questions) {
 		this.questions = questions;
