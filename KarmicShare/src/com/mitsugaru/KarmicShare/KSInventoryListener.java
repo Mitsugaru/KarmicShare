@@ -346,23 +346,7 @@ public class KSInventoryListener extends InventoryListener {
 																			.intValue());
 														}
 													}
-													final Repopulate task = new Repopulate(
-															chest.getInventory(),
-															item);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
+													repopulateTask(event.getPlayer(), chest.getInventory(), item);
 													event.setItem(null);
 												}
 												else
@@ -821,23 +805,7 @@ public class KSInventoryListener extends InventoryListener {
 												{
 													event.setResult(Event.Result.ALLOW);
 													item.setAmount(event.getItem().getAmount());
-													final Repopulate task = new Repopulate(
-															chest.getInventory(),
-															item);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
+													repopulateTask(event.getPlayer(), chest.getInventory(), item);
 													event.setItem(null);
 												}
 												else
@@ -952,7 +920,7 @@ public class KSInventoryListener extends InventoryListener {
 										{
 											//Calculate "half"
 											int half = event.getItem().getAmount() / 2;
-											final double rem = (double) event.getItem().getAmount() % (double) 2.0;
+											final double rem = (double) event.getItem().getAmount() % 2.0;
 											if(rem != 0)
 											{
 												half++;
@@ -2160,6 +2128,24 @@ public class KSInventoryListener extends InventoryListener {
 				}
 				repeat++;
 			}
+		}
+	}
+
+	private void repopulateTask(Player player, Inventory inv, ItemStack item)
+	{
+		final Repopulate task = new Repopulate(inv,item);
+		int id = plugin
+				.getServer()
+				.getScheduler()
+				.scheduleSyncDelayedTask(
+						plugin,
+						task, 1);
+		if (id == -1)
+		{
+			player.sendMessage(
+							ChatColor.YELLOW
+									+ KarmicShare.prefix
+									+ "Could not repopulate slot.");
 		}
 	}
 

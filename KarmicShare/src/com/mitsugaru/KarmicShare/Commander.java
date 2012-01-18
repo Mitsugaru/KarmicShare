@@ -42,7 +42,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param karmicShare
 	 *            plugin
 	 */
@@ -2501,7 +2501,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Show the help menu, with commands and description
-	 * 
+	 *
 	 * @param sender
 	 *            to display to
 	 */
@@ -3606,7 +3606,7 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Lists the items in the pool. Allows for pagination of the cache of items
 	 * in pool.
-	 * 
+	 *
 	 * @param CommandSender
 	 *            of the "list" command so we know who we're outputting to
 	 * @param Integer
@@ -3776,10 +3776,10 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Provides a smoke effect for the player.
-	 * 
+	 *
 	 * http://forums.bukkit.org/threads/smoke-effect-yes-i-know-others-have-
 	 * asked.29492/
-	 * 
+	 *
 	 * @param Player
 	 *            that should get the effect
 	 * @author Adamki11s
@@ -3811,7 +3811,7 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Retrieves karma value of a player from the database. Forces player to be
 	 * added to database if they don't exist
-	 * 
+	 *
 	 * @param Player
 	 *            name
 	 * @return karma value associated with name
@@ -3852,7 +3852,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Updates the player's karma
-	 * 
+	 *
 	 * @param Name
 	 *            of player
 	 * @param Amount
@@ -3898,7 +3898,7 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Colorizes the karma based on percentages in the config file
-	 * 
+	 *
 	 * @param player
 	 *            karma
 	 * @return Appropriate string with color codes
@@ -3962,24 +3962,16 @@ public class Commander implements CommandExecutor {
 		List<String> list = new ArrayList<String>();
 		try
 		{
-			boolean hasGroups = false;
-			String groups = "";
-			ResultSet rs = ks.getLiteDB().select(
-					"SELECT * FROM players WHERE playername='" + name + "';");
-			if (rs.next())
+			if (hasGroups(name))
 			{
-				groups = rs.getString("groups");
-				if (!rs.wasNull())
+				String groups = "";
+				ResultSet rs = ks.getLiteDB().select(
+						"SELECT * FROM players WHERE playername='" + name + "';");
+				if (rs.next())
 				{
-					if (!groups.equals(""))
-					{
-						hasGroups = true;
-					}
+					groups = rs.getString("groups");
 				}
-			}
-			rs.close();
-			if (hasGroups)
-			{
+				rs.close();
 				String[] split = groups.split("&");
 				for (String s : split)
 				{
@@ -4001,23 +3993,8 @@ public class Commander implements CommandExecutor {
 		boolean valid = false;
 		try
 		{
-			boolean hasGroups = false;
 			String groups = "";
-			ResultSet rs = ks.getLiteDB().select(
-					"SELECT * FROM players WHERE playername='" + name + "';");
-			if (rs.next())
-			{
-				groups = rs.getString("groups");
-				if (!rs.wasNull())
-				{
-					if (!groups.equals(""))
-					{
-						hasGroups = true;
-					}
-				}
-			}
-			rs.close();
-			if (hasGroups)
+			if (hasGroups(name))
 			{
 				String[] split = groups.split("&");
 				for (String s : split)
@@ -4042,7 +4019,7 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Attempts to look up full name based on who's on the server Given a
 	 * partial name
-	 * 
+	 *
 	 * @author Frigid, edited by Raphfrk and petteyg359
 	 */
 	private String expandName(String Name) {
@@ -4070,6 +4047,27 @@ public class Commander implements CommandExecutor {
 			return null;
 		}
 		return Name;
+	}
+
+	private boolean hasGroups(String playerName) throws SQLException
+	{
+		boolean hasGroups = false;
+		String groups = "";
+		ResultSet rs = ks.getLiteDB().select(
+				"SELECT * FROM players WHERE playername='" + playerName + "';");
+		if (rs.next())
+		{
+			groups = rs.getString("groups");
+			if (!rs.wasNull())
+			{
+				if (!groups.equals(""))
+				{
+					hasGroups = true;
+				}
+			}
+		}
+		rs.close();
+		return hasGroups;
 	}
 
 	public Map<Item, Integer> getCache() {

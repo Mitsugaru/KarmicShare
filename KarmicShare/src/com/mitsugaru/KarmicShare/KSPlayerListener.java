@@ -55,8 +55,7 @@ public class KSPlayerListener extends PlayerListener {
 										(Chest) block.getState());
 								if (chest.isDoubleChest())
 								{
-									BetterChest adj = new BetterChest(
-											(Chest) chest.attached());
+									BetterChest adj = new BetterChest(chest.attached());
 									chest = adj;
 								}
 								chest.getInventory().clear();
