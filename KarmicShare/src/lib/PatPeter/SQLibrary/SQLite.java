@@ -178,20 +178,10 @@ public class SQLite extends DatabaseHandler {
 
 		while (!passed && count < timeout) {
 			try {
-				//WARN ODR_OPEN_DATABASE_RESOURCE
-				/*
-				 * The method creates a database resource
-				 * (such as a database connection or row set),
-				 * does not assign it to any fields, pass it to other
-				 * methods, or return it, and does not appear to close
-				 * the object on all paths out of the method.
-				 * Failure to close database resources on all paths out
-				 * of a method may result in poor performance, and could
-				 *  cause the application to have problems communicating
-				 *   with the database.
-				 */
 				statement = connection.createStatement();
 				statement.executeQuery(query);
+				statement.close();
+				connection.close();
 				passed = true;
 			} catch (SQLException ex) {
 				if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
@@ -216,20 +206,10 @@ public class SQLite extends DatabaseHandler {
 
 		try {
 			connection = this.open();
-			//WARN ODR_OPEN_DATABASE_RESOURCE
-			/*
-			 * The method creates a database resource
-			 * (such as a database connection or row set),
-			 * does not assign it to any fields, pass it to other
-			 * methods, or return it, and does not appear to close
-			 * the object on all paths out of the method.
-			 * Failure to close database resources on all paths out
-			 * of a method may result in poor performance, and could
-			 *  cause the application to have problems communicating
-			 *   with the database.
-			 */
 			statement = connection.createStatement();
 			statement.executeQuery(query);
+			statement.close();
+			connection.close();
 			}
 		catch (SQLException ex) {
 			if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
@@ -259,27 +239,22 @@ public class SQLite extends DatabaseHandler {
 
 	@Override
 	public boolean createTable(String query) {
-		Connection connection = open();
-		Statement statement = null;
 		try {
+			if(query == null)
+			{
+				this.writeError("SQL Create Table query null", true);
+				return false;
+			}
 			if (query.equals("") || query == null) {
 				this.writeError("SQL Create Table query empty.", true);
 				return false;
 			}
-			//WARN ODR_OPEN_DATABASE_RESOURCE
-			/*
-			 * The method creates a database resource
-			 * (such as a database connection or row set),
-			 * does not assign it to any fields, pass it to other
-			 * methods, or return it, and does not appear to close
-			 * the object on all paths out of the method.
-			 * Failure to close database resources on all paths out
-			 * of a method may result in poor performance, and could
-			 *  cause the application to have problems communicating
-			 *   with the database.
-			 */
+			Connection connection = open();
+			Statement statement = null;
 			statement = connection.createStatement();
 			statement.execute(query);
+			statement.close();
+			connection.close();
 			return true;
 		} catch (SQLException ex){
 			this.writeError(ex.getMessage(), true);
@@ -345,20 +320,10 @@ public class SQLite extends DatabaseHandler {
 
 		while (!passed || count < timeout) {
 			try {
-				//WARN ODR_OPEN_DATABASE_RESOURCE
-				/*
-				 * The method creates a database resource
-				 * (such as a database connection or row set),
-				 * does not assign it to any fields, pass it to other
-				 * methods, or return it, and does not appear to close
-				 * the object on all paths out of the method.
-				 * Failure to close database resources on all paths out
-				 * of a method may result in poor performance, and could
-				 *  cause the application to have problems communicating
-				 *   with the database.
-				 */
 				statement = connection.createStatement();
 				statement.executeQuery(query);
+				statement.close();
+				connection.close();
 				passed = true;
 			} catch (SQLException ex) {
 				if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked") ) {

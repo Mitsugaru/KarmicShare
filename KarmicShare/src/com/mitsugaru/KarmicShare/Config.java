@@ -179,7 +179,7 @@ public class Config {
 	 */
 	private void update() {
 		//Grab current version
-		double ver = Double.parseDouble(plugin.getConfig().getString("version"));
+		final double ver = Double.parseDouble(plugin.getConfig().getString("version"));
 		String query = "";
 		//Updates to alpha 0.08
 		if(ver < 0.08)
