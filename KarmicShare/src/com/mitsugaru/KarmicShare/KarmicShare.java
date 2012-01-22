@@ -30,6 +30,7 @@ public class KarmicShare extends JavaPlugin {
 	private Commander commander;
 	private Config config;
 	private PermCheck perm;
+	private Karma karma;
 	private int cleantask;
 	public final Vector<Question> questions = new Vector<Question>();
 	public boolean hasSpout;
@@ -79,6 +80,9 @@ public class KarmicShare extends JavaPlugin {
 
 		// Create permission handler
 		perm = new PermCheck(this);
+
+		//Create Karma logic handler
+		karma = new Karma(this);
 
 		// Grab Commander to handle commands
 		commander = new Commander(this);
@@ -194,5 +198,9 @@ public class KarmicShare extends JavaPlugin {
 						+ config.tablePrefix
 						+ "items WHERE amount<='0';");
 		}
+	}
+
+	public Karma getKarma() {
+		return karma;
 	}
 }
