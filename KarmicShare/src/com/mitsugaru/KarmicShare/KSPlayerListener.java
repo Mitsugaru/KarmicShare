@@ -703,7 +703,7 @@ public class KSPlayerListener extends PlayerListener {
 						else if (meta.isPotion())
 						{
 								// Remove data for full potion compatibility
-								item = new ItemStack(id, 1, dur);
+								item = new ItemStack(id, amount, dur);
 								final HashMap<Integer, ItemStack> residual = inventory
 										.addItem(add);
 								if (!residual.isEmpty())
