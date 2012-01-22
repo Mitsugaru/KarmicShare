@@ -14,10 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -30,6 +27,7 @@ public class Commander implements CommandExecutor {
 	// Class variables
 	private final KarmicShare ks;
 	private final PermCheck perm;
+	private Karma karma;
 	private final static String bar = "======================";
 	public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
 	private final String prefix;
@@ -52,6 +50,7 @@ public class Commander implements CommandExecutor {
 		prefix = KarmicShare.prefix;
 		config = ks.getPluginConfig();
 		perm = ks.getPermissionHandler();
+		karma = ks.getKarma();
 		limit = config.listlimit;
 		time = 0;
 	}
@@ -408,7 +407,7 @@ public class Commander implements CommandExecutor {
 					}
 					else
 					{
-						if (!groupExists(sender, group))
+						if (!karma.validGroup(sender, group))
 						{
 							// Create group
 							ks.getDatabaseHandler().standardQuery(
@@ -469,9 +468,16 @@ public class Commander implements CommandExecutor {
 				{
 					// force group names to lower case
 					group = args[2].toLowerCase();
+					if(group.equals("global"))
+					{
+						sender.sendMessage(ChatColor.RED
+								+ prefix
+								+ " Cannot modify global group.");
+						return true;
+					}
 					if (sender instanceof Player)
 					{
-						if (!playerHasGroup(sender,
+						if (!karma.playerHasGroup(sender,
 								((Player) sender).getName(), group))
 						{
 							sender.sendMessage(ChatColor.RED
@@ -504,8 +510,7 @@ public class Commander implements CommandExecutor {
 						{
 							name = args[i];
 						}
-
-						else if (playerHasGroup(sender, name, group))
+						else if (karma.playerHasGroup(sender, name, group))
 						{
 							sender.sendMessage(ChatColor.YELLOW + prefix + " "
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
@@ -515,7 +520,7 @@ public class Commander implements CommandExecutor {
 						}
 						else
 						{
-							if (groupExists(sender, group))
+							if (karma.validGroup(sender, group))
 							{
 								// Grab player on server
 								Player other = ks.getServer().getPlayer(name);
@@ -572,9 +577,16 @@ public class Commander implements CommandExecutor {
 					// Grab group name if given
 					// force group names to lower case
 					group = args[2].toLowerCase();
+					if(group.equals("global"))
+					{
+						sender.sendMessage(ChatColor.RED
+								+ prefix
+								+ " Cannot remove players from global.");
+						return true;
+					}
 					if (sender instanceof Player)
 					{
-						if (!playerHasGroup(sender,
+						if (!karma.playerHasGroup(sender,
 								((Player) sender).getName(), group))
 						{
 							sender.sendMessage(ChatColor.RED
@@ -606,7 +618,7 @@ public class Commander implements CommandExecutor {
 						{
 							name = args[i];
 						}
-						if (!playerHasGroup(sender, name, group))
+						if (!karma.playerHasGroup(sender, name, group))
 						{
 							sender.sendMessage(ChatColor.YELLOW + prefix
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
@@ -615,7 +627,7 @@ public class Commander implements CommandExecutor {
 						}
 						else
 						{
-							if (groupExists(sender, group))
+							if (karma.validGroup(sender, group))
 							{
 								// remove other player to group
 								removePlayerFromGroup(sender, name, group);
@@ -668,7 +680,7 @@ public class Commander implements CommandExecutor {
 					{
 						group = args[i].toLowerCase();
 					}
-					if (!playerHasGroup(sender, sender.getName(), group))
+					if (!karma.playerHasGroup(sender, sender.getName(), group))
 					{
 						sender.sendMessage(ChatColor.YELLOW + prefix
 								+ ChatColor.AQUA + sender.getName()
@@ -684,7 +696,7 @@ public class Commander implements CommandExecutor {
 					}
 					else
 					{
-						if (groupExists(sender, group))
+						if (karma.validGroup(sender, group))
 						{
 							// remove other player to group
 							removePlayerFromGroup(sender, sender.getName(),
@@ -716,51 +728,6 @@ public class Commander implements CommandExecutor {
 			}
 		}
 		return false;
-	}
-
-	@SuppressWarnings ("unused")
-	private String getPlayerGroup(CommandSender sender, String name) {
-		String out = "";
-		try
-		{
-			// Insures that the player is added to the database
-			getPlayerKarma(name);
-			String groups = "";
-			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM " + config.tablePrefix
-							+ "players WHERE playername='" + name + "';");
-			if (rs.next())
-			{
-				groups = rs.getString("groups");
-				if (!rs.wasNull())
-				{
-					if (groups.contains("&"))
-					{
-						// they have multiple groups, grab first group
-						final String[] list = groups.split("&");
-						out = list[0];
-					}
-					else
-					{
-						// they only have one group
-						out = groups;
-					}
-				}
-			}
-			rs.close();
-			// Update their groups
-			ks.getDatabaseHandler().standardQuery(
-					"UPDATE " + config.tablePrefix + "players SET groups='"
-							+ groups + "' WHERE playername='" + name + "';");
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return out;
 	}
 
 	private void removePlayerFromGroup(CommandSender sender, String name,
@@ -819,7 +786,7 @@ public class Commander implements CommandExecutor {
 		try
 		{
 			// Insures that the player is added to the database
-			getPlayerKarma(name);
+			karma.getPlayerKarma(name);
 			String groups = "";
 			ResultSet rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM " + config.tablePrefix
@@ -851,55 +818,6 @@ public class Commander implements CommandExecutor {
 		}
 	}
 
-	private boolean playerHasGroup(CommandSender sender, String name,
-			String group) {
-		boolean has = false;
-		try
-		{
-			// Insures that the player is added to the database
-			getPlayerKarma(name);
-			String groups = "";
-			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM " + config.tablePrefix
-							+ "players WHERE playername='" + name + "';");
-			if (rs.next())
-			{
-				groups = rs.getString("groups");
-				if (!rs.wasNull())
-				{
-					if (groups.contains("&"))
-					{
-						// they have multiple groups
-						for (String s : groups.split("&"))
-						{
-							if (s.equals(group))
-							{
-								has = true;
-							}
-						}
-					}
-					else
-					{
-						// they only have one group
-						if (groups.equals(group))
-						{
-							has = true;
-						}
-					}
-				}
-			}
-			rs.close();
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return has;
-	}
-
 	private void otherPlayerKarma(CommandSender sender, String[] args) {
 		// Check if karma is enabled
 		if (!config.karmaDisabled)
@@ -918,47 +836,10 @@ public class Commander implements CommandExecutor {
 					{
 						name = args[1];
 					}
-					// SQL query to get player count for specified name
-					String query = "SELECT COUNT(*) FROM "
-							+ config.tablePrefix
-							+ "players WHERE playername='" + name + "'";
-					ResultSet rs = ks.getDatabaseHandler().select(query);
-					// Check ResultSet
-					boolean has = false;
 					try
 					{
-						if (rs.next())
-						{
-							// Check if only received 1 entry
-							if (rs.getInt(1) == 1)
-							{
-								// we have a single name
-								has = true;
-							}
-							else if (rs.getInt(1) > 1)
-							{
-								sender.sendMessage(ChatColor.RED
-										+ prefix
-										+ " Got more than one result. Possibly incomplete name?");
-							}
-							else
-							{
-								// Player not in database, therefore error
-								// on player part
-								sender.sendMessage(ChatColor.RED + prefix
-										+ " Player " + ChatColor.WHITE + name
-										+ ChatColor.RED + " not in database.");
-								sender.sendMessage(ChatColor.RED + prefix
-										+ " Player names are case sensitive.");
-							}
-						}
-						else
-						{
-							// Error in query...
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " SQL query error");
-						}
-						rs.close();
+						// Colorize karma
+						sender.sendMessage(this.colorizeKarma(karma.getPlayerKarma(name)));
 					}
 					catch (SQLException e)
 					{
@@ -966,37 +847,6 @@ public class Commander implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Could not get " + name + "'s karma");
 						e.printStackTrace();
-					}
-					if (has)
-					{
-						// Grab default
-						int karma = config.playerKarmaDefault;
-						try
-						{
-							query = "SELECT * FROM " + config.tablePrefix
-									+ "players WHERE playername='" + name
-									+ "';";
-							rs = ks.getDatabaseHandler().select(query);
-							if (rs.next())
-							{
-								do
-								{
-									// Grab player karma value
-									karma = rs.getInt("karma");
-								}
-								while (rs.next());
-							}
-							rs.close();
-						}
-						catch (SQLException e)
-						{
-							// INFO Auto-generated catch block
-							sender.sendMessage(ChatColor.RED + prefix
-									+ " Could not get " + name + "'s karma");
-							e.printStackTrace();
-						}
-						// Colorize karma
-						sender.sendMessage(this.colorizeKarma(karma));
 					}
 				}
 				else
@@ -1114,41 +964,6 @@ public class Commander implements CommandExecutor {
 			{
 				if (perm.checkPermission(sender, "KarmicShare.commands.take"))
 				{
-					int karma = 0;
-					if (!config.karmaDisabled)
-					{
-						if (!perm.checkPermission(player,
-								"KarmicShare.ignore.karma"))
-						{
-							// Check karma before anything
-							karma = config.playerKarmaDefault;
-							try
-							{
-								karma = getPlayerKarma(player.getName());
-								if (karma <= config.lower)
-								{
-									// They are at the limit, or somehow lower
-									// for
-									// whatever reason
-									player.sendMessage(ChatColor.RED + prefix
-											+ "Your karma is at the limit!");
-									if (config.debugTime)
-									{
-										debugTime(sender, time);
-									}
-									return true;
-								}
-							}
-							catch (SQLException e1)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ " Could not retrieve player karma");
-								e1.printStackTrace();
-							}
-						}
-					}
-					// Current karma is not at limit, so continue
 					// Check that they gave an item name/id
 					if (args.length > 1)
 					{
@@ -1256,20 +1071,13 @@ public class Commander implements CommandExecutor {
 								}
 							}
 						}
-						// Check if pool contains item requested + amount
-						int total = 0;
-						// SQL query to see if item is in pool
-						// Create temp item to check if its a tool
-						Item temp = new Item(itemid, Byte.valueOf("" + data),
-								dur);
-						String query = "";
-						int poolAmount = 0;
-						boolean toolCheck = false;
-						boolean potionCheck = false;
+						// Create temp item
+						final Item temp = new Item(itemid, Byte.valueOf(""
+								+ data), dur);
+						ItemStack item = new ItemStack(1);
+						int finalAmount = 0;
 						if (temp.isTool())
 						{
-							// Handle tools
-							toolCheck = true;
 							// Grab all entries of the same tool id
 							String toolQuery = "SELECT * FROM "
 									+ config.tablePrefix
@@ -1279,37 +1087,89 @@ public class Commander implements CommandExecutor {
 									toolQuery);
 							try
 							{
+								ArrayList<ItemStack> itemList = new ArrayList<ItemStack>();
 								if (toolRS.next())
 								{
 									do
 									{
-										poolAmount += toolRS.getInt("amount");
+										// Generate item
+										ItemStack toolItem = new ItemStack(
+												itemid,
+												toolRS.getInt("amount"),
+												toolRS.getShort("data"));
+										String enchant = toolRS
+												.getString("enchantments");
+										if (!toolRS.wasNull())
+										{
+											// It had enchantments
+											String[] cut = enchant.split("i");
+											for (int i = 0; i < cut.length; i++)
+											{
+												String[] cutter = cut[i]
+														.split("v");
+												EnchantmentWrapper e = new EnchantmentWrapper(
+														Integer.parseInt(cutter[0]));
+												toolItem.addUnsafeEnchantment(
+														e.getEnchantment(),
+														Integer.parseInt(cutter[1]));
+											}
+										}
 									}
 									while (toolRS.next());
-									if (poolAmount >= amount)
-									{
-										// We have enough in pool that
-										// was requested
-										has = true;
-										total = poolAmount;
-									}
-									else if (poolAmount < amount)
-									{
-										// They requested too much, adjust
-										// amount to max
-										has = true;
-										amount = poolAmount;
-										total = poolAmount;
-										sender.sendMessage(ChatColor.YELLOW
-												+ prefix
-												+ " Requested too much. Adjusting to max.");
-									}
 								}
-								else
-								{
-									has = false;
-								}
+								// Close ResultSet
 								toolRS.close();
+								boolean done = false;
+								for(ItemStack i : itemList)
+								{
+									if(!done)
+									{
+										int a = karma.takeItem(player, i, "gloabl");
+										if(a <= 0)
+										{
+											done = true;
+										}
+										else
+										{
+											i.setAmount(a);
+											final HashMap<Integer, ItemStack> residual = player.getInventory().addItem(i);
+											if(residual.size() != 0)
+											{
+												//Add back extra
+												finalAmount -= residual.size();
+												if(finalAmount <= 0)
+												{
+													//Did not give any items
+													player.sendMessage(ChatColor.YELLOW + prefix + " Your inventory is completely full...");
+												}
+												i.setAmount(residual.size());
+												try
+												{
+													int currentKarma = karma.getPlayerKarma(player.getName());
+													karma.giveItem(player, i, "global");
+													karma.updatePlayerKarma(player.getName(), currentKarma);
+												}
+												catch (SQLException e)
+												{
+													// INFO Auto-generated catch block
+													sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+															+ " SQL Exception");
+													e.printStackTrace();
+												}
+												done = true;
+											}
+											else
+											{
+												finalAmount += a;
+											}
+										}
+
+									}
+									else
+									{
+										break;
+									}
+								}
 							}
 							catch (SQLException e)
 							{
@@ -1319,717 +1179,84 @@ public class Commander implements CommandExecutor {
 								e.printStackTrace();
 							}
 						}
-
 						else if (temp.isPotion())
 						{
-							potionCheck = true;
-							// Separate check to see if its a potion and handle
-							// it
-							// via the durability info
-							query = "SELECT * FROM " + config.tablePrefix
-									+ "items WHERE itemid='" + itemid
-									+ "' AND durability='" + dur
-									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler()
-									.select(query);
-
-							// Check ResultSet
-							try
+							item = new ItemStack(itemid, amount,
+									Short.valueOf("" + data));
+							finalAmount = karma
+									.takeItem(player, item, "global");
+							if(finalAmount > 0)
 							{
-								if (rs.next())
+							item.setAmount(finalAmount);
+							final HashMap<Integer, ItemStack> residual = player.getInventory().addItem(item);
+							if(residual.size() != 0)
+							{
+								//Add back extra
+								finalAmount -= residual.size();
+								if(finalAmount <= 0)
 								{
-									// Item already in pool, check
-									// amount
-									poolAmount = rs.getInt("amount");
-									if (poolAmount >= amount)
-									{
-										// We have enough in pool that
-										// was requested
-										has = true;
-										total = poolAmount;
-									}
-									else if (poolAmount < amount)
-									{
-										// They requested too much, adjust
-										// amount to max
-										has = true;
-										amount = poolAmount;
-										total = poolAmount;
-										sender.sendMessage(ChatColor.YELLOW
-												+ prefix
-												+ " Requested too much. Adjusting to max.");
-									}
+									//Did not give any items
+									player.sendMessage(ChatColor.YELLOW + prefix + " Your inventory is completely full...");
 								}
-								else
+								item.setAmount(residual.size());
+								try
 								{
-									// Item not in database, therefore error
-									// on player part
-									rs.close();
-									player.sendMessage(ChatColor.RED + prefix
-											+ " Item not in pool...");
-									if (config.debugTime)
-									{
-										debugTime(sender, time);
-									}
-									return true;
+									int currentKarma = karma.getPlayerKarma(player.getName());
+									karma.giveItem(player, item, "global");
+									karma.updatePlayerKarma(player.getName(), currentKarma);
 								}
-								rs.close();
+								catch (SQLException e)
+								{
+									// INFO Auto-generated catch block
+									sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+											+ " SQL Exception");
+									e.printStackTrace();
+								}
 							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Could not retrieve item in pool!");
-								e.printStackTrace();
 							}
 						}
 						else
 						{
-							// Not a tool
-							query = "SELECT * FROM " + config.tablePrefix
-									+ "items WHERE itemid='" + itemid
-									+ "' AND data='" + data
-									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler()
-									.select(query);
-
-							// Check ResultSet
-							try
+							item = new ItemStack(itemid, amount,
+									Byte.valueOf("" + data));
+							finalAmount = karma
+									.takeItem(player, item, "global");
+							if(finalAmount > 0)
 							{
-								if (rs.next())
+								item.setAmount(finalAmount);
+								final HashMap<Integer, ItemStack> residual = player.getInventory().addItem(item);
+								if(residual.size() != 0)
 								{
-									// Item already in pool, check
-									// amount
-									poolAmount = rs.getInt("amount");
-									if (poolAmount >= amount)
+									//Add back extra
+									finalAmount -= residual.size();
+									if(finalAmount <= 0)
 									{
-										// We have enough in pool that
-										// was requested
-										has = true;
-										total = poolAmount;
+										//Did not give any items
+										player.sendMessage(ChatColor.YELLOW + prefix + " Your inventory is completely full...");
 									}
-									else if (poolAmount < amount)
-									{
-										// They requested too much, adjust
-										// amount to max
-										has = true;
-										amount = poolAmount;
-										total = poolAmount;
-										sender.sendMessage(ChatColor.YELLOW
-												+ prefix
-												+ " Requested too much. Adjusting to max.");
-									}
-								}
-								else
-								{
-									// Item not in database, therefore error
-									// on player part
-									rs.close();
-									player.sendMessage(ChatColor.RED + prefix
-											+ " Item not in pool...");
-									if (config.debugTime)
-									{
-										debugTime(sender, time);
-									}
-									return true;
-								}
-								rs.close();
-							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Could not retrieve item in pool!");
-								e.printStackTrace();
-							}
-						}
-						try
-						{
-							if (has)
-							{
-								final Item item = new Item(itemid,
-										Byte.valueOf("" + data), dur);
-								boolean hasKarma = false;
-								if (!config.karmaDisabled)
-								{
-									if (!perm.checkPermission(player,
-											"KarmicShare.ignore.karma"))
-									{
-										// Check karma again, before giving
-										// item, to
-										// adjust amount
-										// based on karma and karma multipliers
-										int karmaAdj = 0;
-										if (config.statickarma)
-										{
-											// Using static karma, everything
-											// goes
-											// by
-											// the config's default karma change
-											// value
-											if (karmaAdj < config.lower)
-											{
-												karmaAdj = karma
-														+ (config.karmaChange
-																* amount * -1);
-												// They went beyond the lower
-												// limit
-												// adjust amount given based on
-												// karma now
-												amount = Math.abs(config.lower)
-														- Math.abs(karma);
-												amount = amount
-														/ config.karmaChange;
-												if (amount == 0)
-												{
-													// Cannot give any items as
-													// they'd go beyond
-													// karma limit
-													player.sendMessage(ChatColor.RED
-															+ prefix
-															+ " Not enough karma to take item");
-													if (config.debugTime)
-													{
-														debugTime(sender, time);
-													}
-													return true;
-												}
-												else
-												{
-													player.sendMessage(ChatColor.YELLOW
-															+ prefix
-															+ " Near/Hit karma limit!");
-												}
-											}
-										}
-										else
-										{
-											// Using per-item karma
-											Item[] karmaList = config.karma
-													.keySet().toArray(
-															new Item[0]);
-											// Check if requested item is in the
-											// karma list
-											for (Item k : karmaList)
-											{
-												if (k.areSame(item))
-												{
-													// Item karma needs to be
-													// adjusted
-													hasKarma = true;
-												}
-											}
-											if (hasKarma)
-											{
-												try
-												{
-													karmaAdj = karma
-															+ (config.karma
-																	.get(item)
-																	* amount * -1);
-													if (karmaAdj < config.lower)
-													{
-														// They went beyond the
-														// lower limit
-														// adjust amount given
-														// based
-														// on karma now
-														int tempKarma = Math
-																.abs(karmaAdj)
-																- Math.abs(config.lower);
-														int div = tempKarma
-																/ config.karma
-																		.get(item);
-														int rem = tempKarma
-																% config.karma
-																		.get(item);
-														if (rem != 0)
-														{
-															div++;
-														}
-														amount -= div;
-														if (amount <= 0)
-														{
-															// Cannot give any
-															// items
-															// as they'd go
-															// beyond
-															// karma limit
-															player.sendMessage(ChatColor.RED
-																	+ prefix
-																	+ " Not enough karma to take item");
-															if (config.debugTime)
-															{
-																debugTime(
-																		sender,
-																		time);
-															}
-															return true;
-														}
-														else
-														{
-															player.sendMessage(ChatColor.YELLOW
-																	+ prefix
-																	+ " Near/Hit karma limit!");
-														}
-													}
-												}
-												catch (NullPointerException n)
-												{
-													// Found item, but there is
-													// no
-													// config for specific data
-													// value
-													// thus adjust using regular
-													// means
-													karmaAdj = karma
-															+ (config.karmaChange
-																	* amount * -1);
-													if (karmaAdj < config.lower)
-													{
-														// They went beyond the
-														// lower limit
-														// adjust amount given
-														// based
-														// on karma now
-														int tempKarma = Math
-																.abs(karmaAdj)
-																- Math.abs(config.lower);
-														int div = tempKarma
-																/ config.karmaChange;
-														int rem = tempKarma
-																% config.karmaChange;
-														if (rem != 0)
-														{
-															div++;
-														}
-														amount -= div;
-														if (amount <= 0)
-														{
-															player.sendMessage(ChatColor.RED
-																	+ prefix
-																	+ " Not enough karma to take item");
-															if (config.debugTime)
-															{
-																debugTime(
-																		sender,
-																		time);
-															}
-															return true;
-														}
-														else
-														{
-															player.sendMessage(ChatColor.YELLOW
-																	+ prefix
-																	+ " Near/Hit karma limit!");
-														}
-													}
-													// Reset so later we use
-													// default
-													// karma change
-													hasKarma = false;
-												}
-											}
-											else
-											{
-												// Item does not have a
-												// multiplier,
-												// so use default
-												karmaAdj = karma
-														+ (config.karmaChange
-																* amount * -1);
-												if (karmaAdj < config.lower)
-												{
-													// They went beyond the
-													// lower
-													// limit
-													// adjust amount given based
-													// on
-													// karma now
-													int tempKarma = Math
-															.abs(karmaAdj)
-															- Math.abs(config.lower);
-													int div = tempKarma
-															/ config.karmaChange;
-													int rem = tempKarma
-															% config.karmaChange;
-													if (rem != 0)
-													{
-														div++;
-													}
-													amount -= div;
-													amount = amount
-															/ config.karmaChange;
-													if (amount <= 0)
-													{
-														// Cannot give any items
-														// as
-														// they'd go beyond
-														// karma limit
-														player.sendMessage(ChatColor.RED
-																+ prefix
-																+ " Not enough karma to take item");
-														if (config.debugTime)
-														{
-															debugTime(sender,
-																	time);
-														}
-														return true;
-													}
-													else
-													{
-														player.sendMessage(ChatColor.YELLOW
-																+ prefix
-																+ " Near/Hit karma limit!");
-													}
-												}
-											}
-										}
-									}
-								}
-								// Handle tool generation
-								if (toolCheck)
-								{
-									// Grab all entries of the same tool id
-									String toolQuery = "SELECT * FROM "
-											+ config.tablePrefix
-											+ "items WHERE itemid='" + itemid
-											+ "' AND groups='global';";
-									ResultSet toolRS = ks.getDatabaseHandler()
-											.select(toolQuery);
+									item.setAmount(residual.size());
 									try
 									{
-										int tempAmount = amount;
-										boolean done = false;
-										boolean extra = false;
-										boolean en = false;
-										String residualToolQuery = "";
-										ArrayList<String> dropList = new ArrayList<String>();
-										if (toolRS.next())
-										{
-											do
-											{
-												// Generate item
-												ItemStack toolItem = new ItemStack(
-														itemid,
-														toolRS.getInt("amount"),
-														toolRS.getShort("data"));
-												String enchant = toolRS
-														.getString("enchantments");
-												if (!toolRS.wasNull())
-												{
-													// It had enchantments
-													en = true;
-													String[] cut = enchant
-															.split("i");
-													for (int i = 0; i < cut.length; i++)
-													{
-														String[] cutter = cut[i]
-																.split("v");
-														EnchantmentWrapper e = new EnchantmentWrapper(
-																Integer.parseInt(cutter[0]));
-														toolItem.addUnsafeEnchantment(
-																e.getEnchantment(),
-																Integer.parseInt(cutter[1]));
-													}
-												}
-												// Give item to player
-												HashMap<Integer, ItemStack> toolResidual = player
-														.getInventory()
-														.addItem(toolItem);
-												if (toolResidual.size() != 0)
-												{
-													// Add back extra
-													extra = true;
-													tempAmount += toolResidual
-															.size();
-													amount -= tempAmount;
-													// Create appropriate query
-													if (en)
-													{
-														residualToolQuery = "UPDATE "
-																+ config.tablePrefix
-																+ "items SET amount='"
-																+ toolResidual
-																		.size()
-																+ "' WHERE id='"
-																+ toolRS.getInt("id")
-																+ "';";
-													}
-													else
-													{
-														residualToolQuery = "UPDATE "
-																+ config.tablePrefix
-																+ "items SET amount='"
-																+ toolResidual
-																		.size()
-																+ "' WHERE id='"
-																+ toolRS.getInt("id")
-																+ "';";
-													}
-													// Done
-													done = true;
-												}
-												else
-												{
-													// Update amount
-													tempAmount -= toolRS
-															.getInt("amount");
-													// Add entry to drop list
-													dropList.add("DELETE FROM "
-															+ config.tablePrefix
-															+ "items WHERE id='"
-															+ toolRS.getInt("id")
-															+ "';");
-												}
-												if (tempAmount == 0)
-												{
-													// Done
-													done = true;
-												}
-												en = false;
-												if (!toolRS.next())
-												{
-													done = true;
-												}
-											}
-											while (!done);
-										}
-										// Close ResultSet
-										toolRS.close();
-										// Add back extra
-										if (extra)
-										{
-											ks.getDatabaseHandler()
-													.standardQuery(
-															residualToolQuery);
-											player.sendMessage(ChatColor.YELLOW
-													+ prefix
-													+ " Your inventory is completely full...");
-										}
-										// Drop entries
-										for (String s : dropList)
-										{
-											ks.getDatabaseHandler()
-													.standardQuery(s);
-										}
+										int currentKarma = karma.getPlayerKarma(player.getName());
+										karma.giveItem(player, item, "global");
+										karma.updatePlayerKarma(player.getName(), currentKarma);
 									}
 									catch (SQLException e)
 									{
 										// INFO Auto-generated catch block
-										player.sendMessage(ChatColor.RED
-												+ prefix
-												+ "Could not retrieve item in pool!");
+										sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+												+ " SQL Exception");
 										e.printStackTrace();
 									}
 								}
-								else if (potionCheck)
-								{
-									boolean full = false;
-									// TODO this might be a duplicate
-									final ItemStack potionStack = new ItemStack(
-											item.getItemTypeId(), amount);
-									int maxStack = potionStack.getType()
-											.getMaxStackSize();
-									if (maxStack <= 0)
-									{
-										maxStack = 1;
-									}
-									int stacks = amount / maxStack;
-									final double rem = (double) amount
-											% (double) maxStack;
-									if (rem != 0)
-									{
-										stacks++;
-									}
-									int potionTotal = amount;
-									for (int i = 0; i < stacks; i++)
-									{
-										if (!full)
-										{
-											// Calculate the amount to give
-											int potionAmount = 1;
-											if (potionTotal >= maxStack)
-											{
-												potionAmount = maxStack;
-											}
-											else
-											{
-												potionAmount = potionTotal;
-											}
-											potionTotal = potionTotal
-													- potionAmount;
-											// Generate item
-											final ItemStack give = new ItemStack(
-													item.getItemTypeId(),
-													potionAmount,
-													item.itemDurability());
-											HashMap<Integer, ItemStack> residual = player
-													.getInventory().addItem(
-															give);
-											// Check if player
-											if (residual.size() != 0)
-											{
-												full = true;
-												amount -= residual.size();
-												if (amount <= 0)
-												{
-													// Didn't actually give any
-													// items
-													// due
-													// to completely full
-													// inventory,
-													// therefore
-													// Notify player of their
-													// mistake
-													player.sendMessage(ChatColor.YELLOW
-															+ prefix
-															+ " Your inventory is completely full...");
-													if (config.debugTime)
-													{
-														debugTime(sender, time);
-													}
-													return true;
-												}
-											}
-										}
-									}
-									// Calculate new total
-									total -= amount;
-
-									if (total <= 0)
-									{
-										// Drop record as there are none left
-										query = "DELETE FROM "
-												+ config.tablePrefix
-												+ "items WHERE amount='"
-												+ amount + "' AND itemid='"
-												+ itemid + "' AND durability='"
-												+ dur
-												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(
-												query);
-										// Remove from cache list
-										cache.remove(item);
-									}
-									// Update amount to new total if there
-									// are items remaining
-									else
-									{
-										query = "UPDATE " + config.tablePrefix
-												+ "items SET amount='" + total
-												+ "' WHERE itemid='" + itemid
-												+ "' AND durability='" + dur
-												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(
-												query);
-									}
-								}
-								else
-								{
-									// Handle non-tools
-									// Generate item
-									final ItemStack give = new ItemStack(
-											item.getItemTypeId(), amount,
-											item.itemDurability());
-									HashMap<Integer, ItemStack> residual = player
-											.getInventory().addItem(give);
-									if (residual.size() != 0)
-									{
-										// Add back extra that could
-										// not be added to player inventory
-										// Calculate new amount removed from
-										// pool
-										amount -= residual.size();
-										if (amount <= 0)
-										{
-											// Didn't actually give any items
-											// due
-											// to completely full inventory,
-											// therefore
-											// Notify player of their mistake
-											player.sendMessage(ChatColor.YELLOW
-													+ prefix
-													+ " Your inventory is completely full...");
-											if (config.debugTime)
-											{
-												debugTime(sender, time);
-											}
-											return true;
-										}
-									}
-									// Calculate new total
-									total -= amount;
-
-									if (total <= 0)
-									{
-										// Drop record as there are none left
-										query = "DELETE FROM "
-												+ config.tablePrefix
-												+ "items WHERE amount='"
-												+ amount + "' AND itemid='"
-												+ itemid + "' AND data='"
-												+ data
-												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(
-												query);
-										// Remove from cache list
-										cache.remove(item);
-									}
-									// Update amount to new total if there
-									// are items remaining
-									else
-									{
-										query = "UPDATE " + config.tablePrefix
-												+ "items SET amount='" + total
-												+ "' WHERE itemid='" + itemid
-												+ "' AND data='" + data
-												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(
-												query);
-									}
-								}
-								player.sendMessage(ChatColor.GREEN + prefix
-										+ " Given " + ChatColor.GOLD + amount
-										+ ChatColor.GREEN + " of "
-										+ ChatColor.AQUA + item.name);
-								// Smoke effect
-								this.smokePlayer(player);
-								// Update karma
-								if (!config.karmaDisabled)
-								{
-									if (!perm.checkPermission(player,
-											"KarmicShare.ignore.karma"))
-									{
-										if (hasKarma)
-										{
-											this.updatePlayerKarma(player
-													.getName(), amount
-													* config.karma.get(item)
-													* -1);
-										}
-										else
-										{
-											this.updatePlayerKarma(
-													player.getName(),
-													amount * config.karmaChange
-															* -1);
-										}
-									}
-								}
-							}
-							else
-							{
-								player.sendMessage(ChatColor.RED + prefix
-										+ " Item is no longer available.");
 							}
 						}
-						catch (SQLException e)
+						if (finalAmount > 0)
 						{
-							// INFO Auto-generated catch block
-							player.sendMessage(ChatColor.RED + prefix
-									+ "Could not retrieve item in pool!");
-							e.printStackTrace();
+							player.sendMessage(ChatColor.GREEN + prefix
+									+ " Given " + ChatColor.GOLD + amount
+									+ ChatColor.GREEN + " of " + ChatColor.AQUA
+									+ temp.name);
 						}
 					}
 					else
@@ -2054,6 +1281,10 @@ public class Commander implements CommandExecutor {
 		{
 			sender.sendMessage(prefix + " Cannot use this command as console.");
 		}
+		if(config.debugTime)
+		{
+			debugTime(sender, time);
+		}
 		return true;
 	}
 
@@ -2070,237 +1301,22 @@ public class Commander implements CommandExecutor {
 				if (perm.checkPermission(sender, "KarmicShare.commands.give"))
 				{
 					// Grab item in player's hand.
-					ItemStack items = player.getItemInHand();
+					final ItemStack items = player.getItemInHand();
 					int itemid = items.getTypeId();
 					// Check if there is an item in their hand
 					if (itemid != 0)
 					{
-						int quantity = items.getAmount();
-						int data = items.getData().getData();
-						short durability = items.getDurability();
-						final Item item = new Item(itemid, Byte.valueOf(""
-								+ data), durability);
-						boolean hasEnchantments = false;
-						String query = "";
-						if (item.isTool())
-						{
-							// Is a tool, check for enchantments
-							Map<Enchantment, Integer> enchantments = items
-									.getEnchantments();
-							if (!enchantments.isEmpty())
-							{
-								// Tool has enchantments
-								hasEnchantments = true;
-								// Remove item from player inventory
-								// Thanks to @nisovin for the following line
-								player.setItemInHand(null);
-								// Create string for enchantments
-								StringBuilder sb = new StringBuilder();
-								for (Map.Entry<Enchantment, Integer> e : enchantments
-										.entrySet())
-								{
-									sb.append(e.getKey().getId() + "v"
-											+ e.getValue().intValue() + "i");
-								}
-								// Remove trailing comma
-								sb.deleteCharAt(sb.length() - 1);
-								// Add new instance of item to database
-								query = "INSERT INTO "
-										+ config.tablePrefix
-										+ "items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
-										+ itemid + "','" + quantity + "','"
-										+ data + "','" + durability + "','"
-										+ sb.toString() + "','global');";
-							}
-						}
+						// TODO un-hardcode global?
+						karma.giveItem(player, items, "global");
 						// Remove item from player inventory
 						// Thanks to @nisovin for the following line
+						final Item i = new Item(items.getTypeId(), items
+								.getData().getData(), items.getDurability());
 						player.setItemInHand(null);
-						// Not a tool or doesn't have enchantments, so treat as
-						// normal
-						if (!hasEnchantments && !item.isPotion())
-						{
-							// Create SQL query to see if item is already in
-							// database
-							query = "SELECT * FROM " + config.tablePrefix
-									+ "items WHERE itemid='" + itemid
-									+ "' AND data='" + data
-									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler()
-									.select(query);
-
-							// Send Item to database
-							try
-							{
-								if (rs.next())
-								{
-									do
-									{
-										// For tools, look up for similar
-										// durability. Add amount that way
-										// if it exists
-										int total = quantity
-												+ rs.getInt("amount");
-										query = "UPDATE " + config.tablePrefix
-												+ "items SET amount='" + total
-												+ "' WHERE itemid='" + itemid
-												+ "' AND data='" + data
-												+ "' AND groups='global';";
-									}
-									while (rs.next());
-								}
-								else
-								{
-									// Item not in database, therefore add it
-									query = "INSERT INTO "
-											+ config.tablePrefix
-											+ "items (itemid,amount,data,durability,groups) VALUES ("
-											+ itemid + "," + quantity + ","
-											+ data + "," + durability
-											+ ",'global');";
-								}
-								rs.close();
-							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Could not query item pool!");
-								e.printStackTrace();
-							}
-						}
-						else if (item.isPotion())
-						{
-							data = 0;
-							// Potion item
-							// Create SQL query to see if item is already in
-							// database
-							query = "SELECT * FROM " + config.tablePrefix
-									+ "items WHERE itemid='" + itemid
-									+ "' AND durability='" + durability
-									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler()
-									.select(query);
-
-							// Send Item to database
-							try
-							{
-								if (rs.next())
-								{
-									do
-									{
-										// For tools, look up for similar
-										// durability. Add amount that way
-										// if it exists
-										int total = quantity
-												+ rs.getInt("amount");
-										query = "UPDATE " + config.tablePrefix
-												+ "items SET amount='" + total
-												+ "' WHERE itemid='" + itemid
-												+ "' AND durability='"
-												+ durability
-												+ "' AND groups='global';";
-									}
-									while (rs.next());
-								}
-								else
-								{
-									// Item not in database, therefore add it
-									query = "INSERT INTO "
-											+ config.tablePrefix
-											+ "items (itemid,amount,data,durability,groups) VALUES ("
-											+ itemid + "," + quantity + ","
-											+ data + "," + durability
-											+ ",'global');";
-								}
-								rs.close();
-							}
-							catch (SQLException e)
-							{
-								// INFO Auto-generated catch block
-								player.sendMessage(ChatColor.RED + prefix
-										+ "Could not query item pool!");
-								e.printStackTrace();
-							}
-						}
-						try
-						{
-							ks.getDatabaseHandler().standardQuery(query);
-							player.sendMessage(ChatColor.GREEN + prefix
-									+ " Added " + ChatColor.GOLD + quantity
-									+ ChatColor.GREEN + " of " + ChatColor.AQUA
-									+ item.name + ChatColor.GREEN + " to pool.");
-							// Smoke effect
-							this.smokePlayer(player);
-							// Update karma
-							if (!config.karmaDisabled)
-							{
-								if (!perm.checkPermission(player,
-										"KarmicShare.ignore.karma"))
-								{
-									if (config.statickarma)
-									{
-										this.updatePlayerKarma(
-												player.getName(), quantity
-														* config.karmaChange);
-									}
-									else
-									{
-										// Check if given item has a multiplier
-										Item[] karmaList = config.karma
-												.keySet().toArray(new Item[0]);
-										boolean hasKarma = false;
-										for (Item k : karmaList)
-										{
-											if (k.areSame(item))
-											{
-												// Item karma needs to be
-												// adjusted
-												hasKarma = true;
-											}
-										}
-										if (hasKarma)
-										{
-											try
-											{
-												this.updatePlayerKarma(
-														player.getName(),
-														quantity
-																* config.karma
-																		.get(item));
-											}
-											catch (NullPointerException n)
-											{
-												// Found item, but there is no
-												// config for specific data
-												// value
-												// thus adjust using regular
-												// means
-												this.updatePlayerKarma(
-														player.getName(),
-														quantity
-																* config.karmaChange);
-											}
-										}
-										else
-										{
-											this.updatePlayerKarma(
-													player.getName(),
-													quantity
-															* config.karmaChange);
-										}
-									}
-								}
-							}
-						}
-						catch (SQLException e)
-						{
-							// INFO Auto-generated catch block
-							player.sendMessage(ChatColor.RED
-									+ prefix
-									+ "Could not adjust karma or add item to pool!");
-							e.printStackTrace();
-						}
+						player.sendMessage(ChatColor.GREEN + prefix + " Added "
+								+ ChatColor.GOLD + items.getAmount()
+								+ ChatColor.GREEN + " of " + ChatColor.AQUA
+								+ i.name + ChatColor.GREEN + " to pool.");
 					}
 					else
 					{
@@ -2495,7 +1511,7 @@ public class Commander implements CommandExecutor {
 			try
 			{
 				// Retrieve karma from database and colorize
-				sender.sendMessage(this.colorizeKarma(getPlayerKarma(player
+				sender.sendMessage(this.colorizeKarma(karma.getPlayerKarma(player
 						.getName())));
 			}
 			catch (SQLException e)
@@ -2787,7 +1803,7 @@ public class Commander implements CommandExecutor {
 				// Check if group name was given
 				if (args.length > 2)
 				{
-					if (groupExists(sender, args[2]))
+					if (karma.validGroup(sender, args[2]))
 					{
 						group = args[2];
 					}
@@ -2939,20 +1955,20 @@ public class Commander implements CommandExecutor {
 							else
 							{
 								// Sent via console
-								int karma;
+								int playerKarma = config.playerKarmaDefault;
 								try
 								{
 									// Set to zero
-									karma = ks.getCommander().getPlayerKarma(
+									playerKarma = karma.getPlayerKarma(
 											name)
 											* -1;
-									ks.getCommander().updatePlayerKarma(name,
-											karma);
+									karma.updatePlayerKarma(name,
+											playerKarma);
 									if (config.playerKarmaDefault != 0)
 									{
 										// Default was non-zero, so re-update to
 										// config's default
-										ks.getCommander()
+										karma
 												.updatePlayerKarma(
 														name,
 														config.playerKarmaDefault);
@@ -3083,19 +2099,19 @@ public class Commander implements CommandExecutor {
 							}
 							if (has)
 							{
-								int karma;
+								int playerKarma = config.playerKarmaDefault;
 								try
 								{
 									// Set to given amount by using the
 									// difference
 									// between the two
-									karma = amount - this.getPlayerKarma(name);
-									this.updatePlayerKarma(name, karma);
+									playerKarma = amount - karma.getPlayerKarma(name);
+									karma.updatePlayerKarma(name, playerKarma);
 									if (config.playerKarmaDefault != 0)
 									{
 										// Default was non-zero, so re-update to
 										// config's default
-										this.updatePlayerKarma(name,
+										karma.updatePlayerKarma(name,
 												config.playerKarmaDefault);
 									}
 									sender.sendMessage(ChatColor.YELLOW
@@ -3164,7 +2180,7 @@ public class Commander implements CommandExecutor {
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Cannot remove the global group.");
 							}
-							if (groupExists(sender, group))
+							if (karma.validGroup(sender, group))
 							{
 								if (sender instanceof Player)
 								{
@@ -3231,7 +2247,7 @@ public class Commander implements CommandExecutor {
 						if (args.length > 3)
 						{
 							final String group = args[3].toLowerCase();
-							if (!groupExists(sender, group))
+							if (!karma.validGroup(sender, group))
 							{
 								// Create group
 								ks.getDatabaseHandler()
@@ -3303,7 +2319,7 @@ public class Commander implements CommandExecutor {
 									{
 										name = args[i];
 									}
-									if (playerHasGroup(sender, name, group))
+									if (karma.playerHasGroup(sender, name, group))
 									{
 										sender.sendMessage(ChatColor.YELLOW
 												+ prefix + " " + ChatColor.AQUA
@@ -3314,7 +2330,7 @@ public class Commander implements CommandExecutor {
 									}
 									else
 									{
-										if (groupExists(sender, group))
+										if (karma.validGroup(sender, group))
 										{
 											// add player to group
 											addPlayerToGroup(sender, name,
@@ -3408,7 +2424,7 @@ public class Commander implements CommandExecutor {
 									{
 										name = args[i];
 									}
-									if (!playerHasGroup(sender, name, group))
+									if (!karma.playerHasGroup(sender, name, group))
 									{
 										sender.sendMessage(ChatColor.YELLOW
 												+ prefix + ChatColor.AQUA
@@ -3419,7 +2435,7 @@ public class Commander implements CommandExecutor {
 									}
 									else
 									{
-										if (groupExists(sender, group))
+										if (karma.validGroup(sender, group))
 										{
 											// remove other player to group
 											removePlayerFromGroup(sender, name,
@@ -3820,133 +2836,6 @@ public class Commander implements CommandExecutor {
 	}
 
 	/**
-	 * Provides a smoke effect for the player.
-	 *
-	 * http://forums.bukkit.org/threads/smoke-effect-yes-i-know-others-have-
-	 * asked.29492/
-	 *
-	 * @param Player
-	 *            that should get the effect
-	 * @author Adamki11s
-	 */
-	private void smokePlayer(Player player) {
-		if (config.effects)
-		{
-			Location loc = player.getLocation();
-			World w = loc.getWorld();
-			int repeat = 0;
-			while (repeat < 1)
-			{
-				for (double x = (loc.getX() - 3); x <= (loc.getX() + 3); x++)
-				{
-					for (double y = (loc.getY() - 3); y <= (loc.getY() + 3); y++)
-					{
-						for (double z = (loc.getZ() - 3); z <= (loc.getZ() + 3); z++)
-						{
-							w.playEffect(new Location(w, x, y, z),
-									Effect.SMOKE, 1);
-						}
-					}
-				}
-				repeat++;
-			}
-		}
-	}
-
-	/**
-	 * Retrieves karma value of a player from the database. Forces player to be
-	 * added to database if they don't exist
-	 *
-	 * @param Player
-	 *            name
-	 * @return karma value associated with name
-	 */
-	private int getPlayerKarma(String name) throws SQLException {
-		String query = "SELECT * FROM " + config.tablePrefix
-				+ "players WHERE playername='" + name + "';";
-		ResultSet rs = ks.getDatabaseHandler().select(query);
-		int karma = config.playerKarmaDefault;
-		boolean has = false;
-		// Retrieve karma from database
-		try
-		{
-			if (rs.next())
-			{
-				do
-				{
-					// Grab player karma value
-					karma = rs.getInt("karma");
-					has = true;
-				}
-				while (rs.next());
-			}
-			rs.close();
-			if (!has)
-			{
-				// Player not in database, therefore add them
-				query = "INSERT INTO " + config.tablePrefix
-						+ "players (playername,karma) VALUES ('" + name
-						+ "','" + karma + "');";
-				ks.getDatabaseHandler().standardQuery(query);
-			}
-		}
-		catch (SQLException e)
-		{
-			throw e;
-		}
-		return karma;
-	}
-
-	/**
-	 * Updates the player's karma
-	 *
-	 * @param Name
-	 *            of player
-	 * @param Amount
-	 *            of karma to add
-	 * @param Boolean
-	 *            if to add to current karma, or to set it as given value
-	 * @throws SQLException
-	 */
-	private void updatePlayerKarma(String name, int k) throws SQLException {
-		try
-		{
-			// Retrieve karma from database
-			int karma = getPlayerKarma(name);
-			// Add to existing value
-			karma += k;
-			String query;
-			// Check updated karma value to limits in config
-			if (karma <= config.lower)
-			{
-				// Updated karma value is beyond lower limit, so set to min
-				query = "UPDATE " + config.tablePrefix
-						+ "players SET karma='" + config.lower
-						+ "' WHERE playername='" + name + "';";
-			}
-			else if (karma >= config.upper)
-			{
-				// Updated karma value is beyond upper limit, so set to max
-				query = "UPDATE " + config.tablePrefix
-						+ "players SET karma='" + config.upper
-						+ "' WHERE playername='" + name + "';";
-			}
-			else
-			{
-				// Updated karma value is within acceptable range
-				query = "UPDATE " + config.tablePrefix
-						+ "players SET karma='" + karma
-						+ "' WHERE playername='" + name + "';";
-			}
-			ks.getDatabaseHandler().standardQuery(query);
-		}
-		catch (SQLException e)
-		{
-			throw e;
-		}
-	}
-
-	/**
 	 * Colorizes the karma based on percentages in the config file
 	 *
 	 * @param player
@@ -3986,29 +2875,6 @@ public class Commander implements CommandExecutor {
 		}
 	}
 
-	public boolean groupExists(CommandSender sender, String group) {
-		boolean valid = false;
-		try
-		{
-			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM " + config.tablePrefix
-							+ "groups WHERE groupname='" + group + "';");
-			if (rs.next())
-			{
-				valid = true;
-			}
-			rs.close();
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return valid;
-	}
-
 	private List<String> playerGroups(CommandSender sender, String name) {
 		List<String> list = new ArrayList<String>();
 		try
@@ -4039,33 +2905,6 @@ public class Commander implements CommandExecutor {
 			e.printStackTrace();
 		}
 		return list;
-	}
-
-	public boolean playerInGroup(CommandSender sender, String group, String name) {
-		boolean valid = false;
-		try
-		{
-			String groups = "";
-			if (hasGroups(name))
-			{
-				String[] split = groups.split("&");
-				for (String s : split)
-				{
-					if (s.equals(group))
-					{
-						valid = true;
-					}
-				}
-			}
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return valid;
 	}
 
 	/**
@@ -4176,17 +3015,17 @@ public class Commander implements CommandExecutor {
 					+ "yes", ChatColor.RED + "no");
 			if (answer.equals("yes"))
 			{
-				int karma;
+				int playerKarma = config.playerKarmaDefault;
 				try
 				{
 					// Set to zero
-					karma = ks.getCommander().getPlayerKarma(name) * -1;
-					ks.getCommander().updatePlayerKarma(name, karma);
+					playerKarma = karma.getPlayerKarma(name) * -1;
+					karma.updatePlayerKarma(name, playerKarma);
 					if (config.playerKarmaDefault != 0)
 					{
 						// Default was non-zero, so re-update to
 						// config's default
-						ks.getCommander().updatePlayerKarma(name,
+						karma.updatePlayerKarma(name,
 								config.playerKarmaDefault);
 					}
 					sender.sendMessage(ChatColor.GREEN + prefix + " " + name
@@ -4325,9 +3164,9 @@ public class Commander implements CommandExecutor {
 				{
 					ks.getDatabaseHandler().standardQuery(
 							"UPDATE " + config.tablePrefix
-									+ "players SET groups='"
-									+ entry.getValue() + "' WHERE playername='"
-									+ entry.getKey() + "';");
+									+ "players SET groups='" + entry.getValue()
+									+ "' WHERE playername='" + entry.getKey()
+									+ "';");
 				}
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Done removing group " + ChatColor.GRAY + group

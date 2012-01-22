@@ -1131,7 +1131,7 @@ public class Karma {
 		}
 	}
 
-	public boolean validGroup(Player sender, String group)
+	public boolean validGroup(CommandSender sender, String group)
 	{
 		boolean valid = false;
 		try
