@@ -1,11 +1,11 @@
-package de.diddiz.LogBlockQuestioner;
+package com.mitsugaru.KarmicShare;
 
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-public class Question
+public class KSQuestion
 {
 	private String answer = null;
 	private final HashMap<Integer, String> answers;
@@ -14,7 +14,7 @@ public class Question
 	private final int respondentHash;
 	private final long start;
 
-	public Question(Player respondent, String questionMessage, String[] answers) {
+	public KSQuestion(Player respondent, String questionMessage, String[] answers) {
 		start = System.currentTimeMillis();
 		this.respondent = respondent;
 		respondentHash = respondent.getName().hashCode();

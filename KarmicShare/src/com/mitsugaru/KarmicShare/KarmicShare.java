@@ -18,9 +18,7 @@ import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import de.diddiz.LogBlockQuestioner.LogBlockQuestionerPlayerListener;
-import de.diddiz.LogBlockQuestioner.Question;
-import de.diddiz.LogBlockQuestioner.QuestionsReaper;
+
 
 public class KarmicShare extends JavaPlugin {
 	// Class variables
@@ -32,7 +30,7 @@ public class KarmicShare extends JavaPlugin {
 	private PermCheck perm;
 	private Karma karma;
 	private int cleantask;
-	public final Vector<Question> questions = new Vector<Question>();
+	public final Vector<KSQuestion> questions = new Vector<KSQuestion>();
 	public boolean hasSpout;
 
 	// IDEA Score board on karma?
@@ -95,12 +93,12 @@ public class KarmicShare extends JavaPlugin {
 		this.getServer()
 				.getPluginManager()
 				.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS,
-						new LogBlockQuestionerPlayerListener(questions),
+						new KarmicShareQuestionerPlayerListener(questions),
 						Priority.Normal, this);
 		this.getServer()
 				.getScheduler()
 				.scheduleSyncRepeatingTask(this,
-						new QuestionsReaper(questions), 15000, 15000);
+						new KSQuestionsReaper(questions), 15000, 15000);
 
 		// Generate listeners
 		KSBlockListener blockListener = new KSBlockListener(this);
@@ -180,7 +178,7 @@ public class KarmicShare extends JavaPlugin {
 
 	public String ask(Player respondent, String questionMessage,
 			String ... answers) {
-		final Question question = new Question(respondent, questionMessage,
+		final KSQuestion question = new KSQuestion(respondent, questionMessage,
 				answers);
 		questions.add(question);
 		return question.ask();

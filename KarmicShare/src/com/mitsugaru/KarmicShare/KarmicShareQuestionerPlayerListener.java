@@ -1,14 +1,14 @@
-package de.diddiz.LogBlockQuestioner;
+package com.mitsugaru.KarmicShare;
 
 import java.util.Vector;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerListener;
 
-public class LogBlockQuestionerPlayerListener extends PlayerListener
+public class KarmicShareQuestionerPlayerListener extends PlayerListener
 {
-	public final Vector<Question> questions;
+	public final Vector<KSQuestion> questions;
 
-	public LogBlockQuestionerPlayerListener(Vector<Question> questions) {
+	public KarmicShareQuestionerPlayerListener(Vector<KSQuestion> questions) {
 		this.questions = questions;
 	}
 
@@ -17,7 +17,7 @@ public class LogBlockQuestionerPlayerListener extends PlayerListener
 		if (!event.isCancelled() && !questions.isEmpty()) {
 			final int playerHash = event.getPlayer().getName().hashCode();
 			final int answerHash = event.getMessage().substring(1).toLowerCase().hashCode();
-			for (final Question question : questions)
+			for (final KSQuestion question : questions)
 				if (question.isPlayerQuestioned(playerHash) && question.isRightAnswer(answerHash)) {
 					question.returnAnswer(answerHash);
 					questions.remove(question);
