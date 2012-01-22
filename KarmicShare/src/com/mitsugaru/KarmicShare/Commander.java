@@ -1492,9 +1492,9 @@ public class Commander implements CommandExecutor {
 		sender.sendMessage(ChatColor.GRAY + "Static karma: "
 				+ config.statickarma);
 		sender.sendMessage(ChatColor.GRAY + "Karma lower-upper limit: "
-				+ config.lower + ":" + config.upper);
+				+ config.lower + " :: " + config.upper);
 		sender.sendMessage(ChatColor.GRAY + "Karma lower/upper %: "
-				+ config.lowerPercent * 100 + "% /" + config.upperPercent * 100
+				+ config.lowerPercent * 100 + "% / " + config.upperPercent * 100
 				+ "%");
 		sender.sendMessage(ChatColor.GRAY + "Default karma: "
 				+ config.playerKarmaDefault);
