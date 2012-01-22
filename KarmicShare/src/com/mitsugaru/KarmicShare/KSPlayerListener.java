@@ -541,9 +541,9 @@ public class KSPlayerListener extends PlayerListener {
 	{
 		//Calculate number of slots
 		int slots = 0;
-		ResultSet all = plugin.getDatabaseHandler().select("SELECT * FROM '"
+		ResultSet all = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "items' WHERE groups='" + group + "';");
+						+ "items WHERE groups='" + group + "';");
 		try
 		{
 			if(all.next())
@@ -632,9 +632,9 @@ public class KSPlayerListener extends PlayerListener {
 			}
 			int start = (page - 1) * limit;
 			ResultSet itemList = plugin.getDatabaseHandler().select(
-					"SELECT * FROM '"
+					"SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "items' WHERE groups='" + group + "';");
+						+ "items WHERE groups='" + group + "';");
 			if (itemList.next())
 			{
 				boolean done = false;
@@ -755,9 +755,9 @@ public class KSPlayerListener extends PlayerListener {
 			//Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM '"
+			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "players' WHERE playername='" + name + "';");
+						+ "players WHERE playername='" + name + "';");
 			if(rs.next())
 			{
 				groups = rs.getString("groups");
@@ -805,9 +805,9 @@ public class KSPlayerListener extends PlayerListener {
 	 * @return karma value associated with name
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
-		String query = "SELECT * FROM '"
+		String query = "SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "players' WHERE playername='" + name + "';";
+						+ "players WHERE playername='" + name + "';";
 		ResultSet rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
@@ -828,9 +828,9 @@ public class KSPlayerListener extends PlayerListener {
 			if (!has)
 			{
 				// Player not in database, therefore add them
-				query = "INSERT INTO '"
+				query = "INSERT INTO "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "players' (playername,karma) VALUES ('"
+						+ "players (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}

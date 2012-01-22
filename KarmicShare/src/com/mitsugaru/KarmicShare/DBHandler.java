@@ -43,7 +43,7 @@ public class DBHandler {
 						KarmicShare.prefix + " Created item table");
 				mysql.createTable("CREATE TABLE `"
 						+ config.tablePrefix
-						+ "items` (`id` INT UNSIGNED NOT NULL, `itemid` SMALLINT UNSIGNED, `amount` INT NOT NULL, `data` TINYTEXT, `durability` TINYTEXT, `enchantments` TEXT, `groups` TINYTEXT NOT NULL, PRIMARY KEY (id));");
+						+ "items` (`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, `itemid` SMALLINT UNSIGNED, `amount` INT NOT NULL, `data` TINYTEXT, `durability` TINYTEXT, `enchantments` TEXT, `groups` TINYTEXT NOT NULL, PRIMARY KEY (id));");
 			}
 			// Check if player table exists
 			if (!mysql.checkTable(config.tablePrefix + "players"))
@@ -61,7 +61,7 @@ public class DBHandler {
 						KarmicShare.prefix + " Created groups table");
 				mysql.createTable("CREATE TABLE `"
 						+ config.tablePrefix
-						+ "groups` (`groupname` TINYTEXT NOT NULL, UNIQUE (`groupname`));");
+						+ "groups` (`groupname` varchar(32) NOT NULL, UNIQUE (`groupname`));");
 			}
 		}
 		else
@@ -108,8 +108,8 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Copy items
-			ResultSet rs = sqlite.select("SELECT * FROM '" + config.tablePrefix
-					+ "items';");
+			ResultSet rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+					+ "items;");
 			if (rs.next())
 			{
 				plugin.getLogger().info(KarmicShare.prefix + " Importing items...");
@@ -136,8 +136,8 @@ public class DBHandler {
 						hasEnchantments = true;
 					}
 					final String groups = rs.getString("groups");
-					sb.append("INSERT INTO `" + config.tablePrefix
-							+ "items` (itemid,amount");
+					sb.append("INSERT INTO " + config.tablePrefix
+							+ "items (itemid,amount");
 					if (hasData)
 					{
 						sb.append(",data");
@@ -150,7 +150,7 @@ public class DBHandler {
 					{
 						sb.append(",enchantments");
 					}
-					sb.append("groups) VALUES('" + id + "','" + amount + "','");
+					sb.append(",groups) VALUES('" + id + "','" + amount + "','");
 					if (hasData)
 					{
 						sb.append(data + "','");
@@ -164,7 +164,8 @@ public class DBHandler {
 						sb.append(enchantments + "','");
 					}
 					sb.append(groups + "');");
-					mysql.standardQuery(sb.toString());
+					final String query = sb.toString();
+					mysql.standardQuery(query);
 					sb = new StringBuilder();
 				}
 				while (rs.next());
@@ -172,8 +173,8 @@ public class DBHandler {
 			rs.close();
 			sb = new StringBuilder();
 			// Copy players
-			rs = sqlite.select("SELECT * FROM '" + config.tablePrefix
-					+ "players';");
+			rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+					+ "players;");
 			if(rs.next())
 			{
 				plugin.getLogger().info(KarmicShare.prefix + " Importing players...");
@@ -187,33 +188,35 @@ public class DBHandler {
 					{
 						hasGroups = true;
 					}
-					sb.append("INSERT INTO `" + config.tablePrefix
-							+ "players` (playername,karma");
+					sb.append("INSERT INTO " + config.tablePrefix
+							+ "players (playername,karma");
 					if(hasGroups)
 					{
 						sb.append(",groups");
 					}
-					sb.append(") VAULES('" + player + "','" + karma + "'");
+					sb.append(") VALUES('" + player + "','" + karma + "'");
 					if(hasGroups)
 					{
 						sb.append(",'" + groups + "'");
 					}
 					sb.append(");");
-					mysql.standardQuery(sb.toString());
+					final String query = sb.toString();
+					mysql.standardQuery(query);
 					sb = new StringBuilder();
 				}while(rs.next());
 			}
 			rs.close();
 			sb = new StringBuilder();
 			// Copy groups
-			rs = sqlite.select("SELECT * FROM '" + config.tablePrefix
-					+ "groups';");
+			rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+					+ "groups;");
 			if(rs.next())
 			{
 				plugin.getLogger().info(KarmicShare.prefix + " Importing groups...");
 				do
 				{
-					mysql.standardQuery("INSERT INTO '" + config.tablePrefix + "groups (groupname) VAULES('" + rs.getString("groupname") + "');");
+					final String query = "INSERT INTO " + config.tablePrefix + "groups (groupname) VALUES('" + rs.getString("groupname") + "');";
+					mysql.standardQuery(query);
 				}while(rs.next());
 			}
 			rs.close();

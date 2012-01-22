@@ -190,7 +190,9 @@ public class KarmicShare extends JavaPlugin {
 		@Override
 		public void run() {
 			// Drop bad entries
-			getDatabaseHandler().standardQuery("DELETE FROM items WHERE amount<='0';");
+			getDatabaseHandler().standardQuery("DELETE FROM "
+						+ config.tablePrefix
+						+ "items WHERE amount<='0';");
 		}
 	}
 }

@@ -169,7 +169,7 @@ public class MySQL extends DatabaseHandler {
 		{
 			connection = this.open();
 			statement = connection.createStatement();
-			statement.executeQuery(query);
+			statement.executeUpdate(query);
 			statement.close();
 			connection.close();
 		}
