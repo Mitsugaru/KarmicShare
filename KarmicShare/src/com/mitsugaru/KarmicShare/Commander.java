@@ -2210,6 +2210,8 @@ public class Commander implements CommandExecutor {
 												+ prefix
 												+ " Could not schedule task.");
 									}
+									ks.getDatabaseHandler().standardQuery("DELETE FROM " + config.tablePrefix+ "items WHERE groups='" + group + "';");
+									sender.sendMessage(prefix + " Removed all items of group: " + group);
 								}
 							}
 							else
@@ -3073,7 +3075,7 @@ public class Commander implements CommandExecutor {
 							+ " Could not schedule task");
 				}
 				ks.getDatabaseHandler().standardQuery("DELETE FROM " + config.tablePrefix+ "items WHERE groups='" + group + "';");
-				sender.sendMessage(ChatColor.YELLOW + prefix + "Removed all items of group: " + ChatColor.GOLD + group);
+				sender.sendMessage(ChatColor.YELLOW + prefix + " Removed all items of group: " + ChatColor.GOLD + group);
 			}
 			else
 			{
