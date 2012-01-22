@@ -1097,7 +1097,7 @@ public class KSInventoryListener extends InventoryListener {
 			// Grab all entries of the same tool id
 			String toolQuery = "SELECT * FROM items WHERE itemid='"
 					+ item.getTypeId() + "' AND groups='" + group + "';";
-			ResultSet toolRS = plugin.getLiteDB().select(toolQuery);
+			ResultSet toolRS = plugin.getDatabaseHandler().select(toolQuery);
 			try
 			{
 				if (toolRS.next())
@@ -1137,7 +1137,7 @@ public class KSInventoryListener extends InventoryListener {
 			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
 					+ "' AND durability='" + item.getDurability()
 					+ "' AND groups='" + group + "';";
-			ResultSet rs = plugin.getLiteDB().select(query);
+			ResultSet rs = plugin.getDatabaseHandler().select(query);
 
 			// Check ResultSet
 			try
@@ -1176,7 +1176,7 @@ public class KSInventoryListener extends InventoryListener {
 			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
 					+ "' AND data='" + item.getData().getData()
 					+ "' AND groups='" + group + "';";
-			ResultSet rs = plugin.getLiteDB().select(query);
+			ResultSet rs = plugin.getDatabaseHandler().select(query);
 
 			// Check ResultSet
 			try
@@ -1486,7 +1486,7 @@ public class KSInventoryListener extends InventoryListener {
 										+ sb.toString()
 										+ "' AND groups='"
 										+ group + "';";
-								ResultSet toolRS = plugin.getLiteDB().select(
+								ResultSet toolRS = plugin.getDatabaseHandler().select(
 										toolQuery);
 								if (toolRS.next())
 								{
@@ -1515,7 +1515,7 @@ public class KSInventoryListener extends InventoryListener {
 										+ "' AND data='"
 										+ item.getData().getData()
 										+ "' AND groups='" + group + "';";
-								ResultSet toolRS = plugin.getLiteDB().select(
+								ResultSet toolRS = plugin.getDatabaseHandler().select(
 										toolQuery);
 								if (toolRS.next())
 								{
@@ -1547,7 +1547,7 @@ public class KSInventoryListener extends InventoryListener {
 								}
 								toolRS.close();
 							}
-							plugin.getLiteDB().standardQuery(toolQuery);
+							plugin.getDatabaseHandler().standardQuery(toolQuery);
 						}
 						catch (SQLException e)
 						{
@@ -1565,7 +1565,7 @@ public class KSInventoryListener extends InventoryListener {
 								+ item.getTypeId() + "' AND durability='"
 								+ item.getDurability() + "' AND groups='"
 								+ group + "';";
-						ResultSet rs = plugin.getLiteDB().select(query);
+						ResultSet rs = plugin.getDatabaseHandler().select(query);
 						try
 						{
 							if (rs.next())
@@ -1591,7 +1591,7 @@ public class KSInventoryListener extends InventoryListener {
 								}
 							}
 							rs.close();
-							plugin.getLiteDB().standardQuery(query);
+							plugin.getDatabaseHandler().standardQuery(query);
 						}
 						catch (SQLException e)
 						{
@@ -1609,7 +1609,7 @@ public class KSInventoryListener extends InventoryListener {
 								+ item.getTypeId() + "' AND data='"
 								+ item.getData().getData() + "' AND groups='"
 								+ group + "';";
-						ResultSet rs = plugin.getLiteDB().select(query);
+						ResultSet rs = plugin.getDatabaseHandler().select(query);
 						try
 						{
 							if (rs.next())
@@ -1633,7 +1633,7 @@ public class KSInventoryListener extends InventoryListener {
 								}
 							}
 							rs.close();
-							plugin.getLiteDB().standardQuery(query);
+							plugin.getDatabaseHandler().standardQuery(query);
 						}
 						catch (SQLException e)
 						{
@@ -1749,7 +1749,7 @@ public class KSInventoryListener extends InventoryListener {
 							+ "','"
 							+ sb.toString()
 							+ "','" + group + "');";
-					plugin.getLiteDB().standardQuery(query);
+					plugin.getDatabaseHandler().standardQuery(query);
 				}
 				else
 				{
@@ -1760,7 +1760,7 @@ public class KSInventoryListener extends InventoryListener {
 							+ item.getTypeId() + "' AND data='"
 							+ item.getData().getData() + "' AND groups='"
 							+ group + "';";
-					ResultSet rs = plugin.getLiteDB().select(query);
+					ResultSet rs = plugin.getDatabaseHandler().select(query);
 
 					// Send Item to database
 					try
@@ -1798,7 +1798,7 @@ public class KSInventoryListener extends InventoryListener {
 									+ "');";
 						}
 						rs.close();
-						plugin.getLiteDB().standardQuery(query);
+						plugin.getDatabaseHandler().standardQuery(query);
 					}
 					catch (SQLException e)
 					{
@@ -1819,7 +1819,7 @@ public class KSInventoryListener extends InventoryListener {
 				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
 						+ "' AND groups='" + group + "';";
-				ResultSet rs = plugin.getLiteDB().select(query);
+				ResultSet rs = plugin.getDatabaseHandler().select(query);
 
 				// Send Item to database
 				try
@@ -1848,7 +1848,7 @@ public class KSInventoryListener extends InventoryListener {
 								+ group + "');";
 					}
 					rs.close();
-					plugin.getLiteDB().standardQuery(query);
+					plugin.getDatabaseHandler().standardQuery(query);
 				}
 				catch (SQLException e)
 				{
@@ -1867,7 +1867,7 @@ public class KSInventoryListener extends InventoryListener {
 				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
 						+ "' AND data='" + item.getData().getData()
 						+ "' AND groups='" + group + "';";
-				ResultSet rs = plugin.getLiteDB().select(query);
+				ResultSet rs = plugin.getDatabaseHandler().select(query);
 
 				// Send Item to database
 				try
@@ -1900,7 +1900,7 @@ public class KSInventoryListener extends InventoryListener {
 								+ item.getDurability() + "','" + group + "');";
 					}
 					rs.close();
-					plugin.getLiteDB().standardQuery(query);
+					plugin.getDatabaseHandler().standardQuery(query);
 				}
 				catch (SQLException e)
 				{
@@ -2047,7 +2047,7 @@ public class KSInventoryListener extends InventoryListener {
 				query = "UPDATE players SET karma='" + karma
 						+ "' WHERE playername='" + name + "';";
 			}
-			plugin.getLiteDB().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		catch (SQLException e)
 		{
@@ -2065,7 +2065,7 @@ public class KSInventoryListener extends InventoryListener {
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
 		String query = "SELECT * FROM players WHERE playername='" + name + "';";
-		ResultSet rs = plugin.getLiteDB().select(query);
+		ResultSet rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
 		// Retrieve karma from database
@@ -2087,7 +2087,7 @@ public class KSInventoryListener extends InventoryListener {
 				// Player not in database, therefore add them
 				query = "INSERT INTO players (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
-				plugin.getLiteDB().standardQuery(query);
+				plugin.getDatabaseHandler().standardQuery(query);
 			}
 		}
 		catch (SQLException e)

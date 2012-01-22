@@ -12,8 +12,6 @@ package com.mitsugaru.KarmicShare;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import lib.PatPeter.SQLibrary.SQLite;
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
@@ -26,7 +24,7 @@ import de.diddiz.LogBlockQuestioner.QuestionsReaper;
 
 public class KarmicShare extends JavaPlugin {
 	// Class variables
-	private SQLite database;
+	private DBHandler database;
 	private Logger syslog;
 	public static final String prefix = "[KarmicShare]";
 	private Commander commander;
@@ -67,32 +65,8 @@ public class KarmicShare extends JavaPlugin {
 		syslog = this.getServer().getLogger();
 		// Config
 		config = new Config(this);
-		// TODO MySQL support
-		// Connect to sql database
-		database = new SQLite(syslog, prefix, "pool", this.getDataFolder()
-				.getAbsolutePath());
-		// Check if item table exists
-		if (!database.checkTable("items"))
-		{
-			syslog.info(prefix + " Created item table");
-			database.createTable("CREATE TABLE `items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT);");
-		}
-		// Check if player table exists
-		if (!database.checkTable("players"))
-		{
-			syslog.info(prefix + " Created player table");
-			// Schema: playername, karma
-			// Karma works with 0 being neutral, postive and negative :: good
-			// and bad.
-			// Past certain boundary, do not increase/decrease.
-			// Boundary must be within 30000 high or low, as per SMALLINT
-			database.createTable("CREATE TABLE `players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
-		}
-		if (!database.checkTable("groups"))
-		{
-			syslog.info(prefix + " Created groups table");
-			database.createTable("CREATE TABLE `groups` (`groupname` TEXT NOT NULL, UNIQUE (`groupname`));");
-		}
+		// Database handler
+		database = new DBHandler(this, config);
 	}
 
 	/**
@@ -187,7 +161,7 @@ public class KarmicShare extends JavaPlugin {
 	 *
 	 * @return SQLite database
 	 */
-	public SQLite getLiteDB() {
+	public DBHandler getDatabaseHandler() {
 		return database;
 	}
 
@@ -216,7 +190,7 @@ public class KarmicShare extends JavaPlugin {
 		@Override
 		public void run() {
 			// Drop bad entries
-			getLiteDB().standardQuery("DELETE FROM items WHERE amount<='0';");
+			getDatabaseHandler().standardQuery("DELETE FROM items WHERE amount<='0';");
 		}
 	}
 }

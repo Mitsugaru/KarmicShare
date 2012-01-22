@@ -22,8 +22,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Config {
 	// Class variables
 	private KarmicShare plugin;
-	/* public String url, user, password; */
-	public boolean /* useMySQL, */statickarma, effects, debugTime, karmaDisabled, chests;
+	public String host, port, database, user, password, tablePrefix;
+	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
+			chests, importSQL;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -36,22 +37,25 @@ public class Config {
 	/**
 	 * Constructor and initializer
 	 *
-	 * @param KarmicShare plugin
+	 * @param KarmicShare
+	 *            plugin
 	 */
 	public Config(KarmicShare ks) {
 		plugin = ks;
 		// Grab config
-		ConfigurationSection config = ks.getConfig();
+		final ConfigurationSection config = ks.getConfig();
 		// Hashmap of defaults
 		final Map<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put("version", ks.getDescription().getVersion());
-		/*
-		 * defaults.put("mysql.host", "localhost"); defaults.put("mysql.port",
-		 * 3306); defaults.put("mysql.database", "minecraft");
-		 * defaults.put("mysql.user","username");
-		 * defaults.put("mysql.password","pass"); defaults.put("useMySQL",
-		 * false);
-		 */
+
+		defaults.put("mysql.host", "localhost");
+		defaults.put("mysql.port", 3306);
+		defaults.put("mysql.database", "minecraft");
+		defaults.put("mysql.user", "username");
+		defaults.put("mysql.password", "pass");
+		defaults.put("mysql.tablePrefix", "ks_");
+		defaults.put("mysql.import", false);
+		defaults.put("useMySQL", false);
 		defaults.put("karma.upperlimit", 200);
 		defaults.put("karma.upperPercent", 0.85);
 		defaults.put("karma.lowerlimit", -200);
@@ -74,14 +78,14 @@ public class Config {
 		// Save config
 		ks.saveConfig();
 		// Load variables from config
-		/*
-		 * useMySQL = config.getBoolean("useMySQL", false); url =
-		 * "jdbc:mysql://" + config.getString("mysql.host") + ":" +
-		 * config.getInt("mysql.port") + "/" +
-		 * config.getString("mysql.database"); user =
-		 * config.getString("mysql.user"); password =
-		 * config.getString("mysql.password");
-		 */
+		useMySQL = config.getBoolean("useMySQL", false);
+		host = config.getString("mysql.host", "localhost");
+		port = config.getString("mysql.port", "3306");
+		database = config.getString("mysql.database", "minecraft");
+		user = config.getString("mysql.user", "user");
+		password = config.getString("mysql.password", "password");
+		tablePrefix = config.getString("mysql.prefix", "ks_");
+		importSQL = config.getBoolean("mysql.import", false);
 		statickarma = config.getBoolean("karma.static", false);
 		upper = config.getInt("karma.upperlimit", 200);
 		lower = config.getInt("karma.lowerlimit", -200);
@@ -102,9 +106,14 @@ public class Config {
 		// Finally, do a bounds check on parameters to make sure they are legal
 	}
 
+	public void set(String path, Object o) {
+		final ConfigurationSection config = plugin.getConfig();
+		config.set(path, o);
+		plugin.saveConfig();
+	}
+
 	/**
-	 * Loads the per-item karma values into a hashmap
-	 * for later usage
+	 * Loads the per-item karma values into a hashmap for later usage
 	 */
 	private void loadKarmaMap() {
 		// Load karma file
@@ -116,7 +125,7 @@ public class Config {
 			{
 				// Attempt to parse the nodes
 				int key = Integer.parseInt(entry);
-				//If it has child nodes, parse those as well
+				// If it has child nodes, parse those as well
 				if (karmaFile.isConfigurationSection(entry))
 				{
 					ConfigurationSection sec = karmaFile
@@ -125,24 +134,25 @@ public class Config {
 					{
 						int secondKey = Integer.parseInt(dataValue);
 						int secondValue = sec.getInt(dataValue);
-						if(key!=373)
+						if (key != 373)
 						{
 							karma.put(
-									new Item(key, Byte.parseByte("" + secondKey), (short) secondKey),
-									secondValue);
+									new Item(key, Byte
+											.parseByte("" + secondKey),
+											(short) secondKey), secondValue);
 						}
 						else
 						{
-							karma.put(
-									new Item(key, Byte.parseByte("" + 0), (short) secondKey),
-									secondValue);
+							karma.put(new Item(key, Byte.parseByte("" + 0),
+									(short) secondKey), secondValue);
 						}
 					}
 				}
 				else
 				{
 					int value = karmaFile.getInt(entry);
-					karma.put(new Item(key, Byte.valueOf("" + 0), (short) 0), value);
+					karma.put(new Item(key, Byte.valueOf("" + 0), (short) 0),
+							value);
 				}
 			}
 			catch (final NumberFormatException ex)
@@ -158,8 +168,7 @@ public class Config {
 	/**
 	 * Check if updates are necessary
 	 */
-	public void checkUpdate()
-	{
+	public void checkUpdate() {
 		// Check if need to update
 		ConfigurationSection config = plugin.getConfig();
 		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
@@ -178,87 +187,144 @@ public class Config {
 	 * necessary for database schema modification, for a proper update.
 	 */
 	private void update() {
-		//Grab current version
-		final double ver = Double.parseDouble(plugin.getConfig().getString("version"));
+		// Grab current version
+		final double ver = Double.parseDouble(plugin.getConfig().getString(
+				"version"));
 		String query = "";
-		//Updates to alpha 0.08
-		if(ver < 0.08)
+		// Updates to alpha 0.08
+		if (ver < 0.08)
 		{
-			//Add enchantments column
-			plugin.getLogger().info(KarmicShare.prefix + " Altering items table to add enchantments column.");
+			// Add enchantments column
+			plugin.getLogger()
+					.info(KarmicShare.prefix
+							+ " Altering items table to add enchantments column.");
 			query = "ALTER TABLE items ADD enchantments TEXT;";
-			plugin.getLiteDB().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 		}
-		if(ver < 0.09)
+		if (ver < 0.09)
 		{
-			//Add back durability column
-			plugin.getLogger().info(KarmicShare.prefix + " Altering items table to add durability column.");
+			// Add back durability column
+			plugin.getLogger()
+					.info(KarmicShare.prefix
+							+ " Altering items table to add durability column.");
 			query = "ALTER TABLE items ADD durability TEXT;";
-			plugin.getLiteDB().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 		}
-		if(ver < 0.14)
+		if (ver < 0.14)
 		{
-			//Revamp item table
+			// Revamp item table
 			try
 			{
-				plugin.getLogger().info(KarmicShare.prefix + " Revamping item table");
+				plugin.getLogger().info(
+						KarmicShare.prefix + " Revamping item table");
 				query = "SELECT * FROM items;";
 				final List<ZeroPointFourteenItemObject> fourteen = new ArrayList<ZeroPointFourteenItemObject>();
-				ResultSet rs = plugin.getLiteDB().select(query);
-				if(rs.next())
+				ResultSet rs = plugin.getDatabaseHandler().select(query);
+				if (rs.next())
 				{
 					do
 					{
 						String enchantments = rs.getString("enchantments");
-						if(!rs.wasNull())
+						if (!rs.wasNull())
 						{
-							fourteen.add(new ZeroPointFourteenItemObject(rs.getInt("itemid"), rs.getInt("amount"), rs.getByte("data"), rs.getShort("durability"), enchantments));
+							fourteen.add(new ZeroPointFourteenItemObject(rs
+									.getInt("itemid"), rs.getInt("amount"), rs
+									.getByte("data"),
+									rs.getShort("durability"), enchantments));
 						}
 						else
 						{
-							fourteen.add(new ZeroPointFourteenItemObject(rs.getInt("itemid"), rs.getInt("amount"), rs.getByte("data"), rs.getShort("durability"), ""));
+							fourteen.add(new ZeroPointFourteenItemObject(rs
+									.getInt("itemid"), rs.getInt("amount"), rs
+									.getByte("data"),
+									rs.getShort("durability"), ""));
 						}
 
-					}while(rs.next());
+					}
+					while (rs.next());
 				}
 				rs.close();
-				//Drop item table
-				plugin.getLiteDB().standardQuery("DROP TABLE items;");
-				//Create new table
-				plugin.getLiteDB().createTable("CREATE TABLE `items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT);");
-				//Add back items
-				for(ZeroPointFourteenItemObject bak : fourteen)
+				// Drop item table
+				plugin.getDatabaseHandler().standardQuery("DROP TABLE items;");
+				// Create new table
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE `items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT);");
+				// Add back items
+				for (ZeroPointFourteenItemObject bak : fourteen)
 				{
 					String fourteenItemQuery = "";
-					if(bak.enchantments.equals(""))
+					if (bak.enchantments.equals(""))
 					{
-						fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('" + bak.itemid + "','" + bak.amount + "','" + bak.data + "','" + bak.durability + "','global');";
+						fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
+								+ bak.itemid
+								+ "','"
+								+ bak.amount
+								+ "','"
+								+ bak.data
+								+ "','"
+								+ bak.durability
+								+ "','global');";
 					}
 					else
 					{
-						fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('" + bak.itemid + "','" + bak.amount + "','" + bak.data + "','" + bak.durability + "','" + bak.enchantments + "','global');";
+						fourteenItemQuery = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+								+ bak.itemid
+								+ "','"
+								+ bak.amount
+								+ "','"
+								+ bak.data
+								+ "','"
+								+ bak.durability
+								+ "','"
+								+ bak.enchantments + "','global');";
 					}
-					plugin.getLiteDB().standardQuery(fourteenItemQuery);
+					plugin.getDatabaseHandler()
+							.standardQuery(fourteenItemQuery);
 				}
 			}
 			catch (SQLException e)
 			{
 				// INFO Auto-generated catch block
-				plugin.getLogger().warning(KarmicShare.prefix + " SQL Exception");
+				plugin.getLogger().warning(
+						KarmicShare.prefix + " SQL Exception");
 				e.printStackTrace();
 			}
-			//Add groups to players table
-			plugin.getLogger().info(KarmicShare.prefix + " Altering player table to add groups column.");
+			// Add groups to players table
+			plugin.getLogger().info(
+					KarmicShare.prefix
+							+ " Altering player table to add groups column.");
 			query = "ALTER TABLE players ADD groups TEXT;";
-			plugin.getLiteDB().standardQuery(query);
-			//Add the GLOBAL group
-			plugin.getLogger().info(KarmicShare.prefix + " Adding global group to groups table.");
+			plugin.getDatabaseHandler().standardQuery(query);
+			// Add the GLOBAL group
+			plugin.getLogger().info(
+					KarmicShare.prefix
+							+ " Adding global group to groups table.");
 			query = "INSERT INTO groups (groupname) VALUES ('global');";
-			plugin.getLiteDB().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
+		}
+		if (ver < 0.2)
+		{
+			// Update tables to have prefix
+			plugin.getLogger().info(
+					KarmicShare.prefix
+							+ " Renaming items table to '" + tablePrefix +"items'.");
+			query = "ALTER TABLE items RENAME TO '" + tablePrefix + "items';";
+			plugin.getDatabaseHandler().standardQuery(query);
+			plugin.getLogger().info(
+					KarmicShare.prefix
+							+ " Renaming players table to '" + tablePrefix +"players'.");
+			query = "ALTER TABLE players RENAME TO '" + tablePrefix + "players';";
+			plugin.getDatabaseHandler().standardQuery(query);
+			plugin.getLogger().info(
+					KarmicShare.prefix
+							+ " Renaming groups table to '" + tablePrefix +"groups'.");
+			query = "ALTER TABLE players RENAME TO '" + tablePrefix + "groups';";
 		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
+		plugin.getLogger().info(KarmicShare.prefix + " Upgrade complete");
 	}
 
 	/**
@@ -294,8 +360,8 @@ public class Config {
 	}
 
 	/**
-	 * Check the bounds on the parameters to make sure that
-	 * all config variables are legal and usable by the plugin
+	 * Check the bounds on the parameters to make sure that all config variables
+	 * are legal and usable by the plugin
 	 */
 	private void boundsCheck() {
 		// Check upper and lower limits
@@ -308,7 +374,8 @@ public class Config {
 							KarmicShare.prefix
 									+ " Upper limit is smaller than lower limit. Reverting to defaults.");
 		}
-		//Check that we don't go beyond what the database can handle, via smallint
+		// Check that we don't go beyond what the database can handle, via
+		// smallint
 		else if (Math.abs(upper) >= 30000 || Math.abs(lower) >= 30000)
 		{
 			upper = 200;
@@ -368,9 +435,9 @@ public class Config {
 	}
 
 	/**
-	 * Loads the karma file. Contains default values
-	 * If the karma file isn't there, or if its empty,
-	 * then load defaults.
+	 * Loads the karma file. Contains default values If the karma file isn't
+	 * there, or if its empty, then load defaults.
+	 *
 	 * @return YamlConfiguration file
 	 */
 	private YamlConfiguration karmaFile() {
@@ -438,15 +505,14 @@ public class Config {
 		return karmaFile;
 	}
 
-	static class ZeroPointFourteenItemObject
-	{
+	static class ZeroPointFourteenItemObject {
 		public int itemid, amount;
 		public byte data;
 		public short durability;
 		public String enchantments;
 
-		public ZeroPointFourteenItemObject(int id, int quantity, byte dv, short dur, String en)
-		{
+		public ZeroPointFourteenItemObject(int id, int quantity, byte dv,
+				short dur, String en) {
 			itemid = id;
 			amount = quantity;
 			data = dv;

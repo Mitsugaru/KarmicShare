@@ -411,7 +411,7 @@ public class Commander implements CommandExecutor {
 						if (!groupExists(sender, group))
 						{
 							// Create group
-							ks.getLiteDB().standardQuery(
+							ks.getDatabaseHandler().standardQuery(
 									"INSERT INTO groups (groupname) VALUES ('"
 											+ group + "');");
 							sender.sendMessage(ChatColor.GREEN + prefix
@@ -725,7 +725,7 @@ public class Commander implements CommandExecutor {
 			// Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = ks.getLiteDB().select(
+			ResultSet rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM players WHERE playername='" + name + "';");
 			if (rs.next())
 			{
@@ -747,7 +747,7 @@ public class Commander implements CommandExecutor {
 			}
 			rs.close();
 			// Update their groups
-			ks.getLiteDB().standardQuery(
+			ks.getDatabaseHandler().standardQuery(
 					"UPDATE players SET groups='" + groups
 							+ "' WHERE playername='" + name + "';");
 		}
@@ -766,7 +766,7 @@ public class Commander implements CommandExecutor {
 		try
 		{
 			String groups = "";
-			ResultSet rs = ks.getLiteDB().select(
+			ResultSet rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM players WHERE playername='" + name + "';");
 			if (rs.next())
 			{
@@ -798,7 +798,7 @@ public class Commander implements CommandExecutor {
 			}
 			rs.close();
 			// Update their groups
-			ks.getLiteDB().standardQuery(
+			ks.getDatabaseHandler().standardQuery(
 					"UPDATE players SET groups='" + groups
 							+ "' WHERE playername='" + name + "';");
 		}
@@ -818,7 +818,7 @@ public class Commander implements CommandExecutor {
 			// Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = ks.getLiteDB().select(
+			ResultSet rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM players WHERE playername='" + name + "';");
 			if (rs.next())
 			{
@@ -834,7 +834,7 @@ public class Commander implements CommandExecutor {
 			}
 			rs.close();
 			// Update their groups
-			ks.getLiteDB().standardQuery(
+			ks.getDatabaseHandler().standardQuery(
 					"UPDATE players SET groups='" + groups
 							+ "' WHERE playername='" + name + "';");
 		}
@@ -855,7 +855,7 @@ public class Commander implements CommandExecutor {
 			// Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = ks.getLiteDB().select(
+			ResultSet rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM players WHERE playername='" + name + "';");
 			if (rs.next())
 			{
@@ -916,7 +916,7 @@ public class Commander implements CommandExecutor {
 					// SQL query to get player count for specified name
 					String query = "SELECT COUNT(*) FROM players WHERE playername='"
 							+ name + "'";
-					ResultSet rs = ks.getLiteDB().select(query);
+					ResultSet rs = ks.getDatabaseHandler().select(query);
 					// Check ResultSet
 					boolean has = false;
 					try
@@ -969,7 +969,7 @@ public class Commander implements CommandExecutor {
 						{
 							query = "SELECT * FROM players WHERE playername='"
 									+ name + "';";
-							rs = ks.getLiteDB().select(query);
+							rs = ks.getDatabaseHandler().select(query);
 							if (rs.next())
 							{
 								do
@@ -1266,7 +1266,7 @@ public class Commander implements CommandExecutor {
 							// Grab all entries of the same tool id
 							String toolQuery = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND groups='global';";
-							ResultSet toolRS = ks.getLiteDB().select(toolQuery);
+							ResultSet toolRS = ks.getDatabaseHandler().select(toolQuery);
 							try
 							{
 								if (toolRS.next())
@@ -1319,7 +1319,7 @@ public class Commander implements CommandExecutor {
 							query = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND durability='" + dur
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 
 							// Check ResultSet
 							try
@@ -1377,7 +1377,7 @@ public class Commander implements CommandExecutor {
 							query = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND data='" + data
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 
 							// Check ResultSet
 							try
@@ -1679,7 +1679,7 @@ public class Commander implements CommandExecutor {
 									// Grab all entries of the same tool id
 									String toolQuery = "SELECT * FROM items WHERE itemid='"
 											+ itemid + "' AND groups='global';";
-									ResultSet toolRS = ks.getLiteDB().select(
+									ResultSet toolRS = ks.getDatabaseHandler().select(
 											toolQuery);
 									try
 									{
@@ -1787,7 +1787,7 @@ public class Commander implements CommandExecutor {
 										// Add back extra
 										if (extra)
 										{
-											ks.getLiteDB().standardQuery(
+											ks.getDatabaseHandler().standardQuery(
 													residualToolQuery);
 											player.sendMessage(ChatColor.YELLOW
 													+ prefix
@@ -1796,7 +1796,7 @@ public class Commander implements CommandExecutor {
 										// Drop entries
 										for (String s : dropList)
 										{
-											ks.getLiteDB().standardQuery(s);
+											ks.getDatabaseHandler().standardQuery(s);
 										}
 									}
 									catch (SQLException e)
@@ -1892,7 +1892,7 @@ public class Commander implements CommandExecutor {
 												+ "' AND durability='"
 												+ dur
 												+ "' AND groups='global';";
-										ks.getLiteDB().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(query);
 										// Remove from cache list
 										cache.remove(item);
 									}
@@ -1905,7 +1905,7 @@ public class Commander implements CommandExecutor {
 												+ itemid + "' AND durability='"
 												+ dur
 												+ "' AND groups='global';";
-										ks.getLiteDB().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(query);
 									}
 								}
 								else
@@ -1954,7 +1954,7 @@ public class Commander implements CommandExecutor {
 												+ "' AND data='"
 												+ data
 												+ "' AND groups='global';";
-										ks.getLiteDB().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(query);
 										// Remove from cache list
 										cache.remove(item);
 									}
@@ -1967,7 +1967,7 @@ public class Commander implements CommandExecutor {
 												+ itemid + "' AND data='"
 												+ data
 												+ "' AND groups='global';";
-										ks.getLiteDB().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(query);
 									}
 								}
 								player.sendMessage(ChatColor.GREEN + prefix
@@ -2110,7 +2110,7 @@ public class Commander implements CommandExecutor {
 							query = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND data='" + data
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 
 							// Send Item to database
 							try
@@ -2164,7 +2164,7 @@ public class Commander implements CommandExecutor {
 							query = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND durability='"
 									+ durability + "' AND groups='global';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 
 							// Send Item to database
 							try
@@ -2211,7 +2211,7 @@ public class Commander implements CommandExecutor {
 						}
 						try
 						{
-							ks.getLiteDB().standardQuery(query);
+							ks.getDatabaseHandler().standardQuery(query);
 							player.sendMessage(ChatColor.GREEN + prefix
 									+ " Added " + ChatColor.GOLD + quantity
 									+ ChatColor.GREEN + " of " + ChatColor.AQUA
@@ -2643,7 +2643,7 @@ public class Commander implements CommandExecutor {
 							String query = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND durability='" + dur
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 							// Send Item to database
 							try
 							{
@@ -2675,7 +2675,7 @@ public class Commander implements CommandExecutor {
 											+ data + "," + dur + ",'global');";
 								}
 								rs.close();
-								ks.getLiteDB().standardQuery(query);
+								ks.getDatabaseHandler().standardQuery(query);
 								sender.sendMessage(ChatColor.GREEN + prefix
 										+ " Added " + ChatColor.GOLD + amount
 										+ ChatColor.GREEN + " of "
@@ -2697,7 +2697,7 @@ public class Commander implements CommandExecutor {
 							String query = "SELECT * FROM items WHERE itemid='"
 									+ itemid + "' AND data='" + data
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 							// Send Item to database
 							try
 							{
@@ -2729,7 +2729,7 @@ public class Commander implements CommandExecutor {
 											+ data + "," + dur + ",'global');";
 								}
 								rs.close();
-								ks.getLiteDB().standardQuery(query);
+								ks.getDatabaseHandler().standardQuery(query);
 								sender.sendMessage(ChatColor.GREEN + prefix
 										+ " Added " + ChatColor.GOLD + amount
 										+ ChatColor.GREEN + " of "
@@ -2765,13 +2765,31 @@ public class Commander implements CommandExecutor {
 		{
 			if (perm.checkPermission(sender, "KarmicShare.admin.drain"))
 			{
+				String group = "global";
+				// Check if group name was given
+				if (args.length > 2)
+				{
+					if(groupExists(sender, args[2]))
+					{
+						group = args[2];
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED
+								+ prefix + " Group "
+								+ ChatColor.GRAY + group
+								+ ChatColor.RED
+								+ " does not exist");
+						return true;
+					}
+				}
 				if (sender instanceof Player)
 				{
 					int id = ks
 							.getServer()
 							.getScheduler()
 							.scheduleAsyncDelayedTask(ks,
-									new ConfirmDrain((Player) sender));
+									new ConfirmDrain((Player) sender, group));
 					if (id == -1)
 					{
 						sender.sendMessage(ChatColor.YELLOW
@@ -2783,9 +2801,9 @@ public class Commander implements CommandExecutor {
 				{
 					// Sent from console
 					// Wipe table
-					final String query = "DELETE FROM items";
-					ks.getLiteDB().standardQuery(query);
-					ks.getLogger().info(prefix + "Items table cleared");
+					final String query = "DELETE FROM items WHERE groups='" + group + "';";
+					ks.getDatabaseHandler().standardQuery(query);
+					ks.getLogger().info(prefix + "Items for group '" + group +"' cleared");
 					sender.sendMessage(ChatColor.GREEN + prefix
 							+ " Item pool emptied.");
 					cache.clear();
@@ -2834,7 +2852,7 @@ public class Commander implements CommandExecutor {
 						// SQL query to get player count for specified name
 						String query = "SELECT COUNT(*) FROM players WHERE playername='"
 								+ name + "';";
-						ResultSet rs = ks.getLiteDB().select(query);
+						ResultSet rs = ks.getDatabaseHandler().select(query);
 						// Check ResultSet
 						boolean has = false;
 						try
@@ -2992,7 +3010,7 @@ public class Commander implements CommandExecutor {
 							// SQL query to get player count for specified name
 							String query = "SELECT COUNT(*) FROM players WHERE playername='"
 									+ name + "';";
-							ResultSet rs = ks.getLiteDB().select(query);
+							ResultSet rs = ks.getDatabaseHandler().select(query);
 							// Check ResultSet
 							boolean has = false;
 							try
@@ -3194,7 +3212,7 @@ public class Commander implements CommandExecutor {
 							if (!groupExists(sender, group))
 							{
 								// Create group
-								ks.getLiteDB().standardQuery(
+								ks.getDatabaseHandler().standardQuery(
 										"INSERT INTO groups (groupname) VALUES ('"
 												+ group + "');");
 								sender.sendMessage(ChatColor.GREEN + prefix
@@ -3444,7 +3462,7 @@ public class Commander implements CommandExecutor {
 	 */
 	private void updateCache(CommandSender sender) {
 		// Get list of items from database
-		ResultSet itemlist = ks.getLiteDB().select(
+		ResultSet itemlist = ks.getDatabaseHandler().select(
 				"SELECT * FROM items WHERE groups='global';");
 		try
 		{
@@ -3615,7 +3633,7 @@ public class Commander implements CommandExecutor {
 	@SuppressWarnings ("unchecked")
 	private void listPool(CommandSender sender, int pageAdjust) {
 		// Get list of items from database
-		ResultSet itemlist = ks.getLiteDB().select(
+		ResultSet itemlist = ks.getDatabaseHandler().select(
 				"SELECT * FROM items WHERE groups='global';");
 		try
 		{
@@ -3818,7 +3836,7 @@ public class Commander implements CommandExecutor {
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
 		String query = "SELECT * FROM players WHERE playername='" + name + "';";
-		ResultSet rs = ks.getLiteDB().select(query);
+		ResultSet rs = ks.getDatabaseHandler().select(query);
 		int karma = config.playerKarmaDefault;
 		boolean has = false;
 		// Retrieve karma from database
@@ -3840,7 +3858,7 @@ public class Commander implements CommandExecutor {
 				// Player not in database, therefore add them
 				query = "INSERT INTO players (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
-				ks.getLiteDB().standardQuery(query);
+				ks.getDatabaseHandler().standardQuery(query);
 			}
 		}
 		catch (SQLException e)
@@ -3888,7 +3906,7 @@ public class Commander implements CommandExecutor {
 				query = "UPDATE players SET karma='" + karma
 						+ "' WHERE playername='" + name + "';";
 			}
-			ks.getLiteDB().standardQuery(query);
+			ks.getDatabaseHandler().standardQuery(query);
 		}
 		catch (SQLException e)
 		{
@@ -3940,7 +3958,7 @@ public class Commander implements CommandExecutor {
 		boolean valid = false;
 		try
 		{
-			ResultSet rs = ks.getLiteDB().select(
+			ResultSet rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM groups WHERE groupname='" + group + "';");
 			if (rs.next())
 			{
@@ -3965,7 +3983,7 @@ public class Commander implements CommandExecutor {
 			if (hasGroups(name))
 			{
 				String groups = "";
-				ResultSet rs = ks.getLiteDB().select(
+				ResultSet rs = ks.getDatabaseHandler().select(
 						"SELECT * FROM players WHERE playername='" + name + "';");
 				if (rs.next())
 				{
@@ -4053,7 +4071,7 @@ public class Commander implements CommandExecutor {
 	{
 		boolean hasGroups = false;
 		String groups = "";
-		ResultSet rs = ks.getLiteDB().select(
+		ResultSet rs = ks.getDatabaseHandler().select(
 				"SELECT * FROM players WHERE playername='" + playerName + "';");
 		if (rs.next())
 		{
@@ -4076,9 +4094,11 @@ public class Commander implements CommandExecutor {
 
 	class ConfirmDrain implements Runnable {
 		private Player player;
+		private String group;
 
-		public ConfirmDrain(Player p) {
+		public ConfirmDrain(Player p, String g) {
 			player = p;
+			group = g;
 		}
 
 		public void run() {
@@ -4089,8 +4109,8 @@ public class Commander implements CommandExecutor {
 			if (answer.equals("yes"))
 			{
 				// Wipe table
-				final String query = "DELETE FROM items WHERE groups='global'";
-				ks.getLiteDB().standardQuery(query);
+				final String query = "DELETE FROM items WHERE groups='"+group+"';";
+				ks.getDatabaseHandler().standardQuery(query);
 				ks.getLogger().info(prefix + " Global items table cleared");
 				player.sendMessage(ChatColor.GREEN + prefix
 						+ " Item pool emptied.");
@@ -4207,7 +4227,7 @@ public class Commander implements CommandExecutor {
 		public void run() {
 			try
 			{
-				ResultSet rs = ks.getLiteDB().select("SELECT * FROM players");
+				ResultSet rs = ks.getDatabaseHandler().select("SELECT * FROM players");
 				if (rs.next())
 				{
 					do
@@ -4267,7 +4287,7 @@ public class Commander implements CommandExecutor {
 				rs.close();
 				for (Map.Entry<String, String> entry : queries.entrySet())
 				{
-					ks.getLiteDB().standardQuery(
+					ks.getDatabaseHandler().standardQuery(
 							"UPDATE players SET groups='" + entry.getValue()
 									+ "' WHERE playername='" + entry.getKey()
 									+ "';");

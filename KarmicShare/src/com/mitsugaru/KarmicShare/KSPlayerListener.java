@@ -541,7 +541,7 @@ public class KSPlayerListener extends PlayerListener {
 	{
 		//Calculate number of slots
 		int slots = 0;
-		ResultSet all = plugin.getLiteDB().select("SELECT * FROM items WHERE groups='" + group + "';");
+		ResultSet all = plugin.getDatabaseHandler().select("SELECT * FROM items WHERE groups='" + group + "';");
 		try
 		{
 			if(all.next())
@@ -623,7 +623,7 @@ public class KSPlayerListener extends PlayerListener {
 	private int grabNextPage(int current, int limit, String group) {
 		int page = 1;
 		// Grab total items
-		ResultSet count = plugin.getLiteDB().select(
+		ResultSet count = plugin.getDatabaseHandler().select(
 				"SELECT COUNT(*) FROM items WHERE groups='" + group + "';");
 		try
 		{
@@ -680,7 +680,7 @@ public class KSPlayerListener extends PlayerListener {
 				limit = 54;
 			}
 			int start = (page - 1) * limit;
-			ResultSet itemList = plugin.getLiteDB().select(
+			ResultSet itemList = plugin.getDatabaseHandler().select(
 					"SELECT * FROM items WHERE groups='" + group + "';");
 			if (itemList.next())
 			{
@@ -802,7 +802,7 @@ public class KSPlayerListener extends PlayerListener {
 				limit = 54;
 			}
 			int start = (page - 1) * limit;
-			ResultSet itemList = plugin.getLiteDB().select(
+			ResultSet itemList = plugin.getDatabaseHandler().select(
 					"SELECT * FROM items WHERE groups='" + group + "';");
 			if (itemList.next())
 			{
@@ -882,7 +882,7 @@ public class KSPlayerListener extends PlayerListener {
 			//Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = plugin.getLiteDB().select("SELECT * FROM players WHERE playername='" + name + "';");
+			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM players WHERE playername='" + name + "';");
 			if(rs.next())
 			{
 				groups = rs.getString("groups");
@@ -931,7 +931,7 @@ public class KSPlayerListener extends PlayerListener {
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
 		String query = "SELECT * FROM players WHERE playername='" + name + "';";
-		ResultSet rs = plugin.getLiteDB().select(query);
+		ResultSet rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
 		// Retrieve karma from database
@@ -953,7 +953,7 @@ public class KSPlayerListener extends PlayerListener {
 				// Player not in database, therefore add them
 				query = "INSERT INTO players (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
-				plugin.getLiteDB().standardQuery(query);
+				plugin.getDatabaseHandler().standardQuery(query);
 			}
 		}
 		catch (SQLException e)
