@@ -46,7 +46,7 @@ public class DBHandler {
 						+ "items` (`id` INT UNSIGNED NOT NULL, `itemid` SMALLINT UNSIGNED, `amount` INT NOT NULL, `data` TINYTEXT, `durability` TINYTEXT, `enchantments` TEXT, `groups` TINYTEXT NOT NULL, PRIMARY KEY (id));");
 			}
 			// Check if player table exists
-			if (!mysql.checkTable("players"))
+			if (!mysql.checkTable(config.tablePrefix + "players"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created players table");
@@ -55,11 +55,11 @@ public class DBHandler {
 						+ "players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
 			}
 			// Check if group table exists
-			if (!mysql.checkTable("groups"))
+			if (!mysql.checkTable(config.tablePrefix + "groups"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
-				mysql.createTable("CREATE TABLE `groups` (`groupname` TINYTEXT NOT NULL, UNIQUE (`groupname`));");
+				mysql.createTable("CREATE TABLE `"+ config.tablePrefix + "groups` (`groupname` TINYTEXT NOT NULL, UNIQUE (`groupname`));");
 			}
 		}
 		else
@@ -68,25 +68,25 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Check if item table exists
-			if (!sqlite.checkTable("items"))
+			if (!sqlite.checkTable(config.tablePrefix + "items"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created item table");
-				sqlite.createTable("CREATE TABLE `items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT NOT NULL,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT NOT NULL);");
+				sqlite.createTable("CREATE TABLE `"+ config.tablePrefix + "items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT NOT NULL,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT NOT NULL);");
 			}
 			// Check if player table exists
-			if (!sqlite.checkTable("players"))
+			if (!sqlite.checkTable(config.tablePrefix + "players"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created player table");
-				sqlite.createTable("CREATE TABLE `players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
+				sqlite.createTable("CREATE TABLE `"+ config.tablePrefix + "players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
 			}
 			// Check if grups table exists
-			if (!sqlite.checkTable("groups"))
+			if (!sqlite.checkTable(config.tablePrefix + "groups"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
-				sqlite.createTable("CREATE TABLE `groups` (`groupname` TEXT NOT NULL, UNIQUE (`groupname`));");
+				sqlite.createTable("CREATE TABLE `"+ config.tablePrefix + "groups` (`groupname` TEXT NOT NULL, UNIQUE (`groupname`));");
 			}
 		}
 	}
