@@ -1133,6 +1133,10 @@ public class Karma {
 
 	public boolean validGroup(CommandSender sender, String group)
 	{
+		if(group.equals("global"))
+		{
+			return true;
+		}
 		boolean valid = false;
 		try
 		{

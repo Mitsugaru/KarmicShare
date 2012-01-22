@@ -1254,7 +1254,7 @@ public class Commander implements CommandExecutor {
 						if (finalAmount > 0)
 						{
 							player.sendMessage(ChatColor.GREEN + prefix
-									+ " Given " + ChatColor.GOLD + amount
+									+ " Given " + ChatColor.GOLD + finalAmount
 									+ ChatColor.GREEN + " of " + ChatColor.AQUA
 									+ temp.name);
 						}
@@ -1803,11 +1803,8 @@ public class Commander implements CommandExecutor {
 				// Check if group name was given
 				if (args.length > 2)
 				{
-					if (karma.validGroup(sender, args[2]))
-					{
-						group = args[2];
-					}
-					else
+					group = args[2];
+					if (!karma.validGroup(sender, args[2]))
 					{
 						sender.sendMessage(ChatColor.RED + prefix + " Group "
 								+ ChatColor.GRAY + group + ChatColor.RED
@@ -1838,8 +1835,6 @@ public class Commander implements CommandExecutor {
 					ks.getDatabaseHandler().standardQuery(query);
 					ks.getLogger().info(
 							prefix + "Items for group '" + group + "' cleared");
-					sender.sendMessage(ChatColor.GREEN + prefix
-							+ " Item pool emptied.");
 					cache.clear();
 				}
 				return true;
@@ -2977,7 +2972,7 @@ public class Commander implements CommandExecutor {
 		public void run() {
 			String answer = ks.ask(player, ChatColor.YELLOW + prefix
 					+ ChatColor.DARK_AQUA
-					+ " Delete ALL items in global pool? No recovery...",
+					+ " Delete ALL items in "+ChatColor.GOLD + group + ChatColor.DARK_AQUA +" pool? No recovery...",
 					ChatColor.GREEN + "yes", ChatColor.RED + "no");
 			if (answer.equals("yes"))
 			{
@@ -2985,9 +2980,9 @@ public class Commander implements CommandExecutor {
 				final String query = "DELETE FROM " + config.tablePrefix
 						+ "items WHERE groups='" + group + "';";
 				ks.getDatabaseHandler().standardQuery(query);
-				ks.getLogger().info(prefix + " Global items table cleared");
+				ks.getLogger().info(prefix + " " +group + " items table cleared");
 				player.sendMessage(ChatColor.GREEN + prefix
-						+ " Item pool emptied.");
+						+ " " + ChatColor.GOLD + group + ChatColor.GREEN + " item pool emptied.");
 				cache.clear();
 			}
 			else
