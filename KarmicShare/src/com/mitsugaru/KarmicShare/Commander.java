@@ -3061,7 +3061,7 @@ public class Commander implements CommandExecutor {
 					+ "yes", ChatColor.RED + "no");
 			if (answer.equals("yes"))
 			{
-				sender.sendMessage("This could take a while...");
+				sender.sendMessage(ChatColor.YELLOW + prefix + " This could take a while...");
 				int i = ks
 						.getServer()
 						.getScheduler()
@@ -3072,6 +3072,8 @@ public class Commander implements CommandExecutor {
 					sender.sendMessage(ChatColor.YELLOW + prefix
 							+ " Could not schedule task");
 				}
+				ks.getDatabaseHandler().standardQuery("DELETE FROM " + config.tablePrefix+ "items WHERE groups='" + group + "';");
+				sender.sendMessage(ChatColor.YELLOW + prefix + "Removed all items of group: " + ChatColor.GOLD + group);
 			}
 			else
 			{
