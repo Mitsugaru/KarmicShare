@@ -10,7 +10,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -22,11 +21,13 @@ import com.splatbang.betterchest.BetterChest;
 
 public class KSPlayerListener extends PlayerListener {
 	private KarmicShare plugin;
+	private Karma karma;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
 
 	public KSPlayerListener(KarmicShare karmicShare) {
 		plugin = karmicShare;
+		karma = plugin.getKarma();
 	}
 
 	@Override
@@ -48,7 +49,7 @@ public class KSPlayerListener extends PlayerListener {
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), "KarmicShare.chest"))
 						{
-							if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
+							if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
 									group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 							{
 								BetterChest chest = new BetterChest(
@@ -130,7 +131,7 @@ public class KSPlayerListener extends PlayerListener {
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.chest"))
 									{
-										if (playerHasGroup(event.getPlayer(), event.getPlayer()
+										if (karma.playerHasGroup(event.getPlayer(), event.getPlayer()
 												.getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 										{
 											// populate chests
@@ -203,7 +204,7 @@ public class KSPlayerListener extends PlayerListener {
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), "KarmicShare.chest"))
 					{
-						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+						if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -291,7 +292,7 @@ public class KSPlayerListener extends PlayerListener {
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), "KarmicShare.chest"))
 						{
-							if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
+							if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
 									group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 							{
 								BetterChest chest = new BetterChest(
@@ -380,7 +381,7 @@ public class KSPlayerListener extends PlayerListener {
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.chest"))
 									{
-										if (playerHasGroup(event.getPlayer(), event.getPlayer()
+										if (karma.playerHasGroup(event.getPlayer(), event.getPlayer()
 												.getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 										{
 											BetterChest chest = new BetterChest(
@@ -464,7 +465,7 @@ public class KSPlayerListener extends PlayerListener {
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), "KarmicShare.chest"))
 					{
-						if (playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+						if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -741,104 +742,5 @@ public class KSPlayerListener extends PlayerListener {
 					ChatColor.RED + KarmicShare.prefix + "SQL error.");
 			e.printStackTrace();
 		}
-	}
-
-	private boolean playerHasGroup(CommandSender sender, String name, String group)
-	{
-		if(group.equals("global"))
-		{
-			return true;
-		}
-		boolean has = false;
-		try
-		{
-			//Insures that the player is added to the database
-			getPlayerKarma(name);
-			String groups = "";
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players WHERE playername='" + name + "';");
-			if(rs.next())
-			{
-				groups = rs.getString("groups");
-				if(!rs.wasNull())
-				{
-					if(groups.contains("&"))
-					{
-						//they have multiple groups
-						for(String s : groups.split("&"))
-						{
-							if(s.equals(group))
-							{
-								has = true;
-							}
-						}
-					}
-					else
-					{
-						//they only have one group
-						if(groups.equals(group))
-						{
-							has = true;
-						}
-					}
-				}
-			}
-			rs.close();
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return has;
-	}
-
-	/**
-	 * Retrieves karma value of a player from the database. Forces player to be
-	 * added to database if they don't exist
-	 *
-	 * @param Player
-	 *            name
-	 * @return karma value associated with name
-	 */
-	private int getPlayerKarma(String name) throws SQLException {
-		String query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players WHERE playername='" + name + "';";
-		ResultSet rs = plugin.getDatabaseHandler().select(query);
-		int karma = plugin.getPluginConfig().playerKarmaDefault;
-		boolean has = false;
-		// Retrieve karma from database
-		try
-		{
-			if (rs.next())
-			{
-				do
-				{
-					// Grab player karma value
-					karma = rs.getInt("karma");
-					has = true;
-				}
-				while (rs.next());
-			}
-			rs.close();
-			if (!has)
-			{
-				// Player not in database, therefore add them
-				query = "INSERT INTO "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players (playername,karma) VALUES ('"
-						+ name + "','" + karma + "');";
-				plugin.getDatabaseHandler().standardQuery(query);
-			}
-		}
-		catch (SQLException e)
-		{
-			throw e;
-		}
-		return karma;
 	}
 }

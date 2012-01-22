@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -1152,5 +1153,58 @@ public class Karma {
 			e.printStackTrace();
 		}
 		return valid;
+	}
+
+	public boolean playerHasGroup(CommandSender sender, String name, String group)
+	{
+		if(group.equals("global"))
+		{
+			return true;
+		}
+		boolean has = false;
+		try
+		{
+			//Insures that the player is added to the database
+			getPlayerKarma(name);
+			String groups = "";
+			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players WHERE playername='" + name + "';");
+			if(rs.next())
+			{
+				groups = rs.getString("groups");
+				if(!rs.wasNull())
+				{
+					if(groups.contains("&"))
+					{
+						//they have multiple groups
+						for(String s : groups.split("&"))
+						{
+							if(s.equals(group))
+							{
+								has = true;
+							}
+						}
+					}
+					else
+					{
+						//they only have one group
+						if(groups.equals(group))
+						{
+							has = true;
+						}
+					}
+				}
+			}
+			rs.close();
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+		return has;
 	}
 }
