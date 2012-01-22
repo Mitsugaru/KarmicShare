@@ -1540,9 +1540,9 @@ public class KSInventoryListener extends InventoryListener {
 					}
 					else
 					{
-						query = "SELECT * FROM '"
+						query = "SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "items' WHERE itemid='"
+						+ "items WHERE itemid='"
 								+ item.getTypeId() + "' AND data='"
 								+ item.getData().getData() + "' AND groups='"
 								+ group + "';";
@@ -1554,18 +1554,18 @@ public class KSInventoryListener extends InventoryListener {
 								if ((rs.getInt("amount") - amount) <= 0)
 								{
 									// Drop record as there are none left
-									query = "DELETE FROM '"
+									query = "DELETE FROM "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "items' WHERE itemid='"
+						+ "items WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
 											+ item.getData().getData()
 											+ "' AND groups='" + group + "';";
 								}
 								else
 								{
-									query = "UPDATE '"
+									query = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
-						+ "items' SET amount='"
+						+ "items SET amount='"
 											+ (rs.getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
