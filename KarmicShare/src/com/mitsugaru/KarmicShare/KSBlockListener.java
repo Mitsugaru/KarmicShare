@@ -384,7 +384,9 @@ public class KSBlockListener extends BlockListener {
 		boolean valid = false;
 		try
 		{
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM groups WHERE groupname='" + group + "';");
+			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "groups' WHERE groupname='" + group + "';");
 			if(rs.next())
 			{
 				valid = true;

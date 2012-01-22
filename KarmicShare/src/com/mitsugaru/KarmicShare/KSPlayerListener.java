@@ -541,7 +541,9 @@ public class KSPlayerListener extends PlayerListener {
 	{
 		//Calculate number of slots
 		int slots = 0;
-		ResultSet all = plugin.getDatabaseHandler().select("SELECT * FROM items WHERE groups='" + group + "';");
+		ResultSet all = plugin.getDatabaseHandler().select("SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE groups='" + group + "';");
 		try
 		{
 			if(all.next())
@@ -618,57 +620,6 @@ public class KSPlayerListener extends PlayerListener {
 		return page;
 	}
 
-	//OLD METHOD
-	/*
-	private int grabNextPage(int current, int limit, String group) {
-		int page = 1;
-		// Grab total items
-		ResultSet count = plugin.getDatabaseHandler().select(
-				"SELECT COUNT(*) FROM items WHERE groups='" + group + "';");
-		try
-		{
-			if (count.next())
-			{
-				int total = count.getInt(1);
-				if (!count.wasNull())
-				{
-					// Grab number of pages based off of what the chest can
-					// store
-					int num = total / limit;
-					double rem = (double) total % (double) limit;
-					if (rem != 0)
-					{
-						num++;
-					}
-					// increment current page
-					page = current + 1;
-					if (page <= 0)
-					{
-						// Was negative... return it to first page
-						page = 1;
-					}
-					else if (page > num)
-					{
-						// Going to page beyond the total items, cycle back to
-						// first
-						page = 1;
-					}
-					// Otherwise, its a valid page number, so send it off
-				}
-			}
-			// Close select
-			count.close();
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.prefix + "SQL error.");
-			e.printStackTrace();
-		}
-		return page;
-	}*/
-
 	private void populateChest(Inventory inventory, int page, boolean isDouble,
 			String group) {
 		try
@@ -681,7 +632,9 @@ public class KSPlayerListener extends PlayerListener {
 			}
 			int start = (page - 1) * limit;
 			ResultSet itemList = plugin.getDatabaseHandler().select(
-					"SELECT * FROM items WHERE groups='" + group + "';");
+					"SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE groups='" + group + "';");
 			if (itemList.next())
 			{
 				boolean done = false;
@@ -790,86 +743,6 @@ public class KSPlayerListener extends PlayerListener {
 		}
 	}
 
-	/*//OLD METHOD
-	private void populateChest(Inventory inventory, int page, boolean isDouble,
-			String group) {
-		try
-		{
-			int count = 0;
-			int limit = 27;
-			if (isDouble)
-			{
-				limit = 54;
-			}
-			int start = (page - 1) * limit;
-			ResultSet itemList = plugin.getDatabaseHandler().select(
-					"SELECT * FROM items WHERE groups='" + group + "';");
-			if (itemList.next())
-			{
-				boolean done = false;
-				do
-				{
-					if (count >= start)
-					{
-						// Generate item
-						int id = itemList.getInt("itemid");
-						byte data = itemList.getByte("data");
-						short dur = itemList.getShort("durability");
-						ItemStack item = new ItemStack(id, 1, dur, data);
-						Item meta = new Item(id, data, dur);
-						// If tool
-						if (meta.isTool())
-						{
-							// Check for enchantments
-							String enchantments = itemList
-									.getString("enchantments");
-							if (!itemList.wasNull())
-							{
-								String[] cut = enchantments.split("i");
-								for (int i = 0; i < cut.length; i++)
-								{
-									String[] cutter = cut[i].split("v");
-									EnchantmentWrapper e = new EnchantmentWrapper(
-											Integer.parseInt(cutter[0]));
-									item.addUnsafeEnchantment(
-											e.getEnchantment(),
-											Integer.parseInt(cutter[1]));
-								}
-							}
-						}
-						if (meta.isPotion())
-						{
-							// Remove data for full potion compatibility
-							item = new ItemStack(id, 1, dur);
-						}
-						HashMap<Integer, ItemStack> residual = inventory
-								.addItem(item);
-						if (!residual.isEmpty())
-						{
-							done = true;
-						}
-					}
-					count++;
-				}
-				while (itemList.next() && !done);
-			}
-			else
-			{
-				// No items to add.
-				inventory.clear();
-			}
-			// Close select
-			itemList.close();
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.prefix + "SQL error.");
-			e.printStackTrace();
-		}
-	}*/
-
 	private boolean playerHasGroup(CommandSender sender, String name, String group)
 	{
 		if(group.equals("global"))
@@ -882,7 +755,9 @@ public class KSPlayerListener extends PlayerListener {
 			//Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM players WHERE playername='" + name + "';");
+			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' WHERE playername='" + name + "';");
 			if(rs.next())
 			{
 				groups = rs.getString("groups");
@@ -930,7 +805,9 @@ public class KSPlayerListener extends PlayerListener {
 	 * @return karma value associated with name
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
-		String query = "SELECT * FROM players WHERE playername='" + name + "';";
+		String query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' WHERE playername='" + name + "';";
 		ResultSet rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
@@ -951,7 +828,9 @@ public class KSPlayerListener extends PlayerListener {
 			if (!has)
 			{
 				// Player not in database, therefore add them
-				query = "INSERT INTO players (playername,karma) VALUES ('"
+				query = "INSERT INTO '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}

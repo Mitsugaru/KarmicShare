@@ -377,38 +377,6 @@ public class KSInventoryListener extends InventoryListener {
 															.getAmount())
 													{
 														event.setResult(Event.Result.ALLOW);
-														/*
-														 * if (hasItem(
-														 * event.getPlayer(),
-														 * event.getItem(),
-														 * group)) { final
-														 * ItemStack temp =
-														 * event .getItem(); if
-														 * (
-														 * temp.getEnchantments(
-														 * ) .size() == 0) {
-														 * temp.setAmount(1);
-														 * final Repopulate task
-														 * = new Repopulate(
-														 * event.getInventory(),
-														 * temp,
-														 * event.getSlot()); int
-														 * id = plugin
-														 * .getServer()
-														 * .getScheduler()
-														 * .scheduleSyncDelayedTask
-														 * ( plugin, task, 5);
-														 * if (id == -1) {
-														 * event.getPlayer()
-														 * .sendMessage(
-														 * ChatColor.YELLOW +
-														 * KarmicShare.prefix +
-														 * "Could not repopulate slot."
-														 * ); } } } //Set stack
-														 * to 1
-														 * event.getCursor()
-														 * .setAmount(1);
-														 */
 													}
 													else if (amount < event
 															.getItem()
@@ -467,30 +435,6 @@ public class KSInventoryListener extends InventoryListener {
 													.getAmount())
 											{
 												event.setResult(Event.Result.ALLOW);
-												/*
-												 * if
-												 * (hasItem(event.getPlayer(),
-												 * event.getItem(), group)) {
-												 * final ItemStack temp = event
-												 * .getItem(); if
-												 * (temp.getEnchantments()
-												 * .size() == 0) {
-												 * temp.setAmount(1); final
-												 * Repopulate task = new
-												 * Repopulate(
-												 * event.getInventory(), temp,
-												 * event .getSlot()); int id =
-												 * plugin .getServer()
-												 * .getScheduler()
-												 * .scheduleSyncDelayedTask(
-												 * plugin, task, 5); if (id ==
-												 * -1) { event.getPlayer()
-												 * .sendMessage(
-												 * ChatColor.YELLOW +
-												 * KarmicShare.prefix +
-												 * "Could not repopulate slot."
-												 * ); } } }
-												 */
 											}
 											else if (amount < event.getItem()
 													.getAmount() && amount > 0)
@@ -836,38 +780,6 @@ public class KSInventoryListener extends InventoryListener {
 															.getAmount())
 													{
 														event.setResult(Event.Result.ALLOW);
-														/*
-														 * if (hasItem(
-														 * event.getPlayer(),
-														 * event.getItem(),
-														 * group)) { final
-														 * ItemStack temp =
-														 * event .getItem(); if
-														 * (
-														 * temp.getEnchantments(
-														 * ) .size() == 0) {
-														 * temp.setAmount(1);
-														 * final Repopulate task
-														 * = new Repopulate(
-														 * event.getInventory(),
-														 * temp,
-														 * event.getSlot()); int
-														 * id = plugin
-														 * .getServer()
-														 * .getScheduler()
-														 * .scheduleSyncDelayedTask
-														 * ( plugin, task, 5);
-														 * if (id == -1) {
-														 * event.getPlayer()
-														 * .sendMessage(
-														 * ChatColor.YELLOW +
-														 * KarmicShare.prefix +
-														 * "Could not repopulate slot."
-														 * ); } } } //Set stack
-														 * to 1
-														 * event.getCursor()
-														 * .setAmount(1);
-														 */
 													}
 													else if (amount < event
 															.getItem()
@@ -1068,7 +980,6 @@ public class KSInventoryListener extends InventoryListener {
 											}
 										}
 									}
-									// TODO handle right clicks with appropriate logic
 								}
 							}
 							catch (NullPointerException e)
@@ -1095,7 +1006,9 @@ public class KSInventoryListener extends InventoryListener {
 		{
 			// Handle tools
 			// Grab all entries of the same tool id
-			String toolQuery = "SELECT * FROM items WHERE itemid='"
+			String toolQuery = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 					+ item.getTypeId() + "' AND groups='" + group + "';";
 			ResultSet toolRS = plugin.getDatabaseHandler().select(toolQuery);
 			try
@@ -1134,7 +1047,9 @@ public class KSInventoryListener extends InventoryListener {
 		{
 			// Separate check to see if its a potion and handle it
 			// via the durability info
-			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+			query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='" + item.getTypeId()
 					+ "' AND durability='" + item.getDurability()
 					+ "' AND groups='" + group + "';";
 			ResultSet rs = plugin.getDatabaseHandler().select(query);
@@ -1173,7 +1088,9 @@ public class KSInventoryListener extends InventoryListener {
 		else
 		{
 			// Not a tool or potion
-			query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+			query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='" + item.getTypeId()
 					+ "' AND data='" + item.getData().getData()
 					+ "' AND groups='" + group + "';";
 			ResultSet rs = plugin.getDatabaseHandler().select(query);
@@ -1478,7 +1395,9 @@ public class KSInventoryListener extends InventoryListener {
 								}
 								// Remove trailing comma
 								sb.deleteCharAt(sb.length() - 1);
-								toolQuery = "SELECT * FROM items WHERE itemid='"
+								toolQuery = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
 										+ item.getData().getData()
@@ -1493,13 +1412,17 @@ public class KSInventoryListener extends InventoryListener {
 									if ((toolRS.getInt("amount") - amount) <= 0)
 									{
 										// DROP
-										toolQuery = "DELETE FROM items WHERE id='"
+										toolQuery = "DELETE FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE id='"
 												+ toolRS.getInt("id") + "';";
 									}
 									else
 									{
 										// UPDATE
-										toolQuery = "UPDATE items SET amount='"
+										toolQuery = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='"
 												+ (toolRS.getInt("amount") - amount)
 												+ "' WHERE id='"
 												+ toolRS.getInt("id") + "';";
@@ -1510,7 +1433,9 @@ public class KSInventoryListener extends InventoryListener {
 							else
 							{
 								// Non-enchanted tool
-								toolQuery = "SELECT * FROM items WHERE itemid='"
+								toolQuery = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
 										+ item.getData().getData()
@@ -1522,7 +1447,9 @@ public class KSInventoryListener extends InventoryListener {
 									if ((toolRS.getInt("amount") - amount) <= 0)
 									{
 										// DROP
-										toolQuery = "DELETE FROM items WHERE itemid='"
+										toolQuery = "DELETE FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND amount='"
 												+ amount
@@ -1535,7 +1462,9 @@ public class KSInventoryListener extends InventoryListener {
 									else
 									{
 										// UPDATE
-										toolQuery = "UPDATE items SET amount='"
+										toolQuery = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='"
 												+ (toolRS.getInt("amount") - amount)
 												+ "' WHERE itemid='"
 												+ item.getTypeId()
@@ -1561,7 +1490,9 @@ public class KSInventoryListener extends InventoryListener {
 					}
 					else if (temp.isPotion())
 					{
-						query = "SELECT * FROM items WHERE itemid='"
+						query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 								+ item.getTypeId() + "' AND durability='"
 								+ item.getDurability() + "' AND groups='"
 								+ group + "';";
@@ -1573,7 +1504,9 @@ public class KSInventoryListener extends InventoryListener {
 								if ((rs.getInt("amount") - amount) <= 0)
 								{
 									// Drop record as there are none left
-									query = "DELETE FROM items WHERE itemid='"
+									query = "DELETE FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 											+ item.getTypeId()
 											+ "' AND durability='"
 											+ item.getDurability()
@@ -1581,7 +1514,9 @@ public class KSInventoryListener extends InventoryListener {
 								}
 								else
 								{
-									query = "UPDATE items SET amount='"
+									query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='"
 											+ (rs.getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId()
@@ -1605,7 +1540,9 @@ public class KSInventoryListener extends InventoryListener {
 					}
 					else
 					{
-						query = "SELECT * FROM items WHERE itemid='"
+						query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 								+ item.getTypeId() + "' AND data='"
 								+ item.getData().getData() + "' AND groups='"
 								+ group + "';";
@@ -1617,14 +1554,18 @@ public class KSInventoryListener extends InventoryListener {
 								if ((rs.getInt("amount") - amount) <= 0)
 								{
 									// Drop record as there are none left
-									query = "DELETE FROM items WHERE itemid='"
+									query = "DELETE FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
 											+ item.getData().getData()
 											+ "' AND groups='" + group + "';";
 								}
 								else
 								{
-									query = "UPDATE items SET amount='"
+									query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='"
 											+ (rs.getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
@@ -1738,7 +1679,9 @@ public class KSInventoryListener extends InventoryListener {
 					// Remove trailing comma
 					sb.deleteCharAt(sb.length() - 1);
 					// Add new instance of item to database
-					query = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+					query = "INSERT INTO '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' (itemid,amount,data,durability,enchantments,groups) VALUES ('"
 							+ item.getTypeId()
 							+ "','"
 							+ item.getAmount()
@@ -1756,7 +1699,9 @@ public class KSInventoryListener extends InventoryListener {
 					// Normal tool
 					// Create SQL query to see if item is already in
 					// database
-					query = "SELECT * FROM items WHERE itemid='"
+					query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='"
 							+ item.getTypeId() + "' AND data='"
 							+ item.getData().getData() + "' AND groups='"
 							+ group + "';";
@@ -1774,7 +1719,9 @@ public class KSInventoryListener extends InventoryListener {
 								// if it exists
 								int total = item.getAmount()
 										+ rs.getInt("amount");
-								query = "UPDATE items SET amount='" + total
+								query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='" + total
 										+ "' WHERE itemid='" + item.getTypeId()
 										+ "' AND data='"
 										+ item.getData().getData()
@@ -1785,7 +1732,9 @@ public class KSInventoryListener extends InventoryListener {
 						else
 						{
 							// Item not in database, therefore add it
-							query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
+							query = "INSERT INTO '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' (itemid,amount,data,durability,groups) VALUES ('"
 									+ item.getTypeId()
 									+ "','"
 									+ item.getAmount()
@@ -1816,7 +1765,9 @@ public class KSInventoryListener extends InventoryListener {
 				// Potion item
 				// Create SQL query to see if item is already in
 				// database
-				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+				query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
 						+ "' AND groups='" + group + "';";
 				ResultSet rs = plugin.getDatabaseHandler().select(query);
@@ -1830,7 +1781,9 @@ public class KSInventoryListener extends InventoryListener {
 						// durability. Add amount that way
 						// if it exists
 						int total = item.getAmount() + rs.getInt("amount");
-						query = "UPDATE items SET amount='" + total
+						query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='" + total
 								+ "' WHERE itemid='" + item.getTypeId()
 								+ "' AND durability='" + item.getDurability()
 								+ "' AND groups='" + group + "';";
@@ -1838,7 +1791,9 @@ public class KSInventoryListener extends InventoryListener {
 					else
 					{
 						// Item not in database, therefore add it
-						query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
+						query = "INSERT INTO '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId()
 								+ "','"
 								+ item.getAmount()
@@ -1864,7 +1819,9 @@ public class KSInventoryListener extends InventoryListener {
 				// Normal item
 				// Create SQL query to see if item is already in
 				// database
-				query = "SELECT * FROM items WHERE itemid='" + item.getTypeId()
+				query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' WHERE itemid='" + item.getTypeId()
 						+ "' AND data='" + item.getData().getData()
 						+ "' AND groups='" + group + "';";
 				ResultSet rs = plugin.getDatabaseHandler().select(query);
@@ -1880,7 +1837,9 @@ public class KSInventoryListener extends InventoryListener {
 							// durability. Add amount that way
 							// if it exists
 							int total = item.getAmount() + rs.getInt("amount");
-							query = "UPDATE items SET amount='" + total
+							query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' SET amount='" + total
 									+ "' WHERE itemid='" + item.getTypeId()
 									+ "' AND data='" + item.getData().getData()
 									+ "' AND groups='" + group + "';";
@@ -1890,7 +1849,9 @@ public class KSInventoryListener extends InventoryListener {
 					else
 					{
 						// Item not in database, therefore add it
-						query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ('"
+						query = "INSERT INTO '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "items' (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId()
 								+ "','"
 								+ item.getAmount()
@@ -2030,21 +1991,27 @@ public class KSInventoryListener extends InventoryListener {
 			if (karma <= plugin.getPluginConfig().lower)
 			{
 				// Updated karma value is beyond lower limit, so set to min
-				query = "UPDATE players SET karma='"
+				query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' SET karma='"
 						+ plugin.getPluginConfig().lower
 						+ "' WHERE playername='" + name + "';";
 			}
 			else if (karma >= plugin.getPluginConfig().upper)
 			{
 				// Updated karma value is beyond upper limit, so set to max
-				query = "UPDATE players SET karma='"
+				query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' SET karma='"
 						+ plugin.getPluginConfig().upper
 						+ "' WHERE playername='" + name + "';";
 			}
 			else
 			{
 				// Updated karma value is within acceptable range
-				query = "UPDATE players SET karma='" + karma
+				query = "UPDATE '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' SET karma='" + karma
 						+ "' WHERE playername='" + name + "';";
 			}
 			plugin.getDatabaseHandler().standardQuery(query);
@@ -2064,7 +2031,9 @@ public class KSInventoryListener extends InventoryListener {
 	 * @return karma value associated with name
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
-		String query = "SELECT * FROM players WHERE playername='" + name + "';";
+		String query = "SELECT * FROM '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' WHERE playername='" + name + "';";
 		ResultSet rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
@@ -2085,7 +2054,9 @@ public class KSInventoryListener extends InventoryListener {
 			if (!has)
 			{
 				// Player not in database, therefore add them
-				query = "INSERT INTO players (playername,karma) VALUES ('"
+				query = "INSERT INTO '"
+						+ plugin.getPluginConfig().tablePrefix
+						+ "players' (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}

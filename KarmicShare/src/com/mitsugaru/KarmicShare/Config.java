@@ -47,7 +47,7 @@ public class Config {
 		// Hashmap of defaults
 		final Map<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put("version", ks.getDescription().getVersion());
-
+		defaults.put("mysql.use", false);
 		defaults.put("mysql.host", "localhost");
 		defaults.put("mysql.port", 3306);
 		defaults.put("mysql.database", "minecraft");
@@ -55,7 +55,6 @@ public class Config {
 		defaults.put("mysql.password", "pass");
 		defaults.put("mysql.tablePrefix", "ks_");
 		defaults.put("mysql.import", false);
-		defaults.put("useMySQL", false);
 		defaults.put("karma.upperlimit", 200);
 		defaults.put("karma.upperPercent", 0.85);
 		defaults.put("karma.lowerlimit", -200);
@@ -78,7 +77,7 @@ public class Config {
 		// Save config
 		ks.saveConfig();
 		// Load variables from config
-		useMySQL = config.getBoolean("useMySQL", false);
+		useMySQL = config.getBoolean("mysql.use", false);
 		host = config.getString("mysql.host", "localhost");
 		port = config.getString("mysql.port", "3306");
 		database = config.getString("mysql.database", "minecraft");

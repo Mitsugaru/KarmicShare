@@ -412,7 +412,8 @@ public class Commander implements CommandExecutor {
 						{
 							// Create group
 							ks.getDatabaseHandler().standardQuery(
-									"INSERT INTO groups (groupname) VALUES ('"
+									"INSERT INTO '" + config.tablePrefix
+											+ "groups' (groupname) VALUES ('"
 											+ group + "');");
 							sender.sendMessage(ChatColor.GREEN + prefix
 									+ " Group " + ChatColor.GRAY + group
@@ -726,7 +727,8 @@ public class Commander implements CommandExecutor {
 			getPlayerKarma(name);
 			String groups = "";
 			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM players WHERE playername='" + name + "';");
+					"SELECT * FROM '" + config.tablePrefix
+							+ "players' WHERE playername='" + name + "';");
 			if (rs.next())
 			{
 				groups = rs.getString("groups");
@@ -748,8 +750,8 @@ public class Commander implements CommandExecutor {
 			rs.close();
 			// Update their groups
 			ks.getDatabaseHandler().standardQuery(
-					"UPDATE players SET groups='" + groups
-							+ "' WHERE playername='" + name + "';");
+					"UPDATE '" + config.tablePrefix + "players' SET groups='"
+							+ groups + "' WHERE playername='" + name + "';");
 		}
 		catch (SQLException e)
 		{
@@ -767,7 +769,8 @@ public class Commander implements CommandExecutor {
 		{
 			String groups = "";
 			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM players WHERE playername='" + name + "';");
+					"SELECT * FROM '" + config.tablePrefix
+							+ "players' WHERE playername='" + name + "';");
 			if (rs.next())
 			{
 				groups = rs.getString("groups");
@@ -799,8 +802,8 @@ public class Commander implements CommandExecutor {
 			rs.close();
 			// Update their groups
 			ks.getDatabaseHandler().standardQuery(
-					"UPDATE players SET groups='" + groups
-							+ "' WHERE playername='" + name + "';");
+					"UPDATE '" + config.tablePrefix + "players' SET groups='"
+							+ groups + "' WHERE playername='" + name + "';");
 		}
 		catch (SQLException e)
 		{
@@ -819,7 +822,8 @@ public class Commander implements CommandExecutor {
 			getPlayerKarma(name);
 			String groups = "";
 			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM players WHERE playername='" + name + "';");
+					"SELECT * FROM '" + config.tablePrefix
+							+ "players' WHERE playername='" + name + "';");
 			if (rs.next())
 			{
 				groups = rs.getString("groups");
@@ -835,8 +839,8 @@ public class Commander implements CommandExecutor {
 			rs.close();
 			// Update their groups
 			ks.getDatabaseHandler().standardQuery(
-					"UPDATE players SET groups='" + groups
-							+ "' WHERE playername='" + name + "';");
+					"UPDATE '" + config.tablePrefix + "players' SET groups='"
+							+ groups + "' WHERE playername='" + name + "';");
 		}
 		catch (SQLException e)
 		{
@@ -856,7 +860,8 @@ public class Commander implements CommandExecutor {
 			getPlayerKarma(name);
 			String groups = "";
 			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM players WHERE playername='" + name + "';");
+					"SELECT * FROM '" + config.tablePrefix
+							+ "players' WHERE playername='" + name + "';");
 			if (rs.next())
 			{
 				groups = rs.getString("groups");
@@ -914,8 +919,9 @@ public class Commander implements CommandExecutor {
 						name = args[1];
 					}
 					// SQL query to get player count for specified name
-					String query = "SELECT COUNT(*) FROM players WHERE playername='"
-							+ name + "'";
+					String query = "SELECT COUNT(*) FROM '"
+							+ config.tablePrefix
+							+ "players' WHERE playername='" + name + "'";
 					ResultSet rs = ks.getDatabaseHandler().select(query);
 					// Check ResultSet
 					boolean has = false;
@@ -967,8 +973,9 @@ public class Commander implements CommandExecutor {
 						int karma = config.playerKarmaDefault;
 						try
 						{
-							query = "SELECT * FROM players WHERE playername='"
-									+ name + "';";
+							query = "SELECT * FROM '" + config.tablePrefix
+									+ "players' WHERE playername='" + name
+									+ "';";
 							rs = ks.getDatabaseHandler().select(query);
 							if (rs.next())
 							{
@@ -1264,9 +1271,12 @@ public class Commander implements CommandExecutor {
 							// Handle tools
 							toolCheck = true;
 							// Grab all entries of the same tool id
-							String toolQuery = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND groups='global';";
-							ResultSet toolRS = ks.getDatabaseHandler().select(toolQuery);
+							String toolQuery = "SELECT * FROM '"
+									+ config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND groups='global';";
+							ResultSet toolRS = ks.getDatabaseHandler().select(
+									toolQuery);
 							try
 							{
 								if (toolRS.next())
@@ -1316,10 +1326,12 @@ public class Commander implements CommandExecutor {
 							// Separate check to see if its a potion and handle
 							// it
 							// via the durability info
-							query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND durability='" + dur
+							query = "SELECT * FROM '" + config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND durability='" + dur
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 
 							// Check ResultSet
 							try
@@ -1374,10 +1386,12 @@ public class Commander implements CommandExecutor {
 						else
 						{
 							// Not a tool
-							query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND data='" + data
+							query = "SELECT * FROM '" + config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND data='" + data
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 
 							// Check ResultSet
 							try
@@ -1677,10 +1691,12 @@ public class Commander implements CommandExecutor {
 								if (toolCheck)
 								{
 									// Grab all entries of the same tool id
-									String toolQuery = "SELECT * FROM items WHERE itemid='"
-											+ itemid + "' AND groups='global';";
-									ResultSet toolRS = ks.getDatabaseHandler().select(
-											toolQuery);
+									String toolQuery = "SELECT * FROM '"
+											+ config.tablePrefix
+											+ "items' WHERE itemid='" + itemid
+											+ "' AND groups='global';";
+									ResultSet toolRS = ks.getDatabaseHandler()
+											.select(toolQuery);
 									try
 									{
 										int tempAmount = amount;
@@ -1731,7 +1747,9 @@ public class Commander implements CommandExecutor {
 													// Create appropriate query
 													if (en)
 													{
-														residualToolQuery = "UPDATE items SET amount='"
+														residualToolQuery = "UPDATE '"
+																+ config.tablePrefix
+																+ "items' SET amount='"
 																+ toolResidual
 																		.size()
 																+ "' WHERE id='"
@@ -1740,7 +1758,9 @@ public class Commander implements CommandExecutor {
 													}
 													else
 													{
-														residualToolQuery = "UPDATE items SET amount='"
+														residualToolQuery = "UPDATE '"
+																+ config.tablePrefix
+																+ "items' SET amount='"
 																+ toolResidual
 																		.size()
 																+ "' WHERE id='"
@@ -1756,18 +1776,11 @@ public class Commander implements CommandExecutor {
 													tempAmount -= toolRS
 															.getInt("amount");
 													// Add entry to drop list
-													if (en)
-													{
-														dropList.add("DELETE FROM items WHERE id='"
-																+ toolRS.getInt("id")
-																+ "';");
-													}
-													else
-													{
-														dropList.add("DELETE FROM items WHERE id='"
-																+ toolRS.getInt("id")
-																+ "';");
-													}
+													dropList.add("DELETE FROM '"
+															+ config.tablePrefix
+															+ "items' WHERE id='"
+															+ toolRS.getInt("id")
+															+ "';");
 												}
 												if (tempAmount == 0)
 												{
@@ -1787,8 +1800,9 @@ public class Commander implements CommandExecutor {
 										// Add back extra
 										if (extra)
 										{
-											ks.getDatabaseHandler().standardQuery(
-													residualToolQuery);
+											ks.getDatabaseHandler()
+													.standardQuery(
+															residualToolQuery);
 											player.sendMessage(ChatColor.YELLOW
 													+ prefix
 													+ " Your inventory is completely full...");
@@ -1796,7 +1810,8 @@ public class Commander implements CommandExecutor {
 										// Drop entries
 										for (String s : dropList)
 										{
-											ks.getDatabaseHandler().standardQuery(s);
+											ks.getDatabaseHandler()
+													.standardQuery(s);
 										}
 									}
 									catch (SQLException e)
@@ -1885,14 +1900,15 @@ public class Commander implements CommandExecutor {
 									if (total <= 0)
 									{
 										// Drop record as there are none left
-										query = "DELETE FROM items WHERE amount='"
-												+ amount
-												+ "' AND itemid='"
-												+ itemid
-												+ "' AND durability='"
+										query = "DELETE FROM '"
+												+ config.tablePrefix
+												+ "items' WHERE amount='"
+												+ amount + "' AND itemid='"
+												+ itemid + "' AND durability='"
 												+ dur
 												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(
+												query);
 										// Remove from cache list
 										cache.remove(item);
 									}
@@ -1900,12 +1916,13 @@ public class Commander implements CommandExecutor {
 									// are items remaining
 									else
 									{
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND durability='"
-												+ dur
+										query = "UPDATE '" + config.tablePrefix
+												+ "items' SET amount='" + total
+												+ "' WHERE itemid='" + itemid
+												+ "' AND durability='" + dur
 												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(
+												query);
 									}
 								}
 								else
@@ -1947,14 +1964,15 @@ public class Commander implements CommandExecutor {
 									if (total <= 0)
 									{
 										// Drop record as there are none left
-										query = "DELETE FROM items WHERE amount='"
-												+ amount
-												+ "' AND itemid='"
-												+ itemid
-												+ "' AND data='"
+										query = "DELETE FROM '"
+												+ config.tablePrefix
+												+ "items' WHERE amount='"
+												+ amount + "' AND itemid='"
+												+ itemid + "' AND data='"
 												+ data
 												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(
+												query);
 										// Remove from cache list
 										cache.remove(item);
 									}
@@ -1962,12 +1980,13 @@ public class Commander implements CommandExecutor {
 									// are items remaining
 									else
 									{
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND data='"
-												+ data
+										query = "UPDATE '" + config.tablePrefix
+												+ "items' SET amount='" + total
+												+ "' WHERE itemid='" + itemid
+												+ "' AND data='" + data
 												+ "' AND groups='global';";
-										ks.getDatabaseHandler().standardQuery(query);
+										ks.getDatabaseHandler().standardQuery(
+												query);
 									}
 								}
 								player.sendMessage(ChatColor.GREEN + prefix
@@ -2086,15 +2105,11 @@ public class Commander implements CommandExecutor {
 								// Remove trailing comma
 								sb.deleteCharAt(sb.length() - 1);
 								// Add new instance of item to database
-								query = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
-										+ itemid
-										+ "','"
-										+ quantity
-										+ "','"
-										+ data
-										+ "','"
-										+ durability
-										+ "','"
+								query = "INSERT INTO '"
+										+ config.tablePrefix
+										+ "items' (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+										+ itemid + "','" + quantity + "','"
+										+ data + "','" + durability + "','"
 										+ sb.toString() + "','global');";
 							}
 						}
@@ -2107,10 +2122,12 @@ public class Commander implements CommandExecutor {
 						{
 							// Create SQL query to see if item is already in
 							// database
-							query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND data='" + data
+							query = "SELECT * FROM '" + config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND data='" + data
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 
 							// Send Item to database
 							try
@@ -2124,10 +2141,10 @@ public class Commander implements CommandExecutor {
 										// if it exists
 										int total = quantity
 												+ rs.getInt("amount");
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND data='"
-												+ data
+										query = "UPDATE '" + config.tablePrefix
+												+ "items' SET amount='" + total
+												+ "' WHERE itemid='" + itemid
+												+ "' AND data='" + data
 												+ "' AND groups='global';";
 									}
 									while (rs.next());
@@ -2135,14 +2152,11 @@ public class Commander implements CommandExecutor {
 								else
 								{
 									// Item not in database, therefore add it
-									query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ("
-											+ itemid
-											+ ","
-											+ quantity
-											+ ","
-											+ data
-											+ ","
-											+ durability
+									query = "INSERT INTO '"
+											+ config.tablePrefix
+											+ "items' (itemid,amount,data,durability,groups) VALUES ("
+											+ itemid + "," + quantity + ","
+											+ data + "," + durability
 											+ ",'global');";
 								}
 								rs.close();
@@ -2161,10 +2175,12 @@ public class Commander implements CommandExecutor {
 							// Potion item
 							// Create SQL query to see if item is already in
 							// database
-							query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND durability='"
-									+ durability + "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							query = "SELECT * FROM '" + config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND durability='" + durability
+									+ "' AND groups='global';";
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 
 							// Send Item to database
 							try
@@ -2178,9 +2194,10 @@ public class Commander implements CommandExecutor {
 										// if it exists
 										int total = quantity
 												+ rs.getInt("amount");
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND durability='"
+										query = "UPDATE '" + config.tablePrefix
+												+ "items' SET amount='" + total
+												+ "' WHERE itemid='" + itemid
+												+ "' AND durability='"
 												+ durability
 												+ "' AND groups='global';";
 									}
@@ -2189,14 +2206,11 @@ public class Commander implements CommandExecutor {
 								else
 								{
 									// Item not in database, therefore add it
-									query = "INSERT INTO items (itemid,amount,data,durability,groups) VALUES ("
-											+ itemid
-											+ ","
-											+ quantity
-											+ ","
-											+ data
-											+ ","
-											+ durability
+									query = "INSERT INTO '"
+											+ config.tablePrefix
+											+ "items' (itemid,amount,data,durability,groups) VALUES ("
+											+ itemid + "," + quantity + ","
+											+ data + "," + durability
 											+ ",'global');";
 								}
 								rs.close();
@@ -2640,10 +2654,13 @@ public class Commander implements CommandExecutor {
 							data = 0;
 							// Create SQL query to see if item is already in
 							// database
-							String query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND durability='" + dur
+							String query = "SELECT * FROM '"
+									+ config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND durability='" + dur
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 							// Send Item to database
 							try
 							{
@@ -2655,10 +2672,10 @@ public class Commander implements CommandExecutor {
 									{
 										int total = amount
 												+ rs.getInt("amount");
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND durability='"
-												+ dur
+										query = "UPDATE '" + config.tablePrefix
+												+ "items' SET amount='" + total
+												+ "' WHERE itemid='" + itemid
+												+ "' AND durability='" + dur
 												+ "' AND groups='global';";
 									}
 									while (rs.next());
@@ -2667,11 +2684,10 @@ public class Commander implements CommandExecutor {
 								{
 									// Item not in database, therefore add
 									// it
-									query = "INSERT INTO items (itemid,amount,data, durability,groups) VALUES ("
-											+ itemid
-											+ ","
-											+ amount
-											+ ","
+									query = "INSERT INTO '"
+											+ config.tablePrefix
+											+ "items' (itemid,amount,data, durability,groups) VALUES ("
+											+ itemid + "," + amount + ","
 											+ data + "," + dur + ",'global');";
 								}
 								rs.close();
@@ -2694,10 +2710,13 @@ public class Commander implements CommandExecutor {
 						{
 							// Create SQL query to see if item is already in
 							// database
-							String query = "SELECT * FROM items WHERE itemid='"
-									+ itemid + "' AND data='" + data
+							String query = "SELECT * FROM '"
+									+ config.tablePrefix
+									+ "items' WHERE itemid='" + itemid
+									+ "' AND data='" + data
 									+ "' AND groups='global';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 							// Send Item to database
 							try
 							{
@@ -2709,10 +2728,10 @@ public class Commander implements CommandExecutor {
 									{
 										int total = amount
 												+ rs.getInt("amount");
-										query = "UPDATE items SET amount='"
-												+ total + "' WHERE itemid='"
-												+ itemid + "' AND data='"
-												+ data
+										query = "UPDATE '" + config.tablePrefix
+												+ "items' SET amount='" + total
+												+ "' WHERE itemid='" + itemid
+												+ "' AND data='" + data
 												+ "' AND groups='global';";
 									}
 									while (rs.next());
@@ -2721,11 +2740,10 @@ public class Commander implements CommandExecutor {
 								{
 									// Item not in database, therefore add
 									// it
-									query = "INSERT INTO items (itemid,amount,data, durability,groups) VALUES ("
-											+ itemid
-											+ ","
-											+ amount
-											+ ","
+									query = "INSERT INTO '"
+											+ config.tablePrefix
+											+ "items' (itemid,amount,data, durability,groups) VALUES ("
+											+ itemid + "," + amount + ","
 											+ data + "," + dur + ",'global');";
 								}
 								rs.close();
@@ -2769,16 +2787,14 @@ public class Commander implements CommandExecutor {
 				// Check if group name was given
 				if (args.length > 2)
 				{
-					if(groupExists(sender, args[2]))
+					if (groupExists(sender, args[2]))
 					{
 						group = args[2];
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED
-								+ prefix + " Group "
-								+ ChatColor.GRAY + group
-								+ ChatColor.RED
+						sender.sendMessage(ChatColor.RED + prefix + " Group "
+								+ ChatColor.GRAY + group + ChatColor.RED
 								+ " does not exist");
 						return true;
 					}
@@ -2801,9 +2817,11 @@ public class Commander implements CommandExecutor {
 				{
 					// Sent from console
 					// Wipe table
-					final String query = "DELETE FROM items WHERE groups='" + group + "';";
+					final String query = "DELETE FROM '" + config.tablePrefix
+							+ "items' WHERE groups='" + group + "';";
 					ks.getDatabaseHandler().standardQuery(query);
-					ks.getLogger().info(prefix + "Items for group '" + group +"' cleared");
+					ks.getLogger().info(
+							prefix + "Items for group '" + group + "' cleared");
 					sender.sendMessage(ChatColor.GREEN + prefix
 							+ " Item pool emptied.");
 					cache.clear();
@@ -2850,8 +2868,9 @@ public class Commander implements CommandExecutor {
 							name = args[2];
 						}
 						// SQL query to get player count for specified name
-						String query = "SELECT COUNT(*) FROM players WHERE playername='"
-								+ name + "';";
+						String query = "SELECT COUNT(*) FROM '"
+								+ config.tablePrefix
+								+ "players' WHERE playername='" + name + "';";
 						ResultSet rs = ks.getDatabaseHandler().select(query);
 						// Check ResultSet
 						boolean has = false;
@@ -3008,9 +3027,12 @@ public class Commander implements CommandExecutor {
 								return false;
 							}
 							// SQL query to get player count for specified name
-							String query = "SELECT COUNT(*) FROM players WHERE playername='"
-									+ name + "';";
-							ResultSet rs = ks.getDatabaseHandler().select(query);
+							String query = "SELECT COUNT(*) FROM '"
+									+ config.tablePrefix
+									+ "players' WHERE playername='" + name
+									+ "';";
+							ResultSet rs = ks.getDatabaseHandler()
+									.select(query);
 							// Check ResultSet
 							boolean has = false;
 							try
@@ -3212,9 +3234,12 @@ public class Commander implements CommandExecutor {
 							if (!groupExists(sender, group))
 							{
 								// Create group
-								ks.getDatabaseHandler().standardQuery(
-										"INSERT INTO groups (groupname) VALUES ('"
-												+ group + "');");
+								ks.getDatabaseHandler()
+										.standardQuery(
+												"INSERT INTO '"
+														+ config.tablePrefix
+														+ "groups' (groupname) VALUES ('"
+														+ group + "');");
 								sender.sendMessage(ChatColor.GREEN + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.GREEN + " created");
@@ -3463,7 +3488,8 @@ public class Commander implements CommandExecutor {
 	private void updateCache(CommandSender sender) {
 		// Get list of items from database
 		ResultSet itemlist = ks.getDatabaseHandler().select(
-				"SELECT * FROM items WHERE groups='global';");
+				"SELECT * FROM '" + config.tablePrefix
+						+ "items' WHERE groups='global';");
 		try
 		{
 			if (itemlist.next())
@@ -3634,7 +3660,8 @@ public class Commander implements CommandExecutor {
 	private void listPool(CommandSender sender, int pageAdjust) {
 		// Get list of items from database
 		ResultSet itemlist = ks.getDatabaseHandler().select(
-				"SELECT * FROM items WHERE groups='global';");
+				"SELECT * FROM '" + config.tablePrefix
+						+ "items' WHERE groups='global';");
 		try
 		{
 			if (itemlist.next())
@@ -3835,7 +3862,8 @@ public class Commander implements CommandExecutor {
 	 * @return karma value associated with name
 	 */
 	private int getPlayerKarma(String name) throws SQLException {
-		String query = "SELECT * FROM players WHERE playername='" + name + "';";
+		String query = "SELECT * FROM '" + config.tablePrefix
+				+ "players' WHERE playername='" + name + "';";
 		ResultSet rs = ks.getDatabaseHandler().select(query);
 		int karma = config.playerKarmaDefault;
 		boolean has = false;
@@ -3856,8 +3884,9 @@ public class Commander implements CommandExecutor {
 			if (!has)
 			{
 				// Player not in database, therefore add them
-				query = "INSERT INTO players (playername,karma) VALUES ('"
-						+ name + "','" + karma + "');";
+				query = "INSERT INTO '" + config.tablePrefix
+						+ "players' (playername,karma) VALUES ('" + name
+						+ "','" + karma + "');";
 				ks.getDatabaseHandler().standardQuery(query);
 			}
 		}
@@ -3891,19 +3920,22 @@ public class Commander implements CommandExecutor {
 			if (karma <= config.lower)
 			{
 				// Updated karma value is beyond lower limit, so set to min
-				query = "UPDATE players SET karma='" + config.lower
+				query = "UPDATE '" + config.tablePrefix
+						+ "players' SET karma='" + config.lower
 						+ "' WHERE playername='" + name + "';";
 			}
 			else if (karma >= config.upper)
 			{
 				// Updated karma value is beyond upper limit, so set to max
-				query = "UPDATE players SET karma='" + config.upper
+				query = "UPDATE '" + config.tablePrefix
+						+ "players' SET karma='" + config.upper
 						+ "' WHERE playername='" + name + "';";
 			}
 			else
 			{
 				// Updated karma value is within acceptable range
-				query = "UPDATE players SET karma='" + karma
+				query = "UPDATE '" + config.tablePrefix
+						+ "players' SET karma='" + karma
 						+ "' WHERE playername='" + name + "';";
 			}
 			ks.getDatabaseHandler().standardQuery(query);
@@ -3959,7 +3991,8 @@ public class Commander implements CommandExecutor {
 		try
 		{
 			ResultSet rs = ks.getDatabaseHandler().select(
-					"SELECT * FROM groups WHERE groupname='" + group + "';");
+					"SELECT * FROM '" + config.tablePrefix
+							+ "groups' WHERE groupname='" + group + "';");
 			if (rs.next())
 			{
 				valid = true;
@@ -3984,7 +4017,8 @@ public class Commander implements CommandExecutor {
 			{
 				String groups = "";
 				ResultSet rs = ks.getDatabaseHandler().select(
-						"SELECT * FROM players WHERE playername='" + name + "';");
+						"SELECT * FROM '" + config.tablePrefix
+								+ "players' WHERE playername='" + name + "';");
 				if (rs.next())
 				{
 					groups = rs.getString("groups");
@@ -4067,12 +4101,12 @@ public class Commander implements CommandExecutor {
 		return Name;
 	}
 
-	private boolean hasGroups(String playerName) throws SQLException
-	{
+	private boolean hasGroups(String playerName) throws SQLException {
 		boolean hasGroups = false;
 		String groups = "";
 		ResultSet rs = ks.getDatabaseHandler().select(
-				"SELECT * FROM players WHERE playername='" + playerName + "';");
+				"SELECT * FROM '" + config.tablePrefix
+						+ "players' WHERE playername='" + playerName + "';");
 		if (rs.next())
 		{
 			groups = rs.getString("groups");
@@ -4109,7 +4143,8 @@ public class Commander implements CommandExecutor {
 			if (answer.equals("yes"))
 			{
 				// Wipe table
-				final String query = "DELETE FROM items WHERE groups='"+group+"';";
+				final String query = "DELETE FROM '" + config.tablePrefix
+						+ "items' WHERE groups='" + group + "';";
 				ks.getDatabaseHandler().standardQuery(query);
 				ks.getLogger().info(prefix + " Global items table cleared");
 				player.sendMessage(ChatColor.GREEN + prefix
@@ -4227,7 +4262,8 @@ public class Commander implements CommandExecutor {
 		public void run() {
 			try
 			{
-				ResultSet rs = ks.getDatabaseHandler().select("SELECT * FROM players");
+				ResultSet rs = ks.getDatabaseHandler().select(
+						"SELECT * FROM '" + config.tablePrefix + "players';");
 				if (rs.next())
 				{
 					do
@@ -4288,12 +4324,14 @@ public class Commander implements CommandExecutor {
 				for (Map.Entry<String, String> entry : queries.entrySet())
 				{
 					ks.getDatabaseHandler().standardQuery(
-							"UPDATE players SET groups='" + entry.getValue()
-									+ "' WHERE playername='" + entry.getKey()
-									+ "';");
+							"UPDATE '" + config.tablePrefix
+									+ "players' SET groups='"
+									+ entry.getValue() + "' WHERE playername='"
+									+ entry.getKey() + "';");
 				}
 				sender.sendMessage(ChatColor.YELLOW + prefix
-						+ " Done removing group " + ChatColor.GRAY + group);
+						+ " Done removing group " + ChatColor.GRAY + group
+						+ ChatColor.YELLOW + " from all players.");
 			}
 			catch (SQLException e)
 			{
