@@ -319,7 +319,8 @@ public class Config {
 			plugin.getLogger().info(
 					KarmicShare.prefix
 							+ " Renaming groups table to '" + tablePrefix +"groups'.");
-			query = "ALTER TABLE players RENAME TO '" + tablePrefix + "groups';";
+			query = "ALTER TABLE groups RENAME TO '" + tablePrefix + "groups';";
+			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
