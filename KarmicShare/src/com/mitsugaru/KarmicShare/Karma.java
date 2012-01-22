@@ -1129,4 +1129,28 @@ public class Karma {
 			}
 		}
 	}
+
+	public boolean validGroup(Player sender, String group)
+	{
+		boolean valid = false;
+		try
+		{
+			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
+						+ plugin.getPluginConfig().tablePrefix
+						+ "groups WHERE groupname='" + group + "';");
+			if(rs.next())
+			{
+				valid = true;
+			}
+			rs.close();
+		}
+		catch (SQLException e)
+		{
+			// INFO Auto-generated catch block
+			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+		return valid;
+	}
 }

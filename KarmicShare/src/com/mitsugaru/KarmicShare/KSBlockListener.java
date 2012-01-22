@@ -1,15 +1,11 @@
 package com.mitsugaru.KarmicShare;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -48,7 +44,7 @@ public class KSBlockListener extends BlockListener {
 						if(!ChatColor.stripColor(event.getLine(0)).equalsIgnoreCase(""))
 						{
 							//Group chest
-							if(validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
+							if(plugin.getKarma().validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
 							{
 								groupName = event.getLine(0);
 							}
@@ -377,29 +373,5 @@ public class KSBlockListener extends BlockListener {
 				}
 			}
 		}
-	}
-
-	public boolean validGroup(Player sender, String group)
-	{
-		boolean valid = false;
-		try
-		{
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "groups WHERE groupname='" + group + "';");
-			if(rs.next())
-			{
-				valid = true;
-			}
-			rs.close();
-		}
-		catch (SQLException e)
-		{
-			// INFO Auto-generated catch block
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return valid;
 	}
 }
