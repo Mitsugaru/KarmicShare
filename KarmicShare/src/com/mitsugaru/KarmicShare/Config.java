@@ -304,21 +304,28 @@ public class Config {
 		}
 		if (ver < 0.2)
 		{
+			//Drop newly created tables
+			plugin.getLogger().info(
+					KarmicShare.prefix
+							+ " Dropping empty tables.");
+			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "items;");
+			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "players;");
+			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "groups;");
 			// Update tables to have prefix
 			plugin.getLogger().info(
 					KarmicShare.prefix
 							+ " Renaming items table to '" + tablePrefix +"items'.");
-			query = "ALTER TABLE items RENAME TO '" + tablePrefix + "items';";
+			query = "ALTER TABLE items RENAME TO " + tablePrefix + "items;";
 			plugin.getDatabaseHandler().standardQuery(query);
 			plugin.getLogger().info(
 					KarmicShare.prefix
 							+ " Renaming players table to '" + tablePrefix +"players'.");
-			query = "ALTER TABLE players RENAME TO '" + tablePrefix + "players';";
+			query = "ALTER TABLE players RENAME TO " + tablePrefix + "players;";
 			plugin.getDatabaseHandler().standardQuery(query);
 			plugin.getLogger().info(
 					KarmicShare.prefix
 							+ " Renaming groups table to '" + tablePrefix +"groups'.");
-			query = "ALTER TABLE groups RENAME TO '" + tablePrefix + "groups';";
+			query = "ALTER TABLE groups RENAME TO " + tablePrefix + "groups;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		// Update version number in config.yml
