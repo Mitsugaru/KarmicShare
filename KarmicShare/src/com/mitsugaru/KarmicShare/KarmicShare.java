@@ -42,6 +42,7 @@ public class KarmicShare extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		// Save config
+		this.reloadConfig();
 		this.saveConfig();
 		// Stop cleaner task
 		if (cleantask != -1)
