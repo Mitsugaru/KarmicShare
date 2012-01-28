@@ -5,7 +5,7 @@
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  */
-package lib.PatPeter.SQLibrary;
+package lib.Mitsugaru.SQLibrary;
 
 /*
  *  MySQL
@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 //import java.sql.Statement;
 import java.util.logging.Logger;
 
-public abstract class DatabaseHandler {
+public abstract class Database {
 	protected Logger log;
 	protected final String PREFIX;
 	protected final String DATABASE_PREFIX;
@@ -44,7 +44,7 @@ public abstract class DatabaseHandler {
 	 *  MySQL, SQLLite
 	 */
 	
-	public DatabaseHandler(Logger log, String prefix, String dp) {
+	public Database(Logger log, String prefix, String dp) {
 		this.log = log;
 		this.PREFIX = prefix;
 		this.DATABASE_PREFIX = dp;
