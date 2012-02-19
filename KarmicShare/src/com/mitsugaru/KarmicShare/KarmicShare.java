@@ -13,12 +13,8 @@ import java.util.Vector;
 import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-
 
 public class KarmicShare extends JavaPlugin {
 	// Class variables
@@ -93,9 +89,7 @@ public class KarmicShare extends JavaPlugin {
 		// Use bundled package of logblockquestioner.
 		this.getServer()
 				.getPluginManager()
-				.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS,
-						new KarmicShareQuestionerPlayerListener(questions),
-						Priority.Normal, this);
+				.registerEvents(new KarmicShareQuestionerPlayerListener(questions), this);
 		this.getServer()
 				.getScheduler()
 				.scheduleSyncRepeatingTask(this,
@@ -104,24 +98,15 @@ public class KarmicShare extends JavaPlugin {
 		// Generate listeners
 		KSBlockListener blockListener = new KSBlockListener(this);
 		KSPlayerListener playerListener = new KSPlayerListener(this);
-		pm.registerEvent(Event.Type.SIGN_CHANGE, blockListener,
-				Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener,
-				Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener,
-				Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener,
-				Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener,
-				Priority.Normal, this);
+		pm.registerEvents(blockListener, this);
+		pm.registerEvents(playerListener, this);
 		if (config.chests)
 		{
 			// Check for Spout plugin
 			if (pm.isPluginEnabled("Spout"))
 			{
 				KSInventoryListener invListener = new KSInventoryListener(this);
-				pm.registerEvent(Event.Type.CUSTOM_EVENT, invListener,
-						Priority.Normal, this);
+				pm.registerEvents(invListener, this);
 				hasSpout = true;
 			}
 			else

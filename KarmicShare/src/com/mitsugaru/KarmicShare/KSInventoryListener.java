@@ -11,14 +11,16 @@ import org.bukkit.block.Sign;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.getspout.spoutapi.event.inventory.InventoryClickEvent;
-import org.getspout.spoutapi.event.inventory.InventoryListener;
 
 import com.splatbang.betterchest.BetterChest;
 
-public class KSInventoryListener extends InventoryListener {
+public class KSInventoryListener implements Listener {
 	private KarmicShare plugin;
 	private Karma karma;
 
@@ -27,7 +29,7 @@ public class KSInventoryListener extends InventoryListener {
 		karma = karmicShare.getKarma();
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onInventoryClick(InventoryClickEvent event) {
 		// This will verify that it was a block
 		if (event.getLocation() != null)

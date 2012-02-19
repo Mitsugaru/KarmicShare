@@ -1,10 +1,13 @@
 package com.mitsugaru.KarmicShare;
 
 import java.util.Vector;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerListener;
 
-public class KarmicShareQuestionerPlayerListener extends PlayerListener
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
+public class KarmicShareQuestionerPlayerListener implements Listener
 {
 	public final Vector<KSQuestion> questions;
 
@@ -12,7 +15,7 @@ public class KarmicShareQuestionerPlayerListener extends PlayerListener
 		this.questions = questions;
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		if (!event.isCancelled() && !questions.isEmpty()) {
 			final int playerHash = event.getPlayer().getName().hashCode();

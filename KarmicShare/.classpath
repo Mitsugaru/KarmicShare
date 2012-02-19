@@ -5,6 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PermissionsEX"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Vault"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SpoutAPI"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Spout"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

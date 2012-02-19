@@ -11,15 +11,17 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.EnchantmentWrapper;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.splatbang.betterchest.BetterChest;
 
-public class KSPlayerListener extends PlayerListener {
+public class KSPlayerListener implements Listener {
 	private KarmicShare plugin;
 	private Karma karma;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
@@ -30,7 +32,7 @@ public class KSPlayerListener extends PlayerListener {
 		karma = plugin.getKarma();
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{

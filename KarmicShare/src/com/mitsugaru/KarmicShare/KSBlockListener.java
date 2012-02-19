@@ -6,15 +6,17 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 import com.splatbang.betterchest.BetterChest;
 
-public class KSBlockListener extends BlockListener {
+public class KSBlockListener implements Listener {
 	private KarmicShare plugin;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
@@ -24,7 +26,7 @@ public class KSBlockListener extends BlockListener {
 		plugin = karmicShare;
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onSignChange(final SignChangeEvent event) {
 		if (!event.isCancelled())
 		{
@@ -116,7 +118,7 @@ public class KSBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockPlace(final BlockPlaceEvent event) {
 		if (!event.isCancelled())
 		{
@@ -237,7 +239,7 @@ public class KSBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBreak(final BlockBreakEvent event) {
 		if (!event.isCancelled())
 		{
@@ -352,7 +354,7 @@ public class KSBlockListener extends BlockListener {
 	/**
 	 * Thanks to Ribesg for the following method
 	 */
-	@Override
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		Material material = event.getBlock().getType();
 		if (material.equals(Material.SIGN_POST)
