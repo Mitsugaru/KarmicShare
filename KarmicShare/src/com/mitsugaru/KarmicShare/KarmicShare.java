@@ -41,13 +41,11 @@ public class KarmicShare extends JavaPlugin {
 		this.reloadConfig();
 		this.saveConfig();
 		// Stop cleaner task
-		if (cleantask != -1)
-		{
+		if (cleantask != -1) {
 			getServer().getScheduler().cancelTask(cleantask);
 		}
 		// Disconnect from sql database
-		if (database.checkConnection())
-		{
+		if (database.checkConnection()) {
 			// Close connection
 			database.close();
 		}
@@ -55,28 +53,24 @@ public class KarmicShare extends JavaPlugin {
 
 	}
 
+	/**
+	 * Method that is called when plugin is enabled
+	 */
 	@Override
-	public void onLoad() {
+	public void onEnable() {
 		// Logger
 		syslog = this.getServer().getLogger();
 		// Config
 		config = new Config(this);
 		// Database handler
 		database = new DBHandler(this, config);
-	}
-
-	/**
-	 * Method that is called when plugin is enabled
-	 */
-	@Override
-	public void onEnable() {
 		// Config update
 		config.checkUpdate();
 
 		// Create permission handler
 		perm = new PermCheck(this);
 
-		//Create Karma logic handler
+		// Create Karma logic handler
 		karma = new Karma(this);
 
 		// Grab Commander to handle commands
@@ -89,7 +83,9 @@ public class KarmicShare extends JavaPlugin {
 		// Use bundled package of logblockquestioner.
 		this.getServer()
 				.getPluginManager()
-				.registerEvents(new KarmicShareQuestionerPlayerListener(questions), this);
+				.registerEvents(
+						new KarmicShareQuestionerPlayerListener(questions),
+						this);
 		this.getServer()
 				.getScheduler()
 				.scheduleSyncRepeatingTask(this,
@@ -100,17 +96,13 @@ public class KarmicShare extends JavaPlugin {
 		KSPlayerListener playerListener = new KSPlayerListener(this);
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(playerListener, this);
-		if (config.chests)
-		{
+		if (config.chests) {
 			// Check for Spout plugin
-			if (pm.isPluginEnabled("Spout"))
-			{
+			if (pm.isPluginEnabled("Spout")) {
 				KSInventoryListener invListener = new KSInventoryListener(this);
 				pm.registerEvents(invListener, this);
 				hasSpout = true;
-			}
-			else
-			{
+			} else {
 				hasSpout = false;
 				syslog.warning(prefix
 						+ " Spout not found. Cannot use physical chests.");
@@ -119,8 +111,7 @@ public class KarmicShare extends JavaPlugin {
 		// Create cleaner task
 		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
 				new CleanupTask(), 1200, 1200);
-		if (cleantask == -1)
-		{
+		if (cleantask == -1) {
 			syslog.warning(prefix + " Could not create cleaner task.");
 		}
 		syslog.info(prefix + " KarmicShare v"
@@ -137,7 +128,7 @@ public class KarmicShare extends JavaPlugin {
 
 	/**
 	 * Returns the console log object
-	 *
+	 * 
 	 * @return Logger object
 	 */
 	public Logger getLogger() {
@@ -146,7 +137,7 @@ public class KarmicShare extends JavaPlugin {
 
 	/**
 	 * Returns SQLite database
-	 *
+	 * 
 	 * @return SQLite database
 	 */
 	public DBHandler getDatabaseHandler() {
@@ -155,7 +146,7 @@ public class KarmicShare extends JavaPlugin {
 
 	/**
 	 * Returns Config object
-	 *
+	 * 
 	 * @return Config object
 	 */
 	public Config getPluginConfig() {
@@ -163,7 +154,7 @@ public class KarmicShare extends JavaPlugin {
 	}
 
 	public String ask(Player respondent, String questionMessage,
-			String ... answers) {
+			String... answers) {
 		final KSQuestion question = new KSQuestion(respondent, questionMessage,
 				answers);
 		questions.add(question);
@@ -178,9 +169,9 @@ public class KarmicShare extends JavaPlugin {
 		@Override
 		public void run() {
 			// Drop bad entries
-			getDatabaseHandler().standardQuery("DELETE FROM "
-						+ config.tablePrefix
-						+ "items WHERE amount<='0';");
+			getDatabaseHandler().standardQuery(
+					"DELETE FROM " + config.tablePrefix
+							+ "items WHERE amount<='0';");
 		}
 	}
 

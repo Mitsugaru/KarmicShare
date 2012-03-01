@@ -27,9 +27,14 @@ package com.splatbang.betterchest;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -235,4 +240,34 @@ public class DoubleInventory implements Inventory {
 
         return result;
     }
+
+	@Override
+	public InventoryHolder getHolder() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getTitle() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InventoryType getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<HumanEntity> getViewers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ListIterator<ItemStack> iterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
