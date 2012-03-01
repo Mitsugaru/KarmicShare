@@ -19,7 +19,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class KarmicShare extends JavaPlugin {
 	// Class variables
 	private DBHandler database;
-	private Logger syslog;
 	public static final String prefix = "[KarmicShare]";
 	private Commander commander;
 	private Config config;
@@ -49,7 +48,7 @@ public class KarmicShare extends JavaPlugin {
 			// Close connection
 			database.close();
 		}
-		syslog.info(prefix + " Plugin disabled");
+		getLogger().info(prefix + " Plugin disabled");
 
 	}
 
@@ -58,8 +57,6 @@ public class KarmicShare extends JavaPlugin {
 	 */
 	@Override
 	public void onEnable() {
-		// Logger
-		syslog = this.getServer().getLogger();
 		// Config
 		config = new Config(this);
 		// Database handler
@@ -104,7 +101,7 @@ public class KarmicShare extends JavaPlugin {
 				hasSpout = true;
 			} else {
 				hasSpout = false;
-				syslog.warning(prefix
+				getLogger().warning(prefix
 						+ " Spout not found. Cannot use physical chests.");
 			}
 		}
@@ -112,9 +109,9 @@ public class KarmicShare extends JavaPlugin {
 		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
 				new CleanupTask(), 1200, 1200);
 		if (cleantask == -1) {
-			syslog.warning(prefix + " Could not create cleaner task.");
+			getLogger().warning(prefix + " Could not create cleaner task.");
 		}
-		syslog.info(prefix + " KarmicShare v"
+		getLogger().info(prefix + " KarmicShare v"
 				+ this.getDescription().getVersion() + " enabled");
 	}
 
@@ -124,15 +121,6 @@ public class KarmicShare extends JavaPlugin {
 
 	public PermCheck getPermissionHandler() {
 		return perm;
-	}
-
-	/**
-	 * Returns the console log object
-	 * 
-	 * @return Logger object
-	 */
-	public Logger getLogger() {
-		return syslog;
 	}
 
 	/**
