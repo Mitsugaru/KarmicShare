@@ -10,7 +10,6 @@
 package com.mitsugaru.KarmicShare;
 
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -99,6 +98,8 @@ public class KarmicShare extends JavaPlugin {
 				KSInventoryListener invListener = new KSInventoryListener(this);
 				pm.registerEvents(invListener, this);
 				hasSpout = true;
+				getLogger().warning(prefix
+						+ " Hooked into Spout.");
 			} else {
 				hasSpout = false;
 				getLogger().warning(prefix
