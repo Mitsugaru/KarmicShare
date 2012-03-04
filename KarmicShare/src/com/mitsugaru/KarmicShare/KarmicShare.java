@@ -25,7 +25,7 @@ public class KarmicShare extends JavaPlugin {
 	private Karma karma;
 	private int cleantask;
 	public final Vector<KSQuestion> questions = new Vector<KSQuestion>();
-	public boolean hasSpout;
+	private boolean chest;
 
 	// IDEA Score board on karma?
 	// TODO Mod commands to remove items
@@ -96,9 +96,9 @@ public class KarmicShare extends JavaPlugin {
 		if (config.chests) {
 			KSInventoryListener invListener = new KSInventoryListener(this);
 			pm.registerEvents(invListener, this);
-			hasSpout = true;
+			chest = true;
 		} else {
-			hasSpout = false;
+			chest = false;
 		}
 		// Create cleaner task
 		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
@@ -161,5 +161,10 @@ public class KarmicShare extends JavaPlugin {
 
 	public Karma getKarma() {
 		return karma;
+	}
+	
+	public boolean useChest()
+	{
+		return chest;
 	}
 }

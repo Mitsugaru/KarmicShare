@@ -64,7 +64,7 @@ public class KSPlayerListener implements Listener {
 								}
 								chest.getInventory().clear();
 								chest.update();
-								if (plugin.getPluginConfig().chests && plugin.hasSpout)
+								if (plugin.getPluginConfig().chests && plugin.useChest())
 								{
 									int page = 1;
 									try

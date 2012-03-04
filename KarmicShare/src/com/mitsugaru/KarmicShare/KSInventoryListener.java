@@ -16,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -36,13 +37,18 @@ public class KSInventoryListener implements Listener {
 		if (event.getSlot() >= 0) {
 			//Verify that it is a chest
 			if (event.getInventory().getType().equals(InventoryType.CHEST)) {
-				plugin.getLogger().info("From chest");
-				if(event.getInventory().getHolder() == null)
+				Block block;
+				if(event.getInventory().getHolder() == null && event.getInventory() instanceof DoubleChestInventory)
 				{
-					plugin.getLogger().info("Double chest?");
+					//Double chest
+					block = ((Chest)((DoubleChestInventory) event.getInventory()).getLeftSide().getHolder()).getBlock();
 				}
-				final Block block = ((Chest) event.getInventory().getHolder())
+				else
+				{
+					//single chest
+					block = ((Chest) event.getInventory().getHolder())
 						.getBlock();
+				}
 				if (plugin.getPluginConfig().chests) {
 					boolean kschest = false;
 					boolean fromChest = false;
@@ -83,7 +89,7 @@ public class KSInventoryListener implements Listener {
 							}
 						}
 					}
-					if (kschest && plugin.hasSpout) {
+					if (kschest && plugin.useChest()) {
 						try {
 							if (event.isLeftClick()) {
 								if (event.isShiftClick()) {

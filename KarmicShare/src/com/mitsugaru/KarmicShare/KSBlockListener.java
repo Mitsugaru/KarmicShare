@@ -58,7 +58,7 @@ public class KSBlockListener implements Listener {
 							}
 						}
 						//Check if its a chest
-						if (plugin.getPluginConfig().chests && plugin.hasSpout)
+						if (plugin.getPluginConfig().chests && plugin.useChest())
 						{
 							// Thanks to Wolvereness for the following code
 							if (event.getBlock().getRelative(BlockFace.DOWN)
