@@ -47,7 +47,7 @@ public class KarmicShare extends JavaPlugin {
 			// Close connection
 			database.close();
 		}
-		getLogger().info(prefix + " Plugin disabled");
+		getLogger().info(" Plugin disabled");
 
 	}
 
@@ -92,28 +92,23 @@ public class KarmicShare extends JavaPlugin {
 		KSPlayerListener playerListener = new KSPlayerListener(this);
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(playerListener, this);
+		//TODO rename variable
 		if (config.chests) {
-			// Check for Spout plugin
-			if (pm.isPluginEnabled("Spout")) {
-				KSInventoryListener invListener = new KSInventoryListener(this);
-				pm.registerEvents(invListener, this);
-				hasSpout = true;
-				getLogger().warning(prefix
-						+ " Hooked into Spout.");
-			} else {
-				hasSpout = false;
-				getLogger().warning(prefix
-						+ " Spout not found. Cannot use physical chests.");
-			}
+			KSInventoryListener invListener = new KSInventoryListener(this);
+			pm.registerEvents(invListener, this);
+			hasSpout = true;
+		} else {
+			hasSpout = false;
 		}
 		// Create cleaner task
 		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
 				new CleanupTask(), 1200, 1200);
 		if (cleantask == -1) {
-			getLogger().warning(prefix + " Could not create cleaner task.");
+			getLogger().warning(" Could not create cleaner task.");
 		}
-		getLogger().info(prefix + " KarmicShare v"
-				+ this.getDescription().getVersion() + " enabled");
+		getLogger().info(
+				"KarmicShare v" + this.getDescription().getVersion()
+						+ " enabled");
 	}
 
 	public Commander getCommander() {

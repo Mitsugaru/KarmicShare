@@ -160,8 +160,7 @@ public class Config {
 				ex.printStackTrace();
 			}
 		}
-		plugin.getLogger().info(
-				KarmicShare.prefix + " Loaded custom karma values");
+		plugin.getLogger().info("Loaded custom karma values");
 	}
 
 	/**
@@ -174,8 +173,7 @@ public class Config {
 				.parseDouble(config.getString("version")))
 		{
 			// Update to latest version
-			plugin.getLogger().info(
-					KarmicShare.prefix + " Updating to v"
+			plugin.getLogger().info("Updating to v"
 							+ plugin.getDescription().getVersion());
 			this.update();
 		}
@@ -195,8 +193,7 @@ public class Config {
 		{
 			// Add enchantments column
 			plugin.getLogger()
-					.info(KarmicShare.prefix
-							+ " Altering items table to add enchantments column.");
+					.info("Altering items table to add enchantments column.");
 			query = "ALTER TABLE items ADD enchantments TEXT;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
@@ -204,8 +201,7 @@ public class Config {
 		{
 			// Add back durability column
 			plugin.getLogger()
-					.info(KarmicShare.prefix
-							+ " Altering items table to add durability column.");
+					.info("Altering items table to add durability column.");
 			query = "ALTER TABLE items ADD durability TEXT;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
@@ -214,8 +210,7 @@ public class Config {
 			// Revamp item table
 			try
 			{
-				plugin.getLogger().info(
-						KarmicShare.prefix + " Revamping item table");
+				plugin.getLogger().info("Revamping item table");
 				query = "SELECT * FROM items;";
 				final List<ZeroPointFourteenItemObject> fourteen = new ArrayList<ZeroPointFourteenItemObject>();
 				ResultSet rs = plugin.getDatabaseHandler().select(query);
@@ -285,53 +280,40 @@ public class Config {
 			catch (SQLException e)
 			{
 				// INFO Auto-generated catch block
-				plugin.getLogger().warning(
-						KarmicShare.prefix + " SQL Exception");
+				plugin.getLogger().warning("SQL Exception");
 				e.printStackTrace();
 			}
 			// Add groups to players table
-			plugin.getLogger().info(
-					KarmicShare.prefix
-							+ " Altering player table to add groups column.");
+			plugin.getLogger().info("Altering player table to add groups column.");
 			query = "ALTER TABLE players ADD groups TEXT;";
 			plugin.getDatabaseHandler().standardQuery(query);
 			// Add the GLOBAL group
-			plugin.getLogger().info(
-					KarmicShare.prefix
-							+ " Adding global group to groups table.");
+			plugin.getLogger().info("Adding global group to groups table.");
 			query = "INSERT INTO groups (groupname) VALUES ('global');";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		if (ver < 0.2)
 		{
 			//Drop newly created tables
-			plugin.getLogger().info(
-					KarmicShare.prefix
-							+ " Dropping empty tables.");
+			plugin.getLogger().info("Dropping empty tables.");
 			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "items;");
 			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "players;");
 			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "groups;");
 			// Update tables to have prefix
-			plugin.getLogger().info(
-					KarmicShare.prefix
-							+ " Renaming items table to '" + tablePrefix +"items'.");
+			plugin.getLogger().info("Renaming items table to '" + tablePrefix +"items'.");
 			query = "ALTER TABLE items RENAME TO " + tablePrefix + "items;";
 			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info(
-					KarmicShare.prefix
-							+ " Renaming players table to '" + tablePrefix +"players'.");
+			plugin.getLogger().info("Renaming players table to '" + tablePrefix +"players'.");
 			query = "ALTER TABLE players RENAME TO " + tablePrefix + "players;";
 			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info(
-					KarmicShare.prefix
-							+ " Renaming groups table to '" + tablePrefix +"groups'.");
+			plugin.getLogger().info("Renaming groups table to '" + tablePrefix +"groups'.");
 			query = "ALTER TABLE groups RENAME TO " + tablePrefix + "groups;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
-		plugin.getLogger().info(KarmicShare.prefix + " Upgrade complete");
+		plugin.getLogger().info("Upgrade complete");
 	}
 
 	/**
@@ -363,7 +345,7 @@ public class Config {
 		}
 		// Check bounds
 		this.boundsCheck();
-		plugin.getLogger().info(KarmicShare.prefix + " Config reloaded");
+		plugin.getLogger().info("Config reloaded");
 	}
 
 	/**
@@ -377,9 +359,7 @@ public class Config {
 			upper = 200;
 			lower = -200;
 			plugin.getLogger()
-					.warning(
-							KarmicShare.prefix
-									+ " Upper limit is smaller than lower limit. Reverting to defaults.");
+					.warning("Upper limit is smaller than lower limit. Reverting to defaults.");
 		}
 		// Check that we don't go beyond what the database can handle, via
 		// smallint
@@ -388,9 +368,7 @@ public class Config {
 			upper = 200;
 			lower = -200;
 			plugin.getLogger()
-					.warning(
-							KarmicShare.prefix
-									+ " Upper/lower limit is beyond bounds. Reverting to defaults.");
+					.warning("Upper/lower limit is beyond bounds. Reverting to defaults.");
 		}
 		// Check percentages
 		if (upperPercent < lowerPercent)
@@ -398,18 +376,14 @@ public class Config {
 			upperPercent = 0.85;
 			lowerPercent = 0.15;
 			plugin.getLogger()
-					.warning(
-							KarmicShare.prefix
-									+ " Upper %-age is smaller than lower %-age. Reverting to defaults.");
+					.warning("Upper %-age is smaller than lower %-age. Reverting to defaults.");
 		}
 		else if (upperPercent > 1.0 || lowerPercent < 0)
 		{
 			upperPercent = 0.85;
 			lowerPercent = 0.15;
 			plugin.getLogger()
-					.warning(
-							KarmicShare.prefix
-									+ " Upper %-age and/or lower %-age are beyond bounds. Reverting to defaults.");
+					.warning("Upper %-age and/or lower %-age are beyond bounds. Reverting to defaults.");
 		}
 		// Check that the default karma is actually in range.
 		if (playerKarmaDefault < lower || playerKarmaDefault > upper)
@@ -417,27 +391,21 @@ public class Config {
 			// Average out valid bounds to create valid default
 			playerKarmaDefault = upper - ((lower + upper) / 2);
 			plugin.getLogger()
-					.warning(
-							KarmicShare.prefix
-									+ " Player karma default is out of range. Using average of the two.");
+					.warning("Player karma default is out of range. Using average of the two.");
 		}
 		// Check that default karma change is not negative.
 		if (karmaChange < 0)
 		{
 			karmaChange = 1;
 			plugin.getLogger()
-					.warning(
-							KarmicShare.prefix
-									+ " Default karma rate is negative. Using default.");
+					.warning("Default karma rate is negative. Using default.");
 		}
 		// Check that list is actually going to output something, based on limit
 		// given
 		if (listlimit < 1)
 		{
 			listlimit = 10;
-			plugin.getLogger().warning(
-					KarmicShare.prefix
-							+ " List limit is lower than 1. Using default.");
+			plugin.getLogger().warning("List limit is lower than 1. Using default.");
 		}
 	}
 
@@ -503,9 +471,7 @@ public class Config {
 			catch (IOException e1)
 			{
 				// INFO Auto-generated catch block
-				plugin.getLogger().warning(
-						KarmicShare.prefix
-								+ " File I/O Exception on saving karma list");
+				plugin.getLogger().warning("File I/O Exception on saving karma list");
 				e1.printStackTrace();
 			}
 		}

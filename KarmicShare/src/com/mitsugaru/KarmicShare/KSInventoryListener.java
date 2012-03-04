@@ -14,9 +14,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.getspout.spoutapi.event.inventory.InventoryClickEvent;
 
 import com.splatbang.betterchest.BetterChest;
 
@@ -31,709 +32,105 @@ public class KSInventoryListener implements Listener {
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onInventoryClick(InventoryClickEvent event) {
-		// This will verify that it was a block
-		if (event.getLocation() != null)
-		{
-			// Valid slot numbers are not negative
-			if (event.getSlot() >= 0)
-			{
-				// Verify that it is a chest
-				final Block block = event.getLocation().getBlock();
-				if (block.getType().equals(Material.CHEST))
+		// Valid slot numbers are not negative
+		if (event.getSlot() >= 0) {
+			//Verify that it is a chest
+			if (event.getInventory().getType().equals(InventoryType.CHEST)) {
+				plugin.getLogger().info("From chest");
+				if(event.getInventory().getHolder() == null)
 				{
-					// Don't know if getInventory null check is necessary
-					if (event.getInventory() != null
-							&& plugin.getPluginConfig().chests)
-					{
-						boolean kschest = false;
-						boolean fromChest = false;
-						String group = "global";
-						final BetterChest chest = new BetterChest(
-								(Chest) block.getState());
-						if (!event.getInventory().equals(
-								event.getPlayer().getInventory()))
-						{
-							fromChest = true;
-						}
-						if (fromChest || event.isShiftClick())
-						{
-							// Player is working on inventory that is not theirs
-							// Verify that it is one of our chests
-							if (block.getRelative(BlockFace.UP).getType()
-									.equals(Material.WALL_SIGN))
-							{
-								final Sign sign = (Sign) block.getRelative(
-										BlockFace.UP).getState();
+					plugin.getLogger().info("Double chest?");
+				}
+				final Block block = ((Chest) event.getInventory().getHolder())
+						.getBlock();
+				if (plugin.getPluginConfig().chests) {
+					boolean kschest = false;
+					boolean fromChest = false;
+					String group = "global";
+					final BetterChest chest = new BetterChest(
+							(Chest) block.getState());
+					//TODO differentiate between chest inventory and player inventory
+					if (!event.getInventory().equals(
+							event.getWhoClicked().getInventory())) {
+						fromChest = true;
+					}
+					if (fromChest || event.isShiftClick()) {
+						// Player is working on inventory that is not theirs
+						// Verify that it is one of our chests
+						if (block.getRelative(BlockFace.UP).getType()
+								.equals(Material.WALL_SIGN)) {
+							final Sign sign = (Sign) block.getRelative(
+									BlockFace.UP).getState();
+							if (ChatColor.stripColor(sign.getLine(1))
+									.equalsIgnoreCase("[KarmicShare]")) {
+								kschest = true;
+								group = ChatColor.stripColor(sign.getLine(0))
+										.toLowerCase();
+								plugin.getLogger().info("KS chest");
+							}
+						} else if (chest.isDoubleChest()) {
+							if (chest.attachedBlock().getRelative(BlockFace.UP)
+									.getType().equals(Material.WALL_SIGN)) {
+								final Sign sign = (Sign) chest.attachedBlock()
+										.getRelative(BlockFace.UP).getState();
 								if (ChatColor.stripColor(sign.getLine(1))
-										.equalsIgnoreCase("[KarmicShare]"))
-								{
+										.equalsIgnoreCase("[KarmicShare]")) {
 									kschest = true;
 									group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
 								}
-							}
-							else if (chest.isDoubleChest())
-							{
-								if (chest.attachedBlock()
-										.getRelative(BlockFace.UP).getType()
-										.equals(Material.WALL_SIGN))
-								{
-									final Sign sign = (Sign) chest
-											.attachedBlock()
-											.getRelative(BlockFace.UP)
-											.getState();
-									if (ChatColor.stripColor(sign.getLine(1))
-											.equalsIgnoreCase("[KarmicShare]"))
-									{
-										kschest = true;
-										group = ChatColor.stripColor(
-												sign.getLine(0)).toLowerCase();
-									}
-								}
+								plugin.getLogger().info("KS chest attached");
 							}
 						}
-						if (kschest && plugin.hasSpout)
-						{
-							try
-							{
-								if (event.isLeftClick())
-								{
-									if (event.isShiftClick())
-									{
-										// We don't care about the cursor as it
-										// doesn't
-										// get changed on a shift click
-										if (event.getItem() != null)
-										{
-											if (fromChest)
-											{
-												final int amount = karma.takeItem(
-														event.getPlayer(),
-														event.getItem(), group);
-												final int original = event
-														.getItem().getAmount();
-												if (amount == event.getItem()
-														.getAmount())
-												{
-													event.setResult(Event.Result.ALLOW);
-													event.setResult(Event.Result.ALLOW);
-													ItemStack item;
-													if (event.getItem()
-															.getEnchantments()
-															.isEmpty())
-													{
-														item = event.getItem()
-																.clone();
-													}
-													else
-													{
-														// Handle enchantments
-														item = new ItemStack(
-																event.getItem()
-																		.getTypeId(),
-																event.getItem()
-																		.getAmount(),
-																event.getItem()
-																		.getDurability(),
-																event.getItem()
-																		.getData()
-																		.getData());
-														for (Map.Entry<Enchantment, Integer> enchantment : event
-																.getItem()
-																.getEnchantments()
-																.entrySet())
-														{
-															item.addUnsafeEnchantment(
-																	enchantment
-																			.getKey(),
-																	enchantment
-																			.getValue()
-																			.intValue());
-														}
-													}
-													final Repopulate task = new Repopulate(
-															event.getPlayer()
-																	.getInventory(),
-															item);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-													event.setItem(null);
-												}
-												else if (amount < event
-														.getItem().getAmount()
-														&& amount > 0)
-												{
-													event.setResult(Event.Result.DENY);
-													final ItemStack bak = event
-															.getItem().clone();
-													bak.setAmount(original
-															- amount);
-													Repopulate task = new Repopulate(
-															event.getInventory(),
-															bak, event
-																	.getSlot(), false);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-													final ItemStack give = event
-															.getItem().clone();
-													give.setAmount(amount);
-													task = new Repopulate(event
-															.getPlayer()
-															.getInventory(),
-															give);
-													id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not give item.");
-													}
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-											else
-											{
-												if (karma.giveItem(event.getPlayer(),
-														event.getItem(), group))
-												{
-													event.setResult(Event.Result.ALLOW);
-													ItemStack item;
-													if (event.getItem()
-															.getEnchantments()
-															.isEmpty())
-													{
-														item = event.getItem()
-																.clone();
-													}
-													else
-													{
-														// Handle enchantments
-														item = new ItemStack(
-																event.getItem()
-																		.getTypeId(),
-																event.getItem()
-																		.getAmount(),
-																event.getItem()
-																		.getDurability(),
-																event.getItem()
-																		.getData()
-																		.getData());
-														for (Map.Entry<Enchantment, Integer> enchantment : event
-																.getItem()
-																.getEnchantments()
-																.entrySet())
-														{
-															item.addUnsafeEnchantment(
-																	enchantment
-																			.getKey(),
-																	enchantment
-																			.getValue()
-																			.intValue());
-														}
-													}
-													final Repopulate task = new Repopulate(
-															chest.getInventory(),
-															item);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-													event.setItem(null);
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-										}
-									}
-									else
-									{
-										if (event.getItem() != null
-												&& event.getCursor() != null)
-										{
-
-											if (event
-													.getItem()
-													.getType()
-													.equals(event.getCursor()
-															.getType()))
-											{
-												if (karma.giveItem(event.getPlayer(),
-														event.getCursor(),
-														group))
-												{
-													event.setResult(Event.Result.ALLOW);
-													ItemStack item;
-													if (event.getCursor()
-															.getEnchantments()
-															.isEmpty())
-													{
-														item = event
-																.getCursor()
-																.clone();
-													}
-													else
-													{
-														// Handle enchantments
-														item = new ItemStack(
-																event.getCursor()
-																		.getTypeId(),
-																event.getCursor()
-																		.getAmount(),
-																event.getCursor()
-																		.getDurability(),
-																event.getCursor()
-																		.getData()
-																		.getData());
-														for (Map.Entry<Enchantment, Integer> enchantment : event
-																.getCursor()
-																.getEnchantments()
-																.entrySet())
-														{
-															item.addUnsafeEnchantment(
-																	enchantment
-																			.getKey(),
-																	enchantment
-																			.getValue()
-																			.intValue());
-														}
-													}
-													repopulateTask(event.getPlayer(), chest.getInventory(), item);
-													event.setItem(null);
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-											else
-											{
-												// When switching, put item
-												// first,
-												// then
-												// attempt to take item
-												if (karma.giveItem(event.getPlayer(),
-														event.getCursor(),
-														group))
-												{
-													final int amount = karma.takeItem(
-															event.getPlayer(),
-															event.getItem(),
+					}
+					if (kschest && plugin.hasSpout) {
+						try {
+							if (event.isLeftClick()) {
+								if (event.isShiftClick()) {
+									// We don't care about the cursor as it
+									// doesn't
+									// get changed on a shift click
+									if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+										if (fromChest) {
+											final int amount = karma
+													.takeItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCurrentItem(),
 															group);
-													final int original = event
-															.getItem()
-															.getAmount();
-													if (amount == event
-															.getItem()
-															.getAmount())
-													{
-														event.setResult(Event.Result.ALLOW);
-													}
-													else if (amount < event
-															.getItem()
-															.getAmount()
-															&& amount > 0)
-													{
-														event.setResult(Event.Result.ALLOW);
-														event.getItem()
-																.setAmount(
-																		amount);
-														final ItemStack bak = event
-																.getItem()
-																.clone();
-														bak.setAmount(original
-																- amount);
-														final Repopulate task = new Repopulate(
-																event.getInventory(),
-																bak,
-																event.getSlot(), false);
-														int id = plugin
-																.getServer()
-																.getScheduler()
-																.scheduleSyncDelayedTask(
-																		plugin,
-																		task, 1);
-														if (id == -1)
-														{
-															event.getPlayer()
-																	.sendMessage(
-																			ChatColor.YELLOW
-																					+ KarmicShare.prefix
-																					+ "Could not repopulate slot.");
-														}
-													}
-													else
-													{
-														event.setResult(Event.Result.DENY);
-														event.setCancelled(true);
-													}
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-										}
-										else if (event.getItem() != null)
-										{
-											final int amount = karma.takeItem(
-													event.getPlayer(),
-													event.getItem(), group);
 											final int original = event
-													.getItem().getAmount();
-											if (amount == event.getItem()
-													.getAmount())
-											{
+													.getCurrentItem()
+													.getAmount();
+											if (amount == event
+													.getCurrentItem()
+													.getAmount()) {
 												event.setResult(Event.Result.ALLOW);
-											}
-											else if (amount < event.getItem()
-													.getAmount() && amount > 0)
-											{
 												event.setResult(Event.Result.ALLOW);
-												event.getItem().setAmount(
-														amount);
-												final ItemStack bak = event
-														.getItem().clone();
-												bak.setAmount(original - amount);
-												final Repopulate task = new Repopulate(
-														event.getInventory(),
-														bak, event.getSlot(), false);
-												int id = plugin
-														.getServer()
-														.getScheduler()
-														.scheduleSyncDelayedTask(
-																plugin, task, 1);
-												if (id == -1)
-												{
-													event.getPlayer()
-															.sendMessage(
-																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
-												}
-											}
-											else
-											{
-												event.setResult(Event.Result.DENY);
-												event.setCancelled(true);
-											}
-										}
-										else if (event.getCursor() != null)
-										{
-
-											// they clicked on an item in chest
-											if (karma.giveItem(event.getPlayer(),
-													event.getCursor(), group))
-											{
-												event.setResult(Event.Result.ALLOW);
-											}
-											else
-											{
-												event.setResult(Event.Result.DENY);
-												event.setCancelled(true);
-											}
-										}
-									}
-								}
-								else
-								{
-									//If item is not null, they are taking whole stack
-									// Handle right shift click
-									if (event.isShiftClick())
-									{
-										if (event.getItem() != null)
-										{
-											if (fromChest)
-											{
-												final int amount = karma.takeItem(
-														event.getPlayer(),
-														event.getItem(), group);
-												final int original = event
-														.getItem().getAmount();
-												if (amount == event.getItem()
-														.getAmount())
-												{
-													event.setResult(Event.Result.DENY);
-													ItemStack item;
-													if (event.getItem()
-															.getEnchantments()
-															.isEmpty())
-													{
-														item = event.getItem()
-																.clone();
-													}
-													else
-													{
-														// Handle enchantments
-														item = new ItemStack(
-																event.getItem()
-																		.getTypeId(),
-																event.getItem()
-																		.getAmount(),
-																event.getItem()
-																		.getDurability(),
-																event.getItem()
-																		.getData()
-																		.getData());
-														for (Map.Entry<Enchantment, Integer> enchantment : event
-																.getItem()
-																.getEnchantments()
-																.entrySet())
-														{
-															item.addUnsafeEnchantment(
-																	enchantment
-																			.getKey(),
-																	enchantment
-																			.getValue()
-																			.intValue());
-														}
-													}
-													final Repopulate task = new Repopulate(
-															event.getPlayer()
-																	.getInventory(),
-															item);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-													final Repopulate clear = new Repopulate(
-															event.getInventory(), item, event.getSlot(), true);
-													id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	clear, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-												}
-												else if (amount < event
-														.getItem().getAmount()
-														&& amount > 0)
-												{
-													event.setResult(Event.Result.DENY);
-													final ItemStack bak = event
-															.getItem().clone();
-													bak.setAmount(original
-															- amount);
-													Repopulate task = new Repopulate(
-															event.getInventory(),
-															bak, event
-																	.getSlot(), false);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-													final ItemStack give = event
-															.getItem().clone();
-													give.setAmount(amount);
-													task = new Repopulate(event
-															.getPlayer()
-															.getInventory(),
-															give);
-													id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not give item.");
-													}
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-											else
-											{
-												if (karma.giveItem(event.getPlayer(),
-														event.getItem(), group))
-												{
-													event.setResult(Event.Result.ALLOW);
-													ItemStack item;
-													if (event.getItem()
-															.getEnchantments()
-															.isEmpty())
-													{
-														item = event.getItem()
-																.clone();
-													}
-													else
-													{
-														// Handle enchantments
-														item = new ItemStack(
-																event.getItem()
-																		.getTypeId(),
-																event.getItem()
-																		.getAmount(),
-																event.getItem()
-																		.getDurability(),
-																event.getItem()
-																		.getData()
-																		.getData());
-														for (Map.Entry<Enchantment, Integer> enchantment : event
-																.getItem()
-																.getEnchantments()
-																.entrySet())
-														{
-															item.addUnsafeEnchantment(
-																	enchantment
-																			.getKey(),
-																	enchantment
-																			.getValue()
-																			.intValue());
-														}
-													}
-													final Repopulate task = new Repopulate(
-															chest.getInventory(),
-															item);
-													int id = plugin
-															.getServer()
-															.getScheduler()
-															.scheduleSyncDelayedTask(
-																	plugin,
-																	task, 1);
-													if (id == -1)
-													{
-														event.getPlayer()
-																.sendMessage(
-																		ChatColor.YELLOW
-																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
-													event.setItem(null);
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-										}
-									}
-									else
-									{
-										if (event.getItem() != null
-												&& event.getCursor() != null)
-										{
-											//If they're both the same item, giving 1 from cursor to item
-											if (event
-													.getItem()
-													.getType()
-													.equals(event.getCursor()
-															.getType()))
-											{
-												//Construct singular of cursor item
 												ItemStack item;
-												if (event.getCursor()
+												if (event.getCurrentItem()
 														.getEnchantments()
-														.isEmpty())
-												{
+														.isEmpty()) {
 													item = event
-															.getCursor()
+															.getCurrentItem()
 															.clone();
-													item.setAmount(1);
-												}
-												else
-												{
+												} else {
 													// Handle enchantments
 													item = new ItemStack(
-															event.getCursor()
+															event.getCurrentItem()
 																	.getTypeId(),
-															1,
-															event.getCursor()
+															event.getCurrentItem()
+																	.getAmount(),
+															event.getCurrentItem()
 																	.getDurability(),
-															event.getCursor()
+															event.getCurrentItem()
 																	.getData()
 																	.getData());
 													for (Map.Entry<Enchantment, Integer> enchantment : event
-															.getCursor()
+															.getCurrentItem()
 															.getEnchantments()
-															.entrySet())
-													{
+															.entrySet()) {
 														item.addUnsafeEnchantment(
 																enchantment
 																		.getKey(),
@@ -742,226 +139,581 @@ public class KSInventoryListener implements Listener {
 																		.intValue());
 													}
 												}
-												if (karma.giveItem(event.getPlayer(),
-														item,
-														group))
-												{
-													event.setResult(Event.Result.ALLOW);
-													item.setAmount(event.getItem().getAmount());
-													repopulateTask(event.getPlayer(), chest.getInventory(), item);
-													event.setItem(null);
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-											else
-											{
-												// When switching, put item
-												// first,
-												// then
-												// attempt to take item
-												if (karma.giveItem(event.getPlayer(),
-														event.getCursor(),
-														group))
-												{
-													final int amount = karma.takeItem(
-															event.getPlayer(),
-															event.getItem(),
-															group);
-													final int original = event
-															.getItem()
-															.getAmount();
-													if (amount == event
-															.getItem()
-															.getAmount())
-													{
-														event.setResult(Event.Result.ALLOW);
-													}
-													else if (amount < event
-															.getItem()
-															.getAmount()
-															&& amount > 0)
-													{
-														event.setResult(Event.Result.ALLOW);
-														event.getItem()
-																.setAmount(
-																		amount);
-														final ItemStack bak = event
-																.getItem()
-																.clone();
-														bak.setAmount(original
-																- amount);
-														final Repopulate task = new Repopulate(
-																event.getInventory(),
-																bak,
-																event.getSlot(), false);
-														int id = plugin
-																.getServer()
-																.getScheduler()
-																.scheduleSyncDelayedTask(
-																		plugin,
-																		task, 1);
-														if (id == -1)
-														{
-															event.getPlayer()
-																	.sendMessage(
-																			ChatColor.YELLOW
-																					+ KarmicShare.prefix
-																					+ "Could not repopulate slot.");
-														}
-													}
-													else
-													{
-														event.setResult(Event.Result.DENY);
-														event.setCancelled(true);
-													}
-												}
-												else
-												{
-													event.setResult(Event.Result.DENY);
-													event.setCancelled(true);
-												}
-											}
-										}
-										// If cursor is null and item is not null, they are taking half of the stack, with the larger half on cursor
-										else if (event.getItem() != null)
-										{
-											//Calculate "half"
-											int half = event.getItem().getAmount() / 2;
-											final double rem = (double) event.getItem().getAmount() % 2.0;
-											if(rem != 0)
-											{
-												half++;
-											}
-											//Clone
-											ItemStack item;
-											if (event.getItem()
-													.getEnchantments()
-													.isEmpty())
-											{
-												item = event.getItem()
-														.clone();
-											}
-											else
-											{
-												// Handle enchantments
-												item = new ItemStack(
-														event.getItem()
-																.getTypeId(),
-														event.getItem()
-																.getAmount(),
-														event.getItem()
-																.getDurability(),
-														event.getItem()
-																.getData()
-																.getData());
-												for (Map.Entry<Enchantment, Integer> enchantment : event
-														.getItem()
-														.getEnchantments()
-														.entrySet())
-												{
-													item.addUnsafeEnchantment(
-															enchantment
-																	.getKey(),
-															enchantment
-																	.getValue()
-																	.intValue());
-												}
-											}
-											item.setAmount(half);
-											//Send to database
-											final int amount = karma.takeItem(
-													event.getPlayer(),
-													item, group);
-											if (amount == half)
-											{
-												event.setResult(Event.Result.ALLOW);
-											}
-											else if (amount < event
-													.getItem().getAmount()
-													&& amount > 0)
-											{
-												event.setResult(Event.Result.DENY);
-												final ItemStack bak = event
-														.getItem().clone();
-												bak.setAmount(event.getItem().getAmount()
-														- amount);
-												Repopulate task = new Repopulate(
-														event.getInventory(),
-														bak, event
-																.getSlot(), false);
+												final Repopulate task = new Repopulate(
+														event.getWhoClicked()
+																.getInventory(),
+														item);
 												int id = plugin
 														.getServer()
 														.getScheduler()
 														.scheduleSyncDelayedTask(
-																plugin,
-																task, 1);
-												if (id == -1)
-												{
-													event.getPlayer()
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
 																			+ "Could not repopulate slot.");
 												}
-												item.setAmount(amount);
-												task = new Repopulate(event
-														.getPlayer()
-														.getInventory(),
-														item);
+												event.setCurrentItem(new ItemStack(Material.AIR));
+											} else if (amount < event
+													.getCurrentItem()
+													.getAmount()
+													&& amount > 0) {
+												event.setResult(Event.Result.DENY);
+												final ItemStack bak = event
+														.getCurrentItem()
+														.clone();
+												bak.setAmount(original - amount);
+												Repopulate task = new Repopulate(
+														event.getInventory(),
+														bak, event.getSlot(),
+														false);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+												final ItemStack give = event
+														.getCurrentItem()
+														.clone();
+												give.setAmount(amount);
+												task = new Repopulate(
+														plugin.getServer()
+																.getPlayer(
+																		event.getWhoClicked()
+																				.getName())
+																.getInventory(),
+														give);
 												id = plugin
 														.getServer()
 														.getScheduler()
 														.scheduleSyncDelayedTask(
-																plugin,
-																task, 1);
-												if (id == -1)
-												{
-													event.getPlayer()
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
 																			+ "Could not give item.");
 												}
+											} else {
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
 											}
-											else
-											{
+										} else {
+											if (karma
+													.giveItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCurrentItem(),
+															group)) {
+												event.setResult(Event.Result.ALLOW);
+												ItemStack item;
+												if (event.getCurrentItem()
+														.getEnchantments()
+														.isEmpty()) {
+													item = event
+															.getCurrentItem()
+															.clone();
+												} else {
+													// Handle enchantments
+													item = new ItemStack(
+															event.getCurrentItem()
+																	.getTypeId(),
+															event.getCurrentItem()
+																	.getAmount(),
+															event.getCurrentItem()
+																	.getDurability(),
+															event.getCurrentItem()
+																	.getData()
+																	.getData());
+													for (Map.Entry<Enchantment, Integer> enchantment : event
+															.getCurrentItem()
+															.getEnchantments()
+															.entrySet()) {
+														item.addUnsafeEnchantment(
+																enchantment
+																		.getKey(),
+																enchantment
+																		.getValue()
+																		.intValue());
+													}
+												}
+												final Repopulate task = new Repopulate(
+														chest.getInventory(),
+														item);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+												event.setCurrentItem(new ItemStack(Material.AIR));
+											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
 											}
 										}
-										else if (event.getCursor() != null)
-										{
-											//Clone
+									}
+								} else {
+									if (!event.getCurrentItem().getType().equals(Material.AIR)
+											&& !event.getCursor().getType().equals(Material.AIR)) {
+										plugin.getLogger().info("current item: " + event.getCurrentItem().toString());
+										plugin.getLogger().info("Cursor: " + event.getCursor().toString());
+										if (event
+												.getCurrentItem()
+												.getType()
+												.equals(event.getCursor()
+														.getType())) {
+											if (karma
+													.giveItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCursor(),
+															group)) {
+												event.setResult(Event.Result.ALLOW);
+												ItemStack item;
+												if (event.getCursor()
+														.getEnchantments()
+														.isEmpty()) {
+													item = event.getCursor()
+															.clone();
+												} else {
+													// Handle enchantments
+													item = new ItemStack(event
+															.getCursor()
+															.getTypeId(), event
+															.getCursor()
+															.getAmount(), event
+															.getCursor()
+															.getDurability(),
+															event.getCursor()
+																	.getData()
+																	.getData());
+													for (Map.Entry<Enchantment, Integer> enchantment : event
+															.getCursor()
+															.getEnchantments()
+															.entrySet()) {
+														item.addUnsafeEnchantment(
+																enchantment
+																		.getKey(),
+																enchantment
+																		.getValue()
+																		.intValue());
+													}
+												}
+												repopulateTask(
+														plugin.getServer()
+																.getPlayer(
+																		event.getWhoClicked()
+																				.getName()),
+														chest.getInventory(),
+														item);
+												event.setCurrentItem(new ItemStack(Material.AIR));
+											} else {
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										} else {
+											// When switching, put item
+											// first,
+											// then
+											// attempt to take item
+											if (karma
+													.giveItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCursor(),
+															group)) {
+												final int amount = karma
+														.takeItem(
+																plugin.getServer()
+																		.getPlayer(
+																				event.getWhoClicked()
+																						.getName()),
+																event.getCurrentItem(),
+																group);
+												final int original = event
+														.getCurrentItem()
+														.getAmount();
+												if (amount == event
+														.getCurrentItem()
+														.getAmount()) {
+													event.setResult(Event.Result.ALLOW);
+												} else if (amount < event
+														.getCurrentItem()
+														.getAmount()
+														&& amount > 0) {
+													event.setResult(Event.Result.ALLOW);
+													event.getCurrentItem()
+															.setAmount(amount);
+													final ItemStack bak = event
+															.getCurrentItem()
+															.clone();
+													bak.setAmount(original
+															- amount);
+													final Repopulate task = new Repopulate(
+															event.getInventory(),
+															bak, event
+																	.getSlot(),
+															false);
+													int id = plugin
+															.getServer()
+															.getScheduler()
+															.scheduleSyncDelayedTask(
+																	plugin,
+																	task, 1);
+													if (id == -1) {
+														plugin.getServer()
+																.getPlayer(
+																		event.getWhoClicked()
+																				.getName())
+																.sendMessage(
+																		ChatColor.YELLOW
+																				+ KarmicShare.prefix
+																				+ "Could not repopulate slot.");
+													}
+												} else {
+													event.setResult(Event.Result.DENY);
+													event.setCancelled(true);
+												}
+											} else {
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+									} else if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+										final int amount = karma.takeItem(
+												plugin.getServer().getPlayer(
+														event.getWhoClicked()
+																.getName()),
+												event.getCurrentItem(), group);
+										final int original = event
+												.getCurrentItem().getAmount();
+										if (amount == event.getCurrentItem()
+												.getAmount()) {
+											event.setResult(Event.Result.ALLOW);
+										} else if (amount < event
+												.getCurrentItem().getAmount()
+												&& amount > 0) {
+											event.setResult(Event.Result.ALLOW);
+											event.getCurrentItem().setAmount(
+													amount);
+											final ItemStack bak = event
+													.getCurrentItem().clone();
+											bak.setAmount(original - amount);
+											final Repopulate task = new Repopulate(
+													event.getInventory(), bak,
+													event.getSlot(), false);
+											int id = plugin
+													.getServer()
+													.getScheduler()
+													.scheduleSyncDelayedTask(
+															plugin, task, 1);
+											if (id == -1) {
+												plugin.getServer()
+														.getPlayer(
+																event.getWhoClicked()
+																		.getName())
+														.sendMessage(
+																ChatColor.YELLOW
+																		+ KarmicShare.prefix
+																		+ "Could not repopulate slot.");
+											}
+										} else {
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									} else if (!event.getCursor().getType().equals(Material.AIR)) {
+
+										// they clicked on an item in chest
+										if (karma.giveItem(
+												plugin.getServer().getPlayer(
+														event.getWhoClicked()
+																.getName()),
+												event.getCursor(), group)) {
+											event.setResult(Event.Result.ALLOW);
+										} else {
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									}
+								}
+							} else {
+								// If item is not null, they are taking whole
+								// stack
+								// Handle right shift click
+								if (event.isShiftClick()) {
+									if (event.getCurrentItem() != null) {
+										if (fromChest) {
+											final int amount = karma
+													.takeItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCurrentItem(),
+															group);
+											final int original = event
+													.getCurrentItem()
+													.getAmount();
+											if (amount == event
+													.getCurrentItem()
+													.getAmount()) {
+												event.setResult(Event.Result.DENY);
+												ItemStack item;
+												if (event.getCurrentItem()
+														.getEnchantments()
+														.isEmpty()) {
+													item = event
+															.getCurrentItem()
+															.clone();
+												} else {
+													// Handle enchantments
+													item = new ItemStack(
+															event.getCurrentItem()
+																	.getTypeId(),
+															event.getCurrentItem()
+																	.getAmount(),
+															event.getCurrentItem()
+																	.getDurability(),
+															event.getCurrentItem()
+																	.getData()
+																	.getData());
+													for (Map.Entry<Enchantment, Integer> enchantment : event
+															.getCurrentItem()
+															.getEnchantments()
+															.entrySet()) {
+														item.addUnsafeEnchantment(
+																enchantment
+																		.getKey(),
+																enchantment
+																		.getValue()
+																		.intValue());
+													}
+												}
+												final Repopulate task = new Repopulate(
+														event.getWhoClicked()
+																.getInventory(),
+														item);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+												final Repopulate clear = new Repopulate(
+														event.getInventory(),
+														item, event.getSlot(),
+														true);
+												id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, clear,
+																1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+											} else if (amount < event
+													.getCurrentItem()
+													.getAmount()
+													&& amount > 0) {
+												event.setResult(Event.Result.DENY);
+												final ItemStack bak = event
+														.getCurrentItem()
+														.clone();
+												bak.setAmount(original - amount);
+												Repopulate task = new Repopulate(
+														event.getInventory(),
+														bak, event.getSlot(),
+														false);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+												final ItemStack give = event
+														.getCurrentItem()
+														.clone();
+												give.setAmount(amount);
+												task = new Repopulate(event
+														.getWhoClicked()
+														.getInventory(), give);
+												id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not give item.");
+												}
+											} else {
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										} else {
+											if (karma
+													.giveItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCurrentItem(),
+															group)) {
+												event.setResult(Event.Result.ALLOW);
+												ItemStack item;
+												if (event.getCurrentItem()
+														.getEnchantments()
+														.isEmpty()) {
+													item = event
+															.getCurrentItem()
+															.clone();
+												} else {
+													// Handle enchantments
+													item = new ItemStack(
+															event.getCurrentItem()
+																	.getTypeId(),
+															event.getCurrentItem()
+																	.getAmount(),
+															event.getCurrentItem()
+																	.getDurability(),
+															event.getCurrentItem()
+																	.getData()
+																	.getData());
+													for (Map.Entry<Enchantment, Integer> enchantment : event
+															.getCurrentItem()
+															.getEnchantments()
+															.entrySet()) {
+														item.addUnsafeEnchantment(
+																enchantment
+																		.getKey(),
+																enchantment
+																		.getValue()
+																		.intValue());
+													}
+												}
+												final Repopulate task = new Repopulate(
+														chest.getInventory(),
+														item);
+												int id = plugin
+														.getServer()
+														.getScheduler()
+														.scheduleSyncDelayedTask(
+																plugin, task, 1);
+												if (id == -1) {
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.sendMessage(
+																	ChatColor.YELLOW
+																			+ KarmicShare.prefix
+																			+ "Could not repopulate slot.");
+												}
+												event.setCurrentItem(null);
+											} else {
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										}
+									}
+								} else {
+									if (event.getCurrentItem() != null
+											&& event.getCursor() != null) {
+										// If they're both the same item, giving
+										// 1 from cursor to item
+										if (event
+												.getCurrentItem()
+												.getType()
+												.equals(event.getCursor()
+														.getType())) {
+											// Construct singular of cursor item
 											ItemStack item;
 											if (event.getCursor()
 													.getEnchantments()
-													.isEmpty())
-											{
+													.isEmpty()) {
 												item = event.getCursor()
 														.clone();
-											}
-											else
-											{
+												item.setAmount(1);
+											} else {
 												// Handle enchantments
-												item = new ItemStack(
-														event.getCursor()
-																.getTypeId(),
-														event.getCursor()
-																.getAmount(),
-														event.getCursor()
-																.getDurability(),
-														event.getCursor()
-																.getData()
-																.getData());
+												item = new ItemStack(event
+														.getCursor()
+														.getTypeId(), 1, event
+														.getCursor()
+														.getDurability(), event
+														.getCursor().getData()
+														.getData());
 												for (Map.Entry<Enchantment, Integer> enchantment : event
 														.getCursor()
 														.getEnchantments()
-														.entrySet())
-												{
+														.entrySet()) {
 													item.addUnsafeEnchantment(
 															enchantment
 																	.getKey(),
@@ -970,21 +722,244 @@ public class KSInventoryListener implements Listener {
 																	.intValue());
 												}
 											}
-											//Only giving one
-											item.setAmount(1);
-											if(!karma.giveItem(event.getPlayer(), item, group))
-											{
+											if (karma
+													.giveItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															item, group)) {
+												event.setResult(Event.Result.ALLOW);
+												item.setAmount(event
+														.getCurrentItem()
+														.getAmount());
+												repopulateTask(
+														plugin.getServer()
+																.getPlayer(
+																		event.getWhoClicked()
+																				.getName()),
+														chest.getInventory(),
+														item);
+												event.setCurrentItem(null);
+											} else {
+												event.setResult(Event.Result.DENY);
+												event.setCancelled(true);
+											}
+										} else {
+											// When switching, put item
+											// first,
+											// then
+											// attempt to take item
+											if (karma
+													.giveItem(
+															plugin.getServer()
+																	.getPlayer(
+																			event.getWhoClicked()
+																					.getName()),
+															event.getCursor(),
+															group)) {
+												final int amount = karma
+														.takeItem(
+																plugin.getServer()
+																		.getPlayer(
+																				event.getWhoClicked()
+																						.getName()),
+																event.getCurrentItem(),
+																group);
+												final int original = event
+														.getCurrentItem()
+														.getAmount();
+												if (amount == event
+														.getCurrentItem()
+														.getAmount()) {
+													event.setResult(Event.Result.ALLOW);
+												} else if (amount < event
+														.getCurrentItem()
+														.getAmount()
+														&& amount > 0) {
+													event.setResult(Event.Result.ALLOW);
+													event.getCurrentItem()
+															.setAmount(amount);
+													final ItemStack bak = event
+															.getCurrentItem()
+															.clone();
+													bak.setAmount(original
+															- amount);
+													final Repopulate task = new Repopulate(
+															event.getInventory(),
+															bak, event
+																	.getSlot(),
+															false);
+													int id = plugin
+															.getServer()
+															.getScheduler()
+															.scheduleSyncDelayedTask(
+																	plugin,
+																	task, 1);
+													if (id == -1) {
+														plugin.getServer()
+																.getPlayer(
+																		event.getWhoClicked()
+																				.getName())
+																.sendMessage(
+																		ChatColor.YELLOW
+																				+ KarmicShare.prefix
+																				+ "Could not repopulate slot.");
+													}
+												} else {
+													event.setResult(Event.Result.DENY);
+													event.setCancelled(true);
+												}
+											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
 											}
 										}
 									}
+									// If cursor is null and item is not null,
+									// they are taking half of the stack, with
+									// the larger half on cursor
+									else if (event.getCurrentItem() != null) {
+										// Calculate "half"
+										int half = event.getCurrentItem()
+												.getAmount() / 2;
+										final double rem = (double) event
+												.getCurrentItem().getAmount() % 2.0;
+										if (rem != 0) {
+											half++;
+										}
+										// Clone
+										ItemStack item;
+										if (event.getCurrentItem()
+												.getEnchantments().isEmpty()) {
+											item = event.getCurrentItem()
+													.clone();
+										} else {
+											// Handle enchantments
+											item = new ItemStack(event
+													.getCurrentItem()
+													.getTypeId(), event
+													.getCurrentItem()
+													.getAmount(), event
+													.getCurrentItem()
+													.getDurability(), event
+													.getCurrentItem().getData()
+													.getData());
+											for (Map.Entry<Enchantment, Integer> enchantment : event
+													.getCurrentItem()
+													.getEnchantments()
+													.entrySet()) {
+												item.addUnsafeEnchantment(
+														enchantment.getKey(),
+														enchantment.getValue()
+																.intValue());
+											}
+										}
+										item.setAmount(half);
+										// Send to database
+										final int amount = karma.takeItem(
+												plugin.getServer().getPlayer(
+														event.getWhoClicked()
+																.getName()),
+												item, group);
+										if (amount == half) {
+											event.setResult(Event.Result.ALLOW);
+										} else if (amount < event
+												.getCurrentItem().getAmount()
+												&& amount > 0) {
+											event.setResult(Event.Result.DENY);
+											final ItemStack bak = event
+													.getCurrentItem().clone();
+											bak.setAmount(event
+													.getCurrentItem()
+													.getAmount()
+													- amount);
+											Repopulate task = new Repopulate(
+													event.getInventory(), bak,
+													event.getSlot(), false);
+											int id = plugin
+													.getServer()
+													.getScheduler()
+													.scheduleSyncDelayedTask(
+															plugin, task, 1);
+											if (id == -1) {
+												plugin.getServer()
+														.getPlayer(
+																event.getWhoClicked()
+																		.getName())
+														.sendMessage(
+																ChatColor.YELLOW
+																		+ KarmicShare.prefix
+																		+ "Could not repopulate slot.");
+											}
+											item.setAmount(amount);
+											task = new Repopulate(
+													plugin.getServer()
+															.getPlayer(
+																	event.getWhoClicked()
+																			.getName())
+															.getInventory(),
+													item);
+											id = plugin
+													.getServer()
+													.getScheduler()
+													.scheduleSyncDelayedTask(
+															plugin, task, 1);
+											if (id == -1) {
+												plugin.getServer()
+														.getPlayer(
+																event.getWhoClicked()
+																		.getName())
+														.sendMessage(
+																ChatColor.YELLOW
+																		+ KarmicShare.prefix
+																		+ "Could not give item.");
+											}
+										} else {
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									} else if (event.getCursor() != null) {
+										// Clone
+										ItemStack item;
+										if (event.getCursor().getEnchantments()
+												.isEmpty()) {
+											item = event.getCursor().clone();
+										} else {
+											// Handle enchantments
+											item = new ItemStack(event
+													.getCursor().getTypeId(),
+													event.getCursor()
+															.getAmount(), event
+															.getCursor()
+															.getDurability(),
+													event.getCursor().getData()
+															.getData());
+											for (Map.Entry<Enchantment, Integer> enchantment : event
+													.getCursor()
+													.getEnchantments()
+													.entrySet()) {
+												item.addUnsafeEnchantment(
+														enchantment.getKey(),
+														enchantment.getValue()
+																.intValue());
+											}
+										}
+										// Only giving one
+										item.setAmount(1);
+										if (!karma.giveItem(
+												plugin.getServer().getPlayer(
+														event.getWhoClicked()
+																.getName()),
+												item, group)) {
+											event.setResult(Event.Result.DENY);
+											event.setCancelled(true);
+										}
+									}
 								}
 							}
-							catch (NullPointerException e)
-							{
-								e.printStackTrace();
-							}
+						} catch (NullPointerException e) {
+							e.printStackTrace();
 						}
 					}
 				}
@@ -992,21 +967,13 @@ public class KSInventoryListener implements Listener {
 		}
 	}
 
-	private void repopulateTask(Player player, Inventory inv, ItemStack item)
-	{
-		final Repopulate task = new Repopulate(inv,item);
-		int id = plugin
-				.getServer()
-				.getScheduler()
-				.scheduleSyncDelayedTask(
-						plugin,
-						task, 1);
-		if (id == -1)
-		{
-			player.sendMessage(
-							ChatColor.YELLOW
-									+ KarmicShare.prefix
-									+ "Could not repopulate slot.");
+	private void repopulateTask(Player player, Inventory inv, ItemStack item) {
+		final Repopulate task = new Repopulate(inv, item);
+		int id = plugin.getServer().getScheduler()
+				.scheduleSyncDelayedTask(plugin, task, 1);
+		if (id == -1) {
+			player.sendMessage(ChatColor.YELLOW + KarmicShare.prefix
+					+ "Could not repopulate slot.");
 		}
 	}
 
@@ -1031,19 +998,13 @@ public class KSInventoryListener implements Listener {
 
 		@Override
 		public void run() {
-			if (slot >= 0)
-			{
-				if(clear)
-				{
+			if (slot >= 0) {
+				if (clear) {
 					inventory.clear(slot);
-				}
-				else
-				{
+				} else {
 					inventory.setItem(slot, item);
 				}
-			}
-			else
-			{
+			} else {
 				inventory.addItem(item);
 			}
 		}
