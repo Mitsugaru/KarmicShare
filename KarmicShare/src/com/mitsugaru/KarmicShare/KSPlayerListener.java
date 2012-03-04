@@ -1,8 +1,9 @@
 package com.mitsugaru.KarmicShare;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+
+import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -544,19 +545,19 @@ public class KSPlayerListener implements Listener {
 	{
 		//Calculate number of slots
 		int slots = 0;
-		ResultSet all = plugin.getDatabaseHandler().select("SELECT * FROM "
+		Query all = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items WHERE groups='" + group + "';");
 		try
 		{
-			if(all.next())
+			if(all.getResult().next())
 			{
 				do
 				{
-					final int amount = all.getInt("amount");
-					if(!all.wasNull())
+					final int amount = all.getResult().getInt("amount");
+					if(!all.getResult().wasNull())
 					{
-						final ItemStack item = new ItemStack(all.getInt("itemid"), amount);
+						final ItemStack item = new ItemStack(all.getResult().getInt("itemid"), amount);
 						int maxStack = item.getType().getMaxStackSize();
 						if(maxStack <= 0)
 						{
@@ -570,9 +571,9 @@ public class KSPlayerListener implements Listener {
 						}
 						slots += stacks;
 					}
-				}while(all.next());
+				}while(all.getResult().next());
 			}
-			all.close();
+			all.closeQuery();
 		}
 		catch (SQLException e)
 		{
@@ -634,20 +635,20 @@ public class KSPlayerListener implements Listener {
 				limit = 54;
 			}
 			int start = (page - 1) * limit;
-			ResultSet itemList = plugin.getDatabaseHandler().select(
+			Query itemList = plugin.getDatabaseHandler().select(
 					"SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items WHERE groups='" + group + "';");
-			if (itemList.next())
+			if (itemList.getResult().next())
 			{
 				boolean done = false;
 				do
 				{
 					// Generate item
-					int id = itemList.getInt("itemid");
-					int amount = itemList.getInt("amount");
-					byte data = itemList.getByte("data");
-					short dur = itemList.getShort("durability");
+					int id = itemList.getResult().getInt("itemid");
+					int amount = itemList.getResult().getInt("amount");
+					byte data = itemList.getResult().getByte("data");
+					short dur = itemList.getResult().getShort("durability");
 					ItemStack item = new ItemStack(id, amount, dur, data);
 					//Generate psudo item to calculate slots taken up
 					int maxStack = item.getType().getMaxStackSize();
@@ -681,9 +682,9 @@ public class KSPlayerListener implements Listener {
 						if (meta.isTool())
 						{
 								// Check for enchantments
-								String enchantments = itemList
+								String enchantments = itemList.getResult()
 										.getString("enchantments");
-								if (!itemList.wasNull())
+								if (!itemList.getResult().wasNull())
 								{
 									String[] cut = enchantments.split("i");
 									for (int s = 0; s < cut.length; s++)
@@ -727,7 +728,7 @@ public class KSPlayerListener implements Listener {
 					count++;
 					}
 				}
-				while (itemList.next() && !done);
+				while (itemList.getResult().next() && !done);
 			}
 			else
 			{
@@ -735,7 +736,7 @@ public class KSPlayerListener implements Listener {
 				inventory.clear();
 			}
 			// Close select
-			itemList.close();
+			itemList.closeQuery();
 		}
 		catch (SQLException e)
 		{

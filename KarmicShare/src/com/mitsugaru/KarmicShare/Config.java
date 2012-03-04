@@ -8,13 +8,14 @@ package com.mitsugaru.KarmicShare;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -213,31 +214,31 @@ public class Config {
 				plugin.getLogger().info("Revamping item table");
 				query = "SELECT * FROM items;";
 				final List<ZeroPointFourteenItemObject> fourteen = new ArrayList<ZeroPointFourteenItemObject>();
-				ResultSet rs = plugin.getDatabaseHandler().select(query);
-				if (rs.next())
+				Query rs = plugin.getDatabaseHandler().select(query);
+				if (rs.getResult().next())
 				{
 					do
 					{
-						String enchantments = rs.getString("enchantments");
-						if (!rs.wasNull())
+						String enchantments = rs.getResult().getString("enchantments");
+						if (!rs.getResult().wasNull())
 						{
-							fourteen.add(new ZeroPointFourteenItemObject(rs
-									.getInt("itemid"), rs.getInt("amount"), rs
+							fourteen.add(new ZeroPointFourteenItemObject(rs.getResult()
+									.getInt("itemid"), rs.getResult().getInt("amount"), rs.getResult()
 									.getByte("data"),
-									rs.getShort("durability"), enchantments));
+									rs.getResult().getShort("durability"), enchantments));
 						}
 						else
 						{
-							fourteen.add(new ZeroPointFourteenItemObject(rs
-									.getInt("itemid"), rs.getInt("amount"), rs
+							fourteen.add(new ZeroPointFourteenItemObject(rs.getResult()
+									.getInt("itemid"), rs.getResult().getInt("amount"), rs.getResult()
 									.getByte("data"),
-									rs.getShort("durability"), ""));
+									rs.getResult().getShort("durability"), ""));
 						}
 
 					}
-					while (rs.next());
+					while (rs.getResult().next());
 				}
-				rs.close();
+				rs.closeQuery();
 				// Drop item table
 				plugin.getDatabaseHandler().standardQuery("DROP TABLE items;");
 				// Create new table

@@ -127,7 +127,7 @@ public class SQLite extends Database {
 		return false;
 	}
 
-	public ResultSet select(String query)
+	public Query select(String query)
 	{
 		Connection connection = null;
 		Statement statement = null;
@@ -152,11 +152,11 @@ public class SQLite extends Database {
 			switch (this.getStatement(query)) {
 				case SELECT:
 					result = statement.executeQuery(query);
-					return result;
+					return new Query(connection, statement, result);
 
 				default:
 					statement.executeQuery(query);
-					return result;
+					return new Query(connection, statement, result);
 			}
 		} catch (SQLException ex) {
 			if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
@@ -347,7 +347,7 @@ public class SQLite extends Database {
 	 * @param query The SQL query to retry.
 	 * @return The SQL query result.
 	 */
-	public ResultSet retryResult(String query) {
+	public Query retryResult(String query) {
 		boolean passed = false;
 		Connection connection = open();
 		Statement statement = null;
@@ -358,7 +358,7 @@ public class SQLite extends Database {
 				statement = connection.createStatement();
 				result = statement.executeQuery(query);
 				passed = true;
-				return result;
+				return new Query(connection, statement, result);
 			} catch (SQLException ex) {
 				if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked")) {
 					passed = false;
@@ -371,10 +371,10 @@ public class SQLite extends Database {
 		return null;
 	}
 
-	@Override
+	/*@Override
 	ResultSet query(String query) {
 		// INFO Auto-generated method stub
 		// method replaced by separated method
 		return null;
-	}
+	}*/
 }

@@ -1,8 +1,8 @@
 package com.mitsugaru.KarmicShare;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import lib.Mitsugaru.SQLibrary.Database.Query;
 import lib.Mitsugaru.SQLibrary.MySQL;
 import lib.Mitsugaru.SQLibrary.SQLite;
 
@@ -108,34 +108,34 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Copy items
-			ResultSet rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+			Query query = sqlite.select("SELECT * FROM " + config.tablePrefix
 					+ "items;");
-			if (rs.next())
+			if (query.getResult().next())
 			{
-				plugin.getLogger().info(KarmicShare.prefix + " Importing items...");
+				plugin.getLogger().info("Importing items...");
 				do
 				{
 					boolean hasData = false;
 					boolean hasDurability = false;
 					boolean hasEnchantments = false;
-					final int id = rs.getInt("itemid");
-					final int amount = rs.getInt("amount");
-					byte data = rs.getByte("data");
-					if (!rs.wasNull())
+					final int id = query.getResult().getInt("itemid");
+					final int amount = query.getResult().getInt("amount");
+					byte data = query.getResult().getByte("data");
+					if (!query.getResult().wasNull())
 					{
 						hasData = true;
 					}
-					short dur = rs.getShort("durability");
-					if (!rs.wasNull())
+					short dur = query.getResult().getShort("durability");
+					if (!query.getResult().wasNull())
 					{
 						hasDurability = true;
 					}
-					final String enchantments = rs.getString("enchantments");
-					if (!rs.wasNull())
+					final String enchantments = query.getResult().getString("enchantments");
+					if (!query.getResult().wasNull())
 					{
 						hasEnchantments = true;
 					}
-					final String groups = rs.getString("groups");
+					final String groups = query.getResult().getString("groups");
 					sb.append("INSERT INTO " + config.tablePrefix
 							+ "items (itemid,amount");
 					if (hasData)
@@ -164,27 +164,27 @@ public class DBHandler {
 						sb.append(enchantments + "','");
 					}
 					sb.append(groups + "');");
-					final String query = sb.toString();
-					mysql.standardQuery(query);
+					final String send = sb.toString();
+					mysql.standardQuery(send);
 					sb = new StringBuilder();
 				}
-				while (rs.next());
+				while (query.getResult().next());
 			}
-			rs.close();
+			query.closeQuery();
 			sb = new StringBuilder();
 			// Copy players
-			rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+			query = sqlite.select("SELECT * FROM " + config.tablePrefix
 					+ "players;");
-			if(rs.next())
+			if(query.getResult().next())
 			{
-				plugin.getLogger().info(KarmicShare.prefix + " Importing players...");
+				plugin.getLogger().info("Importing players...");
 				do
 				{
 					boolean hasGroups = false;
-					final String player = rs.getString("playername");
-					final int karma = rs.getInt("karma");
-					final String groups = rs.getString("groups");
-					if(!rs.wasNull())
+					final String player = query.getResult().getString("playername");
+					final int karma = query.getResult().getInt("karma");
+					final String groups = query.getResult().getString("groups");
+					if(!query.getResult().wasNull())
 					{
 						hasGroups = true;
 					}
@@ -200,32 +200,31 @@ public class DBHandler {
 						sb.append(",'" + groups + "'");
 					}
 					sb.append(");");
-					final String query = sb.toString();
-					mysql.standardQuery(query);
+					final String send = sb.toString();
+					mysql.standardQuery(send);
 					sb = new StringBuilder();
-				}while(rs.next());
+				}while(query.getResult().next());
 			}
-			rs.close();
+			query.closeQuery();
 			sb = new StringBuilder();
 			// Copy groups
-			rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+			query = sqlite.select("SELECT * FROM " + config.tablePrefix
 					+ "groups;");
-			if(rs.next())
+			if(query.getResult().next())
 			{
-				plugin.getLogger().info(KarmicShare.prefix + " Importing groups...");
+				plugin.getLogger().info("Importing groups...");
 				do
 				{
-					final String query = "INSERT INTO " + config.tablePrefix + "groups (groupname) VALUES('" + rs.getString("groupname") + "');";
-					mysql.standardQuery(query);
-				}while(rs.next());
+					final String send = "INSERT INTO " + config.tablePrefix + "groups (groupname) VALUES('" + query.getResult().getString("groupname") + "');";
+					mysql.standardQuery(send);
+				}while(query.getResult().next());
 			}
-			rs.close();
-			plugin.getLogger().info(KarmicShare.prefix + " Done importing SQLite into MySQL");
+			query.closeQuery();
+			plugin.getLogger().info("Done importing SQLite into MySQL");
 		}
 		catch (SQLException e)
 		{
-			plugin.getLogger().warning(
-					KarmicShare.prefix + " SQL Exception on Import");
+			plugin.getLogger().warning("SQL Exception on Import");
 			e.printStackTrace();
 		}
 
@@ -255,7 +254,7 @@ public class DBHandler {
 		}
 	}
 
-	public ResultSet select(String query) {
+	public Query select(String query) {
 		if (useMySQL)
 		{
 			return mysql.select(query);

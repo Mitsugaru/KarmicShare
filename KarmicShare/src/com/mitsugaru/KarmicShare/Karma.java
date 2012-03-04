@@ -1,8 +1,9 @@
 package com.mitsugaru.KarmicShare;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+
+import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -39,16 +40,16 @@ public class Karma {
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items WHERE itemid='"
 					+ item.getTypeId() + "' AND groups='" + group + "';";
-			ResultSet toolRS = plugin.getDatabaseHandler().select(toolQuery);
+			Query toolRS = plugin.getDatabaseHandler().select(toolQuery);
 			try
 			{
-				if (toolRS.next())
+				if (toolRS.getResult().next())
 				{
 					do
 					{
-						poolAmount += toolRS.getInt("amount");
+						poolAmount += toolRS.getResult().getInt("amount");
 					}
-					while (toolRS.next());
+					while (toolRS.getResult().next());
 					if (poolAmount >= item.getAmount())
 					{
 						// We have enough in pool that
@@ -60,7 +61,7 @@ public class Karma {
 				{
 					has = false;
 				}
-				toolRS.close();
+				toolRS.closeQuery();
 			}
 			catch (SQLException e)
 			{
@@ -81,16 +82,16 @@ public class Karma {
 						+ "items WHERE itemid='" + item.getTypeId()
 					+ "' AND durability='" + item.getDurability()
 					+ "' AND groups='" + group + "';";
-			ResultSet rs = plugin.getDatabaseHandler().select(query);
+			Query rs = plugin.getDatabaseHandler().select(query);
 
 			// Check ResultSet
 			try
 			{
-				if (rs.next())
+				if (rs.getResult().next())
 				{
 					// Item already in pool, check
 					// amount
-					poolAmount = rs.getInt("amount");
+					poolAmount = rs.getResult().getInt("amount");
 					if (poolAmount >= item.getAmount())
 					{
 						// We have enough in pool that
@@ -103,7 +104,7 @@ public class Karma {
 					// Item not in database
 					has = false;
 				}
-				rs.close();
+				rs.closeQuery();
 			}
 			catch (SQLException e)
 			{
@@ -122,16 +123,16 @@ public class Karma {
 						+ "items WHERE itemid='" + item.getTypeId()
 					+ "' AND data='" + item.getData().getData()
 					+ "' AND groups='" + group + "';";
-			ResultSet rs = plugin.getDatabaseHandler().select(query);
+			Query rs = plugin.getDatabaseHandler().select(query);
 
 			// Check ResultSet
 			try
 			{
-				if (rs.next())
+				if (rs.getResult().next())
 				{
 					// Item already in pool, check
 					// amount
-					poolAmount = rs.getInt("amount");
+					poolAmount = rs.getResult().getInt("amount");
 					if (poolAmount >= item.getAmount())
 					{
 						// We have enough in pool that
@@ -144,7 +145,7 @@ public class Karma {
 					// Item not in database
 					has = false;
 				}
-				rs.close();
+				rs.closeQuery();
 			}
 			catch (SQLException e)
 			{
@@ -434,17 +435,17 @@ public class Karma {
 										+ sb.toString()
 										+ "' AND groups='"
 										+ group + "';";
-								ResultSet toolRS = plugin.getDatabaseHandler().select(
+								Query toolRS = plugin.getDatabaseHandler().select(
 										toolQuery);
-								if (toolRS.next())
+								if (toolRS.getResult().next())
 								{
-									if ((toolRS.getInt("amount") - amount) <= 0)
+									if ((toolRS.getResult().getInt("amount") - amount) <= 0)
 									{
 										// DROP
 										toolQuery = "DELETE FROM "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items WHERE id='"
-												+ toolRS.getInt("id") + "';";
+												+ toolRS.getResult().getInt("id") + "';";
 									}
 									else
 									{
@@ -452,12 +453,12 @@ public class Karma {
 										toolQuery = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='"
-												+ (toolRS.getInt("amount") - amount)
+												+ (toolRS.getResult().getInt("amount") - amount)
 												+ "' WHERE id='"
-												+ toolRS.getInt("id") + "';";
+												+ toolRS.getResult().getInt("id") + "';";
 									}
 								}
-								toolRS.close();
+								toolRS.closeQuery();
 							}
 							else
 							{
@@ -469,11 +470,11 @@ public class Karma {
 										+ "' AND data='"
 										+ item.getData().getData()
 										+ "' AND groups='" + group + "';";
-								ResultSet toolRS = plugin.getDatabaseHandler().select(
+								Query toolRS = plugin.getDatabaseHandler().select(
 										toolQuery);
-								if (toolRS.next())
+								if (toolRS.getResult().next())
 								{
-									if ((toolRS.getInt("amount") - amount) <= 0)
+									if ((toolRS.getResult().getInt("amount") - amount) <= 0)
 									{
 										// DROP
 										toolQuery = "DELETE FROM "
@@ -494,7 +495,7 @@ public class Karma {
 										toolQuery = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='"
-												+ (toolRS.getInt("amount") - amount)
+												+ (toolRS.getResult().getInt("amount") - amount)
 												+ "' WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND data='"
@@ -503,7 +504,7 @@ public class Karma {
 												+ "';";
 									}
 								}
-								toolRS.close();
+								toolRS.closeQuery();
 							}
 							plugin.getDatabaseHandler().standardQuery(toolQuery);
 						}
@@ -525,12 +526,12 @@ public class Karma {
 								+ item.getTypeId() + "' AND durability='"
 								+ item.getDurability() + "' AND groups='"
 								+ group + "';";
-						ResultSet rs = plugin.getDatabaseHandler().select(query);
+						Query rs = plugin.getDatabaseHandler().select(query);
 						try
 						{
-							if (rs.next())
+							if (rs.getResult().next())
 							{
-								if ((rs.getInt("amount") - amount) <= 0)
+								if ((rs.getResult().getInt("amount") - amount) <= 0)
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM "
@@ -546,7 +547,7 @@ public class Karma {
 									query = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='"
-											+ (rs.getInt("amount") - amount)
+											+ (rs.getResult().getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId()
 											+ "' AND durability='"
@@ -554,7 +555,7 @@ public class Karma {
 											+ "' AND groups='" + group + "';";
 								}
 							}
-							rs.close();
+							rs.closeQuery();
 							plugin.getDatabaseHandler().standardQuery(query);
 						}
 						catch (SQLException e)
@@ -575,12 +576,12 @@ public class Karma {
 								+ item.getTypeId() + "' AND data='"
 								+ item.getData().getData() + "' AND groups='"
 								+ group + "';";
-						ResultSet rs = plugin.getDatabaseHandler().select(query);
+						Query rs = plugin.getDatabaseHandler().select(query);
 						try
 						{
-							if (rs.next())
+							if (rs.getResult().next())
 							{
-								if ((rs.getInt("amount") - amount) <= 0)
+								if ((rs.getResult().getInt("amount") - amount) <= 0)
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM "
@@ -595,14 +596,14 @@ public class Karma {
 									query = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='"
-											+ (rs.getInt("amount") - amount)
+											+ (rs.getResult().getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
 											+ item.getData().getData()
 											+ "' AND groups='" + group + "';";
 								}
 							}
-							rs.close();
+							rs.closeQuery();
 							plugin.getDatabaseHandler().standardQuery(query);
 						}
 						catch (SQLException e)
@@ -734,12 +735,12 @@ public class Karma {
 							+ item.getTypeId() + "' AND data='"
 							+ item.getData().getData() + "' AND groups='"
 							+ group + "';";
-					ResultSet rs = plugin.getDatabaseHandler().select(query);
+					Query rs = plugin.getDatabaseHandler().select(query);
 
 					// Send Item to database
 					try
 					{
-						if (rs.next())
+						if (rs.getResult().next())
 						{
 							do
 							{
@@ -747,7 +748,7 @@ public class Karma {
 								// durability. Add amount that way
 								// if it exists
 								int total = item.getAmount()
-										+ rs.getInt("amount");
+										+ rs.getResult().getInt("amount");
 								query = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='" + total
@@ -756,7 +757,7 @@ public class Karma {
 										+ item.getData().getData()
 										+ "' AND groups='" + group + "';";
 							}
-							while (rs.next());
+							while (rs.getResult().next());
 						}
 						else
 						{
@@ -775,7 +776,7 @@ public class Karma {
 									+ group
 									+ "');";
 						}
-						rs.close();
+						rs.closeQuery();
 						plugin.getDatabaseHandler().standardQuery(query);
 					}
 					catch (SQLException e)
@@ -799,17 +800,17 @@ public class Karma {
 						+ "items WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
 						+ "' AND groups='" + group + "';";
-				ResultSet rs = plugin.getDatabaseHandler().select(query);
+				Query rs = plugin.getDatabaseHandler().select(query);
 
 				// Send Item to database
 				try
 				{
-					if (rs.next())
+					if (rs.getResult().next())
 					{
 						// For potions, look up for similar
 						// durability. Add amount that way
 						// if it exists
-						int total = item.getAmount() + rs.getInt("amount");
+						int total = item.getAmount() + rs.getResult().getInt("amount");
 						query = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='" + total
@@ -831,7 +832,7 @@ public class Karma {
 								+ "','"
 								+ group + "');";
 					}
-					rs.close();
+					rs.closeQuery();
 					plugin.getDatabaseHandler().standardQuery(query);
 				}
 				catch (SQLException e)
@@ -853,19 +854,19 @@ public class Karma {
 						+ "items WHERE itemid='" + item.getTypeId()
 						+ "' AND data='" + item.getData().getData()
 						+ "' AND groups='" + group + "';";
-				ResultSet rs = plugin.getDatabaseHandler().select(query);
+				Query rs = plugin.getDatabaseHandler().select(query);
 
 				// Send Item to database
 				try
 				{
-					if (rs.next())
+					if (rs.getResult().next())
 					{
 						do
 						{
 							// For tools, look up for similar
 							// durability. Add amount that way
 							// if it exists
-							int total = item.getAmount() + rs.getInt("amount");
+							int total = item.getAmount() + rs.getResult().getInt("amount");
 							query = "UPDATE "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "items SET amount='" + total
@@ -873,7 +874,7 @@ public class Karma {
 									+ "' AND data='" + item.getData().getData()
 									+ "' AND groups='" + group + "';";
 						}
-						while (rs.next());
+						while (rs.getResult().next());
 					}
 					else
 					{
@@ -889,7 +890,7 @@ public class Karma {
 								+ "','"
 								+ item.getDurability() + "','" + group + "');";
 					}
-					rs.close();
+					rs.closeQuery();
 					plugin.getDatabaseHandler().standardQuery(query);
 				}
 				catch (SQLException e)
@@ -1063,23 +1064,23 @@ public class Karma {
 		String query = "SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "players WHERE playername='" + name + "';";
-		ResultSet rs = plugin.getDatabaseHandler().select(query);
+		Query rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
 		// Retrieve karma from database
 		try
 		{
-			if (rs.next())
+			if (rs.getResult().next())
 			{
 				do
 				{
 					// Grab player karma value
-					karma = rs.getInt("karma");
+					karma = rs.getResult().getInt("karma");
 					has = true;
 				}
-				while (rs.next());
+				while (rs.getResult().next());
 			}
-			rs.close();
+			rs.closeQuery();
 			if (!has)
 			{
 				// Player not in database, therefore add them
@@ -1140,14 +1141,14 @@ public class Karma {
 		boolean valid = false;
 		try
 		{
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
+			Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "groups WHERE groupname='" + group + "';");
-			if(rs.next())
+			if(rs.getResult().next())
 			{
 				valid = true;
 			}
-			rs.close();
+			rs.closeQuery();
 		}
 		catch (SQLException e)
 		{
@@ -1171,13 +1172,13 @@ public class Karma {
 			//Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM "
+			Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ plugin.getPluginConfig().tablePrefix
 						+ "players WHERE playername='" + name + "';");
-			if(rs.next())
+			if(rs.getResult().next())
 			{
-				groups = rs.getString("groups");
-				if(!rs.wasNull())
+				groups = rs.getResult().getString("groups");
+				if(!rs.getResult().wasNull())
 				{
 					if(groups.contains("&"))
 					{
@@ -1200,7 +1201,7 @@ public class Karma {
 					}
 				}
 			}
-			rs.close();
+			rs.closeQuery();
 		}
 		catch (SQLException e)
 		{
