@@ -118,8 +118,7 @@ public class KSInventoryListener implements Listener {
 											if (amount == event
 													.getCurrentItem()
 													.getAmount()) {
-												event.setResult(Event.Result.ALLOW);
-												event.setResult(Event.Result.ALLOW);
+												//event.setResult(Event.Result.ALLOW);
 												ItemStack item;
 												if (event.getCurrentItem()
 														.getEnchantments()
@@ -168,14 +167,13 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
+																			+ " Could not repopulate slot.");
 												}
-												event.setCurrentItem(new ItemStack(Material.AIR));
+												event.getInventory().clear(event.getRawSlot());
 											} else if (amount < event
 													.getCurrentItem()
 													.getAmount()
 													&& amount > 0) {
-												event.setResult(Event.Result.DENY);
 												final ItemStack bak = event
 														.getCurrentItem()
 														.clone();
@@ -197,7 +195,7 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
+																			+ " Could not repopulate slot.");
 												}
 												final ItemStack give = event
 														.getCurrentItem()
@@ -223,8 +221,9 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not give item.");
+																			+ " Could not give item.");
 												}
+												event.setResult(Event.Result.DENY);
 											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
@@ -238,7 +237,7 @@ public class KSInventoryListener implements Listener {
 																					.getName()),
 															event.getCurrentItem(),
 															group)) {
-												event.setResult(Event.Result.ALLOW);
+												//event.setResult(Event.Result.ALLOW);
 												ItemStack item;
 												if (event.getCurrentItem()
 														.getEnchantments()
@@ -286,9 +285,9 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
+																			+ " Could not repopulate slot.");
 												}
-												event.setCurrentItem(new ItemStack(Material.AIR));
+												event.getWhoClicked().getInventory().clear(event.getSlot());
 											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
@@ -301,13 +300,14 @@ public class KSInventoryListener implements Listener {
 									 */
 									if (!event.getCurrentItem().getType().equals(Material.AIR)
 											&& !event.getCursor().getType().equals(Material.AIR)) {
-										plugin.getLogger().info("current item: " + event.getCurrentItem().toString());
-										plugin.getLogger().info("Cursor: " + event.getCursor().toString());
 										if (event
 												.getCurrentItem()
 												.getType()
 												.equals(event.getCursor()
 														.getType())) {
+											/*
+											 * Of the same time, so add to current stack
+											 */
 											if (karma
 													.giveItem(
 															plugin.getServer()
@@ -316,7 +316,7 @@ public class KSInventoryListener implements Listener {
 																					.getName()),
 															event.getCursor(),
 															group)) {
-												event.setResult(Event.Result.ALLOW);
+												//event.setResult(Event.Result.ALLOW);
 												ItemStack item;
 												if (event.getCursor()
 														.getEnchantments()
@@ -347,23 +347,25 @@ public class KSInventoryListener implements Listener {
 																		.intValue());
 													}
 												}
-												repopulateTask(
+												/*repopulateTask(
 														plugin.getServer()
 																.getPlayer(
 																		event.getWhoClicked()
 																				.getName()),
 														chest.getInventory(),
-														item);
-												event.setCurrentItem(new ItemStack(Material.AIR));
+														item);*/
+												event.getWhoClicked().getInventory().clear(event.getSlot());
 											} else {
-												event.setResult(Event.Result.DENY);
+												//event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
 											}
 										} else {
-											// When switching, put item
-											// first,
-											// then
-											// attempt to take item
+											/*
+											 * Switching items from chest to cursor
+											 * 
+											 * When switching, put item first,
+											 * then attempt to take item
+											 */
 											if (karma
 													.giveItem(
 															plugin.getServer()
@@ -386,12 +388,12 @@ public class KSInventoryListener implements Listener {
 												if (amount == event
 														.getCurrentItem()
 														.getAmount()) {
-													event.setResult(Event.Result.ALLOW);
+													//event.setResult(Event.Result.ALLOW);
 												} else if (amount < event
 														.getCurrentItem()
 														.getAmount()
 														&& amount > 0) {
-													event.setResult(Event.Result.ALLOW);
+													//event.setResult(Event.Result.ALLOW);
 													event.getCurrentItem()
 															.setAmount(amount);
 													final ItemStack bak = event
@@ -399,7 +401,7 @@ public class KSInventoryListener implements Listener {
 															.clone();
 													bak.setAmount(original
 															- amount);
-													final Repopulate task = new Repopulate(
+													/*final Repopulate task = new Repopulate(
 															event.getInventory(),
 															bak, event
 																	.getSlot(),
@@ -418,8 +420,8 @@ public class KSInventoryListener implements Listener {
 																.sendMessage(
 																		ChatColor.YELLOW
 																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
+																				+ " Could not repopulate slot.");
+													}*/
 												} else {
 													event.setResult(Event.Result.DENY);
 													event.setCancelled(true);
@@ -430,6 +432,9 @@ public class KSInventoryListener implements Listener {
 											}
 										}
 									} else if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+										/*
+										 * Attempting to take item
+										 */
 										final int amount = karma.takeItem(
 												plugin.getServer().getPlayer(
 														event.getWhoClicked()
@@ -439,17 +444,17 @@ public class KSInventoryListener implements Listener {
 												.getCurrentItem().getAmount();
 										if (amount == event.getCurrentItem()
 												.getAmount()) {
-											event.setResult(Event.Result.ALLOW);
+											//event.setResult(Event.Result.ALLOW);
 										} else if (amount < event
 												.getCurrentItem().getAmount()
 												&& amount > 0) {
-											event.setResult(Event.Result.ALLOW);
+											//event.setResult(Event.Result.ALLOW);
 											event.getCurrentItem().setAmount(
 													amount);
 											final ItemStack bak = event
 													.getCurrentItem().clone();
 											bak.setAmount(original - amount);
-											final Repopulate task = new Repopulate(
+											/*final Repopulate task = new Repopulate(
 													event.getInventory(), bak,
 													event.getSlot(), false);
 											int id = plugin
@@ -465,21 +470,22 @@ public class KSInventoryListener implements Listener {
 														.sendMessage(
 																ChatColor.YELLOW
 																		+ KarmicShare.prefix
-																		+ "Could not repopulate slot.");
-											}
+																		+ " Could not repopulate slot.");
+											}*/
 										} else {
 											event.setResult(Event.Result.DENY);
 											event.setCancelled(true);
 										}
 									} else if (!event.getCursor().getType().equals(Material.AIR)) {
-
-										// they clicked on an item in chest
+										/*
+										 * Putting item into empty slot in chest
+										 */
 										if (karma.giveItem(
 												plugin.getServer().getPlayer(
 														event.getWhoClicked()
 																.getName()),
 												event.getCursor(), group)) {
-											event.setResult(Event.Result.ALLOW);
+											//event.setResult(Event.Result.ALLOW);
 										} else {
 											event.setResult(Event.Result.DENY);
 											event.setCancelled(true);
@@ -487,11 +493,11 @@ public class KSInventoryListener implements Listener {
 									}
 								}
 							} else {
-								// If item is not null, they are taking whole
-								// stack
-								// Handle right shift click
 								if (event.isShiftClick()) {
-									if (event.getCurrentItem() != null) {
+									/*
+									 * Shift right click
+									 */
+									if (!event.getCurrentItem().getType().equals(Material.AIR)) {
 										if (fromChest) {
 											final int amount = karma
 													.takeItem(
@@ -539,7 +545,7 @@ public class KSInventoryListener implements Listener {
 																		.intValue());
 													}
 												}
-												final Repopulate task = new Repopulate(
+												/*final Repopulate task = new Repopulate(
 														event.getWhoClicked()
 																.getInventory(),
 														item);
@@ -556,7 +562,7 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
+																			+ " Could not repopulate slot.");
 												}
 												final Repopulate clear = new Repopulate(
 														event.getInventory(),
@@ -576,13 +582,12 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
-												}
+																			+ " Could not repopulate slot.");
+												}*/
 											} else if (amount < event
 													.getCurrentItem()
 													.getAmount()
 													&& amount > 0) {
-												event.setResult(Event.Result.DENY);
 												final ItemStack bak = event
 														.getCurrentItem()
 														.clone();
@@ -604,7 +609,7 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
+																			+ " Could not repopulate slot.");
 												}
 												final ItemStack give = event
 														.getCurrentItem()
@@ -626,8 +631,9 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not give item.");
+																			+ " Could not give item.");
 												}
+												event.setResult(Event.Result.DENY);
 											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
@@ -641,7 +647,7 @@ public class KSInventoryListener implements Listener {
 																					.getName()),
 															event.getCurrentItem(),
 															group)) {
-												event.setResult(Event.Result.ALLOW);
+												//event.setResult(Event.Result.ALLOW);
 												ItemStack item;
 												if (event.getCurrentItem()
 														.getEnchantments()
@@ -689,9 +695,9 @@ public class KSInventoryListener implements Listener {
 															.sendMessage(
 																	ChatColor.YELLOW
 																			+ KarmicShare.prefix
-																			+ "Could not repopulate slot.");
+																			+ " Could not repopulate slot.");
 												}
-												event.setCurrentItem(null);
+												event.getWhoClicked().getInventory().clear(event.getSlot());
 											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
@@ -699,15 +705,16 @@ public class KSInventoryListener implements Listener {
 										}
 									}
 								} else {
-									if (event.getCurrentItem() != null
-											&& event.getCursor() != null) {
-										// If they're both the same item, giving
-										// 1 from cursor to item
+									if (!event.getCurrentItem().getType().equals(Material.AIR)
+											&& !event.getCursor().getType().equals(Material.AIR)) {
 										if (event
 												.getCurrentItem()
 												.getType()
 												.equals(event.getCursor()
 														.getType())) {
+											/*
+											 * Same item, so give only one from cursor to item
+											 */
 											// Construct singular of cursor item
 											ItemStack item;
 											if (event.getCursor()
@@ -744,27 +751,28 @@ public class KSInventoryListener implements Listener {
 																			event.getWhoClicked()
 																					.getName()),
 															item, group)) {
-												event.setResult(Event.Result.ALLOW);
+												//event.setResult(Event.Result.ALLOW);
 												item.setAmount(event
 														.getCurrentItem()
 														.getAmount());
-												repopulateTask(
+												/*repopulateTask(
 														plugin.getServer()
 																.getPlayer(
 																		event.getWhoClicked()
 																				.getName()),
 														chest.getInventory(),
-														item);
-												event.setCurrentItem(null);
+														item);*/
+												event.getWhoClicked().getInventory().clear(event.getSlot());
 											} else {
 												event.setResult(Event.Result.DENY);
 												event.setCancelled(true);
 											}
 										} else {
-											// When switching, put item
-											// first,
-											// then
-											// attempt to take item
+											/*
+											 * Switching
+											 * 
+											 * Put item first, then attempt to take item
+											 */
 											if (karma
 													.giveItem(
 															plugin.getServer()
@@ -787,12 +795,12 @@ public class KSInventoryListener implements Listener {
 												if (amount == event
 														.getCurrentItem()
 														.getAmount()) {
-													event.setResult(Event.Result.ALLOW);
+													//event.setResult(Event.Result.ALLOW);
 												} else if (amount < event
 														.getCurrentItem()
 														.getAmount()
 														&& amount > 0) {
-													event.setResult(Event.Result.ALLOW);
+													//event.setResult(Event.Result.ALLOW);
 													event.getCurrentItem()
 															.setAmount(amount);
 													final ItemStack bak = event
@@ -800,7 +808,7 @@ public class KSInventoryListener implements Listener {
 															.clone();
 													bak.setAmount(original
 															- amount);
-													final Repopulate task = new Repopulate(
+													/*final Repopulate task = new Repopulate(
 															event.getInventory(),
 															bak, event
 																	.getSlot(),
@@ -819,8 +827,8 @@ public class KSInventoryListener implements Listener {
 																.sendMessage(
 																		ChatColor.YELLOW
 																				+ KarmicShare.prefix
-																				+ "Could not repopulate slot.");
-													}
+																				+ " Could not repopulate slot.");
+													}*/
 												} else {
 													event.setResult(Event.Result.DENY);
 													event.setCancelled(true);
@@ -834,7 +842,12 @@ public class KSInventoryListener implements Listener {
 									// If cursor is null and item is not null,
 									// they are taking half of the stack, with
 									// the larger half on cursor
-									else if (event.getCurrentItem() != null) {
+									else if (!event.getCurrentItem().getType().equals(Material.AIR)) {
+										/*
+										 * If cursor is air and item is not air
+										 * they are taking half of the stack, with
+										 * the larger half given to cursor
+										 */
 										// Calculate "half"
 										int half = event.getCurrentItem()
 												.getAmount() / 2;
@@ -878,11 +891,10 @@ public class KSInventoryListener implements Listener {
 																.getName()),
 												item, group);
 										if (amount == half) {
-											event.setResult(Event.Result.ALLOW);
+											//event.setResult(Event.Result.ALLOW);
 										} else if (amount < event
 												.getCurrentItem().getAmount()
 												&& amount > 0) {
-											event.setResult(Event.Result.DENY);
 											final ItemStack bak = event
 													.getCurrentItem().clone();
 											bak.setAmount(event
@@ -905,7 +917,7 @@ public class KSInventoryListener implements Listener {
 														.sendMessage(
 																ChatColor.YELLOW
 																		+ KarmicShare.prefix
-																		+ "Could not repopulate slot.");
+																		+ " Could not repopulate slot.");
 											}
 											item.setAmount(amount);
 											task = new Repopulate(
@@ -930,11 +942,12 @@ public class KSInventoryListener implements Listener {
 																		+ KarmicShare.prefix
 																		+ "Could not give item.");
 											}
+											event.setResult(Event.Result.DENY);
 										} else {
 											event.setResult(Event.Result.DENY);
 											event.setCancelled(true);
 										}
-									} else if (event.getCursor() != null) {
+									} else if (!event.getCursor().getType().equals(Material.AIR)) {
 										// Clone
 										ItemStack item;
 										if (event.getCursor().getEnchantments()
@@ -982,6 +995,7 @@ public class KSInventoryListener implements Listener {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void repopulateTask(Player player, Inventory inv, ItemStack item) {
 		final Repopulate task = new Repopulate(inv, item);
 		int id = plugin.getServer().getScheduler()
