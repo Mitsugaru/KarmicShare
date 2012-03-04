@@ -33,7 +33,7 @@ public class PermCheck {
 			RegisteredServiceProvider<Permission> permissionProvider = ks
 				.getServer()
 				.getServicesManager()
-				.getRegistration(net.milkbowl.vault.permission.Permission.class);
+				.getRegistration(Permission.class);
 			if (permissionProvider != null)
 			{
 				perm = permissionProvider.getProvider();
@@ -70,7 +70,7 @@ public class PermCheck {
 			}
 		}
 		//Use vault if we have it
-		if(hasVault)
+		if(hasVault && perm != null)
 		{
 			return perm.has(sender, node);
 		}
