@@ -47,7 +47,7 @@ public class KarmicShare extends JavaPlugin {
 			// Close connection
 			database.close();
 		}
-		getLogger().info(" Plugin disabled");
+		getLogger().info("Plugin disabled");
 
 	}
 
@@ -92,7 +92,7 @@ public class KarmicShare extends JavaPlugin {
 		KSPlayerListener playerListener = new KSPlayerListener(this);
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(playerListener, this);
-		//TODO rename variable
+		// TODO rename variable
 		if (config.chests) {
 			KSInventoryListener invListener = new KSInventoryListener(this);
 			pm.registerEvents(invListener, this);
@@ -104,7 +104,7 @@ public class KarmicShare extends JavaPlugin {
 		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
 				new CleanupTask(), 1200, 1200);
 		if (cleantask == -1) {
-			getLogger().warning(" Could not create cleaner task.");
+			getLogger().warning("Could not create cleaner task.");
 		}
 		getLogger().info(
 				"KarmicShare v" + this.getDescription().getVersion()
@@ -162,9 +162,8 @@ public class KarmicShare extends JavaPlugin {
 	public Karma getKarma() {
 		return karma;
 	}
-	
-	public boolean useChest()
-	{
+
+	public boolean useChest() {
 		return chest;
 	}
 }

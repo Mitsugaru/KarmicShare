@@ -38,10 +38,12 @@ public class KSInventoryListener implements Listener {
 			//Verify that it is a chest
 			if (event.getInventory().getType().equals(InventoryType.CHEST)) {
 				Block block;
+				boolean doubleChest = false;
 				if(event.getInventory().getHolder() == null && event.getInventory() instanceof DoubleChestInventory)
 				{
 					//Double chest
 					block = ((Chest)((DoubleChestInventory) event.getInventory()).getLeftSide().getHolder()).getBlock();
+					doubleChest = true;
 				}
 				else
 				{
@@ -55,11 +57,15 @@ public class KSInventoryListener implements Listener {
 					String group = "global";
 					final BetterChest chest = new BetterChest(
 							(Chest) block.getState());
-					//TODO differentiate between chest inventory and player inventory
-					if (!event.getInventory().equals(
-							event.getWhoClicked().getInventory())) {
+					//Differentiate between chest inventory and player inventory click
+					if(doubleChest && (event.getRawSlot() < 54))
+					{
 						fromChest = true;
 					}
+					else if(!doubleChest && (event.getRawSlot() < 27)){
+						fromChest = true;
+					}
+					//Determine if it is one of our chests
 					if (fromChest || event.isShiftClick()) {
 						// Player is working on inventory that is not theirs
 						// Verify that it is one of our chests
@@ -72,7 +78,6 @@ public class KSInventoryListener implements Listener {
 								kschest = true;
 								group = ChatColor.stripColor(sign.getLine(0))
 										.toLowerCase();
-								plugin.getLogger().info("KS chest");
 							}
 						} else if (chest.isDoubleChest()) {
 							if (chest.attachedBlock().getRelative(BlockFace.UP)
@@ -85,7 +90,6 @@ public class KSInventoryListener implements Listener {
 									group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
 								}
-								plugin.getLogger().info("KS chest attached");
 							}
 						}
 					}
@@ -93,9 +97,11 @@ public class KSInventoryListener implements Listener {
 						try {
 							if (event.isLeftClick()) {
 								if (event.isShiftClick()) {
-									// We don't care about the cursor as it
-									// doesn't
-									// get changed on a shift click
+									/*
+									 * Shift Left click
+									 * 
+									 * We don't care about the cursor as it doesn't get changed on a shift click
+									 */
 									if (!event.getCurrentItem().getType().equals(Material.AIR)) {
 										if (fromChest) {
 											final int amount = karma
@@ -290,6 +296,9 @@ public class KSInventoryListener implements Listener {
 										}
 									}
 								} else {
+									/*
+									 * Regular left click
+									 */
 									if (!event.getCurrentItem().getType().equals(Material.AIR)
 											&& !event.getCursor().getType().equals(Material.AIR)) {
 										plugin.getLogger().info("current item: " + event.getCurrentItem().toString());
