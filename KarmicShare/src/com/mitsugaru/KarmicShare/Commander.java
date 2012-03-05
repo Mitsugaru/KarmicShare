@@ -210,7 +210,7 @@ public class Commander implements CommandExecutor {
 			{
 				if(ks.useChest())
 				{
-				if(perm.checkPermission(sender, "KarmicShare.commands.chest"))
+				if(perm.checkPermission(sender, "KarmicShare.chest"))
 				{
 					if(args.length > 1)
 					{
