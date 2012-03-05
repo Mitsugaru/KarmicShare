@@ -1368,8 +1368,12 @@ public class Commander implements CommandExecutor {
 		sender.sendMessage(ChatColor.GREEN + "/ks value [prev|next|page#]"
 				+ ChatColor.YELLOW
 				+ " : List karma multiplier values, and page through list");
-		sender.sendMessage(ChatColor.GREEN + "/ks group" + ChatColor.YELLOW
-				+ " : List group commands");
+		if(ks.useChest())
+		{
+			sender.sendMessage(ChatColor.GREEN + "/ks page <num>" + ChatColor.YELLOW + " : Jump page numbers for chests");
+			sender.sendMessage(ChatColor.GREEN + "/ks group" + ChatColor.YELLOW
+					+ " : List group commands");
+		}
 		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
 				+ " : Show help menu");
 		if (perm.checkPermission(sender, "KarmicShare.info")) {
