@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +32,11 @@ public class KSPlayerListener implements Listener {
 	public KSPlayerListener(KarmicShare karmicShare) {
 		plugin = karmicShare;
 		karma = plugin.getKarma();
+	}
+	
+	public void onEntityInteract(EntityInteractEvent event)
+	{
+		plugin.getLogger().info("Entity interact");
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -215,14 +221,24 @@ public class KSPlayerListener implements Listener {
 								BetterChest chest = new BetterChest(
 										(Chest) block.getRelative(
 												BlockFace.DOWN).getState());
+								final String name = event.getPlayer().getName();
 								if (chest.isDoubleChest())
 								{
 									try
 									{
-										int page = grabNextPage(
-												Integer.parseInt(""
-														+ sign.getLine(3)), 54,
-												group, true);
+										int page;
+										if(plugin.getCommander().getChestPage().containsKey(name))
+										{
+											page = grabNextPage(plugin.getCommander().getChestPage().get(name).intValue() - 1, 54, group, false);
+											plugin.getCommander().getChestPage().remove(name);
+										}
+										else
+										{
+											page = grabNextPage(
+													Integer.parseInt(""
+															+ sign.getLine(3)), 54,
+													group, true);
+										}
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -239,10 +255,19 @@ public class KSPlayerListener implements Listener {
 								{
 									try
 									{
-										int page = grabNextPage(
-												Integer.parseInt(""
-														+ sign.getLine(3)), 27,
-												group, true);
+										int page;
+										if(plugin.getCommander().getChestPage().containsKey(name))
+										{
+											page = grabNextPage(plugin.getCommander().getChestPage().get(name).intValue() - 1, 27, group, false);
+											plugin.getCommander().getChestPage().remove(name);
+										}
+										else
+										{
+											page = grabNextPage(
+													Integer.parseInt(""
+															+ sign.getLine(3)), 27,
+													group, true);
+										}
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
