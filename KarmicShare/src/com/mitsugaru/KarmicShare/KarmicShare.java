@@ -90,8 +90,10 @@ public class KarmicShare extends JavaPlugin {
 		// Generate listeners
 		KSBlockListener blockListener = new KSBlockListener(this);
 		KSPlayerListener playerListener = new KSPlayerListener(this);
+		KSEntityListener entityListener = new KSEntityListener(this);
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(playerListener, this);
+		pm.registerEvents(entityListener, this);
 		// TODO rename variable
 		if (config.chests) {
 			KSInventoryListener invListener = new KSInventoryListener(this);
