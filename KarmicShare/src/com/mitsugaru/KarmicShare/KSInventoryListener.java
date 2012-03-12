@@ -55,6 +55,7 @@ public class KSInventoryListener implements Listener {
 						}
 						plugin.getLogger().warning("Error with getting the block for double chest.");
 						plugin.getLogger().warning(e.getMessage());
+						event.setCancelled(true);
 						return;
 					}
 				}
@@ -74,6 +75,7 @@ public class KSInventoryListener implements Listener {
 						}
 						plugin.getLogger().warning("Error with getting the block for chest.");
 						plugin.getLogger().warning(e.getMessage());
+						event.setCancelled(true);
 						return;
 					}
 				}
