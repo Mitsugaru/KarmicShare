@@ -42,8 +42,21 @@ public class KSInventoryListener implements Listener {
 				if(event.getInventory().getHolder() == null && event.getInventory() instanceof DoubleChestInventory)
 				{
 					//Double chest
-					block = ((Chest)((DoubleChestInventory) event.getInventory()).getLeftSide().getHolder()).getBlock();
-					doubleChest = true;
+					try
+					{
+						block = ((Chest)((DoubleChestInventory) event.getInventory()).getLeftSide().getHolder()).getBlock();
+						doubleChest = true;
+					}
+					catch (NullPointerException e)
+					{
+						if(event.getWhoClicked() instanceof Player)
+						{
+							((Player)event.getWhoClicked()).sendMessage(ChatColor.RED + KarmicShare.prefix + " Something went wrong! D:");
+						}
+						plugin.getLogger().warning("Error with getting the block for double chest.");
+						plugin.getLogger().warning(e.getMessage());
+						return;
+					}
 				}
 				else
 				{
