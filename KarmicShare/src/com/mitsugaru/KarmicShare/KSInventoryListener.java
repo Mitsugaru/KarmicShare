@@ -61,8 +61,21 @@ public class KSInventoryListener implements Listener {
 				else
 				{
 					//single chest
-					block = ((Chest) event.getInventory().getHolder())
-						.getBlock();
+					try
+					{
+						block = ((Chest) event.getInventory().getHolder())
+								.getBlock();
+					}
+					catch (NullPointerException e)
+					{
+						if(event.getWhoClicked() instanceof Player)
+						{
+							((Player)event.getWhoClicked()).sendMessage(ChatColor.RED + KarmicShare.prefix + " Something went wrong! D:");
+						}
+						plugin.getLogger().warning("Error with getting the block for chest.");
+						plugin.getLogger().warning(e.getMessage());
+						return;
+					}
 				}
 				if (plugin.getPluginConfig().chests) {
 					boolean kschest = false;
