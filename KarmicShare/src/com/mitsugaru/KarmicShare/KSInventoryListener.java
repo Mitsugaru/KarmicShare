@@ -39,7 +39,7 @@ public class KSInventoryListener implements Listener {
 			if (event.getInventory().getType().equals(InventoryType.CHEST)) {
 				Block block;
 				boolean doubleChest = false;
-				if(event.getInventory().getHolder() == null && event.getInventory() instanceof DoubleChestInventory)
+				if(event.getInventory() instanceof DoubleChestInventory)
 				{
 					//Double chest
 					try
