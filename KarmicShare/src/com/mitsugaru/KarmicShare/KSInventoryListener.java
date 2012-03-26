@@ -37,7 +37,8 @@ public class KSInventoryListener implements Listener {
 		if (event.getSlot() >= 0) {
 			//Verify that it is a chest
 			if (event.getInventory().getType().equals(InventoryType.CHEST)) {
-				Block block;
+				boolean isChest = false;
+				Block block = null;
 				boolean doubleChest = false;
 				if(event.getInventory() instanceof DoubleChestInventory)
 				{
@@ -46,17 +47,19 @@ public class KSInventoryListener implements Listener {
 					{
 						block = ((Chest)((DoubleChestInventory) event.getInventory()).getLeftSide().getHolder()).getBlock();
 						doubleChest = true;
+						isChest = true;
 					}
 					catch (NullPointerException e)
 					{
-						if(event.getWhoClicked() instanceof Player)
+						/*if(event.getWhoClicked() instanceof Player)
 						{
 							((Player)event.getWhoClicked()).sendMessage(ChatColor.RED + KarmicShare.prefix + " Something went wrong! D:");
 						}
 						plugin.getLogger().warning("Error with getting the block for double chest.");
 						plugin.getLogger().warning(e.getMessage());
 						event.setCancelled(true);
-						return;
+						return;*/
+						//Ignore as non-chest inventory
 					}
 				}
 				else
@@ -66,20 +69,22 @@ public class KSInventoryListener implements Listener {
 					{
 						block = ((Chest) event.getInventory().getHolder())
 								.getBlock();
+						isChest = true;
 					}
 					catch (NullPointerException e)
 					{
-						if(event.getWhoClicked() instanceof Player)
+						/*if(event.getWhoClicked() instanceof Player)
 						{
 							((Player)event.getWhoClicked()).sendMessage(ChatColor.RED + KarmicShare.prefix + " Something went wrong! D:");
 						}
 						plugin.getLogger().warning("Error with getting the block for chest.");
 						plugin.getLogger().warning(e.getMessage());
 						event.setCancelled(true);
-						return;
+						return;*/
+						//Ignore as non-chest inventory
 					}
 				}
-				if (plugin.getPluginConfig().chests) {
+				if (plugin.getPluginConfig().chests && isChest) {
 					boolean kschest = false;
 					boolean fromChest = false;
 					String group = "global";
