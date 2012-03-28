@@ -25,7 +25,7 @@ public class Config {
 	private KarmicShare plugin;
 	public String host, port, database, user, password, tablePrefix;
 	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
-			chests, importSQL;
+			chests, importSQL, economy;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -64,6 +64,7 @@ public class Config {
 		defaults.put("karma.changeDefault", 1);
 		defaults.put("karma.static", false);
 		defaults.put("karma.disabled", false);
+		defaults.put("karma.useEconomy", false);
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
 		defaults.put("chests", true);
@@ -98,6 +99,7 @@ public class Config {
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
+		economy = config.getBoolean("karma.useEconomy", false);
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
@@ -336,6 +338,7 @@ public class Config {
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
+		economy = config.getBoolean("karma.useEconomy", false);
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
