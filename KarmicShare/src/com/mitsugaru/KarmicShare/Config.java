@@ -25,7 +25,7 @@ public class Config {
 	private KarmicShare plugin;
 	public String host, port, database, user, password, tablePrefix;
 	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
-			chests, importSQL, economy;
+			chests, importSQL, economy, blacklist;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -68,6 +68,7 @@ public class Config {
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
 		defaults.put("chests", true);
+		defaults.put("blacklist", false);
 		// Insert defaults into config file if they're not present
 		for (final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -100,11 +101,17 @@ public class Config {
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
+		blacklist = config.getBoolean("blacklist", false);
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
 			this.loadKarmaMap();
 		}
+		if(blacklist)
+		{
+			this.loadBlacklist();
+		}
+		
 		// Finally, do a bounds check on parameters to make sure they are legal
 	}
 
@@ -164,6 +171,15 @@ public class Config {
 			}
 		}
 		plugin.getLogger().info("Loaded custom karma values");
+	}
+	
+	private void loadBlacklist()
+	{
+		final YamlConfiguration blacklistFile = blacklistFile();
+		//Load info into set
+		@SuppressWarnings("unchecked")
+		//TODO test
+		final List<String> list = (List<String>) blacklistFile.getList("blacklist", new ArrayList<String>());
 	}
 
 	/**
@@ -339,6 +355,7 @@ public class Config {
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
+		blacklist = config.getBoolean("blacklist", false);
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
@@ -346,6 +363,10 @@ public class Config {
 			karma.clear();
 			// Reload karma mappings
 			this.loadKarmaMap();
+		}
+		if(blacklist)
+		{
+			this.loadBlacklist();
 		}
 		// Check bounds
 		this.boundsCheck();
@@ -480,6 +501,29 @@ public class Config {
 			}
 		}
 		return karmaFile;
+	}
+	
+	private YamlConfiguration blacklistFile()
+	{
+		final File file = new File(plugin.getDataFolder().getAbsolutePath()
+				+ "/blacklist.yml");
+		final YamlConfiguration blacklistFile = YamlConfiguration
+				.loadConfiguration(file);
+		if (!file.exists())
+		{
+			try
+			{
+				// Save the file
+				blacklistFile.save(file);
+			}
+			catch (IOException e1)
+			{
+				// INFO Auto-generated catch block
+				plugin.getLogger().warning("File I/O Exception on saving blacklist");
+				e1.printStackTrace();
+			}
+		}
+		return blacklistFile;
 	}
 
 	static class ZeroPointFourteenItemObject {
