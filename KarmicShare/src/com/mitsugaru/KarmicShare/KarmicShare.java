@@ -11,8 +11,11 @@ package com.mitsugaru.KarmicShare;
 
 import java.util.Vector;
 
+import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class KarmicShare extends JavaPlugin {
@@ -25,7 +28,8 @@ public class KarmicShare extends JavaPlugin {
 	private Karma karma;
 	private int cleantask;
 	public final Vector<KSQuestion> questions = new Vector<KSQuestion>();
-	private boolean chest;
+	private boolean chest, economyFound;
+	private Economy eco;
 
 	// IDEA Score board on karma?
 	// TODO Mod commands to remove items
@@ -72,6 +76,18 @@ public class KarmicShare extends JavaPlugin {
 		// Grab Commander to handle commands
 		commander = new Commander(this);
 		getCommand("ks").setExecutor(commander);
+		
+		//Setup economy
+		if(config.economy)
+		{
+			setupEconomy();
+			if(!economyFound)
+			{
+				getLogger().warning("Economy not setup, but is enabled in config.yml. Reverting to built-in karma system.");
+				config.set("karma.useEconomy", false);
+				config.reloadConfig();
+			}
+		}
 
 		// Grab plugin manager
 		final PluginManager pm = this.getServer().getPluginManager();
@@ -147,6 +163,8 @@ public class KarmicShare extends JavaPlugin {
 		return question.ask();
 	}
 
+	
+	//TODO this might no longer be necessary...
 	class CleanupTask implements Runnable {
 
 		public CleanupTask() {
@@ -160,6 +178,25 @@ public class KarmicShare extends JavaPlugin {
 							+ "items WHERE amount<='0';");
 		}
 	}
+	
+	private void setupEconomy() {
+		RegisteredServiceProvider<Economy> economyProvider = this.getServer()
+				.getServicesManager()
+				.getRegistration(net.milkbowl.vault.economy.Economy.class);
+		if (economyProvider != null)
+		{
+			eco = economyProvider.getProvider();
+			economyFound = true;
+		}
+		else
+		{
+			// No economy system found, disable
+			getLogger().warning(prefix + " No economy found!");
+			this.getServer().getPluginManager().disablePlugin(this);
+			economyFound = false;
+		}
+	}
+
 
 	public Karma getKarma() {
 		return karma;
@@ -167,5 +204,10 @@ public class KarmicShare extends JavaPlugin {
 
 	public boolean useChest() {
 		return chest;
+	}
+	
+	public Economy getEconomy()
+	{
+		return eco;
 	}
 }

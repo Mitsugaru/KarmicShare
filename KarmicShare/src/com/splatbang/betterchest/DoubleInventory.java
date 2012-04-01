@@ -270,4 +270,22 @@ public class DoubleInventory implements Inventory {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public int getMaxStackSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public ListIterator<ItemStack> iterator(int arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setMaxStackSize(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

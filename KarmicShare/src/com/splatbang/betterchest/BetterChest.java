@@ -206,4 +206,10 @@ public class BetterChest implements Chest {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public Inventory getBlockInventory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
