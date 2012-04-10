@@ -120,7 +120,7 @@ public class KarmicShare extends JavaPlugin {
 		}
 		// Create cleaner task
 		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
-				new CleanupTask(), 1200, 1200);
+				new CleanupTask(), 15000, 15000);
 		if (cleantask == -1) {
 			getLogger().warning("Could not create cleaner task.");
 		}
