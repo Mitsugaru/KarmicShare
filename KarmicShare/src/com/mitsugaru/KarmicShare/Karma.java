@@ -28,8 +28,7 @@ public class Karma {
 		boolean has = false;
 		// SQL query to see if item is in pool
 		// Create temp item to check if its a tool
-		final Item temp = new Item(item.getTypeId(), item.getData().getData(),
-				item.getDurability());
+		final Item temp = new Item(item);
 		String query = "";
 		int poolAmount = 0;
 		if (temp.isTool())
@@ -198,8 +197,7 @@ public class Karma {
 			int amount = item.getAmount();
 			String query = "";
 			boolean has = this.hasItem(player, item, group);
-			Item temp = new Item(item.getTypeId(), item.getData().getData(),
-					item.getDurability());
+			Item temp = new Item(item);
 			try
 			{
 				if (has)
@@ -688,8 +686,7 @@ public class Karma {
 		if (plugin.getPermissionHandler().checkPermission(player,
 				"KarmicShare.give"))
 		{
-			final Item i = new Item(item.getTypeId(), item.getData().getData(),
-					item.getDurability());
+			final Item i = new Item(item);
 			// Check if its a tool
 			String query = "";
 			if (i.isTool())

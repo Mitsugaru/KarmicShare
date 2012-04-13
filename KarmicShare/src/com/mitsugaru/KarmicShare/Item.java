@@ -8,6 +8,7 @@ package com.mitsugaru.KarmicShare;
 import org.bukkit.Material;
 //import org.bukkit.material.Dye;
 //import org.bukkit.material.Leaves;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.LongGrass;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Step;
@@ -19,6 +20,12 @@ public class Item extends MaterialData {
 	public String name;
 	private short durability;
 
+	public Item(ItemStack i)
+	{
+		super(i.getTypeId(), i.getData().getData());
+		init(i.getTypeId(), i.getData().getData(), i.getDurability());
+	}
+	
 	/**
 	 * Constructor
 	 *
@@ -27,6 +34,11 @@ public class Item extends MaterialData {
 	 */
 	public Item(int i, byte d, short dur) {
 		super(i, d);
+		init(i, d, dur);
+	}
+	
+	private void init(int i, byte d, short dur)
+	{
 		durability = dur;
 		name = "";
 		// Only custom names required for blocks.

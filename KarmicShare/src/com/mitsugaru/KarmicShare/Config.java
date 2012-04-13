@@ -166,7 +166,7 @@ public class Config {
 			}
 			catch (final NumberFormatException ex)
 			{
-				plugin.getLogger().warning("Non-integer value in karma list");
+				plugin.getLogger().warning("Non-integer value for: " + entry);
 				ex.printStackTrace();
 			}
 		}
