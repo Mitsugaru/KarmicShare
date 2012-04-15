@@ -41,27 +41,27 @@ public class DBHandler {
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created item table");
-				mysql.createTable("CREATE TABLE `"
+				mysql.createTable("CREATE TABLE "
 						+ config.tablePrefix
-						+ "items` (`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, `itemid` SMALLINT UNSIGNED, `amount` INT NOT NULL, `data` TINYTEXT, `durability` TINYTEXT, `enchantments` TEXT, `groups` TINYTEXT NOT NULL, PRIMARY KEY (id));");
+						+ "items (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TINYTEXT NOT NULL, PRIMARY KEY (id));");
 			}
 			// Check if player table exists
 			if (!mysql.checkTable(config.tablePrefix + "players"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created players table");
-				mysql.createTable("CREATE TABLE `"
+				mysql.createTable("CREATE TABLE "
 						+ config.tablePrefix
-						+ "players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
+						+ "players (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
 			// Check if group table exists
 			if (!mysql.checkTable(config.tablePrefix + "groups"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
-				mysql.createTable("CREATE TABLE `"
+				mysql.createTable("CREATE TABLE "
 						+ config.tablePrefix
-						+ "groups` (`groupname` varchar(32) NOT NULL, UNIQUE (`groupname`));");
+						+ "groups (groupname varchar(32) NOT NULL, UNIQUE (groupname));");
 			}
 		}
 		else
@@ -74,27 +74,27 @@ public class DBHandler {
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created item table");
-				sqlite.createTable("CREATE TABLE `"
+				sqlite.createTable("CREATE TABLE "
 						+ config.tablePrefix
-						+ "items` (`id` INTEGER PRIMARY KEY, `itemid` SMALLINT UNSIGNED,`amount` INT NOT NULL,`data` TEXT,`durability` TEXT,`enchantments` TEXT, `groups` TEXT NOT NULL);");
+						+ "items (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
 			}
 			// Check if player table exists
 			if (!sqlite.checkTable(config.tablePrefix + "players"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created player table");
-				sqlite.createTable("CREATE TABLE `"
+				sqlite.createTable("CREATE TABLE "
 						+ config.tablePrefix
-						+ "players` (`playername` varchar(32) NOT NULL,`karma` INT NOT NULL, `groups` TEXT, UNIQUE (`playername`));");
+						+ "players (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
-			// Check if grups table exists
+			// Check if groups table exists
 			if (!sqlite.checkTable(config.tablePrefix + "groups"))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
-				sqlite.createTable("CREATE TABLE `"
+				sqlite.createTable("CREATE TABLE "
 						+ config.tablePrefix
-						+ "groups` (`groupname` TEXT NOT NULL, UNIQUE (`groupname`));");
+						+ "groups (groupname TEXT NOT NULL, UNIQUE (groupname));");
 			}
 		}
 	}
