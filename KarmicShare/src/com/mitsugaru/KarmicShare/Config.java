@@ -68,7 +68,7 @@ public class Config {
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
 		defaults.put("chests", true);
-		defaults.put("blacklist", false);
+		//TODO defaults.put("blacklist", false);
 		// Insert defaults into config file if they're not present
 		for (final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -101,7 +101,7 @@ public class Config {
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
-		blacklist = config.getBoolean("blacklist", false);
+		//TODO blacklist = config.getBoolean("blacklist", false);
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
@@ -175,11 +175,10 @@ public class Config {
 	
 	private void loadBlacklist()
 	{
-		final YamlConfiguration blacklistFile = blacklistFile();
+		//final YamlConfiguration blacklistFile = blacklistFile();
 		//Load info into set
-		@SuppressWarnings("unchecked")
 		//TODO test
-		final List<String> list = (List<String>) blacklistFile.getList("blacklist", new ArrayList<String>());
+		//final List<String> list = (List<String>) blacklistFile.getList("blacklist", new ArrayList<String>());
 	}
 
 	/**
@@ -503,6 +502,7 @@ public class Config {
 		return karmaFile;
 	}
 	
+	@SuppressWarnings("unused")
 	private YamlConfiguration blacklistFile()
 	{
 		final File file = new File(plugin.getDataFolder().getAbsolutePath()
