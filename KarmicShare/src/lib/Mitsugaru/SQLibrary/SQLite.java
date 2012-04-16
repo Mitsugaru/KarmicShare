@@ -211,18 +211,19 @@ public class SQLite extends Database {
 	}
 
 	@Override
-	PreparedStatement prepare(String query) {
+	public PreparedStatement prepare(String query) {
 		Connection connection = null;
+		 PreparedStatement ps = null;
 		try
 	    {
 	        connection = open();
-	        PreparedStatement ps = connection.prepareStatement(query);
+	        ps = connection.prepareStatement(query);
 	        return ps;
 	    } catch(SQLException e) {
 	        if(!e.toString().contains("not return ResultSet"))
 	        	this.writeError("Error in SQL prepare() query: " + e.getMessage(), false);
 	    }
-	    return null;
+	    return ps;
 	}
 
 	@Override
