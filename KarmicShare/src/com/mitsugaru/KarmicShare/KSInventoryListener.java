@@ -627,6 +627,7 @@ public class KSInventoryListener implements Listener
 							{
 								if (event.isShiftClick())
 								{
+									//TODO fix
 									/*
 									 * Shift right click
 									 */
@@ -650,7 +651,7 @@ public class KSInventoryListener implements Listener
 													.getCurrentItem()
 													.getAmount())
 											{
-												event.setResult(Event.Result.DENY);
+												//event.setResult(Event.Result.DENY);
 												ItemStack item;
 												if (event.getCurrentItem()
 														.getEnchantments()
