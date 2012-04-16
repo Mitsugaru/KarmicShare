@@ -39,6 +39,7 @@ public class KSPlayerListener implements Listener {
 		plugin.getLogger().info("Entity interact");
 	}
 
+	//TODO show our own inventory holder?
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
@@ -602,7 +603,6 @@ public class KSPlayerListener implements Listener {
 		}
 		catch (SQLException e)
 		{
-			// INFO Auto-generated catch block
 			plugin.getLogger().warning(
 					ChatColor.RED + KarmicShare.prefix + "SQL error.");
 			e.printStackTrace();
@@ -765,7 +765,6 @@ public class KSPlayerListener implements Listener {
 		}
 		catch (SQLException e)
 		{
-			// INFO Auto-generated catch block
 			plugin.getLogger().warning(
 					ChatColor.RED + KarmicShare.prefix + "SQL error.");
 			e.printStackTrace();

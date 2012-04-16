@@ -627,7 +627,6 @@ public class KSInventoryListener implements Listener
 							{
 								if (event.isShiftClick())
 								{
-									//TODO fix
 									/*
 									 * Shift right click
 									 */
