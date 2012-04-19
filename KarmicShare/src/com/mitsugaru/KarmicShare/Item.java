@@ -1,13 +1,16 @@
 /**
- * Class to represent items that are in the pool
- * Mostly used to help differentiate between
- * items that use damage values
+ * Class to represent items that are in the pool Mostly used to help
+ * differentiate between items that use damage values
  */
 package com.mitsugaru.KarmicShare;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Material;
-//import org.bukkit.material.Dye;
-//import org.bukkit.material.Leaves;
+// import org.bukkit.material.Dye;
+// import org.bukkit.material.Leaves;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.LongGrass;
 import org.bukkit.material.MaterialData;
@@ -15,28 +18,35 @@ import org.bukkit.material.Step;
 import org.bukkit.material.Tree;
 import org.bukkit.material.Wool;
 
-public class Item extends MaterialData {
+public class Item extends MaterialData
+{
 	// Class variables
 	public String name;
 	private short durability;
+	private int amount;
+	private Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>();
 
 	public Item(ItemStack i)
 	{
 		super(i.getTypeId(), i.getData().getData());
+		this.amount = i.getAmount();
+		enchantments = i.getEnchantments();
 		init(i.getTypeId(), i.getData().getData(), i.getDurability());
 	}
-	
+
 	/**
 	 * Constructor
-	 *
+	 * 
 	 * @param int of item id
 	 * @param byte of data value
 	 */
-	public Item(int i, byte d, short dur) {
+	public Item(int i, byte d, short dur)
+	{
 		super(i, d);
+		this.amount = 1;
 		init(i, d, dur);
 	}
-	
+
 	private void init(int i, byte d, short dur)
 	{
 		durability = dur;
@@ -428,10 +438,10 @@ public class Item extends MaterialData {
 	}
 
 	/**
-	 * Custom hashcode method to provide proper Item class
-	 * equals check. Especially useful for potions, since data
-	 * values are the same, but durability is not.
-	 *
+	 * Custom hashcode method to provide proper Item class equals check.
+	 * Especially useful for potions, since data values are the same, but
+	 * durability is not.
+	 * 
 	 * @return Object's hashcode
 	 */
 	@Override
@@ -446,11 +456,12 @@ public class Item extends MaterialData {
 
 	/**
 	 * Variant of equals(Object obj)
-	 *
+	 * 
 	 * @param obj
 	 * @return true if they are the same item
 	 */
-	public boolean areSame(Object obj) {
+	public boolean areSame(Object obj)
+	{
 		// Both blocks
 		try
 		{
@@ -477,17 +488,17 @@ public class Item extends MaterialData {
 				// Both non-block, only check item id
 				if (this.getItemTypeId() == ((Item) obj).getItemTypeId())
 				{
-					//handle if dye or potion
-					if(this.itemId() == 351)
+					// handle if dye or potion
+					if (this.itemId() == 351)
 					{
-						if(this.getData() == ((Item) obj).getData())
+						if (this.getData() == ((Item) obj).getData())
 						{
 							return true;
 						}
 					}
-					else if(this.itemId() == 373)
+					else if (this.itemId() == 373)
 					{
-						if(durability == ((Item) obj).itemDurability())
+						if (durability == ((Item) obj).itemDurability())
 						{
 							return true;
 						}
@@ -507,10 +518,11 @@ public class Item extends MaterialData {
 
 	/**
 	 * Method to check if the item is a potion/glass bottle
-	 *
+	 * 
 	 * @return true if potion, else false;
 	 */
-	public boolean isPotion() {
+	public boolean isPotion()
+	{
 		if (this.getItemTypeId() == 373 || this.getItemTypeId() == 374)
 			return true;
 		return false;
@@ -518,24 +530,26 @@ public class Item extends MaterialData {
 
 	/**
 	 * Method to check if this item is a tool
-	 *
+	 * 
 	 * @return true if its is a tool item
 	 */
-	public boolean isTool() {
+	public boolean isTool()
+	{
 		return this.isTool(this.getItemTypeId());
 	}
 
 	/**
 	 * Method that checks a given id to see if its a tool
-	 *
+	 * 
 	 * @param int of item id
 	 * @return true if it matches a known tool, else false
 	 */
-	public boolean isTool(int id) {
-		final int[] tool = { 256, 257, 258, 259, 261, 267, 268, 269, 270, 271, 272,
-				273, 274, 275, 276, 277, 278, 279, 283, 284, 285, 286, 290,
-				291, 292, 293, 294, 298, 299, 300, 301, 302, 303, 304, 305,
-				306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317 };
+	public boolean isTool(int id)
+	{
+		final int[] tool = { 256, 257, 258, 259, 261, 267, 268, 269, 270, 271,
+				272, 273, 274, 275, 276, 277, 278, 279, 283, 284, 285, 286,
+				290, 291, 292, 293, 294, 298, 299, 300, 301, 302, 303, 304,
+				305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317 };
 		if (id >= 256 && id <= 317)
 		{
 			// within range of "tool" ids
@@ -553,26 +567,57 @@ public class Item extends MaterialData {
 
 	/**
 	 * Grabs the item id of this Item object
-	 *
+	 * 
 	 * @return item id
 	 */
-	public int itemId() {
+	public int itemId()
+	{
 		return this.getItemType().getId();
 	}
 
 	/**
 	 * Grabs the data value of this Item object
-	 *
+	 * 
 	 * @return data value
 	 */
-	public byte itemData() {
+	public byte itemData()
+	{
 		return this.getData();
 	}
 
 	/**
 	 * Grabs the durability value of this Item object
 	 */
-	public short itemDurability() {
+	public short itemDurability()
+	{
 		return this.durability;
+	}
+
+	public int itemAmount()
+	{
+		return this.amount;
+	}
+	
+	public Map<Enchantment, Integer> itemEnchantments()
+	{
+		return this.enchantments;
+	}
+	
+	public String enchantmentsToString()
+	{
+		String enchantments = "";
+		if (!enchantments.isEmpty())
+		{
+			StringBuilder sb = new StringBuilder();
+			for (Map.Entry<Enchantment, Integer> e : this.enchantments.entrySet())
+			{
+				sb.append(e.getKey().getId() + "v" + e.getValue().intValue()
+						+ "i");
+			}
+			// Remove trailing comma
+			sb.deleteCharAt(sb.length() - 1);
+			enchantments = sb.toString();
+		}
+		return enchantments;
 	}
 }
