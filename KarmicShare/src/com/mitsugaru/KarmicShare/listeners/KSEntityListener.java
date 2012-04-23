@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import com.mitsugaru.KarmicShare.KarmicShare;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSEntityListener implements Listener {

@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
+import com.mitsugaru.KarmicShare.KarmicShare;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSBlockListener implements Listener {

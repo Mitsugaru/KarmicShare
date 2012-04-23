@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.questioner;
 
 import java.util.HashMap;
 

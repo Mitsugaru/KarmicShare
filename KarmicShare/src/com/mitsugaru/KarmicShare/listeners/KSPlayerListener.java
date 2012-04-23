@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.listeners;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -21,6 +21,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.mitsugaru.KarmicShare.Item;
+import com.mitsugaru.KarmicShare.Karma;
+import com.mitsugaru.KarmicShare.KarmicShare;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSPlayerListener implements Listener {

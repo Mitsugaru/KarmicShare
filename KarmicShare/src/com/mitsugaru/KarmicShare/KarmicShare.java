@@ -18,6 +18,14 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
+import com.mitsugaru.KarmicShare.listeners.KSEntityListener;
+import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
+import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
+import com.mitsugaru.KarmicShare.questioner.KSQuestion;
+import com.mitsugaru.KarmicShare.questioner.KSQuestionsReaper;
+import com.mitsugaru.KarmicShare.questioner.KarmicShareQuestionerPlayerListener;
+
 public class KarmicShare extends JavaPlugin {
 	// Class variables
 	private DBHandler database;
