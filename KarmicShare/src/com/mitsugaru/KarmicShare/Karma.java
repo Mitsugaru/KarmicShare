@@ -14,6 +14,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.mitsugaru.KarmicShare.database.Table;
+
 
 public class Karma {
 	KarmicShare plugin;
@@ -36,8 +38,8 @@ public class Karma {
 			// Handle tools
 			// Grab all entries of the same tool id
 			String toolQuery = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 					+ item.getTypeId() + "' AND groups='" + group + "';";
 			Query toolRS = plugin.getDatabaseHandler().select(toolQuery);
 			try
@@ -76,8 +78,8 @@ public class Karma {
 			// Separate check to see if its a potion and handle it
 			// via the durability info
 			query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='" + item.getTypeId()
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='" + item.getTypeId()
 					+ "' AND durability='" + item.getDurability()
 					+ "' AND groups='" + group + "';";
 			Query rs = plugin.getDatabaseHandler().select(query);
@@ -116,8 +118,8 @@ public class Karma {
 		{
 			// Not a tool or potion
 			query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='" + item.getTypeId()
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='" + item.getTypeId()
 					+ "' AND data='" + item.getData().getData()
 					+ "' AND groups='" + group + "';";
 			Query rs = plugin.getDatabaseHandler().select(query);
@@ -420,8 +422,8 @@ public class Karma {
 								// Remove trailing comma
 								sb.deleteCharAt(sb.length() - 1);
 								toolQuery = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
 										+ item.getData().getData()
@@ -437,16 +439,16 @@ public class Karma {
 									{
 										// DROP
 										toolQuery = "DELETE FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE id='"
+						+ Table.ITEMS.getName()
+						+ " WHERE id='"
 												+ toolRS.getResult().getInt("id") + "';";
 									}
 									else
 									{
 										// UPDATE
 										toolQuery = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='"
+						+ Table.ITEMS.getName()
+						+ " SET amount='"
 												+ (toolRS.getResult().getInt("amount") - amount)
 												+ "' WHERE id='"
 												+ toolRS.getResult().getInt("id") + "';";
@@ -458,8 +460,8 @@ public class Karma {
 							{
 								// Non-enchanted tool
 								toolQuery = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 										+ item.getTypeId()
 										+ "' AND data='"
 										+ item.getData().getData()
@@ -472,8 +474,8 @@ public class Karma {
 									{
 										// DROP
 										toolQuery = "DELETE FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND amount='"
 												+ amount
@@ -487,8 +489,8 @@ public class Karma {
 									{
 										// UPDATE
 										toolQuery = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='"
+						+ Table.ITEMS.getName()
+						+ " SET amount='"
 												+ (toolRS.getResult().getInt("amount") - amount)
 												+ "' WHERE itemid='"
 												+ item.getTypeId()
@@ -514,8 +516,8 @@ public class Karma {
 					else if (temp.isPotion())
 					{
 						query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 								+ item.getTypeId() + "' AND durability='"
 								+ item.getDurability() + "' AND groups='"
 								+ group + "';";
@@ -528,8 +530,8 @@ public class Karma {
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 											+ item.getTypeId()
 											+ "' AND durability='"
 											+ item.getDurability()
@@ -538,8 +540,8 @@ public class Karma {
 								else
 								{
 									query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='"
+						+ Table.ITEMS.getName()
+						+ " SET amount='"
 											+ (rs.getResult().getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId()
@@ -563,8 +565,8 @@ public class Karma {
 					else
 					{
 						query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 								+ item.getTypeId() + "' AND data='"
 								+ item.getData().getData() + "' AND groups='"
 								+ group + "';";
@@ -577,8 +579,8 @@ public class Karma {
 								{
 									// Drop record as there are none left
 									query = "DELETE FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
 											+ item.getData().getData()
 											+ "' AND groups='" + group + "';";
@@ -586,8 +588,8 @@ public class Karma {
 								else
 								{
 									query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='"
+						+ Table.ITEMS.getName()
+						+ " SET amount='"
 											+ (rs.getResult().getInt("amount") - amount)
 											+ "' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
@@ -699,8 +701,8 @@ public class Karma {
 					sb.deleteCharAt(sb.length() - 1);
 					// Add new instance of item to database
 					query = "INSERT INTO "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+						+ Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
 							+ item.getTypeId()
 							+ "','"
 							+ item.getAmount()
@@ -719,8 +721,8 @@ public class Karma {
 					// Create SQL query to see if item is already in
 					// database
 					query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='"
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='"
 							+ item.getTypeId() + "' AND data='"
 							+ item.getData().getData() + "' AND groups='"
 							+ group + "';";
@@ -739,8 +741,8 @@ public class Karma {
 								int total = item.getAmount()
 										+ rs.getResult().getInt("amount");
 								query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='" + total
+						+ Table.ITEMS.getName()
+						+ " SET amount='" + total
 										+ "' WHERE itemid='" + item.getTypeId()
 										+ "' AND data='"
 										+ item.getData().getData()
@@ -752,8 +754,8 @@ public class Karma {
 						{
 							// Item not in database, therefore add it
 							query = "INSERT INTO "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items (itemid,amount,data,durability,groups) VALUES ('"
+						+ Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,groups) VALUES ('"
 									+ item.getTypeId()
 									+ "','"
 									+ item.getAmount()
@@ -784,8 +786,8 @@ public class Karma {
 				// Create SQL query to see if item is already in
 				// database
 				query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='" + item.getTypeId()
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
 						+ "' AND groups='" + group + "';";
 				Query rs = plugin.getDatabaseHandler().select(query);
@@ -800,8 +802,8 @@ public class Karma {
 						// if it exists
 						int total = item.getAmount() + rs.getResult().getInt("amount");
 						query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='" + total
+						+ Table.ITEMS.getName()
+						+ " SET amount='" + total
 								+ "' WHERE itemid='" + item.getTypeId()
 								+ "' AND durability='" + item.getDurability()
 								+ "' AND groups='" + group + "';";
@@ -810,8 +812,8 @@ public class Karma {
 					{
 						// Item not in database, therefore add it
 						query = "INSERT INTO "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items (itemid,amount,data,durability,groups) VALUES ('"
+						+ Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId()
 								+ "','"
 								+ item.getAmount()
@@ -837,8 +839,8 @@ public class Karma {
 				// Create SQL query to see if item is already in
 				// database
 				query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE itemid='" + item.getTypeId()
+						+ Table.ITEMS.getName()
+						+ " WHERE itemid='" + item.getTypeId()
 						+ "' AND data='" + item.getData().getData()
 						+ "' AND groups='" + group + "';";
 				Query rs = plugin.getDatabaseHandler().select(query);
@@ -855,8 +857,8 @@ public class Karma {
 							// if it exists
 							int total = item.getAmount() + rs.getResult().getInt("amount");
 							query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items SET amount='" + total
+						+ Table.ITEMS.getName()
+						+ " SET amount='" + total
 									+ "' WHERE itemid='" + item.getTypeId()
 									+ "' AND data='" + item.getData().getData()
 									+ "' AND groups='" + group + "';";
@@ -867,8 +869,8 @@ public class Karma {
 					{
 						// Item not in database, therefore add it
 						query = "INSERT INTO "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items (itemid,amount,data,durability,groups) VALUES ('"
+						+ Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId()
 								+ "','"
 								+ item.getAmount()
@@ -1007,8 +1009,8 @@ public class Karma {
 			{
 				// Updated karma value is beyond lower limit, so set to min
 				query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players SET karma='"
+						+ Table.PLAYERS.getName()
+						+ " SET karma='"
 						+ plugin.getPluginConfig().lower
 						+ "' WHERE playername='" + name + "';";
 			}
@@ -1016,8 +1018,8 @@ public class Karma {
 			{
 				// Updated karma value is beyond upper limit, so set to max
 				query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players SET karma='"
+						+ Table.PLAYERS.getName()
+						+ " SET karma='"
 						+ plugin.getPluginConfig().upper
 						+ "' WHERE playername='" + name + "';";
 			}
@@ -1025,8 +1027,8 @@ public class Karma {
 			{
 				// Updated karma value is within acceptable range
 				query = "UPDATE "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players SET karma='" + karma
+						+ Table.PLAYERS.getName()
+						+ " SET karma='" + karma
 						+ "' WHERE playername='" + name + "';";
 			}
 			plugin.getDatabaseHandler().standardQuery(query);
@@ -1047,8 +1049,8 @@ public class Karma {
 	 */
 	public int getPlayerKarma(String name) throws SQLException {
 		String query = "SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players WHERE playername='" + name + "';";
+						+ Table.PLAYERS.getName()
+						+ " WHERE playername='" + name + "';";
 		Query rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
@@ -1070,8 +1072,8 @@ public class Karma {
 			{
 				// Player not in database, therefore add them
 				query = "INSERT INTO "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players (playername,karma) VALUES ('"
+						+ Table.PLAYERS.getName()
+						+ " (playername,karma) VALUES ('"
 						+ name + "','" + karma + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}
@@ -1127,8 +1129,8 @@ public class Karma {
 		try
 		{
 			Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "groups WHERE groupname='" + group + "';");
+						+ Table.GROUPS.getName()
+						+ " WHERE groupname='" + group + "';");
 			if(rs.getResult().next())
 			{
 				valid = true;
@@ -1157,8 +1159,8 @@ public class Karma {
 			getPlayerKarma(name);
 			String groups = "";
 			Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "players WHERE playername='" + name + "';");
+						+ Table.PLAYERS.getName()
+						+ " WHERE playername='" + name + "';");
 			if(rs.getResult().next())
 			{
 				groups = rs.getResult().getString("groups");

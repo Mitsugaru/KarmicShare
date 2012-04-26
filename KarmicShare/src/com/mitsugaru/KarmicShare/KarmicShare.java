@@ -19,6 +19,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.database.DBHandler;
+import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSEntityListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
@@ -183,8 +184,8 @@ public class KarmicShare extends JavaPlugin {
 		public void run() {
 			// Drop bad entries
 			getDatabaseHandler().standardQuery(
-					"DELETE FROM " + config.tablePrefix
-							+ "items WHERE amount<='0';");
+					"DELETE FROM " + Table.ITEMS.getName()
+							+ " WHERE amount<='0';");
 		}
 	}
 	
