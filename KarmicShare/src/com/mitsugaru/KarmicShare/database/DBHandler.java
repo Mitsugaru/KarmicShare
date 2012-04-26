@@ -1,6 +1,9 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.database;
 
 import java.sql.SQLException;
+
+import com.mitsugaru.KarmicShare.Config;
+import com.mitsugaru.KarmicShare.KarmicShare;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
 import lib.Mitsugaru.SQLibrary.MySQL;
@@ -37,31 +40,34 @@ public class DBHandler {
 					config.host, config.port, config.database, config.user,
 					config.password);
 			// Check if item table exists
-			if (!mysql.checkTable(config.tablePrefix + "items"))
+			if (!mysql.checkTable(Table.ITEMS.getName()))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created item table");
 				mysql.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "items (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TINYTEXT NOT NULL, PRIMARY KEY (id));");
+						+ Table.ITEMS.getName()
+						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TINYTEXT NOT NULL, PRIMARY KEY (id));");
 			}
 			// Check if player table exists
-			if (!mysql.checkTable(config.tablePrefix + "players"))
+			if (!mysql.checkTable(Table.PLAYERS.getName()))
 			{
+				//TODO add primary key row
+				//Change groups to use group id
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created players table");
 				mysql.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "players (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+						+ Table.PLAYERS.getName()
+						+ " (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
 			// Check if group table exists
-			if (!mysql.checkTable(config.tablePrefix + "groups"))
+			if (!mysql.checkTable(Table.GROUPS.getName()))
 			{
+				//TODO add primary key id
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
 				mysql.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "groups (groupname varchar(32) NOT NULL, UNIQUE (groupname));");
+						+ Table.GROUPS.getName()
+						+ " (groupname varchar(32) NOT NULL, UNIQUE (groupname));");
 			}
 		}
 		else
@@ -70,31 +76,33 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Check if item table exists
-			if (!sqlite.checkTable(config.tablePrefix + "items"))
+			if (!sqlite.checkTable(Table.ITEMS.getName()))
 			{
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created item table");
 				sqlite.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "items (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
+						+ Table.ITEMS.getName()
+						+ " (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
 			}
 			// Check if player table exists
-			if (!sqlite.checkTable(config.tablePrefix + "players"))
+			if (!sqlite.checkTable(Table.PLAYERS.getName()))
 			{
+				//TODO add primary key row
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created player table");
 				sqlite.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "players (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+						+ Table.PLAYERS.getName()
+						+ " (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
 			// Check if groups table exists
-			if (!sqlite.checkTable(config.tablePrefix + "groups"))
+			if (!sqlite.checkTable(Table.GROUPS.getName()))
 			{
+				//TODO add primary key row
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
 				sqlite.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "groups (groupname TEXT NOT NULL, UNIQUE (groupname));");
+						+ Table.GROUPS.getName()
+						+ " (groupname TEXT NOT NULL, UNIQUE (groupname));");
 			}
 		}
 	}
@@ -108,13 +116,14 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Copy items
-			Query query = sqlite.select("SELECT * FROM " + config.tablePrefix
-					+ "items;");
+			Query query = sqlite.select("SELECT * FROM " + Table.ITEMS.getName()
+					+ ";");
 			if (query.getResult().next())
 			{
 				plugin.getLogger().info("Importing items...");
 				do
 				{
+					//TODO use prepared statement
 					boolean hasData = false;
 					boolean hasDurability = false;
 					boolean hasEnchantments = false;
@@ -136,8 +145,8 @@ public class DBHandler {
 						hasEnchantments = true;
 					}
 					final String groups = query.getResult().getString("groups");
-					sb.append("INSERT INTO " + config.tablePrefix
-							+ "items (itemid,amount");
+					sb.append("INSERT INTO " + Table.ITEMS.getName()
+							+ " (itemid,amount");
 					if (hasData)
 					{
 						sb.append(",data");
@@ -173,11 +182,12 @@ public class DBHandler {
 			query.closeQuery();
 			sb = new StringBuilder();
 			// Copy players
-			query = sqlite.select("SELECT * FROM " + config.tablePrefix
-					+ "players;");
+			query = sqlite.select("SELECT * FROM " + Table.PLAYERS.getName()
+					+ ";");
 			if(query.getResult().next())
 			{
 				plugin.getLogger().info("Importing players...");
+				//TODO change to prepared statement
 				do
 				{
 					boolean hasGroups = false;
@@ -188,8 +198,8 @@ public class DBHandler {
 					{
 						hasGroups = true;
 					}
-					sb.append("INSERT INTO " + config.tablePrefix
-							+ "players (playername,karma");
+					sb.append("INSERT INTO " + Table.PLAYERS.getName()
+							+ " (playername,karma");
 					if(hasGroups)
 					{
 						sb.append(",groups");
@@ -208,14 +218,15 @@ public class DBHandler {
 			query.closeQuery();
 			sb = new StringBuilder();
 			// Copy groups
-			query = sqlite.select("SELECT * FROM " + config.tablePrefix
-					+ "groups;");
+			query = sqlite.select("SELECT * FROM " + Table.GROUPS.getName()
+					+ ";");
 			if(query.getResult().next())
 			{
 				plugin.getLogger().info("Importing groups...");
+				//TODO change to prepared statement
 				do
 				{
-					final String send = "INSERT INTO " + config.tablePrefix + "groups (groupname) VALUES('" + query.getResult().getString("groupname") + "');";
+					final String send = "INSERT INTO " + Table.GROUPS.getName() + " (groupname) VALUES('" + query.getResult().getString("groupname") + "');";
 					mysql.standardQuery(send);
 				}while(query.getResult().next());
 			}

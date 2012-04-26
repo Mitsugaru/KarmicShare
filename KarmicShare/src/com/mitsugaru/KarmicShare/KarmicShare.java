@@ -18,6 +18,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.mitsugaru.KarmicShare.database.DBHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSEntityListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;

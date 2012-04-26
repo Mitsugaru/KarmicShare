@@ -23,7 +23,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class Config {
 	// Class variables
 	private KarmicShare plugin;
-	public String host, port, database, user, password, tablePrefix;
+	public String host, port, database, user, password;
+	public static String tablePrefix;
 	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
 			chests, importSQL, economy, blacklist;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
