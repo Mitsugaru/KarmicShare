@@ -1,7 +1,6 @@
 /**
- * Separate class to handle commands
- * Followed example from DiddiZ's LB.
- *
+ * Separate class to handle commands Followed example from DiddiZ's LB.
+ * 
  * @author Mitsugaru
  */
 package com.mitsugaru.KarmicShare;
@@ -24,7 +23,8 @@ import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class Commander implements CommandExecutor {
+public class Commander implements CommandExecutor
+{
 	// Class variables
 	private final KarmicShare ks;
 	private final PermCheck perm;
@@ -42,11 +42,12 @@ public class Commander implements CommandExecutor {
 
 	/**
 	 * Constructor
-	 *
+	 * 
 	 * @param karmicShare
 	 *            plugin
 	 */
-	public Commander(KarmicShare karmicShare) {
+	public Commander(KarmicShare karmicShare)
+	{
 		// Instantiate variables
 		ks = karmicShare;
 		prefix = KarmicShare.prefix;
@@ -66,7 +67,8 @@ public class Commander implements CommandExecutor {
 	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd,
-			String commandLabel, String[] args) {
+			String commandLabel, String[] args)
+	{
 		if (config.debugTime)
 		{
 			time = System.nanoTime();
@@ -206,34 +208,41 @@ public class Commander implements CommandExecutor {
 							+ " Lack permission: KarmicShare.commands.value");
 				}
 			}
-			else if(com.equals("page"))
+			else if (com.equals("page"))
 			{
-				if(ks.useChest())
+				if (ks.useChest())
 				{
-				if(perm.checkPermission(sender, "KarmicShare.chest"))
-				{
-					if(args.length > 1)
+					if (perm.checkPermission(sender, "KarmicShare.chest"))
 					{
-						try
+						if (args.length > 1)
 						{
-							Integer page = Integer.parseInt(args[1]);
-							chestPage.put(sender.getName(), page);
-							sender.sendMessage(ChatColor.GREEN + prefix  + " Right click on sign to jump to page " + ChatColor.GOLD + page.intValue());
+							try
+							{
+								Integer page = Integer.parseInt(args[1]);
+								chestPage.put(sender.getName(), page);
+								sender.sendMessage(ChatColor.GREEN
+										+ prefix
+										+ " Right click on sign to jump to page "
+										+ ChatColor.GOLD + page.intValue());
+							}
+							catch (NumberFormatException e)
+							{
+								sender.sendMessage(ChatColor.RED + prefix
+										+ " Invalid number: " + ChatColor.GOLD
+										+ args[1]);
+							}
 						}
-						catch (NumberFormatException e)
-						{
-							sender.sendMessage(ChatColor.RED + prefix + " Invalid number: " + ChatColor.GOLD + args[1]);
-						}
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + prefix
+								+ " Lack permission: KarmicShare.chest");
 					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix + " Lack permission: KarmicShare.chest");
-				}
-				}
-				else
-				{
-					sender.sendMessage(ChatColor.RED + prefix + " Chests are disabled.");
+					sender.sendMessage(ChatColor.RED + prefix
+							+ " Chests are disabled.");
 				}
 			}
 			// Admin command
@@ -412,26 +421,38 @@ public class Commander implements CommandExecutor {
 	}
 
 	// TODO need permission nodes for groups
-	private boolean groupCommand(CommandSender sender, String[] args) {
+	// TODO need to also check against if they are creator/manager of group
+	// TODO group settings
+	private boolean groupCommand(CommandSender sender, String[] args)
+	{
 		// Show group commands help menu
 		final String com = args[1];
 		// Add generated items to pool
-		if (com.equals("create")) {
-			if (perm.checkPermission(sender, "KarmicShare.group.create")) {
-				try {
+		if (com.equals("create"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.group.create"))
+			{
+				try
+				{
 					// force group names to lower case
 					final String group = args[2].toLowerCase();
-					if (!group.matches(GROUP_NAME_REGEX)) {
+					if (!group.matches(GROUP_NAME_REGEX))
+					{
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Group name must be alphanumeric");
 						return true;
-					} else if (group.length() > 15) {
+					}
+					else if (group.length() > 15)
+					{
 						// Restrict length to sign character limit
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Group name must be 15 characters or less.");
 						return true;
-					} else {
-						if (!karma.validGroup(sender, group)) {
+					}
+					else
+					{
+						if (!karma.validGroup(sender, group))
+						{
 							// Create group
 							ks.getDatabaseHandler().standardQuery(
 									"INSERT INTO " + config.tablePrefix
@@ -440,7 +461,8 @@ public class Commander implements CommandExecutor {
 							sender.sendMessage(ChatColor.GREEN + prefix
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.GREEN + " created");
-							if (sender instanceof Player) {
+							if (sender instanceof Player)
+							{
 								// add player to group
 								addPlayerToGroup(sender,
 										((Player) sender).getName(), group);
@@ -449,77 +471,104 @@ public class Commander implements CommandExecutor {
 										+ ((Player) sender).getName()
 										+ ChatColor.GREEN + " to "
 										+ ChatColor.GRAY + group);
-							} else {
+							}
+							else
+							{
 								sender.sendMessage(ChatColor.YELLOW
 										+ prefix
 										+ " Cannot add NPCs to groups. Group is empty.");
 							}
-						} else {
+						}
+						else
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.RED + " already exists");
 						}
 					}
-				} catch (IndexOutOfBoundsException e) {
+				}
+				catch (IndexOutOfBoundsException e)
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Group name not given");
 					return false;
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.group.create");
 				return true;
 			}
-		} else if (com.equals("add")) {
-			if (perm.checkPermission(sender, "KarmicShare.group.add")) {
+		}
+		else if (com.equals("add"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.group.add"))
+			{
 				// Grab group name
 				String group = "";
-				if (args.length > 2) {
+				if (args.length > 2)
+				{
 					// force group names to lower case
 					group = args[2].toLowerCase();
-					if (group.equals("global")) {
+					if (group.equals("global"))
+					{
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Cannot modify global group.");
 						return true;
 					}
-					if (sender instanceof Player) {
+					if (sender instanceof Player)
+					{
 						if (!karma.playerHasGroup(sender,
-								((Player) sender).getName(), group)) {
+								((Player) sender).getName(), group))
+						{
 							sender.sendMessage(ChatColor.RED
 									+ prefix
 									+ " Cannot add players to groups you're not in.");
 							return true;
 						}
 					}
-				} else {
+				}
+				else
+				{
 					// Group name was not given
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Must specify group");
 					return false;
 				}
-				if (!group.matches(GROUP_NAME_REGEX)) {
+				if (!group.matches(GROUP_NAME_REGEX))
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Group name must be alphanumeric");
 					return true;
 				}
-				if (args.length > 3) {
+				if (args.length > 3)
+				{
 					// Grab all names
-					for (int i = 3; i < args.length; i++) {
+					for (int i = 3; i < args.length; i++)
+					{
 						String name = expandName(args[i]);
-						if (name == null) {
+						if (name == null)
+						{
 							name = args[i];
-						} else if (karma.playerHasGroup(sender, name, group)) {
+						}
+						else if (karma.playerHasGroup(sender, name, group))
+						{
 							sender.sendMessage(ChatColor.YELLOW + prefix + " "
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
 									+ " is already in " + ChatColor.GRAY
 									+ group);
 							return true;
-						} else {
-							if (karma.validGroup(sender, group)) {
+						}
+						else
+						{
+							if (karma.validGroup(sender, group))
+							{
 								// Grab player on server
 								Player other = ks.getServer().getPlayer(name);
-								if (other != null) {
+								if (other != null)
+								{
 									// add other player to group
 									addPlayerToGroup(sender, other.getName(),
 											group);
@@ -530,73 +579,98 @@ public class Commander implements CommandExecutor {
 									other.sendMessage(ChatColor.GREEN + prefix
 											+ " You have been added to "
 											+ ChatColor.GRAY + group);
-								} else {
+								}
+								else
+								{
 									sender.sendMessage(ChatColor.YELLOW
 											+ prefix
 											+ " Can only add players if they're online.");
 								}
-							} else {
+							}
+							else
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " does not exist");
 							}
 						}
 					}
-				} else {
+				}
+				else
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Must specify player");
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.group.add");
 				return true;
 			}
-		} else if (com.equals("remove")) {
-			if (perm.checkPermission(sender, "KarmicShare.group.remove")) {
+		}
+		else if (com.equals("remove"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.group.remove"))
+			{
 				String group = "";
-				if (args.length > 2) {
+				if (args.length > 2)
+				{
 					// Grab group name if given
 					// force group names to lower case
 					group = args[2].toLowerCase();
-					if (group.equals("global")) {
+					if (group.equals("global"))
+					{
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Cannot remove players from global.");
 						return true;
 					}
-					if (sender instanceof Player) {
+					if (sender instanceof Player)
+					{
 						if (!karma.playerHasGroup(sender,
-								((Player) sender).getName(), group)) {
+								((Player) sender).getName(), group))
+						{
 							sender.sendMessage(ChatColor.RED
 									+ prefix
 									+ " Cannot remove players from groups you're not in.");
 							return true;
 						}
 					}
-					if (!group.matches(GROUP_NAME_REGEX)) {
+					if (!group.matches(GROUP_NAME_REGEX))
+					{
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Group name must be alphanumeric");
 						return true;
 					}
-				} else {
+				}
+				else
+				{
 					// Group name was not given
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Must specify group");
 					return false;
 				}
-				if (args.length > 3) {
-					for (int i = 3; i < args.length; i++) {
+				if (args.length > 3)
+				{
+					for (int i = 3; i < args.length; i++)
+					{
 						String name = expandName(args[i]);
-						if (name == null) {
+						if (name == null)
+						{
 							name = args[i];
 						}
-						if (!karma.playerHasGroup(sender, name, group)) {
+						if (!karma.playerHasGroup(sender, name, group))
+						{
 							sender.sendMessage(ChatColor.YELLOW + prefix
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
 									+ " not in " + ChatColor.GRAY + group);
 							return true;
-						} else {
-							if (karma.validGroup(sender, group)) {
+						}
+						else
+						{
+							if (karma.validGroup(sender, group))
+							{
 								// remove other player to group
 								removePlayerFromGroup(sender, name, group);
 								sender.sendMessage(ChatColor.GREEN + prefix
@@ -604,12 +678,15 @@ public class Commander implements CommandExecutor {
 										+ ChatColor.GREEN + " from "
 										+ ChatColor.GRAY + group);
 								final Player p = ks.getServer().getPlayer(name);
-								if (p != null) {
+								if (p != null)
+								{
 									p.sendMessage(ChatColor.GREEN + prefix
 											+ " You have been removed from "
 											+ ChatColor.GRAY + group);
 								}
-							} else {
+							}
+							else
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " does not exist");
@@ -617,38 +694,52 @@ public class Commander implements CommandExecutor {
 						}
 					}
 
-				} else {
+				}
+				else
+				{
 					// Player name was not given
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Must specify player");
 					return false;
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.group.remove");
 				return true;
 			}
-		} else if (com.equals("leave")) {
-			if (perm.checkPermission(sender, "KarmicShare.group.leave")) {
-				if (args.length > 2) {
+		}
+		else if (com.equals("leave"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.group.leave"))
+			{
+				if (args.length > 2)
+				{
 					String group = "";
-					for (int i = 2; i < args.length; i++) {
+					for (int i = 2; i < args.length; i++)
+					{
 						group = args[i].toLowerCase();
 					}
-					if (!karma.playerHasGroup(sender, sender.getName(), group)) {
+					if (!karma.playerHasGroup(sender, sender.getName(), group))
+					{
 						sender.sendMessage(ChatColor.YELLOW + prefix
 								+ ChatColor.AQUA + sender.getName()
 								+ ChatColor.YELLOW + " not in "
 								+ ChatColor.GRAY + group);
 						return true;
 					}
-					if (!group.matches(GROUP_NAME_REGEX)) {
+					if (!group.matches(GROUP_NAME_REGEX))
+					{
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Group name must be alphanumeric");
 						return true;
-					} else {
-						if (karma.validGroup(sender, group)) {
+					}
+					else
+					{
+						if (karma.validGroup(sender, group))
+						{
 							// remove other player to group
 							removePlayerFromGroup(sender, sender.getName(),
 									group);
@@ -656,17 +747,23 @@ public class Commander implements CommandExecutor {
 									+ " Removed " + ChatColor.GOLD
 									+ sender.getName() + ChatColor.GREEN
 									+ " from " + ChatColor.GRAY + group);
-						} else {
+						}
+						else
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.RED + " does not exist");
 						}
 					}
-				} else {
+				}
+				else
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Must specify a group");
 				}
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.group.leave");
 				return true;
@@ -676,29 +773,38 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void removePlayerFromGroup(CommandSender sender, String name,
-			String group) {
-		try {
+			String group)
+	{
+		try
+		{
 			String groups = "";
 			Query rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM " + config.tablePrefix
 							+ "players WHERE playername='" + name + "';");
-			if (rs.getResult().next()) {
+			if (rs.getResult().next())
+			{
 				groups = rs.getResult().getString("groups");
-				if (!rs.getResult().wasNull()) {
-					if (groups.contains("&")) {
+				if (!rs.getResult().wasNull())
+				{
+					if (groups.contains("&"))
+					{
 						// Multigroup
 						StringBuilder sb = new StringBuilder();
-						for (String s : groups.split("&")) {
+						for (String s : groups.split("&"))
+						{
 							ks.getLogger().info(s);
 							// Add back all groups excluding specified group
-							if (!s.equals(group)) {
+							if (!s.equals(group))
+							{
 								sb.append(s + "&");
 							}
 						}
 						// Remove trailing ampersand
 						sb.deleteCharAt(sb.length() - 1);
 						groups = sb.toString();
-					} else {
+					}
+					else
+					{
 						groups = "";
 					}
 				}
@@ -708,8 +814,9 @@ public class Commander implements CommandExecutor {
 			ks.getDatabaseHandler().standardQuery(
 					"UPDATE " + config.tablePrefix + "players SET groups='"
 							+ groups + "' WHERE playername='" + name + "';");
-		} catch (SQLException e) {
-			// INFO Auto-generated catch block
+		}
+		catch (SQLException e)
+		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
 					+ " SQL Exception");
 			e.printStackTrace();
@@ -717,19 +824,25 @@ public class Commander implements CommandExecutor {
 	}
 
 	private void addPlayerToGroup(CommandSender sender, String name,
-			String group) {
-		try {
+			String group)
+	{
+		try
+		{
 			// Insures that the player is added to the database
 			karma.getPlayerKarma(name);
 			String groups = "";
 			Query rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM " + config.tablePrefix
 							+ "players WHERE playername='" + name + "';");
-			if (rs.getResult().next()) {
+			if (rs.getResult().next())
+			{
 				groups = rs.getResult().getString("groups");
-				if (!rs.getResult().wasNull()) {
+				if (!rs.getResult().wasNull())
+				{
 					groups += "&" + group;
-				} else {
+				}
+				else
+				{
 					groups = group;
 				}
 			}
@@ -738,101 +851,135 @@ public class Commander implements CommandExecutor {
 			ks.getDatabaseHandler().standardQuery(
 					"UPDATE " + config.tablePrefix + "players SET groups='"
 							+ groups + "' WHERE playername='" + name + "';");
-		} catch (SQLException e) {
-			// INFO Auto-generated catch block
+		}
+		catch (SQLException e)
+		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
 					+ " SQL Exception");
 			e.printStackTrace();
 		}
 	}
 
-	private void otherPlayerKarma(CommandSender sender, String[] args) {
+	private void otherPlayerKarma(CommandSender sender, String[] args)
+	{
 		// Check if karma is enabled
-		if (!config.karmaDisabled) {
+		if (!config.karmaDisabled)
+		{
 			// Check if name was given
-			if (args.length > 1) {
+			if (args.length > 1)
+			{
 				// Check if they have the permission node
 				if (perm.checkPermission(sender, "KarmicShare.admin")
 						|| perm.checkPermission(sender,
-								"KarmicShare.karma.other")) {
+								"KarmicShare.karma.other"))
+				{
 					// attempt to parse name
 					String name = expandName(args[1]);
-					if (name == null) {
+					if (name == null)
+					{
 						name = args[1];
 					}
-					try {
+					try
+					{
 						// Colorize karma
 						sender.sendMessage(this.colorizeKarma(karma
 								.getPlayerKarma(name)));
-					} catch (SQLException e) {
-						// INFO Auto-generated catch block
+					}
+					catch (SQLException e)
+					{
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Could not get " + name + "'s karma");
 						e.printStackTrace();
 					}
-				} else {
+				}
+				else
+				{
 					sender.sendMessage(ChatColor.RED
 							+ " Lack permission: KarmicShare.karma.other");
 				}
-			} else {
+			}
+			else
+			{
 				// did not give a player name, therefore error
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " No player name given.");
 			}
-		} else {
+		}
+		else
+		{
 			// karma system disabled
 			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
 		}
 	}
 
-	private void valueCommand(CommandSender sender, String[] args) {
-		if (!config.karmaDisabled) {
-			if (args.length > 1) {
+	private void valueCommand(CommandSender sender, String[] args)
+	{
+		if (!config.karmaDisabled)
+		{
+			if (args.length > 1)
+			{
 				// If they provided a page number
 
-				try {
+				try
+				{
 					// Attempt to parse argument for page number
 					int pageNum = Integer.parseInt(args[1]);
 					// Set current page to given number
 					multiPage.put(sender.getName(), pageNum - 1);
 					// Show page if possible
 					this.listMultipliers(sender, 0);
-				} catch (NumberFormatException e) {
+				}
+				catch (NumberFormatException e)
+				{
 					// Maybe they did prev/next?
-					if (args[1].equals("prev")) {
+					if (args[1].equals("prev"))
+					{
 						// List, with previous page
 						this.listMultipliers(sender, -1);
-					} else if (args[1].equals("next")) {
+					}
+					else if (args[1].equals("next"))
+					{
 						// List, with previous page
 						this.listMultipliers(sender, 1);
-					} else {
+					}
+					else
+					{
 						sender.sendMessage(ChatColor.YELLOW + prefix
 								+ " Invalid extra parameter: " + args[1]);
 					}
 				}
-			} else {
+			}
+			else
+			{
 				// List with current page
 				this.listMultipliers(sender, 0);
 			}
-		} else {
+		}
+		else
+		{
 			// karma system disabled
 			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
 		}
 	}
 
-	private void listCommand(CommandSender sender, String[] args) {
+	private void listCommand(CommandSender sender, String[] args)
+	{
 		// TODO allow people to "find" items
 		// i.e. limit list entries to what they want
-		if (args.length > 1) {
+		if (args.length > 1)
+		{
 			// If they provided a page number
-			try {
+			try
+			{
 				// Attempt to parse argument for page number
 				int pageNum = Integer.parseInt(args[1]);
 				// Set current page to given number
 				page.put(sender.getName(), pageNum - 1);
 				// Show page if possible
 				this.listPool(sender, 0);
-			} catch (NumberFormatException e) {
+			}
+			catch (NumberFormatException e)
+			{
 				// TODO this is where I would catch the item's
 				// partial name. Probably use regex and see if
 				// an item's name in cache matches.
@@ -843,70 +990,92 @@ public class Commander implements CommandExecutor {
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Invalid integer for page number");
 			}
-		} else {
+		}
+		else
+		{
 			// List with current page
 			this.listPool(sender, 0);
 		}
 	}
 
-	private boolean takeItem(CommandSender sender, String[] args) {
+	private boolean takeItem(CommandSender sender, String[] args)
+	{
 		// Take item from pool
 		// Check if player sent command
-		if (sender instanceof Player) {
+		if (sender instanceof Player)
+		{
 			Player player = (Player) sender;
 			// Check if they have "take" permission
-			if (perm.checkPermission(sender, "KarmicShare.take")) {
-				if (perm.checkPermission(sender, "KarmicShare.commands.take")) {
+			if (perm.checkPermission(sender, "KarmicShare.take"))
+			{
+				if (perm.checkPermission(sender, "KarmicShare.commands.take"))
+				{
 					// Check that they gave an item name/id
-					if (args.length > 1) {
+					if (args.length > 1)
+					{
 						// Player will always request at least 1 item
 						int itemid = 0;
 						int data = 0;
 						int amount = 1;
 						short dur = 0;
 						boolean has = false;
-						try {
+						try
+						{
 							// Attempt to grab simple, singular itemid
 							itemid = Integer.parseInt(args[1]);
-						} catch (NumberFormatException e) {
+						}
+						catch (NumberFormatException e)
+						{
 							// They gave a string
-							if (args[1].contains(":")) {
+							if (args[1].contains(":"))
+							{
 								// Attempt to parse as itemid:data
 								// TODO parse as strings as well? Be extra
 								// work
 								String[] cut = args[1].split(":");
-								try {
+								try
+								{
 									itemid = Integer.parseInt(cut[0]);
 									data = Integer.parseInt(cut[1]);
 									dur = Short.parseShort(cut[1]);
-									if (args.length > 2) {
+									if (args.length > 2)
+									{
 										// Grab amount as well if they gave
 										// it
 										amount = Integer.parseInt(args[2]);
 									}
-								} catch (NumberFormatException r) {
+								}
+								catch (NumberFormatException r)
+								{
 									// Not a number given
 									player.sendMessage(ChatColor.RED + prefix
 											+ " Invalid item id / data value");
-									if (config.debugTime) {
+									if (config.debugTime)
+									{
 										debugTime(sender, time);
 									}
 									return true;
 								}
-							} else {
+							}
+							else
+							{
 								// Did not follow the id:data format
 								// Try and parse the rest of the args[] as
 								// material name
 								StringBuffer sb = new StringBuffer();
-								for (int i = 1; i < args.length; i++) {
-									try {
+								for (int i = 1; i < args.length; i++)
+								{
+									try
+									{
 										// If they specified an amount,
 										// catch it
 										amount = Integer.parseInt(args[i]);
 										// Ignore the rest once we have an
 										// amount
 										break;
-									} catch (NumberFormatException num) {
+									}
+									catch (NumberFormatException num)
+									{
 										sb.append(args[i] + " ");
 									}
 								}
@@ -919,10 +1088,12 @@ public class Commander implements CommandExecutor {
 								// reverse lookup: name -> id:data
 								Item[] array = cache.keySet().toArray(
 										new Item[0]);
-								for (int i = 0; i < array.length; i++) {
+								for (int i = 0; i < array.length; i++)
+								{
 									String cacheName = array[i].name
 											.toLowerCase();
-									if (temp.equals(cacheName)) {
+									if (temp.equals(cacheName))
+									{
 										// Item is in cache, so get item id
 										// and data values
 										itemid = array[i].itemId();
@@ -932,12 +1103,14 @@ public class Commander implements CommandExecutor {
 										break;
 									}
 								}
-								if (!has) {
+								if (!has)
+								{
 									// Item not in cache, therefore
 									// potential error on player part
 									player.sendMessage(ChatColor.RED + prefix
 											+ " Item not in pool...");
-									if (config.debugTime) {
+									if (config.debugTime)
+									{
 										debugTime(sender, time);
 									}
 									return true;
@@ -949,7 +1122,8 @@ public class Commander implements CommandExecutor {
 								+ data), dur);
 						ItemStack item = new ItemStack(1);
 						int finalAmount = 0;
-						if (temp.isTool()) {
+						if (temp.isTool())
+						{
 							// Grab all entries of the same tool id
 							String toolQuery = "SELECT * FROM "
 									+ config.tablePrefix
@@ -957,10 +1131,13 @@ public class Commander implements CommandExecutor {
 									+ "' AND groups='global';";
 							Query toolRS = ks.getDatabaseHandler().select(
 									toolQuery);
-							try {
+							try
+							{
 								ArrayList<ItemStack> itemList = new ArrayList<ItemStack>();
-								if (toolRS.getResult().next()) {
-									do {
+								if (toolRS.getResult().next())
+								{
+									do
+									{
 										// Generate item
 										ItemStack toolItem = new ItemStack(
 												itemid, toolRS.getResult()
@@ -969,10 +1146,12 @@ public class Commander implements CommandExecutor {
 														"data"));
 										String enchant = toolRS.getResult()
 												.getString("enchantments");
-										if (!toolRS.getResult().wasNull()) {
+										if (!toolRS.getResult().wasNull())
+										{
 											// It had enchantments
 											String[] cut = enchant.split("i");
-											for (int i = 0; i < cut.length; i++) {
+											for (int i = 0; i < cut.length; i++)
+											{
 												String[] cutter = cut[i]
 														.split("v");
 												EnchantmentWrapper e = new EnchantmentWrapper(
@@ -987,27 +1166,35 @@ public class Commander implements CommandExecutor {
 								// Close ResultSet
 								toolRS.closeQuery();
 								boolean done = false;
-								for (ItemStack i : itemList) {
-									if (!done) {
+								for (ItemStack i : itemList)
+								{
+									if (!done)
+									{
 										int a = karma.takeItem(player, i,
 												"gloabl");
-										if (a <= 0) {
+										if (a <= 0)
+										{
 											done = true;
-										} else {
+										}
+										else
+										{
 											i.setAmount(a);
 											final HashMap<Integer, ItemStack> residual = player
 													.getInventory().addItem(i);
-											if (residual.size() != 0) {
+											if (residual.size() != 0)
+											{
 												// Add back extra
 												finalAmount -= residual.size();
-												if (finalAmount <= 0) {
+												if (finalAmount <= 0)
+												{
 													// Did not give any items
 													player.sendMessage(ChatColor.YELLOW
 															+ prefix
 															+ " Your inventory is completely full...");
 												}
 												i.setAmount(residual.size());
-												try {
+												try
+												{
 													int currentKarma = karma
 															.getPlayerKarma(player
 																	.getName());
@@ -1016,7 +1203,9 @@ public class Commander implements CommandExecutor {
 													karma.updatePlayerKarma(
 															player.getName(),
 															currentKarma);
-												} catch (SQLException e) {
+												}
+												catch (SQLException e)
+												{
 													// INFO Auto-generated catch
 													// block
 													sender.sendMessage(ChatColor.RED
@@ -1025,84 +1214,61 @@ public class Commander implements CommandExecutor {
 													e.printStackTrace();
 												}
 												done = true;
-											} else {
+											}
+											else
+											{
 												finalAmount += a;
 											}
 										}
 
-									} else {
+									}
+									else
+									{
 										break;
 									}
 								}
-							} catch (SQLException e) {
-								// INFO Auto-generated catch block
+							}
+							catch (SQLException e)
+							{
 								player.sendMessage(ChatColor.RED + prefix
 										+ "Could not retrieve item in pool!");
 								e.printStackTrace();
 							}
-						} else if (temp.isPotion()) {
+						}
+						else if (temp.isPotion())
+						{
 							item = new ItemStack(itemid, amount,
 									Short.valueOf("" + data));
 							finalAmount = karma
 									.takeItem(player, item, "global");
-							if (finalAmount > 0) {
+							if (finalAmount > 0)
+							{
 								item.setAmount(finalAmount);
 								final HashMap<Integer, ItemStack> residual = player
 										.getInventory().addItem(item);
-								if (residual.size() != 0) {
+								if (residual.size() != 0)
+								{
 									// Add back extra
 									finalAmount -= residual.size();
-									if (finalAmount <= 0) {
+									if (finalAmount <= 0)
+									{
 										// Did not give any items
 										player.sendMessage(ChatColor.YELLOW
 												+ prefix
 												+ " Your inventory is completely full...");
 									}
 									item.setAmount(residual.size());
-									try {
+									try
+									{
 										int currentKarma = karma
 												.getPlayerKarma(player
 														.getName());
 										karma.giveItem(player, item, "global");
 										karma.updatePlayerKarma(
 												player.getName(), currentKarma);
-									} catch (SQLException e) {
-										// INFO Auto-generated catch block
-										sender.sendMessage(ChatColor.RED
-												+ KarmicShare.prefix
-												+ " SQL Exception");
-										e.printStackTrace();
 									}
-								}
-							}
-						} else {
-							item = new ItemStack(itemid, amount,
-									Byte.valueOf("" + data));
-							finalAmount = karma
-									.takeItem(player, item, "global");
-							if (finalAmount > 0) {
-								item.setAmount(finalAmount);
-								final HashMap<Integer, ItemStack> residual = player
-										.getInventory().addItem(item);
-								if (residual.size() != 0) {
-									// Add back extra
-									finalAmount -= residual.size();
-									if (finalAmount <= 0) {
-										// Did not give any items
-										player.sendMessage(ChatColor.YELLOW
-												+ prefix
-												+ " Your inventory is completely full...");
-									}
-									item.setAmount(residual.size());
-									try {
-										int currentKarma = karma
-												.getPlayerKarma(player
-														.getName());
-										karma.giveItem(player, item, "global");
-										karma.updatePlayerKarma(
-												player.getName(), currentKarma);
-									} catch (SQLException e) {
-										// INFO Auto-generated catch block
+									catch (SQLException e)
+									{
 										sender.sendMessage(ChatColor.RED
 												+ KarmicShare.prefix
 												+ " SQL Exception");
@@ -1111,47 +1277,104 @@ public class Commander implements CommandExecutor {
 								}
 							}
 						}
-						if (finalAmount > 0) {
+						else
+						{
+							item = new ItemStack(itemid, amount,
+									Byte.valueOf("" + data));
+							finalAmount = karma
+									.takeItem(player, item, "global");
+							if (finalAmount > 0)
+							{
+								item.setAmount(finalAmount);
+								final HashMap<Integer, ItemStack> residual = player
+										.getInventory().addItem(item);
+								if (residual.size() != 0)
+								{
+									// Add back extra
+									finalAmount -= residual.size();
+									if (finalAmount <= 0)
+									{
+										// Did not give any items
+										player.sendMessage(ChatColor.YELLOW
+												+ prefix
+												+ " Your inventory is completely full...");
+									}
+									item.setAmount(residual.size());
+									try
+									{
+										int currentKarma = karma
+												.getPlayerKarma(player
+														.getName());
+										karma.giveItem(player, item, "global");
+										karma.updatePlayerKarma(
+												player.getName(), currentKarma);
+									}
+									catch (SQLException e)
+									{
+										sender.sendMessage(ChatColor.RED
+												+ KarmicShare.prefix
+												+ " SQL Exception");
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+						if (finalAmount > 0)
+						{
 							player.sendMessage(ChatColor.GREEN + prefix
 									+ " Given " + ChatColor.GOLD + finalAmount
 									+ ChatColor.GREEN + " of " + ChatColor.AQUA
 									+ temp.name);
 						}
-					} else {
+					}
+					else
+					{
 						player.sendMessage(ChatColor.RED + prefix
 								+ " Need an item name or id");
 					}
-				} else {
+				}
+				else
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Lack permission: KarmicShare.commands.take");
 				}
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.take");
 			}
-		} else {
+		}
+		else
+		{
 			sender.sendMessage(prefix + " Cannot use this command as console.");
 		}
-		if (config.debugTime) {
+		if (config.debugTime)
+		{
 			debugTime(sender, time);
 		}
 		return true;
 	}
 
-	private void giveItem(CommandSender sender, String[] args) {
+	private void giveItem(CommandSender sender, String[] args)
+	{
 		// TODO allow for player to specify item and amount
 		// parse more parameters to allow spaces for item names
 		// Check if player sent command
-		if (sender instanceof Player) {
+		if (sender instanceof Player)
+		{
 			Player player = (Player) sender;
 			// Check if they have "give" permission
-			if (perm.checkPermission(sender, "KarmicShare.give")) {
-				if (perm.checkPermission(sender, "KarmicShare.commands.give")) {
+			if (perm.checkPermission(sender, "KarmicShare.give"))
+			{
+				if (perm.checkPermission(sender, "KarmicShare.commands.give"))
+				{
 					// Grab item in player's hand.
 					final ItemStack items = player.getItemInHand();
 					int itemid = items.getTypeId();
 					// Check if there is an item in their hand
-					if (itemid != 0) {
+					if (itemid != 0)
+					{
 						// TODO un-hardcode global?
 						karma.giveItem(player, items, "global");
 						// Remove item from player inventory
@@ -1163,35 +1386,47 @@ public class Commander implements CommandExecutor {
 								+ ChatColor.GOLD + items.getAmount()
 								+ ChatColor.GREEN + " of " + ChatColor.AQUA
 								+ i.name + ChatColor.GREEN + " to pool.");
-					} else {
+					}
+					else
+					{
 						// If there is no item, stop
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " No item in hand. Nothing to give.");
 					}
-				} else {
+				}
+				else
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Lack permission: KarmicShare.commands.give");
 				}
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.give");
 			}
-		} else {
+		}
+		else
+		{
 			sender.sendMessage(prefix + " Cannot use this command as console.");
 		}
 	}
 
-	private void inspectItem(CommandSender sender, String[] args) {
+	private void inspectItem(CommandSender sender, String[] args)
+	{
 		// Permission check
-		if (perm.checkPermission(sender, "KarmicShare.info")) {
+		if (perm.checkPermission(sender, "KarmicShare.info"))
+		{
 			// Inspect item in hand
-			if (sender instanceof Player) {
+			if (sender instanceof Player)
+			{
 				Player player = (Player) sender;
 				// Grab item in player's hand.
 				ItemStack items = player.getItemInHand();
 				int itemid = items.getTypeId();
 				// Check if there is an item in their hand
-				if (itemid != 0) {
+				if (itemid != 0)
+				{
 					int quantity = items.getAmount();
 					Item item = new Item(itemid, items.getData().getData(),
 							items.getDurability());
@@ -1207,26 +1442,34 @@ public class Commander implements CommandExecutor {
 							+ ChatColor.GREEN + " Tool: " + ChatColor.GRAY
 							+ item.isTool() + ChatColor.GREEN + " Potion: "
 							+ ChatColor.GRAY + item.isPotion());
-					if (!config.karmaDisabled) {
-						if (config.statickarma) {
+					if (!config.karmaDisabled)
+					{
+						if (config.statickarma)
+						{
 							buf.append(ChatColor.GREEN + " Multiplier: "
 									+ ChatColor.YELLOW + config.karmaChange);
 							buf.append(ChatColor.GREEN + " Total Karma: "
 									+ ChatColor.YELLOW + ""
 									+ (config.karmaChange * quantity));
-						} else {
+						}
+						else
+						{
 							// Check if given item has a multiplier
 							Item[] karmaList = config.karma.keySet().toArray(
 									new Item[0]);
 							boolean hasKarma = false;
-							for (Item k : karmaList) {
-								if (k.areSame(item)) {
+							for (Item k : karmaList)
+							{
+								if (k.areSame(item))
+								{
 									// Item karma needs to be adjusted
 									hasKarma = true;
 								}
 							}
-							if (hasKarma) {
-								try {
+							if (hasKarma)
+							{
+								try
+								{
 									buf.append(ChatColor.GREEN
 											+ " Multiplier: "
 											+ ChatColor.YELLOW
@@ -1236,7 +1479,9 @@ public class Commander implements CommandExecutor {
 											+ ChatColor.YELLOW
 											+ ""
 											+ (config.karma.get(item) * quantity));
-								} catch (NullPointerException n) {
+								}
+								catch (NullPointerException n)
+								{
 									// Found item, but there is no
 									// config for specific data value
 									// thus adjust using regular means
@@ -1249,7 +1494,9 @@ public class Commander implements CommandExecutor {
 											+ ChatColor.YELLOW + ""
 											+ (config.karmaChange * quantity));
 								}
-							} else {
+							}
+							else
+							{
 								buf.append(ChatColor.GREEN + " Multiplier: "
 										+ ChatColor.YELLOW + config.karmaChange);
 								buf.append(ChatColor.GREEN + " Total Karma: "
@@ -1260,14 +1507,18 @@ public class Commander implements CommandExecutor {
 					}
 					Map<Enchantment, Integer> enchantments = items
 							.getEnchantments();
-					if (enchantments.isEmpty()) {
+					if (enchantments.isEmpty())
+					{
 						buf.append(ChatColor.GREEN + " Enchantments: "
 								+ ChatColor.WHITE + "NONE");
-					} else {
+					}
+					else
+					{
 						buf.append(ChatColor.GREEN + " Enchantments: ");
 
 						for (Map.Entry<Enchantment, Integer> e : enchantments
-								.entrySet()) {
+								.entrySet())
+						{
 							buf.append(ChatColor.WHITE + e.getKey().getName()
 									+ ChatColor.YELLOW + " v"
 									+ e.getValue().intValue() + ", ");
@@ -1275,23 +1526,30 @@ public class Commander implements CommandExecutor {
 					}
 					player.sendMessage(ChatColor.GREEN + prefix
 							+ buf.toString());
-				} else {
+				}
+				else
+				{
 					// If there is no item, stop
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " No item in hand. Nothing to lookup.");
 				}
-			} else {
+			}
+			else
+			{
 				// Console cannot inspect items
 				sender.sendMessage(prefix
 						+ " Cannot use this command as console.");
 			}
-		} else {
+		}
+		else
+		{
 			// Lack permission
 			sender.sendMessage(prefix + " Lack permission: KarmicShare.info");
 		}
 	}
 
-	private void showVersion(CommandSender sender, String[] args) {
+	private void showVersion(CommandSender sender, String[] args)
+	{
 		sender.sendMessage(ChatColor.BLUE + bar + "=====");
 		sender.sendMessage(ChatColor.GREEN + "KarmicShare v"
 				+ ks.getDescription().getVersion());
@@ -1315,17 +1573,21 @@ public class Commander implements CommandExecutor {
 				+ config.karmaChange);
 	}
 
-	private void showPlayerKarma(CommandSender sender, String[] args) {
+	private void showPlayerKarma(CommandSender sender, String[] args)
+	{
 		// Check if player sent command
-		if (sender instanceof Player) {
+		if (sender instanceof Player)
+		{
 			Player player = (Player) sender;
 
-			try {
+			try
+			{
 				// Retrieve karma from database and colorize
 				sender.sendMessage(this.colorizeKarma(karma
 						.getPlayerKarma(player.getName())));
-			} catch (SQLException e) {
-				// INFO Auto-generated catch block
+			}
+			catch (SQLException e)
+			{
 				player.sendMessage(ChatColor.RED + prefix
 						+ "Could not obtain player karma!");
 				e.printStackTrace();
@@ -1333,7 +1595,8 @@ public class Commander implements CommandExecutor {
 		}
 	}
 
-	private void debugTime(CommandSender sender, long time) {
+	private void debugTime(CommandSender sender, long time)
+	{
 		time = System.nanoTime() - time;
 		sender.sendMessage("[Debug]" + prefix + "Process time: " + time);
 	}
@@ -1344,16 +1607,19 @@ public class Commander implements CommandExecutor {
 	 * @param sender
 	 *            to display to
 	 */
-	private void displayHelp(CommandSender sender) {
+	private void displayHelp(CommandSender sender)
+	{
 		sender.sendMessage(ChatColor.BLUE + "=====" + ChatColor.RED
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
 		sender.sendMessage(ChatColor.GREEN + "/ks" + ChatColor.YELLOW
 				+ " : Show karma");
-		if (perm.checkPermission(sender, "KarmicShare.give")) {
+		if (perm.checkPermission(sender, "KarmicShare.give"))
+		{
 			sender.sendMessage(ChatColor.GREEN + "/ks give" + ChatColor.YELLOW
 					+ " : Give item stack in current hand");
 		}
-		if (perm.checkPermission(sender, "KarmicShare.take")) {
+		if (perm.checkPermission(sender, "KarmicShare.take"))
+		{
 			sender.sendMessage(ChatColor.GREEN
 					+ "/ks take <item>[:data] [amount]" + ChatColor.YELLOW
 					+ " : Take item(s) from pool");
@@ -1368,23 +1634,27 @@ public class Commander implements CommandExecutor {
 		sender.sendMessage(ChatColor.GREEN + "/ks value [prev|next|page#]"
 				+ ChatColor.YELLOW
 				+ " : List karma multiplier values, and page through list");
-		if(ks.useChest())
+		if (ks.useChest())
 		{
-			sender.sendMessage(ChatColor.GREEN + "/ks page <num>" + ChatColor.YELLOW + " : Jump page numbers for chests");
+			sender.sendMessage(ChatColor.GREEN + "/ks page <num>"
+					+ ChatColor.YELLOW + " : Jump page numbers for chests");
 			sender.sendMessage(ChatColor.GREEN + "/ks group" + ChatColor.YELLOW
 					+ " : List group commands");
 		}
 		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
 				+ " : Show help menu");
-		if (perm.checkPermission(sender, "KarmicShare.info")) {
+		if (perm.checkPermission(sender, "KarmicShare.info"))
+		{
 			sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
 					+ " : Inspect currently held item");
 		}
-		if (perm.checkPermission(sender, "KarmicShare.karma.other")) {
+		if (perm.checkPermission(sender, "KarmicShare.karma.other"))
+		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
 					+ ChatColor.YELLOW + " : Show karma for given player name");
 		}
-		if (perm.checkPermission(sender, "KarmicShare.admin")) {
+		if (perm.checkPermission(sender, "KarmicShare.admin"))
+		{
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW
 					+ " : List admin commands");
 		}
@@ -1392,57 +1662,77 @@ public class Commander implements CommandExecutor {
 				+ " : Show version and config");
 	}
 
-	private boolean adminCommand(CommandSender sender, String[] args) {
+	private boolean adminCommand(CommandSender sender, String[] args)
+	{
 		final String com = args[1];
 		// Add generated items to pool
-		if (com.equals("add")) {
-			if (perm.checkPermission(sender, "KarmicShare.admin.add")) {
-				if (args.length > 2) {
+		if (com.equals("add"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.admin.add"))
+			{
+				if (args.length > 2)
+				{
 					int itemid = 0;
 					int data = 0;
 					short dur = 0;
 					// Player will always request at least 1 item
 					// TODO make default take amount configurable in YAML
 					int amount = 1;
-					try {
+					try
+					{
 						itemid = Integer.parseInt(args[2]);
-					} catch (NumberFormatException e) {
-						if (args[2].contains(":")) {
+					}
+					catch (NumberFormatException e)
+					{
+						if (args[2].contains(":"))
+						{
 							// Attempt to parse as itemid:data
 							String[] cut = args[2].split(":");
-							try {
+							try
+							{
 								itemid = Integer.parseInt(cut[0]);
 								data = Integer.parseInt(cut[1]);
 								dur = Short.parseShort(cut[1]);
-							} catch (NumberFormatException r) {
+							}
+							catch (NumberFormatException r)
+							{
 								// Not a number given
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Invalid item id / data value");
 								return false;
 							}
-						} else {
+						}
+						else
+						{
 							// They gave a non-integer
 							// Try and parse the string as material
 							final Material mat = Material
 									.matchMaterial(args[2]);
-							if (mat == null) {
+							if (mat == null)
+							{
 								// Not a known material
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Item name/id is incorrect.");
 								return false;
-							} else {
+							}
+							else
+							{
 								itemid = mat.getId();
 							}
 						}
 					}
 
 					// They specified an amount
-					if (args.length > 3) {
+					if (args.length > 3)
+					{
 						// Ignore rest of arguments and parse the
 						// immediate after
-						try {
+						try
+						{
 							amount = Integer.parseInt(args[3]);
-						} catch (NumberFormatException n) {
+						}
+						catch (NumberFormatException n)
+						{
 							// Not a number given
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Invalid item amount");
@@ -1452,8 +1742,10 @@ public class Commander implements CommandExecutor {
 					// Create item object
 					final Item item = new Item(itemid, Byte.valueOf("" + data),
 							dur);
-					if (itemid != 0) {
-						if (item.isPotion()) {
+					if (itemid != 0)
+					{
+						if (item.isPotion())
+						{
 							data = 0;
 							// Create SQL query to see if item is already in
 							// database
@@ -1464,11 +1756,14 @@ public class Commander implements CommandExecutor {
 									+ "' AND groups='global';";
 							Query rs = ks.getDatabaseHandler().select(query);
 							// Send Item to database
-							try {
-								if (rs.getResult().next()) {
+							try
+							{
+								if (rs.getResult().next())
+								{
 									// here you know that there is at least
 									// one record
-									do {
+									do
+									{
 										int total = amount
 												+ rs.getResult().getInt(
 														"amount");
@@ -1478,7 +1773,9 @@ public class Commander implements CommandExecutor {
 												+ "' AND durability='" + dur
 												+ "' AND groups='global';";
 									} while (rs.getResult().next());
-								} else {
+								}
+								else
+								{
 									// Item not in database, therefore add
 									// it
 									query = "INSERT INTO "
@@ -1494,13 +1791,16 @@ public class Commander implements CommandExecutor {
 										+ ChatColor.GREEN + " of "
 										+ ChatColor.AQUA + item.name
 										+ ChatColor.GREEN + " to pool.");
-							} catch (SQLException q) {
-								// INFO Auto-generated catch block
+							}
+							catch (SQLException q)
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ "Could not add item to pool!");
 								q.printStackTrace();
 							}
-						} else {
+						}
+						else
+						{
 							// Create SQL query to see if item is already in
 							// database
 							String query = "SELECT * FROM "
@@ -1510,11 +1810,14 @@ public class Commander implements CommandExecutor {
 									+ "' AND groups='global';";
 							Query rs = ks.getDatabaseHandler().select(query);
 							// Send Item to database
-							try {
-								if (rs.getResult().next()) {
+							try
+							{
+								if (rs.getResult().next())
+								{
 									// here you know that there is at least
 									// one record
-									do {
+									do
+									{
 										int total = amount
 												+ rs.getResult().getInt(
 														"amount");
@@ -1524,7 +1827,9 @@ public class Commander implements CommandExecutor {
 												+ "' AND data='" + data
 												+ "' AND groups='global';";
 									} while (rs.getResult().next());
-								} else {
+								}
+								else
+								{
 									// Item not in database, therefore add
 									// it
 									query = "INSERT INTO "
@@ -1540,50 +1845,64 @@ public class Commander implements CommandExecutor {
 										+ ChatColor.GREEN + " of "
 										+ ChatColor.AQUA + item.name
 										+ ChatColor.GREEN + " to pool.");
-							} catch (SQLException q) {
-								// INFO Auto-generated catch block
+							}
+							catch (SQLException q)
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Could not add item to pool!");
 								q.printStackTrace();
 							}
 						}
-					} else {
+					}
+					else
+					{
 						// If there is no item, stop
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " Cannot add air to pool.");
 					}
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.admin.add");
 				return true;
 			}
-		} else if (com.equals("drain")) {
-			if (perm.checkPermission(sender, "KarmicShare.admin.drain")) {
+		}
+		else if (com.equals("drain"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.admin.drain"))
+			{
 				String group = "global";
 				// Check if group name was given
-				if (args.length > 2) {
+				if (args.length > 2)
+				{
 					group = args[2];
-					if (!karma.validGroup(sender, args[2])) {
+					if (!karma.validGroup(sender, args[2]))
+					{
 						sender.sendMessage(ChatColor.RED + prefix + " Group "
 								+ ChatColor.GRAY + group + ChatColor.RED
 								+ " does not exist");
 						return true;
 					}
 				}
-				if (sender instanceof Player) {
+				if (sender instanceof Player)
+				{
 					int id = ks
 							.getServer()
 							.getScheduler()
 							.scheduleAsyncDelayedTask(ks,
 									new ConfirmDrain((Player) sender, group));
-					if (id == -1) {
+					if (id == -1)
+					{
 						sender.sendMessage(ChatColor.YELLOW
 								+ KarmicShare.prefix
 								+ " Could not schedule confirmation.");
 					}
-				} else {
+				}
+				else
+				{
 					// Sent from console
 					// Wipe table
 					final String query = "DELETE FROM " + config.tablePrefix
@@ -1594,31 +1913,44 @@ public class Commander implements CommandExecutor {
 					cache.clear();
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.admin.drain");
 				return true;
 			}
-		} else if (com.equals("reload")) {
-			if (perm.checkPermission(sender, "KarmicShare.admin.reload")) {
+		}
+		else if (com.equals("reload"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.admin.reload"))
+			{
 				config.reloadConfig();
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Config reloaded");
 				multiPage.clear();
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.admin.reload");
 				return true;
 			}
-		} else if (com.equals("reset")) {
-			if (perm.checkPermission(sender, "KarmicShare.admin.reset")) {
-				if (!config.karmaDisabled) {
+		}
+		else if (com.equals("reset"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.admin.reset"))
+			{
+				if (!config.karmaDisabled)
+				{
 					// Check if name was given
-					if (args.length > 2) {
+					if (args.length > 2)
+					{
 						// attempt to parse name
 						String name = expandName(args[2]);
-						if (name == null) {
+						if (name == null)
+						{
 							name = args[2];
 						}
 						// SQL query to get player count for specified name
@@ -1628,17 +1960,24 @@ public class Commander implements CommandExecutor {
 						Query rs = ks.getDatabaseHandler().select(query);
 						// Check ResultSet
 						boolean has = false;
-						try {
-							if (rs.getResult().next()) {
+						try
+						{
+							if (rs.getResult().next())
+							{
 								// Check if only received 1 entry
-								if (rs.getResult().getInt(1) == 1) {
+								if (rs.getResult().getInt(1) == 1)
+								{
 									// we have a single name
 									has = true;
-								} else if (rs.getResult().getInt(1) > 1) {
+								}
+								else if (rs.getResult().getInt(1) > 1)
+								{
 									sender.sendMessage(ChatColor.RED
 											+ prefix
 											+ " Got more than one result. Possibly incomplete name?");
-								} else {
+								}
+								else
+								{
 									// Player not in database, therefore error
 									// on player part
 									sender.sendMessage(ChatColor.RED + prefix
@@ -1649,20 +1988,25 @@ public class Commander implements CommandExecutor {
 											+ prefix
 											+ " Player names are case sensitive.");
 								}
-							} else {
+							}
+							else
+							{
 								// Error in query...
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " SQL query error");
 							}
 							rs.getResult().close();
-						} catch (SQLException e) {
-							// INFO Auto-generated catch block
+						}
+						catch (SQLException e)
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ "Could not reset " + name + "'s karma");
 							e.printStackTrace();
 						}
-						if (has) {
-							if (sender instanceof Player) {
+						if (has)
+						{
+							if (sender instanceof Player)
+							{
 								int i = ks
 										.getServer()
 										.getScheduler()
@@ -1670,20 +2014,25 @@ public class Commander implements CommandExecutor {
 												ks,
 												new ConfirmPlayerKarmaReset(
 														(Player) sender, name));
-								if (i == -1) {
+								if (i == -1)
+								{
 									sender.sendMessage(ChatColor.YELLOW
 											+ prefix
 											+ " Could not schedule task.");
 								}
-							} else {
+							}
+							else
+							{
 								// Sent via console
 								int playerKarma = config.playerKarmaDefault;
-								try {
+								try
+								{
 									// Set to zero
 									playerKarma = karma.getPlayerKarma(name)
 											* -1;
 									karma.updatePlayerKarma(name, playerKarma);
-									if (config.playerKarmaDefault != 0) {
+									if (config.playerKarmaDefault != 0)
+									{
 										// Default was non-zero, so re-update to
 										// config's default
 										karma.updatePlayerKarma(name,
@@ -1692,8 +2041,9 @@ public class Commander implements CommandExecutor {
 									sender.sendMessage(ChatColor.YELLOW
 											+ prefix + " " + name
 											+ "'s karma reset");
-								} catch (SQLException e) {
-									// INFO Auto-generated catch block
+								}
+								catch (SQLException e)
+								{
 									sender.sendMessage(ChatColor.RED + prefix
 											+ "Could not reset " + name
 											+ "'s karma");
@@ -1701,40 +2051,56 @@ public class Commander implements CommandExecutor {
 								}
 							}
 						}
-					} else {
+					}
+					else
+					{
 						// did not give a player name, therefore error
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " No player name given.");
 						return false;
 					}
-				} else {
+				}
+				else
+				{
 					// Karma system disabled
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Karma disabled.");
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.admin.reset");
 				return true;
 			}
-		} else if (com.equals("set")) {
-			if (perm.checkPermission(sender, "KarmicShare.admin.set")) {
-				if (!config.karmaDisabled) {
+		}
+		else if (com.equals("set"))
+		{
+			if (perm.checkPermission(sender, "KarmicShare.admin.set"))
+			{
+				if (!config.karmaDisabled)
+				{
 					// Check if name was given
-					if (args.length > 2) {
+					if (args.length > 2)
+					{
 						// attempt to parse name
 						String name = expandName(args[2]);
-						if (name == null) {
+						if (name == null)
+						{
 							name = args[2];
 						}
 						// Check if amount was given
-						if (args.length > 3) {
+						if (args.length > 3)
+						{
 							// Attempt to parse amount
 							int amount = 0;
-							try {
+							try
+							{
 								amount = Integer.parseInt(args[3]);
-							} catch (NumberFormatException e) {
+							}
+							catch (NumberFormatException e)
+							{
 								// Invalid integer given for amount
 								sender.sendMessage(ChatColor.RED + prefix
 										+ args[2] + " is not a valid integer");
@@ -1748,17 +2114,24 @@ public class Commander implements CommandExecutor {
 							Query rs = ks.getDatabaseHandler().select(query);
 							// Check ResultSet
 							boolean has = false;
-							try {
-								if (rs.getResult().next()) {
+							try
+							{
+								if (rs.getResult().next())
+								{
 									// Check if only received 1 entry
-									if (rs.getResult().getInt(1) == 1) {
+									if (rs.getResult().getInt(1) == 1)
+									{
 										// we have a single name
 										has = true;
-									} else if (rs.getResult().getInt(1) > 1) {
+									}
+									else if (rs.getResult().getInt(1) > 1)
+									{
 										sender.sendMessage(ChatColor.RED
 												+ prefix
 												+ " Got more than one result. Possibly incomplete name?");
-									} else {
+									}
+									else
+									{
 										// Player not in database, therefore
 										// error
 										// on player part
@@ -1771,28 +2144,34 @@ public class Commander implements CommandExecutor {
 												+ prefix
 												+ " Player names are case sensitive.");
 									}
-								} else {
+								}
+								else
+								{
 									// Error in query...
 									sender.sendMessage(ChatColor.RED + prefix
 											+ " SQL query error");
 								}
 								rs.closeQuery();
-							} catch (SQLException e) {
-								// INFO Auto-generated catch block
+							}
+							catch (SQLException e)
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Could not set " + name + "'s karma");
 								e.printStackTrace();
 							}
-							if (has) {
+							if (has)
+							{
 								int playerKarma = config.playerKarmaDefault;
-								try {
+								try
+								{
 									// Set to given amount by using the
 									// difference
 									// between the two
 									playerKarma = amount
 											- karma.getPlayerKarma(name);
 									karma.updatePlayerKarma(name, playerKarma);
-									if (config.playerKarmaDefault != 0) {
+									if (config.playerKarmaDefault != 0)
+									{
 										// Default was non-zero, so re-update to
 										// config's default
 										karma.updatePlayerKarma(name,
@@ -1801,8 +2180,9 @@ public class Commander implements CommandExecutor {
 									sender.sendMessage(ChatColor.YELLOW
 											+ prefix + " " + name
 											+ "'s karma set");
-								} catch (SQLException e) {
-									// INFO Auto-generated catch block
+								}
+								catch (SQLException e)
+								{
 									sender.sendMessage(ChatColor.RED + prefix
 											+ "Could not set " + name
 											+ "'s karma");
@@ -1810,46 +2190,62 @@ public class Commander implements CommandExecutor {
 								}
 
 							}
-						} else {
+						}
+						else
+						{
 							// did not give a karma value, therefore error
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " No karma amount given.");
 							return false;
 						}
-					} else {
+					}
+					else
+					{
 						// did not give a player name, therefore error
 						sender.sendMessage(ChatColor.RED + prefix
 								+ " No player name given.");
 						return false;
 					}
-				} else {
+				}
+				else
+				{
 					// Karma disabled
 					sender.sendMessage(ChatColor.RED + prefix
 							+ " Karma disabled.");
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " Lack permission: KarmicShare.admin.set");
 				return true;
 			}
 		}
 		// Admin command for groups
-		else if (com.equals("group")) {
+		else if (com.equals("group"))
+		{
 			// Check for second com
-			if (args.length > 2) {
+			if (args.length > 2)
+			{
 				final String groupCom = args[2];
-				if (groupCom.equals("delete")) {
+				if (groupCom.equals("delete"))
+				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.delete")) {
-						if (args.length > 3) {
+							"KarmicShare.admin.group.delete"))
+					{
+						if (args.length > 3)
+						{
 							final String group = args[3].toLowerCase();
-							if (group.equals("global")) {
+							if (group.equals("global"))
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Cannot remove the global group.");
 							}
-							if (karma.validGroup(sender, group)) {
-								if (sender instanceof Player) {
+							if (karma.validGroup(sender, group))
+							{
+								if (sender instanceof Player)
+								{
 									int i = ks
 											.getServer()
 											.getScheduler()
@@ -1858,12 +2254,15 @@ public class Commander implements CommandExecutor {
 													new ConfirmRemoveGroup(
 															(Player) sender,
 															group));
-									if (i == -1) {
+									if (i == -1)
+									{
 										sender.sendMessage(ChatColor.YELLOW
 												+ prefix
 												+ " Could not schedule task.");
 									}
-								} else {
+								}
+								else
+								{
 									// Sent via console
 									int i = ks
 											.getServer()
@@ -1872,7 +2271,8 @@ public class Commander implements CommandExecutor {
 													ks,
 													new RemoveGroupTask(sender,
 															group));
-									if (i == -1) {
+									if (i == -1)
+									{
 										sender.sendMessage(ChatColor.YELLOW
 												+ prefix
 												+ " Could not schedule task.");
@@ -1885,28 +2285,39 @@ public class Commander implements CommandExecutor {
 											+ " Removed all items of group: "
 											+ group);
 								}
-							} else {
+							}
+							else
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " does not exist");
 							}
-						} else {
+						}
+						else
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Missing group name.");
 							return false;
 						}
-					} else {
+					}
+					else
+					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
 								+ " Lack permission: KarmicShare.admin.group.delete");
 						return true;
 					}
-				} else if (groupCom.equals("create")) {
+				}
+				else if (groupCom.equals("create"))
+				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.create")) {
-						if (args.length > 3) {
+							"KarmicShare.admin.group.create"))
+					{
+						if (args.length > 3)
+						{
 							final String group = args[3].toLowerCase();
-							if (!karma.validGroup(sender, group)) {
+							if (!karma.validGroup(sender, group))
+							{
 								// Create group
 								ks.getDatabaseHandler()
 										.standardQuery(
@@ -1917,59 +2328,80 @@ public class Commander implements CommandExecutor {
 								sender.sendMessage(ChatColor.GREEN + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.GREEN + " created");
-							} else {
+							}
+							else
+							{
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " already exists");
 							}
-						} else {
+						}
+						else
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Missing group name.");
 							return false;
 						}
-					} else {
+					}
+					else
+					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
 								+ " Lack permission: KarmicShare.admin.group.create");
 						return true;
 					}
-				} else if (groupCom.equals("add")) {
+				}
+				else if (groupCom.equals("add"))
+				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.add")) {
-						try {
+							"KarmicShare.admin.group.add"))
+					{
+						try
+						{
 							String group = "";
-							if (args.length > 3) {
+							if (args.length > 3)
+							{
 								// Grab group name if given
 								// force group names to lower case
 								group = args[3].toLowerCase();
-								if (!group.matches(GROUP_NAME_REGEX)) {
+								if (!group.matches(GROUP_NAME_REGEX))
+								{
 									sender.sendMessage(ChatColor.RED
 											+ prefix
 											+ " Group name must be alphanumeric");
 									return true;
 								}
-							} else {
+							}
+							else
+							{
 								// Group name was not given
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Admin command must specify group");
 								return false;
 							}
-							if (args.length > 4) {
-								for (int i = 4; i < args.length; i++) {
+							if (args.length > 4)
+							{
+								for (int i = 4; i < args.length; i++)
+								{
 									String name = expandName(args[i]);
-									if (name == null) {
+									if (name == null)
+									{
 										name = args[i];
 									}
 									if (karma.playerHasGroup(sender, name,
-											group)) {
+											group))
+									{
 										sender.sendMessage(ChatColor.YELLOW
 												+ prefix + " " + ChatColor.AQUA
 												+ name + ChatColor.YELLOW
 												+ " is already in "
 												+ ChatColor.GRAY + group);
 										return true;
-									} else {
-										if (karma.validGroup(sender, group)) {
+									}
+									else
+									{
+										if (karma.validGroup(sender, group))
+										{
 											// add player to group
 											addPlayerToGroup(sender, name,
 													group);
@@ -1980,14 +2412,17 @@ public class Commander implements CommandExecutor {
 													+ ChatColor.GRAY + group);
 											final Player p = ks.getServer()
 													.getPlayer("name");
-											if (p != null) {
+											if (p != null)
+											{
 												p.sendMessage(ChatColor.GREEN
 														+ prefix
 														+ " You have been added to "
 														+ ChatColor.GRAY
 														+ group);
 											}
-										} else {
+										}
+										else
+										{
 											sender.sendMessage(ChatColor.RED
 													+ prefix + " Group "
 													+ ChatColor.GRAY + group
@@ -1996,7 +2431,9 @@ public class Commander implements CommandExecutor {
 										}
 									}
 								}
-							} else {
+							}
+							else
+							{
 								// Player name was not given
 								sender.sendMessage(ChatColor.RED
 										+ prefix
@@ -2004,54 +2441,73 @@ public class Commander implements CommandExecutor {
 								return false;
 							}
 
-						} catch (IndexOutOfBoundsException e) {
+						}
+						catch (IndexOutOfBoundsException e)
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Player name not given");
 							return false;
 						}
-					} else {
+					}
+					else
+					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
 								+ " Lack permission: KarmicShare.admin.group.add");
 					}
 					return true;
-				} else if (com.equals("remove")) {
+				}
+				else if (com.equals("remove"))
+				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.remove")) {
-						try {
+							"KarmicShare.admin.group.remove"))
+					{
+						try
+						{
 							// Grab group name if given
 							String group = "";
-							if (args.length > 3) {
+							if (args.length > 3)
+							{
 								// force group names to lower case
 								group = args[3].toLowerCase();
-								if (!group.matches(GROUP_NAME_REGEX)) {
+								if (!group.matches(GROUP_NAME_REGEX))
+								{
 									sender.sendMessage(ChatColor.RED
 											+ prefix
 											+ " Group name must be alphanumeric");
 									return true;
 								}
-							} else {
+							}
+							else
+							{
 								// Group name was not given
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Admin must specify group");
 								return false;
 							}
-							if (args.length > 4) {
-								for (int i = 4; i < args.length; i++) {
+							if (args.length > 4)
+							{
+								for (int i = 4; i < args.length; i++)
+								{
 									String name = expandName(args[i]);
-									if (name == null) {
+									if (name == null)
+									{
 										name = args[i];
 									}
 									if (!karma.playerHasGroup(sender, name,
-											group)) {
+											group))
+									{
 										sender.sendMessage(ChatColor.YELLOW
 												+ prefix + ChatColor.AQUA
 												+ name + ChatColor.YELLOW
 												+ " not in " + ChatColor.GRAY
 												+ group);
 										return true;
-									} else {
-										if (karma.validGroup(sender, group)) {
+									}
+									else
+									{
+										if (karma.validGroup(sender, group))
+										{
 											// remove other player to group
 											removePlayerFromGroup(sender, name,
 													group);
@@ -2063,14 +2519,17 @@ public class Commander implements CommandExecutor {
 													+ group);
 											final Player p = ks.getServer()
 													.getPlayer("name");
-											if (p != null) {
+											if (p != null)
+											{
 												p.sendMessage(ChatColor.GREEN
 														+ prefix
 														+ " You have been removed from "
 														+ ChatColor.GRAY
 														+ group);
 											}
-										} else {
+										}
+										else
+										{
 											sender.sendMessage(ChatColor.RED
 													+ prefix + " Group "
 													+ ChatColor.GRAY + group
@@ -2079,20 +2538,26 @@ public class Commander implements CommandExecutor {
 										}
 									}
 								}
-							} else {
+							}
+							else
+							{
 								// Player name was not given
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Admin must specify player(s)");
 								return false;
 							}
 
-						} catch (IndexOutOfBoundsException e) {
+						}
+						catch (IndexOutOfBoundsException e)
+						{
 							sender.sendMessage(ChatColor.RED + prefix
 									+ " Player name not given");
 							return false;
 						}
 						return true;
-					} else {
+					}
+					else
+					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
 								+ " Lack permission: KarmicShare.admin.group.remove");
@@ -2107,17 +2572,21 @@ public class Commander implements CommandExecutor {
 	/**
 	 * Quietly updates the local cache of the item pool
 	 */
-	private void updateCache(CommandSender sender) {
+	private void updateCache(CommandSender sender)
+	{
 		// Get list of items from database
 		Query itemlist = ks.getDatabaseHandler().select(
 				"SELECT * FROM " + config.tablePrefix
 						+ "items WHERE groups='global';");
-		try {
-			if (itemlist.getResult().next()) {
+		try
+		{
+			if (itemlist.getResult().next())
+			{
 				// Loop that updates the hashmap cache
 				// This way I won't be querying the database
 				// every time list is called
-				do {
+				do
+				{
 					// update cache with current result set
 					Item i = new Item(itemlist.getResult().getInt("itemid"),
 							itemlist.getResult().getByte("data"), itemlist
@@ -2126,47 +2595,60 @@ public class Commander implements CommandExecutor {
 				} while (itemlist.getResult().next());
 			}
 			itemlist.closeQuery();
-		} catch (SQLException e) {
-			// INFO Auto-generated catch block
+		}
+		catch (SQLException e)
+		{
 			sender.sendMessage(ChatColor.RED + prefix + " SQL error.");
 			e.printStackTrace();
 		}
 	}
 
-	private void listMultipliers(CommandSender sender, int pageAdjust) {
-		if (!config.karmaDisabled) {
-			if (!config.statickarma) {
+	private void listMultipliers(CommandSender sender, int pageAdjust)
+	{
+		if (!config.karmaDisabled)
+		{
+			if (!config.statickarma)
+			{
 				// Add player to page hashmap, if they're not in it
 				// so we know their position in the result list
-				if (!multiPage.containsKey(sender.getName())) {
+				if (!multiPage.containsKey(sender.getName()))
+				{
 					multiPage.put(sender.getName(), 0);
-				} else {
+				}
+				else
+				{
 					// They already exist, so adjust if necessary
-					if (pageAdjust != 0) {
+					if (pageAdjust != 0)
+					{
 						int adj = multiPage.get(sender.getName()).intValue()
 								+ pageAdjust;
 						multiPage.put(sender.getName(), adj);
 					}
 				}
 				// Check if there is any entries in map
-				if (!config.karma.isEmpty()) {
+				if (!config.karma.isEmpty())
+				{
 					// Set hashmap to array
 					Object[] array = config.karma.entrySet().toArray();
 					int num = array.length / limit;
 					double rem = (double) array.length % (double) limit;
 					boolean valid = true;
-					if (rem != 0) {
+					if (rem != 0)
+					{
 						num++;
 					}
-					if (multiPage.get(sender.getName()).intValue() < 0) {
+					if (multiPage.get(sender.getName()).intValue() < 0)
+					{
 						// They tried to use /ks prev when they're on page 0
 						sender.sendMessage(ChatColor.YELLOW + prefix
 								+ " Page does not exist");
 						// reset their current page back to 0
 						multiPage.put(sender.getName(), 0);
 						valid = false;
-					} else if ((multiPage.get(sender.getName()).intValue())
-							* limit > array.length) {
+					}
+					else if ((multiPage.get(sender.getName()).intValue())
+							* limit > array.length)
+					{
 						// They tried to use /ks next at the end of the list
 						sender.sendMessage(ChatColor.YELLOW + prefix
 								+ " Page does not exist");
@@ -2174,7 +2656,8 @@ public class Commander implements CommandExecutor {
 						multiPage.put(sender.getName(), num - 1);
 						valid = false;
 					}
-					if (valid) {
+					if (valid)
+					{
 						// Header with amount of pages
 						sender.sendMessage(ChatColor.BLUE
 								+ "==="
@@ -2190,9 +2673,11 @@ public class Commander implements CommandExecutor {
 						for (int i = ((multiPage.get(sender.getName())
 								.intValue()) * limit); i < ((multiPage
 								.get(sender.getName()).intValue()) * limit)
-								+ limit; i++) {
+								+ limit; i++)
+						{
 							// Don't try to pull something beyond the bounds
-							if (i < array.length) {
+							if (i < array.length)
+							{
 								@SuppressWarnings("unchecked")
 								String out = ChatColor.WHITE
 										+ "Item: "
@@ -2218,24 +2703,32 @@ public class Commander implements CommandExecutor {
 										+ ((Map.Entry<Item, Integer>) array[i])
 												.getKey().itemData();
 								sender.sendMessage(out);
-							} else {
+							}
+							else
+							{
 								break;
 							}
 						}
 					}
-				} else {
+				}
+				else
+				{
 					sender.sendMessage(ChatColor.YELLOW
 							+ prefix
 							+ " No karma multipliers, all items have karma value of "
 							+ config.karmaChange);
 				}
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.YELLOW
 						+ prefix
 						+ " Using static karma system, all items have karma value of "
 						+ config.karmaChange);
 			}
-		} else {
+		}
+		else
+		{
 			// Karma disabled
 			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled.");
 		}
@@ -2251,20 +2744,27 @@ public class Commander implements CommandExecutor {
 	 *            of the page to change to, if needed. Zero shows current page.
 	 */
 	@SuppressWarnings("unchecked")
-	private void listPool(CommandSender sender, int pageAdjust) {
+	private void listPool(CommandSender sender, int pageAdjust)
+	{
 		// Get list of items from database
 		Query itemlist = ks.getDatabaseHandler().select(
 				"SELECT * FROM " + config.tablePrefix
 						+ "items WHERE groups='global';");
-		try {
-			if (itemlist.getResult().next()) {
+		try
+		{
+			if (itemlist.getResult().next())
+			{
 				// Add player to page hashmap, if they're not in it
 				// so we know their position in the result list
-				if (!page.containsKey(sender.getName())) {
+				if (!page.containsKey(sender.getName()))
+				{
 					page.put(sender.getName(), 0);
-				} else {
+				}
+				else
+				{
 					// They already exist, so adjust if necessary
-					if (pageAdjust != 0) {
+					if (pageAdjust != 0)
+					{
 						int adj = page.get(sender.getName()).intValue()
 								+ pageAdjust;
 						page.put(sender.getName(), adj);
@@ -2272,27 +2772,34 @@ public class Commander implements CommandExecutor {
 				}
 				// Clear all tool entry amounts to refresh properly
 				Item[] toolClear = cache.keySet().toArray(new Item[0]);
-				for (int i = 0; i < toolClear.length; i++) {
-					if (toolClear[i].isTool()) {
+				for (int i = 0; i < toolClear.length; i++)
+				{
+					if (toolClear[i].isTool())
+					{
 						cache.remove(toolClear[i]);
 					}
 				}
 				// Loop that updates the hashmap cache
 				// This way I won't be querying the database
 				// every time list is called
-				do {
+				do
+				{
 					// update cache with current result set
 					Item i = new Item(itemlist.getResult().getInt("itemid"),
 							itemlist.getResult().getByte("data"), itemlist
 									.getResult().getShort("durability"));
-					if (i.isTool()) {
+					if (i.isTool())
+					{
 						// add to current amount
 						int itemAmount = itemlist.getResult().getInt("amount");
-						if (cache.containsKey(i)) {
+						if (cache.containsKey(i))
+						{
 							itemAmount += cache.get(i).intValue();
 						}
 						cache.put(i, itemAmount);
-					} else {
+					}
+					else
+					{
 						cache.put(i, itemlist.getResult().getInt("amount"));
 					}
 				} while (itemlist.getResult().next());
@@ -2303,17 +2810,21 @@ public class Commander implements CommandExecutor {
 				// Caluclate amount of pages
 				int num = array.length / limit;
 				double rem = (double) array.length % (double) limit;
-				if (rem != 0) {
+				if (rem != 0)
+				{
 					num++;
 				}
-				if (page.get(sender.getName()).intValue() < 0) {
+				if (page.get(sender.getName()).intValue() < 0)
+				{
 					// They tried to use /ks prev when they're on page 0
 					sender.sendMessage(ChatColor.YELLOW + prefix
 							+ " Page does not exist");
 					// reset their current page back to 0
 					page.put(sender.getName(), 0);
 					valid = false;
-				} else if ((page.get(sender.getName()).intValue()) * limit > array.length) {
+				}
+				else if ((page.get(sender.getName()).intValue()) * limit > array.length)
+				{
 					// They tried to use /ks next at the end of the list
 					sender.sendMessage(ChatColor.YELLOW + prefix
 							+ " Page does not exist");
@@ -2321,7 +2832,8 @@ public class Commander implements CommandExecutor {
 					page.put(sender.getName(), num - 1);
 					valid = false;
 				}
-				if (valid) {
+				if (valid)
+				{
 					// Header with amount of pages
 					sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.GOLD
 							+ "Item Pool" + ChatColor.BLUE + "==="
@@ -2330,9 +2842,11 @@ public class Commander implements CommandExecutor {
 							+ " of " + num + ChatColor.BLUE + "===");
 					// list
 					for (int i = ((page.get(sender.getName()).intValue()) * limit); i < ((page
-							.get(sender.getName()).intValue()) * limit) + limit; i++) {
+							.get(sender.getName()).intValue()) * limit) + limit; i++)
+					{
 						// Don't try to pull something beyond the bounds
-						if (i < array.length) {
+						if (i < array.length)
+						{
 							StringBuilder sb = new StringBuilder();
 							sb.append(ChatColor.WHITE + "Item: "
 									+ ChatColor.AQUA
@@ -2353,20 +2867,27 @@ public class Commander implements CommandExecutor {
 							sb.append(ChatColor.WHITE + " Data: "
 									+ ChatColor.LIGHT_PURPLE);
 							if (((Map.Entry<Item, Integer>) array[i]).getKey()
-									.isPotion()) {
+									.isPotion())
+							{
 								sb.append(((Map.Entry<Item, Integer>) array[i])
 										.getKey().itemDurability());
-							} else {
+							}
+							else
+							{
 								sb.append(((Map.Entry<Item, Integer>) array[i])
 										.getKey().itemData());
 							}
 							sender.sendMessage(sb.toString());
-						} else {
+						}
+						else
+						{
 							break;
 						}
 					}
 				}
-			} else {
+			}
+			else
+			{
 				// No items in pool
 				sender.sendMessage(ChatColor.RED + prefix
 						+ " No items in pool.");
@@ -2376,8 +2897,9 @@ public class Commander implements CommandExecutor {
 				page.clear();
 			}
 			itemlist.closeQuery();
-		} catch (SQLException e) {
-			// INFO Auto-generated catch block
+		}
+		catch (SQLException e)
+		{
 			sender.sendMessage(ChatColor.RED + prefix + "SQL error.");
 			e.printStackTrace();
 		}
@@ -2390,49 +2912,65 @@ public class Commander implements CommandExecutor {
 	 *            karma
 	 * @return Appropriate string with color codes
 	 */
-	private String colorizeKarma(int karma) {
+	private String colorizeKarma(int karma)
+	{
 		// Colorize based on how high/low karma is
-		if (Math.abs(karma + config.lower) <= Math.abs(karma + config.upper)) {
+		if (Math.abs(karma + config.lower) <= Math.abs(karma + config.upper))
+		{
 			// Positive karma
 			if (((double) karma + Math.abs(config.lower))
-					/ ((double) Math.abs(config.upper) + Math.abs(config.lower)) >= config.upperPercent) {
+					/ ((double) Math.abs(config.upper) + Math.abs(config.lower)) >= config.upperPercent)
+			{
 				return (ChatColor.YELLOW + prefix + ChatColor.GREEN
 						+ " Karma: " + karma);
-			} else {
+			}
+			else
+			{
 				// Not in upper percentage
 				return (ChatColor.YELLOW + prefix + " Karma: " + karma);
 			}
-		} else {
+		}
+		else
+		{
 			// Negative karma
 			if (((double) karma + Math.abs(config.lower))
-					/ ((double) Math.abs(config.upper) + Math.abs(config.lower)) <= config.lowerPercent) {
+					/ ((double) Math.abs(config.upper) + Math.abs(config.lower)) <= config.lowerPercent)
+			{
 				return (ChatColor.YELLOW + prefix + ChatColor.RED + " Karma: " + karma);
-			} else {
+			}
+			else
+			{
 				// Not in lower percentage
 				return (ChatColor.YELLOW + prefix + " Karma: " + karma);
 			}
 		}
 	}
 
-	private List<String> playerGroups(CommandSender sender, String name) {
+	private List<String> playerGroups(CommandSender sender, String name)
+	{
 		List<String> list = new ArrayList<String>();
-		try {
-			if (hasGroups(name)) {
+		try
+		{
+			if (hasGroups(name))
+			{
 				String groups = "";
 				Query rs = ks.getDatabaseHandler().select(
 						"SELECT * FROM " + config.tablePrefix
 								+ "players WHERE playername='" + name + "';");
-				if (rs.getResult().next()) {
+				if (rs.getResult().next())
+				{
 					groups = rs.getResult().getString("groups");
 				}
 				rs.closeQuery();
 				String[] split = groups.split("&");
-				for (String s : split) {
+				for (String s : split)
+				{
 					list.add(s);
 				}
 			}
-		} catch (SQLException e) {
-			// INFO Auto-generated catch block
+		}
+		catch (SQLException e)
+		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
 					+ " SQL Exception");
 			e.printStackTrace();
@@ -2446,15 +2984,19 @@ public class Commander implements CommandExecutor {
 	 * 
 	 * @author Frigid, edited by Raphfrk and petteyg359
 	 */
-	private String expandName(String Name) {
+	private String expandName(String Name)
+	{
 		int m = 0;
 		String Result = "";
-		for (int n = 0; n < ks.getServer().getOnlinePlayers().length; n++) {
+		for (int n = 0; n < ks.getServer().getOnlinePlayers().length; n++)
+		{
 			String str = ks.getServer().getOnlinePlayers()[n].getName();
-			if (str.matches("(?i).*" + Name + ".*")) {
+			if (str.matches("(?i).*" + Name + ".*"))
+			{
 				m++;
 				Result = str;
-				if (m == 2) {
+				if (m == 2)
+				{
 					return null;
 				}
 			}
@@ -2463,22 +3005,27 @@ public class Commander implements CommandExecutor {
 		}
 		if (m == 1)
 			return Result;
-		if (m > 1) {
+		if (m > 1)
+		{
 			return null;
 		}
 		return Name;
 	}
 
-	private boolean hasGroups(String playerName) throws SQLException {
+	private boolean hasGroups(String playerName) throws SQLException
+	{
 		boolean hasGroups = false;
 		String groups = "";
 		Query rs = ks.getDatabaseHandler().select(
 				"SELECT * FROM " + config.tablePrefix
 						+ "players WHERE playername='" + playerName + "';");
-		if (rs.getResult().next()) {
+		if (rs.getResult().next())
+		{
 			groups = rs.getResult().getString("groups");
-			if (!rs.getResult().wasNull()) {
-				if (!groups.equals("")) {
+			if (!rs.getResult().wasNull())
+			{
+				if (!groups.equals(""))
+				{
 					hasGroups = true;
 				}
 			}
@@ -2487,31 +3034,36 @@ public class Commander implements CommandExecutor {
 		return hasGroups;
 	}
 
-	public Map<Item, Integer> getCache() {
+	public Map<Item, Integer> getCache()
+	{
 		return cache;
 	}
-	
+
 	public Map<String, Integer> getChestPage()
 	{
 		return chestPage;
 	}
 
-	class ConfirmDrain implements Runnable {
+	class ConfirmDrain implements Runnable
+	{
 		private Player player;
 		private String group;
 
-		public ConfirmDrain(Player p, String g) {
+		public ConfirmDrain(Player p, String g)
+		{
 			player = p;
 			group = g;
 		}
 
-		public void run() {
+		public void run()
+		{
 			String answer = ks.ask(player, ChatColor.YELLOW + prefix
 					+ ChatColor.DARK_AQUA + " Delete ALL items in "
 					+ ChatColor.GOLD + group + ChatColor.DARK_AQUA
 					+ " pool? No recovery...", ChatColor.GREEN + "yes",
 					ChatColor.RED + "no");
-			if (answer.equals("yes")) {
+			if (answer.equals("yes"))
+			{
 				// Wipe table
 				final String query = "DELETE FROM " + config.tablePrefix
 						+ "items WHERE groups='" + group + "';";
@@ -2522,48 +3074,59 @@ public class Commander implements CommandExecutor {
 						+ ChatColor.GOLD + group + ChatColor.GREEN
 						+ " item pool emptied.");
 				cache.clear();
-			} else {
+			}
+			else
+			{
 				player.sendMessage(ChatColor.YELLOW + prefix
 						+ " Drain cancelled.");
 			}
 		}
 	}
 
-	class ConfirmPlayerKarmaReset implements Runnable {
+	class ConfirmPlayerKarmaReset implements Runnable
+	{
 		private String name;
 		private Player sender;
 
-		public ConfirmPlayerKarmaReset(Player p, String n) {
+		public ConfirmPlayerKarmaReset(Player p, String n)
+		{
 			name = n;
 			sender = p;
 		}
 
 		@Override
-		public void run() {
+		public void run()
+		{
 			String answer = ks.ask(sender, ChatColor.YELLOW + prefix
 					+ ChatColor.DARK_AQUA + " Reset " + ChatColor.GOLD + name
 					+ ChatColor.DARK_AQUA + "'s karma?", ChatColor.GREEN
 					+ "yes", ChatColor.RED + "no");
-			if (answer.equals("yes")) {
+			if (answer.equals("yes"))
+			{
 				int playerKarma = config.playerKarmaDefault;
-				try {
+				try
+				{
 					// Set to zero
 					playerKarma = karma.getPlayerKarma(name) * -1;
 					karma.updatePlayerKarma(name, playerKarma);
-					if (config.playerKarmaDefault != 0) {
+					if (config.playerKarmaDefault != 0)
+					{
 						// Default was non-zero, so re-update to
 						// config's default
 						karma.updatePlayerKarma(name, config.playerKarmaDefault);
 					}
 					sender.sendMessage(ChatColor.GREEN + prefix + " " + name
 							+ "'s karma reset");
-				} catch (SQLException e) {
-					// INFO Auto-generated catch block
+				}
+				catch (SQLException e)
+				{
 					sender.sendMessage(ChatColor.RED + prefix
 							+ "Could not reset " + name + "'s karma");
 					e.printStackTrace();
 				}
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ ChatColor.DARK_AQUA + " Karma reset for "
 						+ ChatColor.GOLD + name + ChatColor.DARK_AQUA
@@ -2572,22 +3135,26 @@ public class Commander implements CommandExecutor {
 		}
 	}
 
-	class ConfirmRemoveGroup implements Runnable {
+	class ConfirmRemoveGroup implements Runnable
+	{
 		private String group;
 		private Player sender;
 
-		public ConfirmRemoveGroup(Player sender, String group) {
+		public ConfirmRemoveGroup(Player sender, String group)
+		{
 			this.sender = sender;
 			this.group = group;
 		}
 
 		@Override
-		public void run() {
+		public void run()
+		{
 			String answer = ks.ask(sender, ChatColor.YELLOW + prefix
 					+ ChatColor.DARK_AQUA + " Remove group " + ChatColor.GOLD
 					+ group + ChatColor.DARK_AQUA + "? ", ChatColor.GREEN
 					+ "yes", ChatColor.RED + "no");
-			if (answer.equals("yes")) {
+			if (answer.equals("yes"))
+			{
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " This could take a while...");
 				int i = ks
@@ -2595,7 +3162,8 @@ public class Commander implements CommandExecutor {
 						.getScheduler()
 						.scheduleAsyncDelayedTask(ks,
 								new RemoveGroupTask(sender, group));
-				if (i == -1) {
+				if (i == -1)
+				{
 					sender.sendMessage(ChatColor.YELLOW + prefix
 							+ " Could not schedule task");
 				}
@@ -2605,7 +3173,9 @@ public class Commander implements CommandExecutor {
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Removed all items of group: " + ChatColor.GOLD
 						+ group);
-			} else {
+			}
+			else
+			{
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ ChatColor.DARK_AQUA + " Cancelled removal of "
 						+ ChatColor.GOLD + group);
@@ -2613,48 +3183,65 @@ public class Commander implements CommandExecutor {
 		}
 	}
 
-	class RemoveGroupTask implements Runnable {
+	class RemoveGroupTask implements Runnable
+	{
 		CommandSender sender;
 		String group;
 		Map<String, String> queries = new HashMap<String, String>();
 
-		public RemoveGroupTask(CommandSender sender, String group) {
+		public RemoveGroupTask(CommandSender sender, String group)
+		{
 			this.sender = sender;
 			this.group = group;
 		}
 
 		@Override
-		public void run() {
-			try {
+		public void run()
+		{
+			try
+			{
 				Query rs = ks.getDatabaseHandler().select(
 						"SELECT * FROM " + config.tablePrefix + "players;");
-				if (rs.getResult().next()) {
-					do {
+				if (rs.getResult().next())
+				{
+					do
+					{
 						boolean has = false;
 						String groups = rs.getResult().getString("groups");
-						if (!rs.getResult().wasNull()) {
-							if (groups.contains("&")) {
+						if (!rs.getResult().wasNull())
+						{
+							if (groups.contains("&"))
+							{
 								// they have multiple groups
-								for (String s : groups.split("&")) {
-									if (s.equals(group)) {
+								for (String s : groups.split("&"))
+								{
+									if (s.equals(group))
+									{
 										has = true;
 									}
 								}
-							} else {
+							}
+							else
+							{
 								// they only have one group
-								if (groups.equals(group)) {
+								if (groups.equals(group))
+								{
 									has = true;
 								}
 							}
-							if (has) {
-								if (groups.contains("&")) {
+							if (has)
+							{
+								if (groups.contains("&"))
+								{
 									// Multigroup
 									StringBuilder sb = new StringBuilder();
-									for (String s : groups.split("&")) {
+									for (String s : groups.split("&"))
+									{
 										ks.getLogger().info(s);
 										// Add back all groups excluding
 										// specified group
-										if (!s.equals(group)) {
+										if (!s.equals(group))
+										{
 											sb.append(s + "&");
 										}
 									}
@@ -2674,7 +3261,8 @@ public class Commander implements CommandExecutor {
 					} while (rs.getResult().next());
 				}
 				rs.closeQuery();
-				for (Map.Entry<String, String> entry : queries.entrySet()) {
+				for (Map.Entry<String, String> entry : queries.entrySet())
+				{
 					ks.getDatabaseHandler().standardQuery(
 							"UPDATE " + config.tablePrefix
 									+ "players SET groups='" + entry.getValue()
@@ -2684,8 +3272,9 @@ public class Commander implements CommandExecutor {
 				sender.sendMessage(ChatColor.YELLOW + prefix
 						+ " Done removing group " + ChatColor.GRAY + group
 						+ ChatColor.YELLOW + " from all players.");
-			} catch (SQLException e) {
-				// INFO Auto-generated catch block
+			}
+			catch (SQLException e)
+			{
 				sender.sendMessage(ChatColor.RED + prefix + " SQL error");
 				e.printStackTrace();
 			}

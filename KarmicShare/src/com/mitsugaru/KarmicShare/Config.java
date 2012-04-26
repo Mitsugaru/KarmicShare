@@ -1,7 +1,7 @@
 /**
- * Config file mimicking DiddiZ's Config class
- * file in LB. Tailored for this plugin.
- *
+ * Config file mimicking DiddiZ's Config class file in LB. Tailored for this
+ * plugin.
+ * 
  * @author Mitsugaru
  */
 package com.mitsugaru.KarmicShare;
@@ -20,7 +20,8 @@ import lib.Mitsugaru.SQLibrary.Database.Query;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class Config {
+public class Config
+{
 	// Class variables
 	private KarmicShare plugin;
 	public String host, port, database, user, password;
@@ -38,11 +39,12 @@ public class Config {
 	// enchantment lvl, page numbers, maybe even header titles
 	/**
 	 * Constructor and initializer
-	 *
+	 * 
 	 * @param KarmicShare
 	 *            plugin
 	 */
-	public Config(KarmicShare ks) {
+	public Config(KarmicShare ks)
+	{
 		plugin = ks;
 		// Grab config
 		final ConfigurationSection config = ks.getConfig();
@@ -69,7 +71,7 @@ public class Config {
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
 		defaults.put("chests", true);
-		//TODO defaults.put("blacklist", false);
+		// TODO defaults.put("blacklist", false);
 		// Insert defaults into config file if they're not present
 		for (final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -102,21 +104,22 @@ public class Config {
 		debugTime = config.getBoolean("debugTime", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
-		//TODO blacklist = config.getBoolean("blacklist", false);
+		// TODO blacklist = config.getBoolean("blacklist", false);
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
 			this.loadKarmaMap();
 		}
-		if(blacklist)
+		if (blacklist)
 		{
 			this.loadBlacklist();
 		}
-		
+
 		// Finally, do a bounds check on parameters to make sure they are legal
 	}
 
-	public void set(String path, Object o) {
+	public void set(String path, Object o)
+	{
 		final ConfigurationSection config = plugin.getConfig();
 		config.set(path, o);
 		plugin.saveConfig();
@@ -125,7 +128,8 @@ public class Config {
 	/**
 	 * Loads the per-item karma values into a hashmap for later usage
 	 */
-	private void loadKarmaMap() {
+	private void loadKarmaMap()
+	{
 		// Load karma file
 		final YamlConfiguration karmaFile = this.karmaFile();
 		// Load custom karma file into map
@@ -173,27 +177,29 @@ public class Config {
 		}
 		plugin.getLogger().info("Loaded custom karma values");
 	}
-	
+
 	private void loadBlacklist()
 	{
-		//final YamlConfiguration blacklistFile = blacklistFile();
-		//Load info into set
-		//TODO test
-		//final List<String> list = (List<String>) blacklistFile.getList("blacklist", new ArrayList<String>());
+		// final YamlConfiguration blacklistFile = blacklistFile();
+		// Load info into set
+		// TODO test
+		// final List<String> list = (List<String>)
+		// blacklistFile.getList("blacklist", new ArrayList<String>());
 	}
 
 	/**
 	 * Check if updates are necessary
 	 */
-	public void checkUpdate() {
+	public void checkUpdate()
+	{
 		// Check if need to update
 		ConfigurationSection config = plugin.getConfig();
 		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
 				.parseDouble(config.getString("version")))
 		{
 			// Update to latest version
-			plugin.getLogger().info("Updating to v"
-							+ plugin.getDescription().getVersion());
+			plugin.getLogger().info(
+					"Updating to v" + plugin.getDescription().getVersion());
 			this.update();
 		}
 	}
@@ -202,7 +208,8 @@ public class Config {
 	 * This method is called to make the appropriate changes, most likely only
 	 * necessary for database schema modification, for a proper update.
 	 */
-	private void update() {
+	private void update()
+	{
 		// Grab current version
 		final double ver = Double.parseDouble(plugin.getConfig().getString(
 				"version"));
@@ -211,16 +218,16 @@ public class Config {
 		if (ver < 0.08)
 		{
 			// Add enchantments column
-			plugin.getLogger()
-					.info("Altering items table to add enchantments column.");
+			plugin.getLogger().info(
+					"Altering items table to add enchantments column.");
 			query = "ALTER TABLE items ADD enchantments TEXT;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		if (ver < 0.09)
 		{
 			// Add back durability column
-			plugin.getLogger()
-					.info("Altering items table to add durability column.");
+			plugin.getLogger().info(
+					"Altering items table to add durability column.");
 			query = "ALTER TABLE items ADD durability TEXT;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
@@ -237,24 +244,27 @@ public class Config {
 				{
 					do
 					{
-						String enchantments = rs.getResult().getString("enchantments");
+						String enchantments = rs.getResult().getString(
+								"enchantments");
 						if (!rs.getResult().wasNull())
 						{
-							fourteen.add(new ZeroPointFourteenItemObject(rs.getResult()
-									.getInt("itemid"), rs.getResult().getInt("amount"), rs.getResult()
-									.getByte("data"),
-									rs.getResult().getShort("durability"), enchantments));
+							fourteen.add(new ZeroPointFourteenItemObject(rs
+									.getResult().getInt("itemid"), rs
+									.getResult().getInt("amount"), rs
+									.getResult().getByte("data"), rs
+									.getResult().getShort("durability"),
+									enchantments));
 						}
 						else
 						{
-							fourteen.add(new ZeroPointFourteenItemObject(rs.getResult()
-									.getInt("itemid"), rs.getResult().getInt("amount"), rs.getResult()
-									.getByte("data"),
-									rs.getResult().getShort("durability"), ""));
+							fourteen.add(new ZeroPointFourteenItemObject(rs
+									.getResult().getInt("itemid"), rs
+									.getResult().getInt("amount"), rs
+									.getResult().getByte("data"), rs
+									.getResult().getShort("durability"), ""));
 						}
 
-					}
-					while (rs.getResult().next());
+					} while (rs.getResult().next());
 				}
 				rs.closeQuery();
 				// Drop item table
@@ -303,7 +313,8 @@ public class Config {
 				e.printStackTrace();
 			}
 			// Add groups to players table
-			plugin.getLogger().info("Altering player table to add groups column.");
+			plugin.getLogger().info(
+					"Altering player table to add groups column.");
 			query = "ALTER TABLE players ADD groups TEXT;";
 			plugin.getDatabaseHandler().standardQuery(query);
 			// Add the GLOBAL group
@@ -313,22 +324,32 @@ public class Config {
 		}
 		if (ver < 0.2)
 		{
-			//Drop newly created tables
+			// Drop newly created tables
 			plugin.getLogger().info("Dropping empty tables.");
-			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "items;");
-			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "players;");
-			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "groups;");
+			plugin.getDatabaseHandler().standardQuery(
+					"DROP TABLE " + tablePrefix + "items;");
+			plugin.getDatabaseHandler().standardQuery(
+					"DROP TABLE " + tablePrefix + "players;");
+			plugin.getDatabaseHandler().standardQuery(
+					"DROP TABLE " + tablePrefix + "groups;");
 			// Update tables to have prefix
-			plugin.getLogger().info("Renaming items table to '" + tablePrefix +"items'.");
+			plugin.getLogger().info(
+					"Renaming items table to '" + tablePrefix + "items'.");
 			query = "ALTER TABLE items RENAME TO " + tablePrefix + "items;";
 			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info("Renaming players table to '" + tablePrefix +"players'.");
+			plugin.getLogger().info(
+					"Renaming players table to '" + tablePrefix + "players'.");
 			query = "ALTER TABLE players RENAME TO " + tablePrefix + "players;";
 			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info("Renaming groups table to '" + tablePrefix +"groups'.");
+			plugin.getLogger().info(
+					"Renaming groups table to '" + tablePrefix + "groups'.");
 			query = "ALTER TABLE groups RENAME TO " + tablePrefix + "groups;";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
+		// TODO update tables to version 0.3 schema. Need to grab objects, drop
+		// tables, and reinsert
+		// TODO need do groups table first so that they get their id, convert
+		// player's groups to use id than name
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
@@ -338,7 +359,8 @@ public class Config {
 	/**
 	 * Reloads info from yaml file(s)
 	 */
-	public void reloadConfig() {
+	public void reloadConfig()
+	{
 		// Initial relaod
 		plugin.reloadConfig();
 		// Grab config
@@ -364,7 +386,7 @@ public class Config {
 			// Reload karma mappings
 			this.loadKarmaMap();
 		}
-		if(blacklist)
+		if (blacklist)
 		{
 			this.loadBlacklist();
 		}
@@ -377,14 +399,16 @@ public class Config {
 	 * Check the bounds on the parameters to make sure that all config variables
 	 * are legal and usable by the plugin
 	 */
-	private void boundsCheck() {
+	private void boundsCheck()
+	{
 		// Check upper and lower limits
 		if (upper < lower)
 		{
 			upper = 200;
 			lower = -200;
 			plugin.getLogger()
-					.warning("Upper limit is smaller than lower limit. Reverting to defaults.");
+					.warning(
+							"Upper limit is smaller than lower limit. Reverting to defaults.");
 		}
 		// Check that we don't go beyond what the database can handle, via
 		// smallint
@@ -393,7 +417,8 @@ public class Config {
 			upper = 200;
 			lower = -200;
 			plugin.getLogger()
-					.warning("Upper/lower limit is beyond bounds. Reverting to defaults.");
+					.warning(
+							"Upper/lower limit is beyond bounds. Reverting to defaults.");
 		}
 		// Check percentages
 		if (upperPercent < lowerPercent)
@@ -401,14 +426,16 @@ public class Config {
 			upperPercent = 0.85;
 			lowerPercent = 0.15;
 			plugin.getLogger()
-					.warning("Upper %-age is smaller than lower %-age. Reverting to defaults.");
+					.warning(
+							"Upper %-age is smaller than lower %-age. Reverting to defaults.");
 		}
 		else if (upperPercent > 1.0 || lowerPercent < 0)
 		{
 			upperPercent = 0.85;
 			lowerPercent = 0.15;
 			plugin.getLogger()
-					.warning("Upper %-age and/or lower %-age are beyond bounds. Reverting to defaults.");
+					.warning(
+							"Upper %-age and/or lower %-age are beyond bounds. Reverting to defaults.");
 		}
 		// Check that the default karma is actually in range.
 		if (playerKarmaDefault < lower || playerKarmaDefault > upper)
@@ -416,38 +443,40 @@ public class Config {
 			// Average out valid bounds to create valid default
 			playerKarmaDefault = upper - ((lower + upper) / 2);
 			plugin.getLogger()
-					.warning("Player karma default is out of range. Using average of the two.");
+					.warning(
+							"Player karma default is out of range. Using average of the two.");
 		}
 		// Check that default karma change is not negative.
 		if (karmaChange < 0)
 		{
 			karmaChange = 1;
-			plugin.getLogger()
-					.warning("Default karma rate is negative. Using default.");
+			plugin.getLogger().warning(
+					"Default karma rate is negative. Using default.");
 		}
 		// Check that list is actually going to output something, based on limit
 		// given
 		if (listlimit < 1)
 		{
 			listlimit = 10;
-			plugin.getLogger().warning("List limit is lower than 1. Using default.");
+			plugin.getLogger().warning(
+					"List limit is lower than 1. Using default.");
 		}
 	}
 
 	/**
 	 * Loads the karma file. Contains default values If the karma file isn't
 	 * there, or if its empty, then load defaults.
-	 *
+	 * 
 	 * @return YamlConfiguration file
 	 */
-	private YamlConfiguration karmaFile() {
+	private YamlConfiguration karmaFile()
+	{
 		final File file = new File(plugin.getDataFolder().getAbsolutePath()
 				+ "/karma.yml");
 		final YamlConfiguration karmaFile = YamlConfiguration
 				.loadConfiguration(file);
 		if (karmaFile.getKeys(false).isEmpty())
 		{
-			// TODO all-inclusive defaults
 			// Defaults
 			karmaFile.set("14", 5);
 			karmaFile.set("15", 2);
@@ -495,14 +524,14 @@ public class Config {
 			}
 			catch (IOException e1)
 			{
-				// INFO Auto-generated catch block
-				plugin.getLogger().warning("File I/O Exception on saving karma list");
+				plugin.getLogger().warning(
+						"File I/O Exception on saving karma list");
 				e1.printStackTrace();
 			}
 		}
 		return karmaFile;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private YamlConfiguration blacklistFile()
 	{
@@ -519,22 +548,24 @@ public class Config {
 			}
 			catch (IOException e1)
 			{
-				// INFO Auto-generated catch block
-				plugin.getLogger().warning("File I/O Exception on saving blacklist");
+				plugin.getLogger().warning(
+						"File I/O Exception on saving blacklist");
 				e1.printStackTrace();
 			}
 		}
 		return blacklistFile;
 	}
 
-	static class ZeroPointFourteenItemObject {
+	static class ZeroPointFourteenItemObject
+	{
 		public int itemid, amount;
 		public byte data;
 		public short durability;
 		public String enchantments;
 
 		public ZeroPointFourteenItemObject(int id, int quantity, byte dv,
-				short dur, String en) {
+				short dur, String en)
+		{
 			itemid = id;
 			amount = quantity;
 			data = dv;

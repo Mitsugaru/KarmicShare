@@ -63,6 +63,8 @@ public class DBHandler {
 			if (!mysql.checkTable(Table.GROUPS.getName()))
 			{
 				//TODO add primary key id
+				//TODO need to record creator and managers
+				//TODO group settings
 				plugin.getLogger().info(
 						KarmicShare.prefix + " Created groups table");
 				mysql.createTable("CREATE TABLE "

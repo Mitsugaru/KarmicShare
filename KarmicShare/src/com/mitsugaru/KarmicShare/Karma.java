@@ -64,7 +64,6 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				// INFO Auto-generated catch block
 				player.sendMessage(ChatColor.RED + KarmicShare.prefix
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
@@ -107,7 +106,6 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				// INFO Auto-generated catch block
 				player.sendMessage(ChatColor.RED + KarmicShare.prefix
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
@@ -148,7 +146,6 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				// INFO Auto-generated catch block
 				player.sendMessage(ChatColor.RED + KarmicShare.prefix
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
@@ -186,7 +183,6 @@ public class Karma {
 					}
 					catch (SQLException e1)
 					{
-						// INFO Auto-generated catch block
 						player.sendMessage(ChatColor.RED + KarmicShare.prefix
 								+ " Could not retrieve player karma");
 						e1.printStackTrace();
@@ -508,7 +504,6 @@ public class Karma {
 						}
 						catch (SQLException e)
 						{
-							// INFO Auto-generated catch block
 							player.sendMessage(ChatColor.RED
 									+ KarmicShare.prefix
 									+ "Could not retrieve item in pool!");
@@ -558,7 +553,6 @@ public class Karma {
 						}
 						catch (SQLException e)
 						{
-							// INFO Auto-generated catch block
 							player.sendMessage(ChatColor.RED
 									+ KarmicShare.prefix
 									+ "Could not retrieve item in pool!");
@@ -606,7 +600,6 @@ public class Karma {
 						}
 						catch (SQLException e)
 						{
-							// INFO Auto-generated catch block
 							player.sendMessage(ChatColor.RED
 									+ KarmicShare.prefix
 									+ "Could not retrieve item in pool!");
@@ -666,7 +659,6 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				// INFO Auto-generated catch block
 				player.sendMessage(ChatColor.RED + KarmicShare.prefix
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
@@ -778,7 +770,6 @@ public class Karma {
 					}
 					catch (SQLException e)
 					{
-						// INFO Auto-generated catch block
 						player.sendMessage(ChatColor.RED + KarmicShare.prefix
 								+ "Could not query item pool!");
 						e.printStackTrace();
@@ -834,7 +825,6 @@ public class Karma {
 				}
 				catch (SQLException e)
 				{
-					// INFO Auto-generated catch block
 					player.sendMessage(ChatColor.RED + KarmicShare.prefix
 							+ "Could not query item pool!");
 					e.printStackTrace();
@@ -892,7 +882,6 @@ public class Karma {
 				}
 				catch (SQLException e)
 				{
-					// INFO Auto-generated catch block
 					player.sendMessage(ChatColor.RED + KarmicShare.prefix
 							+ "Could not query item pool!");
 					e.printStackTrace();
@@ -962,7 +951,6 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				// INFO Auto-generated catch block
 				player.sendMessage(ChatColor.RED + KarmicShare.prefix
 						+ "Could not adjust karma to pool!");
 				e.printStackTrace();
@@ -1149,7 +1137,6 @@ public class Karma {
 		}
 		catch (SQLException e)
 		{
-			// INFO Auto-generated catch block
 			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
 					+ " SQL Exception");
 			e.printStackTrace();
@@ -1202,7 +1189,6 @@ public class Karma {
 		}
 		catch (SQLException e)
 		{
-			// INFO Auto-generated catch block
 			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
 					+ " SQL Exception");
 			e.printStackTrace();
