@@ -36,6 +36,8 @@ public class KSInventoryListener implements Listener
 		karma = karmicShare.getKarma();
 	}
 
+	//TODO check for our custom inventory holder class.
+	//Handle logic if it is ours.
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onInventoryClick(InventoryClickEvent event)
 	{
