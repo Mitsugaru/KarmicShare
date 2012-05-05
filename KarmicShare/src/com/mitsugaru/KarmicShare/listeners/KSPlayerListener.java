@@ -44,6 +44,8 @@ public class KSPlayerListener implements Listener {
 	}
 
 	//TODO show our own inventory holder?
+	//That way, we can live update player interactions if they are of the
+	//same group and same page.
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
