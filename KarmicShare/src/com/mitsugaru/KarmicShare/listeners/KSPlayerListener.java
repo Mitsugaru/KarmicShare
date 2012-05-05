@@ -683,7 +683,7 @@ public class KSPlayerListener implements Listener {
 					ItemStack item = null;
 					if(Item.isTool(id))
 					{
-						item = new ItemStack(id, amount, data);
+						item = new ItemStack(id, amount, dur);
 					}
 					else
 					{
