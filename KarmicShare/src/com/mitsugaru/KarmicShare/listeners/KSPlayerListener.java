@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import com.mitsugaru.KarmicShare.Item;
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.database.Table;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSPlayerListener implements Listener {
@@ -575,8 +576,8 @@ public class KSPlayerListener implements Listener {
 		//Calculate number of slots
 		int slots = 0;
 		Query all = plugin.getDatabaseHandler().select("SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE groups='" + group + "';");
+						+ Table.ITEMS.getName()
+						+ " WHERE groups='" + group + "';");
 		try
 		{
 			if(all.getResult().next())
@@ -665,8 +666,8 @@ public class KSPlayerListener implements Listener {
 			int start = (page - 1) * limit;
 			Query itemList = plugin.getDatabaseHandler().select(
 					"SELECT * FROM "
-						+ plugin.getPluginConfig().tablePrefix
-						+ "items WHERE groups='" + group + "';");
+						+ Table.ITEMS.getName()
+						+ " WHERE groups='" + group + "';");
 			if (itemList.getResult().next())
 			{
 				boolean done = false;
@@ -677,7 +678,15 @@ public class KSPlayerListener implements Listener {
 					int amount = itemList.getResult().getInt("amount");
 					byte data = itemList.getResult().getByte("data");
 					short dur = itemList.getResult().getShort("durability");
-					ItemStack item = new ItemStack(id, amount, dur, data);
+					ItemStack item = null;
+					if(Item.isTool(id))
+					{
+						item = new ItemStack(id, amount, data);
+					}
+					else
+					{
+						item = new ItemStack(id, amount, dur, data);
+					}
 					//Generate psudo item to calculate slots taken up
 					int maxStack = item.getType().getMaxStackSize();
 					if(maxStack <= 0)

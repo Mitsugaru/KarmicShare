@@ -535,7 +535,7 @@ public class Item extends MaterialData
 	 */
 	public boolean isTool()
 	{
-		return this.isTool(this.getItemTypeId());
+		return isTool(this.getItemTypeId());
 	}
 
 	/**
@@ -544,7 +544,7 @@ public class Item extends MaterialData
 	 * @param int of item id
 	 * @return true if it matches a known tool, else false
 	 */
-	public boolean isTool(int id)
+	public static boolean isTool(int id)
 	{
 		final int[] tool = { 256, 257, 258, 259, 261, 267, 268, 269, 270, 271,
 				272, 273, 274, 275, 276, 277, 278, 279, 283, 284, 285, 286,
