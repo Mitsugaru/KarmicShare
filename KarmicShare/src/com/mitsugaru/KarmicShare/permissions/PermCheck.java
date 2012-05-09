@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.permissions;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+
+import com.mitsugaru.KarmicShare.KarmicShare;
 
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.bukkit.PermissionsEx;

@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.permissions.Permission;
 
 
 public class Karma {
@@ -160,13 +161,13 @@ public class Karma {
 	public int takeItem(Player player, ItemStack item, String group) {
 		// Check if they have "take" permission
 		if (plugin.getPermissionHandler().checkPermission(player,
-				"KarmicShare.take"))
+				Permission.TAKE.getNode()))
 		{
 			int karma = 0;
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
 				if (!plugin.getPermissionHandler().checkPermission(player,
-						"KarmicShare.ignore.karma"))
+						Permission.IGNORE_KARMA.getNode()))
 				{
 					// Check karma before anything
 					karma = plugin.getPluginConfig().playerKarmaDefault;
@@ -204,7 +205,7 @@ public class Karma {
 					if (!plugin.getPluginConfig().karmaDisabled)
 					{
 						if (!plugin.getPermissionHandler().checkPermission(
-								player, "KarmicShare.ignore.karma"))
+								player, Permission.IGNORE_KARMA.getNode()))
 						{
 							// Check karma again, before giving item, to
 							// adjust amount
@@ -615,7 +616,7 @@ public class Karma {
 					if (!plugin.getPluginConfig().karmaDisabled)
 					{
 						if (!plugin.getPermissionHandler().checkPermission(
-								player, "KarmicShare.ignore.karma"))
+								player, Permission.IGNORE_KARMA.getNode()))
 						{
 							if (hasKarma)
 							{
@@ -678,7 +679,7 @@ public class Karma {
 
 	public boolean giveItem(Player player, ItemStack item, String group) {
 		if (plugin.getPermissionHandler().checkPermission(player,
-				"KarmicShare.give"))
+				Permission.GIVE.getNode()))
 		{
 			final Item i = new Item(item);
 			// Check if its a tool
@@ -896,7 +897,7 @@ public class Karma {
 				if (!plugin.getPluginConfig().karmaDisabled)
 				{
 					if (!plugin.getPermissionHandler().checkPermission(player,
-							"KarmicShare.ignore.karma"))
+							Permission.IGNORE_KARMA.getNode()))
 					{
 						if (plugin.getPluginConfig().statickarma)
 						{
@@ -1051,7 +1052,7 @@ public class Karma {
 		String query = "SELECT * FROM "
 						+ Table.PLAYERS.getName()
 						+ " WHERE playername='" + name + "';";
-		Query rs = plugin.getDatabaseHandler().select(query);
+		final Query rs = plugin.getDatabaseHandler().select(query);
 		int karma = plugin.getPluginConfig().playerKarmaDefault;
 		boolean has = false;
 		// Retrieve karma from database
@@ -1098,8 +1099,8 @@ public class Karma {
 	public void smokePlayer(Player player) {
 		if (plugin.getPluginConfig().effects)
 		{
-			Location loc = player.getLocation();
-			World w = loc.getWorld();
+			final Location loc = player.getLocation();
+			final World w = loc.getWorld();
 			int repeat = 0;
 			while (repeat < 1)
 			{
@@ -1128,7 +1129,7 @@ public class Karma {
 		boolean valid = false;
 		try
 		{
-			Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
+			final Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ Table.GROUPS.getName()
 						+ " WHERE groupname='" + group + "';");
 			if(rs.getResult().next())
@@ -1158,7 +1159,7 @@ public class Karma {
 			//Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
-			Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
+			final Query rs = plugin.getDatabaseHandler().select("SELECT * FROM "
 						+ Table.PLAYERS.getName()
 						+ " WHERE playername='" + name + "';");
 			if(rs.getResult().next())

@@ -24,6 +24,7 @@ import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSEntityListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
 import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
+import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.questioner.KSQuestion;
 import com.mitsugaru.KarmicShare.questioner.KSQuestionsReaper;
 import com.mitsugaru.KarmicShare.questioner.KarmicShareQuestionerPlayerListener;

@@ -24,6 +24,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.Permission;
 
 public class Commander implements CommandExecutor
 {
@@ -79,7 +81,7 @@ public class Commander implements CommandExecutor
 		if (args.length == 0)
 		{
 			// Check if they have "karma" permission
-			if (perm.checkPermission(sender, "KarmicShare.karma"))
+			if (perm.checkPermission(sender, Permission.KARMA.getNode()))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -119,7 +121,7 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.karma");
+						+ " Lack permission: " + Permission.KARMA.getNode());
 			}
 		}
 		else
@@ -159,7 +161,8 @@ public class Commander implements CommandExecutor
 			// Previous page of item pool
 			else if (com.equals("prev"))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.commands.list"))
+				if (perm.checkPermission(sender,
+						Permission.COMMANDS_LIST.getNode()))
 				{
 					// List, with previous page
 					this.listPool(sender, -1);
@@ -167,13 +170,15 @@ public class Commander implements CommandExecutor
 				else
 				{
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " Lack permission: KarmicShare.commands.list");
+							+ " Lack permission: "
+							+ Permission.COMMANDS_LIST.getNode());
 				}
 			}
 			// Next page of item pool
 			else if (com.equals("next"))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.commands.list"))
+				if (perm.checkPermission(sender,
+						Permission.COMMANDS_LIST.getNode()))
 				{
 					// List with next page
 					this.listPool(sender, 1);
@@ -181,40 +186,45 @@ public class Commander implements CommandExecutor
 				else
 				{
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " Lack permission: KarmicShare.commands.list");
+							+ " Lack permission: "
+							+ Permission.COMMANDS_LIST.getNode());
 				}
 			}
 			// List items in pool
 			else if (com.equals("list"))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.commands.list"))
+				if (perm.checkPermission(sender,
+						Permission.COMMANDS_LIST.getNode()))
 				{
 					this.listCommand(sender, args);
 				}
 				else
 				{
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " Lack permission: KarmicShare.commands.list");
+							+ " Lack permission: "
+							+ Permission.COMMANDS_LIST.getNode());
 				}
 			}
 			// Ask for karma multipliers / page through muliplier list
 			else if (com.equals("value"))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.commands.value"))
+				if (perm.checkPermission(sender,
+						Permission.COMMANDS_VALUE.getNode()))
 				{
 					this.valueCommand(sender, args);
 				}
 				else
 				{
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " Lack permission: KarmicShare.commands.value");
+							+ " Lack permission: "
+							+ Permission.COMMANDS_VALUE.getNode());
 				}
 			}
 			else if (com.equals("page"))
 			{
 				if (ks.useChest())
 				{
-					if (perm.checkPermission(sender, "KarmicShare.chest"))
+					if (perm.checkPermission(sender, Permission.CHEST.getNode()))
 					{
 						if (args.length > 1)
 						{
@@ -238,7 +248,8 @@ public class Commander implements CommandExecutor
 					else
 					{
 						sender.sendMessage(ChatColor.RED + prefix
-								+ " Lack permission: KarmicShare.chest");
+								+ " Lack permission: "
+								+ Permission.CHEST.getNode());
 					}
 				}
 				else
@@ -250,7 +261,7 @@ public class Commander implements CommandExecutor
 			// Admin command
 			else if (com.equals("group"))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.group"))
+				if (perm.checkPermission(sender, Permission.GROUP.getNode()))
 				{
 					if (args.length > 1)
 					{
@@ -277,7 +288,7 @@ public class Commander implements CommandExecutor
 								+ ChatColor.LIGHT_PURPLE + "KarmicShare Group"
 								+ ChatColor.BLUE + "===");
 						if (perm.checkPermission(sender,
-								"KarmicShare.group.create"))
+								Permission.GROUP_CREATE.getNode()))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group create <name>"
@@ -285,7 +296,7 @@ public class Commander implements CommandExecutor
 									+ " : Creates a new group");
 						}
 						if (perm.checkPermission(sender,
-								"KarmicShare.group.add"))
+								Permission.GROUP_ADD.getNode()))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group add <group> <player> [player2] ..."
@@ -293,7 +304,7 @@ public class Commander implements CommandExecutor
 									+ " : Adds a player to the group");
 						}
 						if (perm.checkPermission(sender,
-								"KarmicShare.group.remove"))
+								Permission.GROUP_REMOVE.getNode()))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group remove <group> <player> [player2] ..."
@@ -301,7 +312,7 @@ public class Commander implements CommandExecutor
 									+ " : Removes player from the group");
 						}
 						if (perm.checkPermission(sender,
-								"KarmicShare.group.leave"))
+								Permission.GROUP_LEAVE.getNode()))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group leave <group> [group2] ..."
@@ -311,8 +322,8 @@ public class Commander implements CommandExecutor
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED
-							+ " Lack permission: KarmicShare.group");
+					sender.sendMessage(ChatColor.RED + " Lack permission: "
+							+ Permission.GROUP.getNode());
 				}
 			}
 			// Admin command
@@ -340,32 +351,36 @@ public class Commander implements CommandExecutor
 					// Show admin commands help menu
 					sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.RED
 							+ "KarmicShare Admin" + ChatColor.BLUE + "===");
-					if (perm.checkPermission(sender, "KarmicShare.admin.add"))
+					if (perm.checkPermission(sender,
+							Permission.ADMIN_ADD.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin add <item>[:data] [amount]"
 								+ ChatColor.YELLOW + " : Add item(s) to pool");
 					}
-					if (perm.checkPermission(sender, "KarmicShare.admin.reset"))
+					if (perm.checkPermission(sender,
+							Permission.ADMIN_RESET.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin reset <player>" + ChatColor.YELLOW
 								+ " : Resets player's karma");
 					}
-					if (perm.checkPermission(sender, "KarmicShare.admin.set"))
+					if (perm.checkPermission(sender,
+							Permission.ADMIN_SET.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin set <player> <karma>"
 								+ ChatColor.YELLOW
 								+ " : Sets player's karma to value");
 					}
-					if (perm.checkPermission(sender, "KarmicShare.admin.drain"))
+					if (perm.checkPermission(sender,
+							Permission.ADMIN_DRAIN.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN + "/ks admin drain"
 								+ ChatColor.YELLOW + " : Empty item pool");
 					}
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.create"))
+							Permission.ADMIN_GROUP_CREATE.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group create <group>"
@@ -373,7 +388,7 @@ public class Commander implements CommandExecutor
 								+ " : Create group in database");
 					}
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.delete"))
+							Permission.ADMIN_GROUP_DELETE.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group delete <group>"
@@ -381,7 +396,7 @@ public class Commander implements CommandExecutor
 								+ " : Remove group from database");
 					}
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.add"))
+							Permission.ADMIN_GROUP_ADD.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group add  <group> <player> [player2] ..."
@@ -389,7 +404,7 @@ public class Commander implements CommandExecutor
 								+ " : Force add player to group");
 					}
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.remove"))
+							Permission.ADMIN_GROUP_REMOVE.getNode()))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group remove  <group> <player> [player2] ..."
@@ -432,7 +447,7 @@ public class Commander implements CommandExecutor
 		// Add generated items to pool
 		if (com.equals("create"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.group.create"))
+			if (perm.checkPermission(sender, Permission.GROUP_CREATE.getNode()))
 			{
 				try
 				{
@@ -458,8 +473,8 @@ public class Commander implements CommandExecutor
 							// Create group
 							ks.getDatabaseHandler().standardQuery(
 									"INSERT INTO " + Table.GROUPS.getName()
-											+ " (groupname) VALUES ('"
-											+ group + "');");
+											+ " (groupname) VALUES ('" + group
+											+ "');");
 							sender.sendMessage(ChatColor.GREEN + prefix
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.GREEN + " created");
@@ -500,13 +515,14 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.group.create");
+						+ " Lack permission: "
+						+ Permission.GROUP_CREATE.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("add"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.group.add"))
+			if (perm.checkPermission(sender, Permission.GROUP_ADD.getNode()))
 			{
 				// Grab group name
 				String group = "";
@@ -608,13 +624,13 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.group.add");
+						+ " Lack permission: " + Permission.GROUP_ADD.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("remove"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.group.remove"))
+			if (perm.checkPermission(sender, Permission.GROUP_REMOVE.getNode()))
 			{
 				String group = "";
 				if (args.length > 2)
@@ -709,13 +725,14 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.group.remove");
+						+ " Lack permission: "
+						+ Permission.GROUP_REMOVE.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("leave"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.group.leave"))
+			if (perm.checkPermission(sender, Permission.GROUP_LEAVE.getNode()))
 			{
 				if (args.length > 2)
 				{
@@ -767,7 +784,8 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.group.leave");
+						+ " Lack permission: "
+						+ Permission.GROUP_LEAVE.getNode());
 				return true;
 			}
 		}
@@ -1008,9 +1026,10 @@ public class Commander implements CommandExecutor
 		{
 			Player player = (Player) sender;
 			// Check if they have "take" permission
-			if (perm.checkPermission(sender, "KarmicShare.take"))
+			if (perm.checkPermission(sender, Permission.TAKE.getNode()))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.commands.take"))
+				if (perm.checkPermission(sender,
+						Permission.COMMANDS_TAKE.getNode()))
 				{
 					// Check that they gave an item name/id
 					if (args.length > 1)
@@ -1128,9 +1147,8 @@ public class Commander implements CommandExecutor
 						{
 							// Grab all entries of the same tool id
 							String toolQuery = "SELECT * FROM "
-									+ Table.ITEMS.getName()
-									+ " WHERE itemid='" + itemid
-									+ "' AND groups='global';";
+									+ Table.ITEMS.getName() + " WHERE itemid='"
+									+ itemid + "' AND groups='global';";
 							Query toolRS = ks.getDatabaseHandler().select(
 									toolQuery);
 							try
@@ -1338,13 +1356,14 @@ public class Commander implements CommandExecutor
 				else
 				{
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " Lack permission: KarmicShare.commands.take");
+							+ " Lack permission: "
+							+ Permission.COMMANDS_TAKE.getNode());
 				}
 			}
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.take");
+						+ " Lack permission: " + Permission.TAKE.getNode());
 			}
 		}
 		else
@@ -1367,9 +1386,10 @@ public class Commander implements CommandExecutor
 		{
 			Player player = (Player) sender;
 			// Check if they have "give" permission
-			if (perm.checkPermission(sender, "KarmicShare.give"))
+			if (perm.checkPermission(sender, Permission.GIVE.getNode()))
 			{
-				if (perm.checkPermission(sender, "KarmicShare.commands.give"))
+				if (perm.checkPermission(sender,
+						Permission.COMMANDS_GIVE.getNode()))
 				{
 					// Grab item in player's hand.
 					final ItemStack items = player.getItemInHand();
@@ -1399,13 +1419,14 @@ public class Commander implements CommandExecutor
 				else
 				{
 					sender.sendMessage(ChatColor.RED + prefix
-							+ " Lack permission: KarmicShare.commands.give");
+							+ " Lack permission: "
+							+ Permission.COMMANDS_GIVE.getNode());
 				}
 			}
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.give");
+						+ " Lack permission: " + Permission.GIVE.getNode());
 			}
 		}
 		else
@@ -1416,11 +1437,11 @@ public class Commander implements CommandExecutor
 
 	private void inspectItem(CommandSender sender, String[] args)
 	{
-		// Permission check
-		if (perm.checkPermission(sender, "KarmicShare.info"))
+		// Inspect item in hand
+		if (sender instanceof Player)
 		{
-			// Inspect item in hand
-			if (sender instanceof Player)
+			// Permission check
+			if (perm.checkPermission(sender, Permission.INFO.getNode()))
 			{
 				Player player = (Player) sender;
 				// Grab item in player's hand.
@@ -1538,15 +1559,16 @@ public class Commander implements CommandExecutor
 			}
 			else
 			{
-				// Console cannot inspect items
-				sender.sendMessage(prefix
-						+ " Cannot use this command as console.");
+				// Lack permission
+				sender.sendMessage(prefix + " Lack permission: "
+						+ Permission.INFO.getNode());
 			}
+
 		}
 		else
 		{
-			// Lack permission
-			sender.sendMessage(prefix + " Lack permission: KarmicShare.info");
+			// Console cannot inspect items
+			sender.sendMessage(prefix + " Cannot use this command as console.");
 		}
 	}
 
@@ -1615,12 +1637,12 @@ public class Commander implements CommandExecutor
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
 		sender.sendMessage(ChatColor.GREEN + "/ks" + ChatColor.YELLOW
 				+ " : Show karma");
-		if (perm.checkPermission(sender, "KarmicShare.give"))
+		if (perm.checkPermission(sender, Permission.GIVE.getNode()))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks give" + ChatColor.YELLOW
 					+ " : Give item stack in current hand");
 		}
-		if (perm.checkPermission(sender, "KarmicShare.take"))
+		if (perm.checkPermission(sender, Permission.TAKE.getNode()))
 		{
 			sender.sendMessage(ChatColor.GREEN
 					+ "/ks take <item>[:data] [amount]" + ChatColor.YELLOW
@@ -1645,17 +1667,32 @@ public class Commander implements CommandExecutor
 		}
 		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
 				+ " : Show help menu");
-		if (perm.checkPermission(sender, "KarmicShare.info"))
+		if (perm.checkPermission(sender, Permission.INFO.getNode()))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
 					+ " : Inspect currently held item");
 		}
-		if (perm.checkPermission(sender, "KarmicShare.karma.other"))
+		if (perm.checkPermission(sender, Permission.KARMA_OTHER.getNode()))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
 					+ ChatColor.YELLOW + " : Show karma for given player name");
 		}
-		if (perm.checkPermission(sender, "KarmicShare.admin"))
+		if (perm.checkPermission(sender, Permission.ADMIN_ADD.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_RESET.getNode())
+				|| perm.checkPermission(sender, Permission.ADMIN_SET.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_DRAIN.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_RELOAD.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_GROUP_ADD.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_GROUP_CREATE.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_GROUP_DELETE.getNode())
+				|| perm.checkPermission(sender,
+						Permission.ADMIN_GROUP_REMOVE.getNode()))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW
 					+ " : List admin commands");
@@ -1670,7 +1707,7 @@ public class Commander implements CommandExecutor
 		// Add generated items to pool
 		if (com.equals("add"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.admin.add"))
+			if (perm.checkPermission(sender, Permission.ADMIN_ADD.getNode()))
 			{
 				if (args.length > 2)
 				{
@@ -1752,9 +1789,8 @@ public class Commander implements CommandExecutor
 							// Create SQL query to see if item is already in
 							// database
 							String query = "SELECT * FROM "
-									+ Table.ITEMS.getName()
-									+ " WHERE itemid='" + itemid
-									+ "' AND durability='" + dur
+									+ Table.ITEMS.getName() + " WHERE itemid='"
+									+ itemid + "' AND durability='" + dur
 									+ "' AND groups='global';";
 							Query rs = ks.getDatabaseHandler().select(query);
 							// Send Item to database
@@ -1769,7 +1805,8 @@ public class Commander implements CommandExecutor
 										int total = amount
 												+ rs.getResult().getInt(
 														"amount");
-										query = "UPDATE " + Table.ITEMS.getName()
+										query = "UPDATE "
+												+ Table.ITEMS.getName()
 												+ " SET amount='" + total
 												+ "' WHERE itemid='" + itemid
 												+ "' AND durability='" + dur
@@ -1806,9 +1843,8 @@ public class Commander implements CommandExecutor
 							// Create SQL query to see if item is already in
 							// database
 							String query = "SELECT * FROM "
-									+ Table.ITEMS.getName()
-									+ " WHERE itemid='" + itemid
-									+ "' AND data='" + data
+									+ Table.ITEMS.getName() + " WHERE itemid='"
+									+ itemid + "' AND data='" + data
 									+ "' AND groups='global';";
 							Query rs = ks.getDatabaseHandler().select(query);
 							// Send Item to database
@@ -1823,7 +1859,8 @@ public class Commander implements CommandExecutor
 										int total = amount
 												+ rs.getResult().getInt(
 														"amount");
-										query = "UPDATE " + Table.ITEMS.getName()
+										query = "UPDATE "
+												+ Table.ITEMS.getName()
 												+ " SET amount='" + total
 												+ "' WHERE itemid='" + itemid
 												+ "' AND data='" + data
@@ -1868,13 +1905,13 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.admin.add");
+						+ " Lack permission: " + Permission.ADMIN_ADD.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("drain"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.admin.drain"))
+			if (perm.checkPermission(sender, Permission.ADMIN_DRAIN.getNode()))
 			{
 				String group = "global";
 				// Check if group name was given
@@ -1919,13 +1956,13 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.admin.drain");
+						+ " Lack permission: " + Permission.ADMIN_DRAIN.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("reload"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.admin.reload"))
+			if (perm.checkPermission(sender, Permission.ADMIN_RELOAD.getNode()))
 			{
 				config.reloadConfig();
 				sender.sendMessage(ChatColor.YELLOW + prefix
@@ -1936,13 +1973,13 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.admin.reload");
+						+ " Lack permission: " + Permission.ADMIN_RELOAD.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("reset"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.admin.reset"))
+			if (perm.checkPermission(sender, Permission.ADMIN_RESET.getNode()))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -2073,13 +2110,13 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.admin.reset");
+						+ " Lack permission: " + Permission.ADMIN_RESET.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("set"))
 		{
-			if (perm.checkPermission(sender, "KarmicShare.admin.set"))
+			if (perm.checkPermission(sender, Permission.ADMIN_SET.getNode()))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -2111,8 +2148,7 @@ public class Commander implements CommandExecutor
 							// SQL query to get player count for specified name
 							String query = "SELECT COUNT(*) FROM "
 									+ Table.PLAYERS.getName()
-									+ " WHERE playername='" + name
-									+ "';";
+									+ " WHERE playername='" + name + "';";
 							Query rs = ks.getDatabaseHandler().select(query);
 							// Check ResultSet
 							boolean has = false;
@@ -2220,7 +2256,7 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: KarmicShare.admin.set");
+						+ " Lack permission: " + Permission.ADMIN_SET.getNode());
 				return true;
 			}
 		}
@@ -2234,7 +2270,7 @@ public class Commander implements CommandExecutor
 				if (groupCom.equals("delete"))
 				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.delete"))
+							Permission.ADMIN_GROUP_DELETE.getNode()))
 					{
 						if (args.length > 3)
 						{
@@ -2280,9 +2316,10 @@ public class Commander implements CommandExecutor
 												+ " Could not schedule task.");
 									}
 									ks.getDatabaseHandler().standardQuery(
-											"DELETE FROM " + Table.ITEMS.getName()
-													+ " WHERE groups='"
-													+ group + "';");
+											"DELETE FROM "
+													+ Table.ITEMS.getName()
+													+ " WHERE groups='" + group
+													+ "';");
 									sender.sendMessage(prefix
 											+ " Removed all items of group: "
 											+ group);
@@ -2306,14 +2343,14 @@ public class Commander implements CommandExecutor
 					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
-								+ " Lack permission: KarmicShare.admin.group.delete");
+								+ " Lack permission: " + Permission.ADMIN_GROUP_DELETE.getNode());
 						return true;
 					}
 				}
 				else if (groupCom.equals("create"))
 				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.create"))
+							Permission.ADMIN_GROUP_CREATE.getNode()))
 					{
 						if (args.length > 3)
 						{
@@ -2321,12 +2358,10 @@ public class Commander implements CommandExecutor
 							if (!karma.validGroup(sender, group))
 							{
 								// Create group
-								ks.getDatabaseHandler()
-										.standardQuery(
-												"INSERT INTO "
-														+ Table.GROUPS.getName()
-														+ " (groupname) VALUES ('"
-														+ group + "');");
+								ks.getDatabaseHandler().standardQuery(
+										"INSERT INTO " + Table.GROUPS.getName()
+												+ " (groupname) VALUES ('"
+												+ group + "');");
 								sender.sendMessage(ChatColor.GREEN + prefix
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.GREEN + " created");
@@ -2349,14 +2384,14 @@ public class Commander implements CommandExecutor
 					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
-								+ " Lack permission: KarmicShare.admin.group.create");
+								+ " Lack permission: " + Permission.ADMIN_GROUP_CREATE.getNode());
 						return true;
 					}
 				}
 				else if (groupCom.equals("add"))
 				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.add"))
+							Permission.ADMIN_GROUP_ADD.getNode()))
 					{
 						try
 						{
@@ -2455,14 +2490,14 @@ public class Commander implements CommandExecutor
 					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
-								+ " Lack permission: KarmicShare.admin.group.add");
+								+ " Lack permission: " + Permission.ADMIN_GROUP_CREATE.getNode());
 					}
 					return true;
 				}
 				else if (com.equals("remove"))
 				{
 					if (perm.checkPermission(sender,
-							"KarmicShare.admin.group.remove"))
+							Permission.ADMIN_GROUP_REMOVE.getNode()))
 					{
 						try
 						{
@@ -2562,7 +2597,7 @@ public class Commander implements CommandExecutor
 					{
 						sender.sendMessage(ChatColor.RED
 								+ prefix
-								+ " Lack permission: KarmicShare.admin.group.remove");
+								+ " Lack permission: " + Permission.ADMIN_GROUP_REMOVE.getNode());
 						return true;
 					}
 				}
@@ -2751,7 +2786,7 @@ public class Commander implements CommandExecutor
 		// Get list of items from database
 		Query itemlist = ks.getDatabaseHandler().select(
 				"SELECT * FROM " + Table.ITEMS.getName()
-						+ "items WHERE groups='global';");
+						+ " WHERE groups='global';");
 		try
 		{
 			if (itemlist.getResult().next())

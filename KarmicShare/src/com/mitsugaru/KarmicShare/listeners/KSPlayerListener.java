@@ -25,29 +25,33 @@ import com.mitsugaru.KarmicShare.Item;
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.permissions.Permission;
 import com.splatbang.betterchest.BetterChest;
 
-public class KSPlayerListener implements Listener {
+public class KSPlayerListener implements Listener
+{
 	private KarmicShare plugin;
 	private Karma karma;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
 
-	public KSPlayerListener(KarmicShare karmicShare) {
+	public KSPlayerListener(KarmicShare karmicShare)
+	{
 		plugin = karmicShare;
 		karma = plugin.getKarma();
 	}
-	
+
 	public void onEntityInteract(EntityInteractEvent event)
 	{
 		plugin.getLogger().info("Entity interact");
 	}
 
-	//TODO show our own inventory holder?
-	//That way, we can live update player interactions if they are of the
-	//same group and same page.
+	// TODO show our own inventory holder?
+	// That way, we can live update player interactions if they are of the
+	// same group and same page.
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPlayerInteract(PlayerInteractEvent event) {
+	public void onPlayerInteract(PlayerInteractEvent event)
+	{
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
 			final Block block = event.getClickedBlock();
@@ -63,21 +67,26 @@ public class KSPlayerListener implements Listener {
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
 						if (plugin.getPermissionHandler().checkPermission(
-								event.getPlayer(), "KarmicShare.chest"))
+								event.getPlayer(), Permission.CHEST.getNode()))
 						{
-							if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
-									group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+							if (karma.playerHasGroup(event.getPlayer(), event
+									.getPlayer().getName(), group)
+									|| plugin.getPermissionHandler()
+											.checkPermission(event.getPlayer(),
+													"KarmicShare.ignore.group"))
 							{
 								BetterChest chest = new BetterChest(
 										(Chest) block.getState());
 								if (chest.isDoubleChest())
 								{
-									BetterChest adj = new BetterChest(chest.attached());
+									BetterChest adj = new BetterChest(
+											chest.attached());
 									chest = adj;
 								}
 								chest.getInventory().clear();
 								chest.update();
-								if (plugin.getPluginConfig().chests && plugin.useChest())
+								if (plugin.getPluginConfig().chests
+										&& plugin.useChest())
 								{
 									int page = 1;
 									try
@@ -100,8 +109,11 @@ public class KSPlayerListener implements Listener {
 								}
 								else
 								{
-									event.getPlayer().sendMessage(ChatColor.RED + KarmicShare.prefix
-											+ " Spout not found. Cannot use physical chests.");
+									event.getPlayer()
+											.sendMessage(
+													ChatColor.RED
+															+ KarmicShare.prefix
+															+ " Chests disabled. Cannot use physical chests.");
 								}
 							}
 							else
@@ -115,11 +127,10 @@ public class KSPlayerListener implements Listener {
 						}
 						else
 						{
-							event.getPlayer()
-									.sendMessage(
-											ChatColor.RED
-													+ KarmicShare.prefix
-													+ " Lack permission: KarmicShare.chest");
+							event.getPlayer().sendMessage(
+									ChatColor.RED + KarmicShare.prefix
+											+ " Lack permission: "
+											+ Permission.CHEST.getNode());
 							event.setCancelled(true);
 						}
 					}
@@ -145,10 +156,17 @@ public class KSPlayerListener implements Listener {
 											sign.getLine(0)).toLowerCase();
 									if (plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
-													"KarmicShare.chest"))
+													Permission.CHEST.getNode()))
 									{
-										if (karma.playerHasGroup(event.getPlayer(), event.getPlayer()
-												.getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+										if (karma.playerHasGroup(event
+												.getPlayer(), event.getPlayer()
+												.getName(), group)
+												|| plugin
+														.getPermissionHandler()
+														.checkPermission(
+																event.getPlayer(),
+																Permission.IGNORE_GROUP
+																		.getNode()))
 										{
 											// populate chests
 											BetterChest chest = new BetterChest(
@@ -194,11 +212,12 @@ public class KSPlayerListener implements Listener {
 									}
 									else
 									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.prefix
-																+ " Lack permission: KarmicShare.chest");
+										event.getPlayer().sendMessage(
+												ChatColor.RED
+														+ KarmicShare.prefix
+														+ " Lack permission: "
+														+ Permission.CHEST
+																.getNode());
 										event.setCancelled(true);
 									}
 								}
@@ -218,9 +237,15 @@ public class KSPlayerListener implements Listener {
 							.toLowerCase();
 
 					if (plugin.getPermissionHandler().checkPermission(
-							event.getPlayer(), "KarmicShare.chest"))
+							event.getPlayer(), Permission.CHEST.getNode()))
 					{
-						if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+						if (karma.playerHasGroup(event.getPlayer(), event
+								.getPlayer().getName(), group)
+								|| plugin.getPermissionHandler()
+										.checkPermission(
+												event.getPlayer(),
+												Permission.IGNORE_GROUP
+														.getNode()))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -234,17 +259,25 @@ public class KSPlayerListener implements Listener {
 									try
 									{
 										int page;
-										if(plugin.getCommander().getChestPage().containsKey(name))
+										if (plugin.getCommander()
+												.getChestPage()
+												.containsKey(name))
 										{
-											page = grabNextPage(plugin.getCommander().getChestPage().get(name).intValue() - 1, 54, group, false);
-											plugin.getCommander().getChestPage().remove(name);
+											page = grabNextPage(plugin
+													.getCommander()
+													.getChestPage().get(name)
+													.intValue() - 1, 54, group,
+													false);
+											plugin.getCommander()
+													.getChestPage()
+													.remove(name);
 										}
 										else
 										{
 											page = grabNextPage(
 													Integer.parseInt(""
-															+ sign.getLine(3)), 54,
-													group, true);
+															+ sign.getLine(3)),
+													54, group, true);
 										}
 										sign.setLine(3, "" + page);
 										sign.update();
@@ -263,17 +296,25 @@ public class KSPlayerListener implements Listener {
 									try
 									{
 										int page;
-										if(plugin.getCommander().getChestPage().containsKey(name))
+										if (plugin.getCommander()
+												.getChestPage()
+												.containsKey(name))
 										{
-											page = grabNextPage(plugin.getCommander().getChestPage().get(name).intValue() - 1, 27, group, false);
-											plugin.getCommander().getChestPage().remove(name);
+											page = grabNextPage(plugin
+													.getCommander()
+													.getChestPage().get(name)
+													.intValue() - 1, 27, group,
+													false);
+											plugin.getCommander()
+													.getChestPage()
+													.remove(name);
 										}
 										else
 										{
 											page = grabNextPage(
 													Integer.parseInt(""
-															+ sign.getLine(3)), 27,
-													group, true);
+															+ sign.getLine(3)),
+													27, group, true);
 										}
 										sign.setLine(3, "" + page);
 										sign.update();
@@ -300,11 +341,10 @@ public class KSPlayerListener implements Listener {
 					}
 					else
 					{
-						event.getPlayer()
-								.sendMessage(
-										ChatColor.RED
-												+ KarmicShare.prefix
-												+ " Lack permission: KarmicShare.chest");
+						event.getPlayer().sendMessage(
+								ChatColor.RED + KarmicShare.prefix
+										+ " Lack permission: "
+										+ Permission.CHEST.getNode());
 						event.setCancelled(true);
 					}
 				}
@@ -325,10 +365,15 @@ public class KSPlayerListener implements Listener {
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
 						if (plugin.getPermissionHandler().checkPermission(
-								event.getPlayer(), "KarmicShare.chest"))
+								event.getPlayer(), Permission.CHEST.getNode()))
 						{
-							if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(),
-									group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+							if (karma.playerHasGroup(event.getPlayer(), event
+									.getPlayer().getName(), group)
+									|| plugin.getPermissionHandler()
+											.checkPermission(
+													event.getPlayer(),
+													Permission.IGNORE_GROUP
+															.getNode()))
 							{
 								BetterChest chest = new BetterChest(
 										(Chest) block.getState());
@@ -384,11 +429,10 @@ public class KSPlayerListener implements Listener {
 						}
 						else
 						{
-							event.getPlayer()
-									.sendMessage(
-											ChatColor.RED
-													+ KarmicShare.prefix
-													+ " Lack permission: KarmicShare.chest");
+							event.getPlayer().sendMessage(
+									ChatColor.RED + KarmicShare.prefix
+											+ " Lack permission: "
+											+ Permission.CHEST.getNode());
 							event.setCancelled(true);
 						}
 					}
@@ -414,10 +458,17 @@ public class KSPlayerListener implements Listener {
 											sign.getLine(0)).toLowerCase();
 									if (plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
-													"KarmicShare.chest"))
+													Permission.CHEST.getNode()))
 									{
-										if (karma.playerHasGroup(event.getPlayer(), event.getPlayer()
-												.getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+										if (karma.playerHasGroup(event
+												.getPlayer(), event.getPlayer()
+												.getName(), group)
+												|| plugin
+														.getPermissionHandler()
+														.checkPermission(
+																event.getPlayer(),
+																Permission.IGNORE_GROUP
+																		.getNode()))
 										{
 											BetterChest chest = new BetterChest(
 													(Chest) block.getState());
@@ -480,7 +531,7 @@ public class KSPlayerListener implements Listener {
 												.sendMessage(
 														ChatColor.RED
 																+ KarmicShare.prefix
-																+ " Lack permission: KarmicShare.chest");
+																+ " Lack permission: " + Permission.CHEST.getNode());
 										event.setCancelled(true);
 									}
 								}
@@ -498,9 +549,13 @@ public class KSPlayerListener implements Listener {
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();
 					if (plugin.getPermissionHandler().checkPermission(
-							event.getPlayer(), "KarmicShare.chest"))
+							event.getPlayer(), Permission.CHEST.getNode()))
 					{
-						if (karma.playerHasGroup(event.getPlayer(), event.getPlayer().getName(), group) || plugin.getPermissionHandler().checkPermission(event.getPlayer(), "KarmicShare.ignore.group"))
+						if (karma.playerHasGroup(event.getPlayer(), event
+								.getPlayer().getName(), group)
+								|| plugin.getPermissionHandler()
+										.checkPermission(event.getPlayer(),
+												Permission.IGNORE_GROUP.getNode()))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -565,7 +620,7 @@ public class KSPlayerListener implements Listener {
 								.sendMessage(
 										ChatColor.RED
 												+ KarmicShare.prefix
-												+ " Lack permission: KarmicShare.chest");
+												+ " Lack permission: " + Permission.CHEST.getNode());
 						event.setCancelled(true);
 					}
 				}
@@ -573,37 +628,39 @@ public class KSPlayerListener implements Listener {
 		}
 	}
 
-	private int grabNextPage(int current, int limit, String group, boolean backwards)
+	private int grabNextPage(int current, int limit, String group,
+			boolean backwards)
 	{
-		//Calculate number of slots
+		// Calculate number of slots
 		int slots = 0;
-		Query all = plugin.getDatabaseHandler().select("SELECT * FROM "
-						+ Table.ITEMS.getName()
-						+ " WHERE groups='" + group + "';");
+		Query all = plugin.getDatabaseHandler().select(
+				"SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
+						+ group + "';");
 		try
 		{
-			if(all.getResult().next())
+			if (all.getResult().next())
 			{
 				do
 				{
 					final int amount = all.getResult().getInt("amount");
-					if(!all.getResult().wasNull())
+					if (!all.getResult().wasNull())
 					{
-						final ItemStack item = new ItemStack(all.getResult().getInt("itemid"), amount);
+						final ItemStack item = new ItemStack(all.getResult()
+								.getInt("itemid"), amount);
 						int maxStack = item.getType().getMaxStackSize();
-						if(maxStack <= 0)
+						if (maxStack <= 0)
 						{
 							maxStack = 1;
 						}
 						int stacks = amount / maxStack;
 						final double rem = (double) amount % (double) maxStack;
-						if(rem != 0)
+						if (rem != 0)
 						{
 							stacks++;
 						}
 						slots += stacks;
 					}
-				}while(all.getResult().next());
+				} while (all.getResult().next());
 			}
 			all.closeQuery();
 		}
@@ -613,26 +670,26 @@ public class KSPlayerListener implements Listener {
 					ChatColor.RED + KarmicShare.prefix + "SQL error.");
 			e.printStackTrace();
 		}
-		//if no slots, return 1
-		if(slots <= 0)
+		// if no slots, return 1
+		if (slots <= 0)
 		{
 			return 1;
 		}
-		//Calculate pages
+		// Calculate pages
 		int pageTotal = slots / limit;
 		final double rem = (double) slots % (double) limit;
-		if(rem != 0)
+		if (rem != 0)
 		{
 			pageTotal++;
 		}
-		//Check against maximum
-		if(current >= Integer.MAX_VALUE)
+		// Check against maximum
+		if (current >= Integer.MAX_VALUE)
 		{
-			//Cycle back as we're at the max value for an integer
+			// Cycle back as we're at the max value for an integer
 			return 1;
 		}
 		int page = 1;
-		if(backwards)
+		if (backwards)
 		{
 			page = current - 1;
 		}
@@ -643,10 +700,10 @@ public class KSPlayerListener implements Listener {
 		if (page <= 0)
 		{
 			// Was negative or zero, loop back to max page
-			page = (pageTotal  +1);
+			page = (pageTotal + 1);
 		}
-		//Allow for empty page
-		else if (page > (pageTotal +1))
+		// Allow for empty page
+		else if (page > (pageTotal + 1))
 		{
 			// Going to page beyond the total items, cycle back to
 			// first
@@ -656,7 +713,8 @@ public class KSPlayerListener implements Listener {
 	}
 
 	private void populateChest(Inventory inventory, int page, boolean isDouble,
-			String group) {
+			String group)
+	{
 		try
 		{
 			int count = 0;
@@ -667,9 +725,8 @@ public class KSPlayerListener implements Listener {
 			}
 			int start = (page - 1) * limit;
 			Query itemList = plugin.getDatabaseHandler().select(
-					"SELECT * FROM "
-						+ Table.ITEMS.getName()
-						+ " WHERE groups='" + group + "';");
+					"SELECT * FROM " + Table.ITEMS.getName()
+							+ " WHERE groups='" + group + "';");
 			if (itemList.getResult().next())
 			{
 				boolean done = false;
@@ -681,7 +738,7 @@ public class KSPlayerListener implements Listener {
 					byte data = itemList.getResult().getByte("data");
 					short dur = itemList.getResult().getShort("durability");
 					ItemStack item = null;
-					if(Item.isTool(id))
+					if (Item.isTool(id))
 					{
 						item = new ItemStack(id, amount, dur);
 					}
@@ -689,22 +746,22 @@ public class KSPlayerListener implements Listener {
 					{
 						item = new ItemStack(id, amount, dur, data);
 					}
-					//Generate psudo item to calculate slots taken up
+					// Generate psudo item to calculate slots taken up
 					int maxStack = item.getType().getMaxStackSize();
-					if(maxStack <= 0)
+					if (maxStack <= 0)
 					{
 						maxStack = 1;
 					}
 					int stacks = amount / maxStack;
 					final double rem = (double) amount % (double) maxStack;
-					if(rem != 0)
+					if (rem != 0)
 					{
 						stacks++;
 					}
-					for(int x = 0; x < stacks; x++)
+					for (int x = 0; x < stacks; x++)
 					{
 						ItemStack add = item.clone();
-						if(amount < maxStack)
+						if (amount < maxStack)
 						{
 							add.setAmount(amount);
 						}
@@ -714,12 +771,12 @@ public class KSPlayerListener implements Listener {
 							amount -= maxStack;
 						}
 
-					if (count >= start)
-					{
-						Item meta = new Item(id, data, dur);
-						// If tool
-						if (meta.isTool())
+						if (count >= start)
 						{
+							Item meta = new Item(id, data, dur);
+							// If tool
+							if (meta.isTool())
+							{
 								// Check for enchantments
 								String enchantments = itemList.getResult()
 										.getString("enchantments");
@@ -742,9 +799,9 @@ public class KSPlayerListener implements Listener {
 								{
 									done = true;
 								}
-						}
-						else if (meta.isPotion())
-						{
+							}
+							else if (meta.isPotion())
+							{
 								// Remove data for full potion compatibility
 								item = new ItemStack(id, amount, dur);
 								final HashMap<Integer, ItemStack> residual = inventory
@@ -753,21 +810,20 @@ public class KSPlayerListener implements Listener {
 								{
 									done = true;
 								}
-						}
-						else
-						{
-							final HashMap<Integer, ItemStack> residual = inventory
-									.addItem(add);
-							if (!residual.isEmpty())
+							}
+							else
 							{
-								done = true;
+								final HashMap<Integer, ItemStack> residual = inventory
+										.addItem(add);
+								if (!residual.isEmpty())
+								{
+									done = true;
+								}
 							}
 						}
+						count++;
 					}
-					count++;
-					}
-				}
-				while (itemList.getResult().next() && !done);
+				} while (itemList.getResult().next() && !done);
 			}
 			else
 			{

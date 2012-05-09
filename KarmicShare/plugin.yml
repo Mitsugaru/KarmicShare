@@ -2,7 +2,7 @@ name: KarmicShare
 
 main: com.mitsugaru.KarmicShare.KarmicShare
 
-version: 0.26
+version: 0.261
 
 website: http://dev.bukkit.org/server-mods/karmicshare/
 
@@ -85,7 +85,7 @@ permissions:
     KarmicShare.ignore.group:
         description: Ignores groups. User is of all groups.
         default: false
-    KarmicShare.ignore:
+    KarmicShare.ignore.*:
         description: Allows user to ignore all the things.
         default: false
         children:

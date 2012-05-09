@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.permissions.Permission;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSBlockListener implements Listener {
@@ -35,7 +36,7 @@ public class KSBlockListener implements Listener {
 					"[KarmicShare]"))
 			{
 				if (plugin.getPermissionHandler().checkPermission(
-						event.getPlayer(), "KarmicShare.sign"))
+						event.getPlayer(), Permission.SIGN.getNode()))
 				{
 					if (!ChatColor.stripColor(event.getLine(2)).equals(""))
 					{
@@ -111,7 +112,7 @@ public class KSBlockListener implements Listener {
 				{
 					event.getPlayer().sendMessage(
 							ChatColor.RED + KarmicShare.prefix
-									+ " Lack permission: KarmicShare.sign");
+									+ " Lack permission: " + Permission.SIGN.getNode());
 					// Cancel event
 					event.setCancelled(true);
 				}
@@ -152,7 +153,7 @@ public class KSBlockListener implements Listener {
 							.sendMessage(
 									ChatColor.RED
 											+ KarmicShare.prefix
-											+ " Cannot have two signs next to each other!");
+											+ " Cannot have a sign next to a link sign!");
 					event.setCancelled(true);
 				}
 			}
@@ -314,7 +315,7 @@ public class KSBlockListener implements Listener {
 				if (has)
 				{
 					if (plugin.getPermissionHandler().checkPermission(
-							event.getPlayer(), "KarmicShare.sign"))
+							event.getPlayer(), Permission.SIGN.getNode()))
 					{
 						if (event.getBlock().getRelative(BlockFace.DOWN)
 								.getType().equals(Material.CHEST))
@@ -344,7 +345,7 @@ public class KSBlockListener implements Listener {
 					{
 						event.getPlayer().sendMessage(
 								ChatColor.RED + KarmicShare.prefix
-										+ " Lack permission: KarmicShare.sign");
+										+ " Lack permission: " + Permission.SIGN.getNode());
 						event.setCancelled(true);
 					}
 				}
