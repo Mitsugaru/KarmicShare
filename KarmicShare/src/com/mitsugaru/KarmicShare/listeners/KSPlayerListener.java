@@ -41,11 +41,6 @@ public class KSPlayerListener implements Listener
 		karma = plugin.getKarma();
 	}
 
-	public void onEntityInteract(EntityInteractEvent event)
-	{
-		plugin.getLogger().info("Entity interact");
-	}
-
 	// TODO show our own inventory holder?
 	// That way, we can live update player interactions if they are of the
 	// same group and same page.

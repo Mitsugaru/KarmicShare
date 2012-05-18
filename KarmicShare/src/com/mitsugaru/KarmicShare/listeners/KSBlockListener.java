@@ -330,13 +330,13 @@ public class KSBlockListener implements Listener {
 							{
 								event.getPlayer().sendMessage(
 										ChatColor.YELLOW + KarmicShare.prefix
-												+ " Chest unlinked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
+												+ " Chest unlinked from " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 							}
 							else
 							{
 								event.getPlayer().sendMessage(
 										ChatColor.YELLOW + KarmicShare.prefix
-												+ " Chest unlinked to pool.");
+												+ " Chest unlinked from pool.");
 							}
 						}
 
