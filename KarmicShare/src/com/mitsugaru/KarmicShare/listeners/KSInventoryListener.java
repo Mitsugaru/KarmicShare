@@ -223,10 +223,7 @@ public class KSInventoryListener implements Listener
 															event.getCurrentItem()
 																	.getAmount(),
 															event.getCurrentItem()
-																	.getDurability(),
-															event.getCurrentItem()
-																	.getData()
-																	.getData());
+																	.getDurability());
 													for (Map.Entry<Enchantment, Integer> enchantment : event
 															.getCurrentItem()
 															.getEnchantments()
@@ -370,10 +367,7 @@ public class KSInventoryListener implements Listener
 															event.getCurrentItem()
 																	.getAmount(),
 															event.getCurrentItem()
-																	.getDurability(),
-															event.getCurrentItem()
-																	.getData()
-																	.getData());
+																	.getDurability());
 													for (Map.Entry<Enchantment, Integer> enchantment : event
 															.getCurrentItem()
 															.getEnchantments()
@@ -476,10 +470,7 @@ public class KSInventoryListener implements Listener
 															.getCursor()
 															.getAmount(), event
 															.getCursor()
-															.getDurability(),
-															event.getCursor()
-																	.getData()
-																	.getData());
+															.getDurability());
 													for (Map.Entry<Enchantment, Integer> enchantment : event
 															.getCursor()
 															.getEnchantments()
@@ -751,10 +742,7 @@ public class KSInventoryListener implements Listener
 															event.getCurrentItem()
 																	.getAmount(),
 															event.getCurrentItem()
-																	.getDurability(),
-															event.getCurrentItem()
-																	.getData()
-																	.getData());
+																	.getDurability());
 													for (Map.Entry<Enchantment, Integer> enchantment : event
 															.getCurrentItem()
 															.getEnchantments()
@@ -895,9 +883,7 @@ public class KSInventoryListener implements Listener
 														.getCurrentItem()
 														.getAmount(), event
 														.getCurrentItem()
-														.getDurability(), event
-														.getCurrentItem()
-														.getData().getData());
+														.getDurability());
 												for (Map.Entry<Enchantment, Integer> enchantment : event
 														.getCurrentItem()
 														.getEnchantments()
@@ -983,9 +969,7 @@ public class KSInventoryListener implements Listener
 														.getCursor()
 														.getTypeId(), 1, event
 														.getCursor()
-														.getDurability(), event
-														.getCursor().getData()
-														.getData());
+														.getDurability());
 												for (Map.Entry<Enchantment, Integer> enchantment : event
 														.getCursor()
 														.getEnchantments()
@@ -1163,9 +1147,7 @@ public class KSInventoryListener implements Listener
 												event.getCurrentItem()
 														.getAmount(), event
 														.getCurrentItem()
-														.getDurability(), event
-														.getCurrentItem()
-														.getData().getData());
+														.getDurability());
 										for (Map.Entry<Enchantment, Integer> enchantment : event
 												.getCurrentItem()
 												.getEnchantments().entrySet())
@@ -1262,9 +1244,7 @@ public class KSInventoryListener implements Listener
 										item = new ItemStack(event.getCursor()
 												.getTypeId(), event.getCursor()
 												.getAmount(), event.getCursor()
-												.getDurability(), event
-												.getCursor().getData()
-												.getData());
+												.getDurability());
 										for (Map.Entry<Enchantment, Integer> enchantment : event
 												.getCursor().getEnchantments()
 												.entrySet())
