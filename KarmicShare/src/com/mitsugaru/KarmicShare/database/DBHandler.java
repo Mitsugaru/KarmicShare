@@ -2,8 +2,8 @@ package com.mitsugaru.KarmicShare.database;
 
 import java.sql.SQLException;
 
-import com.mitsugaru.KarmicShare.Config;
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.config.Config;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
 import lib.Mitsugaru.SQLibrary.MySQL;

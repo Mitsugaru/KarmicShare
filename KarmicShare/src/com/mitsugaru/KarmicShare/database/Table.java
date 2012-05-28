@@ -1,6 +1,6 @@
 package com.mitsugaru.KarmicShare.database;
 
-import com.mitsugaru.KarmicShare.Config;
+import com.mitsugaru.KarmicShare.config.Config;
 
 public enum Table
 {

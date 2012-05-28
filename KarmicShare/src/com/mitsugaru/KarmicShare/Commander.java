@@ -22,6 +22,7 @@ import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.mitsugaru.KarmicShare.config.Config;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;

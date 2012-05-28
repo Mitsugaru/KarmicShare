@@ -4,7 +4,7 @@
  * 
  * @author Mitsugaru
  */
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.config;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +20,7 @@ import lib.Mitsugaru.SQLibrary.Database.Query;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.inventory.Item;
 
 public class Config
