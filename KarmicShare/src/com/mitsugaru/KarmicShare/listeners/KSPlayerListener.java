@@ -135,7 +135,7 @@ public class KSPlayerListener implements Listener
 					Sign sign = (Sign) block.getRelative(BlockFace.UP)
 							.getState();
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-							"[KarmicShare]"))
+							KarmicShare.TAG))
 					{
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
@@ -223,7 +223,7 @@ public class KSPlayerListener implements Listener
 								Sign sign = (Sign) adjBlock.getRelative(
 										BlockFace.UP).getState();
 								if (ChatColor.stripColor(sign.getLine(1))
-										.equalsIgnoreCase("[KarmicShare]"))
+										.equalsIgnoreCase(KarmicShare.TAG))
 								{
 									final String group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
@@ -303,7 +303,7 @@ public class KSPlayerListener implements Listener
 			{
 				Sign sign = (Sign) block.getState();
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-						"[KarmicShare]"))
+						KarmicShare.TAG))
 				{
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();
@@ -429,7 +429,7 @@ public class KSPlayerListener implements Listener
 					Sign sign = (Sign) block.getRelative(BlockFace.UP)
 							.getState();
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-							"[KarmicShare]"))
+							KarmicShare.TAG))
 					{
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
@@ -521,7 +521,7 @@ public class KSPlayerListener implements Listener
 								Sign sign = (Sign) adjBlock.getRelative(
 										BlockFace.UP).getState();
 								if (ChatColor.stripColor(sign.getLine(1))
-										.equalsIgnoreCase("[KarmicShare]"))
+										.equalsIgnoreCase(KarmicShare.TAG))
 								{
 									String group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
@@ -613,7 +613,7 @@ public class KSPlayerListener implements Listener
 			{
 				Sign sign = (Sign) block.getState();
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-						"[KarmicShare]"))
+						KarmicShare.TAG))
 				{
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();

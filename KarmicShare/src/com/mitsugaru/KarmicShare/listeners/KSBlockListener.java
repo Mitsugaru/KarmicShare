@@ -35,7 +35,7 @@ public class KSBlockListener implements Listener {
 		if (!event.isCancelled())
 		{
 			if (ChatColor.stripColor(event.getLine(1)).equalsIgnoreCase(
-					"[KarmicShare]"))
+					KarmicShare.TAG))
 			{
 				if (PermCheck.checkPermission(
 						event.getPlayer(), PermissionNode.SIGN))
@@ -71,7 +71,7 @@ public class KSBlockListener implements Listener {
 								// Reformat sign
 								event.setLine(0, groupName);
 								event.setLine(1, ChatColor.AQUA
-										+ "[KarmicShare]");
+										+ KarmicShare.TAG);
 								event.setLine(2, "Page:");
 								event.setLine(3, "1");
 								if(!ChatColor.stripColor(groupName).equalsIgnoreCase("global"))
@@ -92,7 +92,7 @@ public class KSBlockListener implements Listener {
 								// Reformat sign
 								event.setLine(0, groupName);
 								event.setLine(1, ChatColor.DARK_RED
-										+ "[KarmicShare]");
+										+ KarmicShare.TAG);
 								event.setLine(2, "Page:");
 								event.setLine(3, "1");
 								event.getPlayer().sendMessage(
@@ -142,7 +142,7 @@ public class KSBlockListener implements Listener {
 						for (String s : sign.getLines())
 						{
 							if (ChatColor.stripColor(s).equalsIgnoreCase(
-									"[KarmicShare]"))
+									KarmicShare.TAG))
 							{
 								has = true;
 							}
@@ -173,7 +173,7 @@ public class KSBlockListener implements Listener {
 					for (String s : sign.getLines())
 					{
 						if (ChatColor.stripColor(s).equalsIgnoreCase(
-								"[KarmicShare]"))
+								KarmicShare.TAG))
 						{
 							has = true;
 							//TODO check that it isn't a player karma sign
@@ -182,7 +182,7 @@ public class KSBlockListener implements Listener {
 					if (has)
 					{
 						// Reformat sign
-						sign.setLine(1, ChatColor.AQUA + "[KarmicShare]");
+						sign.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
 						sign.setLine(2, "Page:");
 						sign.setLine(3, "1");
 						sign.update();
@@ -211,7 +211,7 @@ public class KSBlockListener implements Listener {
 						for (String s : sign.getLines())
 						{
 							if (ChatColor.stripColor(s).equalsIgnoreCase(
-									"[KarmicShare]"))
+									KarmicShare.TAG))
 							{
 								// Sign already exists
 								exists = true;
@@ -220,7 +220,7 @@ public class KSBlockListener implements Listener {
 						if (exists)
 						{
 							// Reformat sign
-							sign.setLine(1, ChatColor.AQUA + "[KarmicShare]");
+							sign.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
 							sign.setLine(2, "Page:");
 							sign.setLine(3, "1");
 							sign.update();
@@ -259,13 +259,13 @@ public class KSBlockListener implements Listener {
 					Sign sign = (Sign) block.getRelative(BlockFace.UP)
 							.getState();
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-							"[KarmicShare]"))
+							KarmicShare.TAG))
 					{
 						// Empty chest as it has spawned items
 						chest.getInventory().clear();
 						chest.update();
 						// Update sign
-						sign.setLine(1, ChatColor.DARK_RED + "[KarmicShare]");
+						sign.setLine(1, ChatColor.DARK_RED + KarmicShare.TAG);
 						sign.update();
 						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 						{
@@ -289,7 +289,7 @@ public class KSBlockListener implements Listener {
 						final Sign sign = (Sign) chest.attachedBlock()
 								.getRelative(BlockFace.UP).getState();
 						if (ChatColor.stripColor(sign.getLine(1))
-								.equalsIgnoreCase("[KarmicShare]"))
+								.equalsIgnoreCase(KarmicShare.TAG))
 						{
 							// Empty chest as it has spawned items
 							chest.getInventory().clear();
@@ -308,7 +308,7 @@ public class KSBlockListener implements Listener {
 				for (String s : sign.getLines())
 				{
 					if (ChatColor.stripColor(s).equalsIgnoreCase(
-							"[KarmicShare]"))
+							KarmicShare.TAG))
 					{
 						// Sign already exists
 						has = true;
@@ -366,7 +366,7 @@ public class KSBlockListener implements Listener {
 		{
 			Sign sign = (Sign) event.getBlock().getState();
 			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-					"[KarmicShare]"))
+					KarmicShare.TAG))
 			{
 				// Find chest
 				if (event.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST)

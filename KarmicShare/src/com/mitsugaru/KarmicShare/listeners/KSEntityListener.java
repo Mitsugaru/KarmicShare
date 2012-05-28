@@ -30,7 +30,7 @@ public class KSEntityListener implements Listener {
 					|| material.equals(Material.WALL_SIGN)) {
 				Sign sign = (Sign) block.getState();
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-						"[KarmicShare]")) {
+						KarmicShare.TAG)) {
 					// Find chest
 					if (block.getRelative(BlockFace.DOWN).getType() == Material.CHEST) {
 						// Clear
@@ -49,12 +49,12 @@ public class KSEntityListener implements Listener {
 					Sign sign = (Sign) block.getRelative(BlockFace.UP)
 							.getState();
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-							"[KarmicShare]")) {
+							KarmicShare.TAG)) {
 						// Empty chest as it has spawned items
 						chest.getInventory().clear();
 						chest.update();
 						// Update sign
-						sign.setLine(1, ChatColor.DARK_RED + "[KarmicShare]");
+						sign.setLine(1, ChatColor.DARK_RED + KarmicShare.TAG);
 						sign.update();
 					}
 				} else if (chest.isDoubleChest()) {
@@ -63,7 +63,7 @@ public class KSEntityListener implements Listener {
 						final Sign sign = (Sign) chest.attachedBlock()
 								.getRelative(BlockFace.UP).getState();
 						if (ChatColor.stripColor(sign.getLine(1))
-								.equalsIgnoreCase("[KarmicShare]")) {
+								.equalsIgnoreCase(KarmicShare.TAG)) {
 							// Empty chest as it has spawned items
 							chest.getInventory().clear();
 							chest.update();
