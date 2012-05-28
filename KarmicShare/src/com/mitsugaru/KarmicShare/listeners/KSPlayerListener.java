@@ -18,6 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,6 +39,12 @@ public class KSPlayerListener implements Listener
 	public KSPlayerListener(KarmicShare karmicShare)
 	{
 		plugin = karmicShare;
+	}
+	
+	public void onPlayerQuit(final PlayerQuitEvent event)
+	{
+		//TODO player quit event, since that doesn't throw an inventory close event
+		//just to double check
 	}
 
 	// TODO show our own inventory holder?
@@ -126,6 +133,9 @@ public class KSPlayerListener implements Listener
 			}
 		}
 
+		/**
+		 * OLD OLD OLD
+		 */
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
 			if (block.getType().equals(Material.CHEST))

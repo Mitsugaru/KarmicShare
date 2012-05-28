@@ -357,8 +357,11 @@ public class KSBlockListener implements Listener {
 
 	/**
 	 * Thanks to Ribesg for the following method
+	 * 
+	 * TODO this will no longer be necessary either
 	 */
 	@EventHandler(priority = EventPriority.NORMAL)
+	@Deprecated
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		Material material = event.getBlock().getType();
 		if (material.equals(Material.SIGN_POST)
