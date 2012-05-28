@@ -211,7 +211,7 @@ public class KSPlayerListener implements Listener
 			{
 				final KSInventoryHolder holder = new KSInventoryHolder(info);
 				inventory = plugin.getServer().createInventory(holder,
-						chestSize);
+						chestSize, group + " : " + page);
 				populateInventory(inventory, page, true, group);
 				holder.setInventory(inventory);
 				Karma.inventories.put(info, holder);

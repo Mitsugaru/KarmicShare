@@ -29,7 +29,7 @@ public class ConfirmCleanup implements Runnable
 					"DELETE FROM " + Table.ITEMS.getName()
 							+ " WHERE amount<='0';");
 			plugin.getLogger()
-					.info(KarmicShare.TAG + " Cleanup task executed.");
+					.info("Cleanup task executed.");
 			sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 					+ " Cleanup task executed.");
 		}

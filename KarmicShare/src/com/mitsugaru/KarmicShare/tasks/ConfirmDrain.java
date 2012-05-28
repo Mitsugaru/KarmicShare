@@ -33,8 +33,8 @@ public class ConfirmDrain implements Runnable
 			final String query = "DELETE FROM " + Table.ITEMS.getName()
 					+ " WHERE groups='" + group + "';";
 			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info(
-					KarmicShare.TAG + " " + group + " items table cleared");
+			plugin.getLogger().info("'" +
+					group + "'" + " items table cleared");
 			player.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " "
 					+ ChatColor.GOLD + group + ChatColor.GREEN
 					+ " item pool emptied.");

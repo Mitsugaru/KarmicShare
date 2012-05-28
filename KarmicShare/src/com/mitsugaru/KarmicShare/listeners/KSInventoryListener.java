@@ -41,8 +41,10 @@ public class KSInventoryListener implements Listener
 		if (!(event.getInventory().getHolder() instanceof KSInventoryHolder))
 		{
 			// Not ours, we don't care
+			plugin.getLogger().info("NOT ours");
 			return;
 		}
+		plugin.getLogger().info("our holder");
 		boolean fromChest = false;
 		// Differentiate between chest inventory and player
 		// inventory click
