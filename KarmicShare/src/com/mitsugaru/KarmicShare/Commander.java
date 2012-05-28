@@ -8,7 +8,6 @@ package com.mitsugaru.KarmicShare;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
@@ -65,7 +64,6 @@ public class Commander implements CommandExecutor
 	// TODO refactor parsing the input string for when adding/taking items
 	// and player has specified the item. Throw it into a method for
 	// ks take and ks admin add to utilize, as well as chest access
-	// Probably make a separate karma class to handle this all
 	/**
 	 * Command handler
 	 */
@@ -98,8 +96,9 @@ public class Commander implements CommandExecutor
 				if (sender instanceof Player)
 				{
 					final StringBuilder sb = new StringBuilder();
-					for (String s : playerGroups(sender, sender.getName()))
+					for (String s : Karma.getPlayerGroups(sender, sender.getName()))
 					{
+						//TODO show currently selected group as different
 						sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA
 								+ "-");
 					}
@@ -3016,37 +3015,7 @@ public class Commander implements CommandExecutor
 		}
 	}
 
-	private List<String> playerGroups(CommandSender sender, String name)
-	{
-		List<String> list = new ArrayList<String>();
-		try
-		{
-			if (Karma.hasGroups(name))
-			{
-				String groups = "";
-				Query rs = ks.getDatabaseHandler().select(
-						"SELECT * FROM " + Table.PLAYERS.getName()
-								+ " WHERE playername='" + name + "';");
-				if (rs.getResult().next())
-				{
-					groups = rs.getResult().getString("groups");
-				}
-				rs.closeQuery();
-				String[] split = groups.split("&");
-				for (String s : split)
-				{
-					list.add(s);
-				}
-			}
-		}
-		catch (SQLException e)
-		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return list;
-	}
+	
 
 	/**
 	 * Attempts to look up full name based on who's on the server Given a

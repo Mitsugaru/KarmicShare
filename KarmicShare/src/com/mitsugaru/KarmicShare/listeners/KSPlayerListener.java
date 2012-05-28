@@ -75,7 +75,8 @@ public class KSPlayerListener implements Listener
 			isChest = true;
 		}
 		// Assure that it is ours.
-		if (!isOurs(block))
+		final Sign sign = isOurs(block);
+		if (sign == null)
 		{
 			return;
 		}
@@ -87,6 +88,41 @@ public class KSPlayerListener implements Listener
 					ChatColor.RED + KarmicShare.TAG + " Lack permission: "
 							+ PermissionNode.CHEST.getNode());
 			event.setCancelled(true);
+			return;
+		}
+		// Grab selected group for player
+		String group = Karma.selectedGroup.get(player.getName());
+		if (group == null)
+		{
+			Karma.selectedGroup.put(player.getName(), "global");
+			group = "global";
+		}
+		// Handle chest page jump / grab current page number
+		try
+		{
+			if (Commander.chestPage.containsKey(player.getName()))
+			{
+				page = grabNextPage(Commander.chestPage.get(player.getName())
+						.intValue() - 1, 54, group, Direction.CURRENT);
+				Commander.chestPage.remove(player.getName());
+				sign.setLine(3, "" + page);
+				sign.update();
+			}
+			else
+			{
+				// Assures that the page number on sign does not conflict with
+				// players selected group's page limit
+				page = grabNextPage(Integer.parseInt("" + sign.getLine(3)), 54,
+						group, Direction.CURRENT);
+			}
+		}
+		catch (NumberFormatException e)
+		{
+			event.getPlayer()
+					.sendMessage(
+							ChatColor.RED
+									+ KarmicShare.TAG
+									+ " Sign has wrong formatting. Noninteger page number. Remake sign.");
 			return;
 		}
 		// Handle our logic
@@ -131,7 +167,8 @@ public class KSPlayerListener implements Listener
 		}
 
 		/**
-		 * OLD OLD OLD
+		 * ===================================================== OLD OLD OLD
+		 * TODO phase out =====================================================
 		 */
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
@@ -139,13 +176,11 @@ public class KSPlayerListener implements Listener
 			{
 				if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
 				{
-					Sign sign = (Sign) block.getRelative(BlockFace.UP)
-							.getState();
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							KarmicShare.TAG))
 					{
-						final String group = ChatColor.stripColor(
-								sign.getLine(0)).toLowerCase();
+						group = ChatColor.stripColor(sign.getLine(0))
+								.toLowerCase();
 						if (PermCheck.checkPermission(event.getPlayer(),
 								PermissionNode.CHEST))
 						{
@@ -227,12 +262,10 @@ public class KSPlayerListener implements Listener
 							if (adjBlock.getRelative(BlockFace.UP).getType()
 									.equals(Material.WALL_SIGN))
 							{
-								Sign sign = (Sign) adjBlock.getRelative(
-										BlockFace.UP).getState();
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase(KarmicShare.TAG))
 								{
-									final String group = ChatColor.stripColor(
+									group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
 									if (PermCheck.checkPermission(
 											event.getPlayer(),
@@ -308,12 +341,10 @@ public class KSPlayerListener implements Listener
 			}
 			else if (block.getType().equals(Material.WALL_SIGN))
 			{
-				Sign sign = (Sign) block.getState();
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 						KarmicShare.TAG))
 				{
-					final String group = ChatColor.stripColor(sign.getLine(0))
-							.toLowerCase();
+					group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 
 					if (PermCheck.checkPermission(event.getPlayer(),
 							PermissionNode.CHEST.getNode()))
@@ -340,7 +371,8 @@ public class KSPlayerListener implements Listener
 											page = grabNextPage(
 													Commander.chestPage.get(
 															name).intValue() - 1,
-													54, group, false);
+													54, group,
+													Direction.FORWARD);
 											Commander.chestPage.remove(name);
 										}
 										else
@@ -348,7 +380,8 @@ public class KSPlayerListener implements Listener
 											page = grabNextPage(
 													Integer.parseInt(""
 															+ sign.getLine(3)),
-													54, group, true);
+													54, group,
+													Direction.BACKWARD);
 										}
 										sign.setLine(3, "" + page);
 										sign.update();
@@ -372,7 +405,8 @@ public class KSPlayerListener implements Listener
 											page = grabNextPage(
 													Commander.chestPage.get(
 															name).intValue() - 1,
-													27, group, false);
+													27, group,
+													Direction.BACKWARD);
 											Commander.chestPage.remove(name);
 										}
 										else
@@ -380,7 +414,8 @@ public class KSPlayerListener implements Listener
 											page = grabNextPage(
 													Integer.parseInt(""
 															+ sign.getLine(3)),
-													27, group, true);
+													27, group,
+													Direction.BACKWARD);
 										}
 										sign.setLine(3, "" + page);
 										sign.update();
@@ -422,13 +457,11 @@ public class KSPlayerListener implements Listener
 			{
 				if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
 				{
-					Sign sign = (Sign) block.getRelative(BlockFace.UP)
-							.getState();
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							KarmicShare.TAG))
 					{
-						final String group = ChatColor.stripColor(
-								sign.getLine(0)).toLowerCase();
+						group = ChatColor.stripColor(sign.getLine(0))
+								.toLowerCase();
 						if (PermCheck.checkPermission(event.getPlayer(),
 								PermissionNode.CHEST.getNode()))
 						{
@@ -448,7 +481,7 @@ public class KSPlayerListener implements Listener
 										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
-												group, false);
+												group, Direction.FORWARD);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -468,7 +501,7 @@ public class KSPlayerListener implements Listener
 										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
-												group, false);
+												group, Direction.FORWARD);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -513,12 +546,10 @@ public class KSPlayerListener implements Listener
 							if (adjBlock.getRelative(BlockFace.UP).getType()
 									.equals(Material.WALL_SIGN))
 							{
-								Sign sign = (Sign) adjBlock.getRelative(
-										BlockFace.UP).getState();
 								if (ChatColor.stripColor(sign.getLine(1))
 										.equalsIgnoreCase(KarmicShare.TAG))
 								{
-									String group = ChatColor.stripColor(
+									group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
 									if (PermCheck.checkPermission(
 											event.getPlayer(),
@@ -542,7 +573,8 @@ public class KSPlayerListener implements Listener
 													page = grabNextPage(
 															Integer.parseInt(""
 																	+ sign.getLine(3)),
-															54, group, false);
+															54, group,
+															Direction.FORWARD);
 													sign.setLine(3, "" + page);
 													sign.update();
 												}
@@ -562,7 +594,8 @@ public class KSPlayerListener implements Listener
 													page = grabNextPage(
 															Integer.parseInt(""
 																	+ sign.getLine(3)),
-															27, group, false);
+															27, group,
+															Direction.FORWARD);
 													sign.setLine(3, "" + page);
 													sign.update();
 												}
@@ -606,12 +639,10 @@ public class KSPlayerListener implements Listener
 			}
 			else if (block.getType().equals(Material.WALL_SIGN))
 			{
-				Sign sign = (Sign) block.getState();
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 						KarmicShare.TAG))
 				{
-					final String group = ChatColor.stripColor(sign.getLine(0))
-							.toLowerCase();
+					group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
 					if (PermCheck.checkPermission(event.getPlayer(),
 							PermissionNode.CHEST.getNode()))
 					{
@@ -633,7 +664,7 @@ public class KSPlayerListener implements Listener
 										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
-												group, false);
+												group, Direction.FORWARD);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -653,7 +684,7 @@ public class KSPlayerListener implements Listener
 										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
-												group, false);
+												group, Direction.FORWARD);
 										sign.setLine(3, "" + page);
 										sign.update();
 									}
@@ -690,7 +721,7 @@ public class KSPlayerListener implements Listener
 		}
 	}
 
-	private boolean isOurs(final Block block)
+	private Sign isOurs(final Block block)
 	{
 		if (block.getType().equals(Material.CHEST))
 		{
@@ -701,7 +732,7 @@ public class KSPlayerListener implements Listener
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 						KarmicShare.TAG))
 				{
-					return true;
+					return sign;
 				}
 			}
 			else
@@ -721,7 +752,7 @@ public class KSPlayerListener implements Listener
 							if (ChatColor.stripColor(sign.getLine(1))
 									.equalsIgnoreCase(KarmicShare.TAG))
 							{
-								return true;
+								return sign;
 							}
 						}
 					}
@@ -734,14 +765,14 @@ public class KSPlayerListener implements Listener
 			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 					KarmicShare.TAG))
 			{
-				return true;
+				return sign;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	private int grabNextPage(int current, int limit, String group,
-			boolean backwards)
+			Direction direction)
 	{
 		// Calculate number of slots
 		int slots = 0;
@@ -800,14 +831,23 @@ public class KSPlayerListener implements Listener
 			// Cycle back as we're at the max value for an integer
 			return 1;
 		}
-		int page = 1;
-		if (backwards)
+		int page = current;
+		switch (direction)
 		{
-			page = current - 1;
-		}
-		else
-		{
-			page = current + 1;
+			case FORWARD:
+			{
+				page++;
+				break;
+			}
+			case BACKWARD:
+			{
+				page--;
+				break;
+			}
+			default:
+			{
+				break;
+			}
 		}
 		if (page <= 0)
 		{
@@ -822,6 +862,11 @@ public class KSPlayerListener implements Listener
 			page = 1;
 		}
 		return page;
+	}
+
+	private enum Direction
+	{
+		FORWARD, BACKWARD, CURRENT;
 	}
 
 	private void populateChest(Inventory inventory, int page, boolean isDouble,

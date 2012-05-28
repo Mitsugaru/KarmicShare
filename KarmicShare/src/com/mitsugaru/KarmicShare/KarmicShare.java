@@ -20,7 +20,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.database.DBHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
-import com.mitsugaru.KarmicShare.listeners.KSEntityListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
 import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
@@ -114,7 +113,6 @@ public class KarmicShare extends JavaPlugin {
 		// Register listeners
 		pm.registerEvents(new KSBlockListener(this), this);
 		pm.registerEvents(new KSPlayerListener(this), this);
-		pm.registerEvents(new KSEntityListener(this), this);
 		if (config.chests) {
 			pm.registerEvents(new KSInventoryListener(this), this);
 			chest = true;

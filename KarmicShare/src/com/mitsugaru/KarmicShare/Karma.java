@@ -1,7 +1,9 @@
 package com.mitsugaru.KarmicShare;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
@@ -1060,25 +1062,22 @@ public class Karma
 	 */
 	public static void smokePlayer(Player player)
 	{
-		if (plugin.getPluginConfig().effects)
+		// Check if enabled in config
+		if (!plugin.getPluginConfig().effects)
 		{
-			final Location loc = player.getLocation();
-			final World w = loc.getWorld();
-			int repeat = 0;
-			while (repeat < 1)
+			return;
+		}
+		// Effect
+		final Location loc = player.getLocation();
+		final World w = loc.getWorld();
+		for (double x = (loc.getX() - 3); x <= (loc.getX() + 3); x++)
+		{
+			for (double y = (loc.getY() - 3); y <= (loc.getY() + 3); y++)
 			{
-				for (double x = (loc.getX() - 3); x <= (loc.getX() + 3); x++)
+				for (double z = (loc.getZ() - 3); z <= (loc.getZ() + 3); z++)
 				{
-					for (double y = (loc.getY() - 3); y <= (loc.getY() + 3); y++)
-					{
-						for (double z = (loc.getZ() - 3); z <= (loc.getZ() + 3); z++)
-						{
-							w.playEffect(new Location(w, x, y, z),
-									Effect.SMOKE, 1);
-						}
-					}
+					w.playEffect(new Location(w, x, y, z), Effect.SMOKE, 1);
 				}
-				repeat++;
 			}
 		}
 	}
@@ -1163,26 +1162,33 @@ public class Karma
 		return has;
 	}
 
-	@Deprecated
-	public static boolean hasGroups(String playerName) throws SQLException
+	public static List<String> getPlayerGroups(CommandSender sender, String name)
 	{
-		boolean hasGroups = false;
-		String groups = "";
-		Query rs = plugin.getDatabaseHandler().select(
-				"SELECT * FROM " + Table.PLAYERS.getName()
-						+ " WHERE playername='" + playerName + "';");
-		if (rs.getResult().next())
+		List<String> list = new ArrayList<String>();
+		try
 		{
-			groups = rs.getResult().getString("groups");
-			if (!rs.getResult().wasNull())
+			String groups = "";
+			Query rs = plugin.getDatabaseHandler().select(
+					"SELECT * FROM " + Table.PLAYERS.getName()
+							+ " WHERE playername='" + name + "';");
+			if (rs.getResult().next())
 			{
-				if (!groups.equals(""))
-				{
-					hasGroups = true;
-				}
+				groups = rs.getResult().getString("groups");
+			}
+			rs.closeQuery();
+			String[] split = groups.split("&");
+			//TODO add in global / self groups
+			for (String s : split)
+			{
+				list.add(s);
 			}
 		}
-		rs.closeQuery();
-		return hasGroups;
+		catch (SQLException e)
+		{
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+		return list;
 	}
 }
