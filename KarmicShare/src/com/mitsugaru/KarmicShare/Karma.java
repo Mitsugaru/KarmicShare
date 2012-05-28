@@ -1,6 +1,7 @@
 package com.mitsugaru.KarmicShare;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
@@ -15,18 +16,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
+import com.mitsugaru.KarmicShare.inventory.Item;
+import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.permissions.Permission;
 
 
 public class Karma {
-	KarmicShare plugin;
+	private static KarmicShare plugin;
+	public static Map<GroupPageInfo, KSInventoryHolder> inventories = new HashMap<GroupPageInfo, KSInventoryHolder>();
 
-	public Karma(KarmicShare ks)
+	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 	}
 
-	public boolean hasItem(Player player, ItemStack item, String group) {
+	public static boolean hasItem(Player player, ItemStack item, String group) {
 		// Check if pool contains item requested + amount
 		boolean has = false;
 		// SQL query to see if item is in pool
@@ -158,7 +163,7 @@ public class Karma {
 		return has;
 	}
 
-	public int takeItem(Player player, ItemStack item, String group) {
+	public static int takeItem(Player player, ItemStack item, String group) {
 		// Check if they have "take" permission
 		if (plugin.getPermissionHandler().checkPermission(player,
 				Permission.TAKE.getNode()))
@@ -195,7 +200,7 @@ public class Karma {
 			}
 			int amount = item.getAmount();
 			String query = "";
-			boolean has = this.hasItem(player, item, group);
+			boolean has = hasItem(player, item, group);
 			Item temp = new Item(item);
 			try
 			{
@@ -611,7 +616,7 @@ public class Karma {
 						}
 					}
 					// Smoke effect
-					this.smokePlayer(player);
+					smokePlayer(player);
 					// Update karma
 					if (!plugin.getPluginConfig().karmaDisabled)
 					{
@@ -620,7 +625,7 @@ public class Karma {
 						{
 							if (hasKarma)
 							{
-								this.updatePlayerKarma(
+								updatePlayerKarma(
 										player.getName(),
 										amount
 												* plugin.getPluginConfig().karma
@@ -628,7 +633,7 @@ public class Karma {
 							}
 							else
 							{
-								this.updatePlayerKarma(player.getName(), amount
+								updatePlayerKarma(player.getName(), amount
 										* plugin.getPluginConfig().karmaChange
 										* -1);
 							}
@@ -677,7 +682,7 @@ public class Karma {
 		return -1;
 	}
 
-	public boolean giveItem(Player player, ItemStack item, String group) {
+	public static boolean giveItem(Player player, ItemStack item, String group) {
 		if (plugin.getPermissionHandler().checkPermission(player,
 				Permission.GIVE.getNode()))
 		{
@@ -901,7 +906,7 @@ public class Karma {
 					{
 						if (plugin.getPluginConfig().statickarma)
 						{
-							this.updatePlayerKarma(
+							updatePlayerKarma(
 									player.getName(),
 									item.getAmount()
 											* plugin.getPluginConfig().karmaChange);
@@ -924,7 +929,7 @@ public class Karma {
 							{
 								try
 								{
-									this.updatePlayerKarma(
+									updatePlayerKarma(
 											player.getName(),
 											item.getAmount()
 													* plugin.getPluginConfig().karma
@@ -935,7 +940,7 @@ public class Karma {
 									// Found item, but there is no
 									// config for specific data value
 									// thus adjust using regular means
-									this.updatePlayerKarma(
+									updatePlayerKarma(
 											player.getName(),
 											item.getAmount()
 													* plugin.getPluginConfig().karmaChange);
@@ -943,7 +948,7 @@ public class Karma {
 							}
 							else
 							{
-								this.updatePlayerKarma(
+								updatePlayerKarma(
 										player.getName(),
 										item.getAmount()
 												* plugin.getPluginConfig().karmaChange);
@@ -960,7 +965,7 @@ public class Karma {
 				return false;
 			}
 			// Smoke effect
-			this.smokePlayer(player);
+			smokePlayer(player);
 			// Update cache
 			if (!plugin.getCommander().getCache().isEmpty())
 			{
@@ -997,7 +1002,7 @@ public class Karma {
 	 *            if to add to current karma, or to set it as given value
 	 * @throws SQLException
 	 */
-	public void updatePlayerKarma(String name, int k) throws SQLException {
+	public static void updatePlayerKarma(String name, int k) throws SQLException {
 		try
 		{
 			// Retrieve karma from database
@@ -1048,7 +1053,7 @@ public class Karma {
 	 *            name
 	 * @return karma value associated with name
 	 */
-	public int getPlayerKarma(String name) throws SQLException {
+	public static int getPlayerKarma(String name) throws SQLException {
 		String query = "SELECT * FROM "
 						+ Table.PLAYERS.getName()
 						+ " WHERE playername='" + name + "';";
@@ -1096,7 +1101,7 @@ public class Karma {
 	 *            that should get the effect
 	 * @author Adamki11s
 	 */
-	public void smokePlayer(Player player) {
+	public static void smokePlayer(Player player) {
 		if (plugin.getPluginConfig().effects)
 		{
 			final Location loc = player.getLocation();
@@ -1120,7 +1125,7 @@ public class Karma {
 		}
 	}
 
-	public boolean validGroup(CommandSender sender, String group)
+	public static boolean validGroup(CommandSender sender, String group)
 	{
 		if(group.equals("global"))
 		{
@@ -1147,7 +1152,7 @@ public class Karma {
 		return valid;
 	}
 
-	public boolean playerHasGroup(CommandSender sender, String name, String group)
+	public static boolean playerHasGroup(CommandSender sender, String name, String group)
 	{
 		if(group.equals("global"))
 		{

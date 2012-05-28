@@ -20,24 +20,22 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.mitsugaru.KarmicShare.Item;
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.permissions.Permission;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSPlayerListener implements Listener
 {
 	private KarmicShare plugin;
-	private Karma karma;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
 
 	public KSPlayerListener(KarmicShare karmicShare)
 	{
 		plugin = karmicShare;
-		karma = plugin.getKarma();
 	}
 
 	// TODO show our own inventory holder?
@@ -63,7 +61,7 @@ public class KSPlayerListener implements Listener
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), Permission.CHEST.getNode()))
 						{
-							if (karma.playerHasGroup(event.getPlayer(), event
+							if (Karma.playerHasGroup(event.getPlayer(), event
 									.getPlayer().getName(), group)
 									|| plugin.getPermissionHandler()
 											.checkPermission(event.getPlayer(),
@@ -152,7 +150,7 @@ public class KSPlayerListener implements Listener
 											.checkPermission(event.getPlayer(),
 													Permission.CHEST.getNode()))
 									{
-										if (karma.playerHasGroup(event
+										if (Karma.playerHasGroup(event
 												.getPlayer(), event.getPlayer()
 												.getName(), group)
 												|| plugin
@@ -233,7 +231,7 @@ public class KSPlayerListener implements Listener
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), Permission.CHEST.getNode()))
 					{
-						if (karma.playerHasGroup(event.getPlayer(), event
+						if (Karma.playerHasGroup(event.getPlayer(), event
 								.getPlayer().getName(), group)
 								|| plugin.getPermissionHandler()
 										.checkPermission(
@@ -361,7 +359,7 @@ public class KSPlayerListener implements Listener
 						if (plugin.getPermissionHandler().checkPermission(
 								event.getPlayer(), Permission.CHEST.getNode()))
 						{
-							if (karma.playerHasGroup(event.getPlayer(), event
+							if (Karma.playerHasGroup(event.getPlayer(), event
 									.getPlayer().getName(), group)
 									|| plugin.getPermissionHandler()
 											.checkPermission(
@@ -454,7 +452,7 @@ public class KSPlayerListener implements Listener
 											.checkPermission(event.getPlayer(),
 													Permission.CHEST.getNode()))
 									{
-										if (karma.playerHasGroup(event
+										if (Karma.playerHasGroup(event
 												.getPlayer(), event.getPlayer()
 												.getName(), group)
 												|| plugin
@@ -545,7 +543,7 @@ public class KSPlayerListener implements Listener
 					if (plugin.getPermissionHandler().checkPermission(
 							event.getPlayer(), Permission.CHEST.getNode()))
 					{
-						if (karma.playerHasGroup(event.getPlayer(), event
+						if (Karma.playerHasGroup(event.getPlayer(), event
 								.getPlayer().getName(), group)
 								|| plugin.getPermissionHandler()
 										.checkPermission(event.getPlayer(),

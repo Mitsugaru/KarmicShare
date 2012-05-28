@@ -2,7 +2,7 @@
  * Class to represent items that are in the pool Mostly used to help
  * differentiate between items that use damage values
  */
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.inventory;
 
 import java.util.HashMap;
 import java.util.Map;

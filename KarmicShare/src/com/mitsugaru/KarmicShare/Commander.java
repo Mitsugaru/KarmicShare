@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.Permission;
 
@@ -32,7 +33,6 @@ public class Commander implements CommandExecutor
 	// Class variables
 	private final KarmicShare ks;
 	private final PermCheck perm;
-	private Karma karma;
 	private final static String bar = "======================";
 	public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
 	private final String prefix;
@@ -57,7 +57,6 @@ public class Commander implements CommandExecutor
 		prefix = KarmicShare.prefix;
 		config = ks.getPluginConfig();
 		perm = ks.getPermissionHandler();
-		karma = ks.getKarma();
 		limit = config.listlimit;
 		time = 0;
 	}
@@ -468,7 +467,7 @@ public class Commander implements CommandExecutor
 					}
 					else
 					{
-						if (!karma.validGroup(sender, group))
+						if (!Karma.validGroup(sender, group))
 						{
 							// Create group
 							ks.getDatabaseHandler().standardQuery(
@@ -538,7 +537,7 @@ public class Commander implements CommandExecutor
 					}
 					if (sender instanceof Player)
 					{
-						if (!karma.playerHasGroup(sender,
+						if (!Karma.playerHasGroup(sender,
 								((Player) sender).getName(), group))
 						{
 							sender.sendMessage(ChatColor.RED
@@ -571,7 +570,7 @@ public class Commander implements CommandExecutor
 						{
 							name = args[i];
 						}
-						else if (karma.playerHasGroup(sender, name, group))
+						else if (Karma.playerHasGroup(sender, name, group))
 						{
 							sender.sendMessage(ChatColor.YELLOW + prefix + " "
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
@@ -581,7 +580,7 @@ public class Commander implements CommandExecutor
 						}
 						else
 						{
-							if (karma.validGroup(sender, group))
+							if (Karma.validGroup(sender, group))
 							{
 								// Grab player on server
 								Player other = ks.getServer().getPlayer(name);
@@ -646,7 +645,7 @@ public class Commander implements CommandExecutor
 					}
 					if (sender instanceof Player)
 					{
-						if (!karma.playerHasGroup(sender,
+						if (!Karma.playerHasGroup(sender,
 								((Player) sender).getName(), group))
 						{
 							sender.sendMessage(ChatColor.RED
@@ -678,7 +677,7 @@ public class Commander implements CommandExecutor
 						{
 							name = args[i];
 						}
-						if (!karma.playerHasGroup(sender, name, group))
+						if (!Karma.playerHasGroup(sender, name, group))
 						{
 							sender.sendMessage(ChatColor.YELLOW + prefix
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
@@ -687,7 +686,7 @@ public class Commander implements CommandExecutor
 						}
 						else
 						{
-							if (karma.validGroup(sender, group))
+							if (Karma.validGroup(sender, group))
 							{
 								// remove other player to group
 								removePlayerFromGroup(sender, name, group);
@@ -741,7 +740,7 @@ public class Commander implements CommandExecutor
 					{
 						group = args[i].toLowerCase();
 					}
-					if (!karma.playerHasGroup(sender, sender.getName(), group))
+					if (!Karma.playerHasGroup(sender, sender.getName(), group))
 					{
 						sender.sendMessage(ChatColor.YELLOW + prefix
 								+ ChatColor.AQUA + sender.getName()
@@ -757,7 +756,7 @@ public class Commander implements CommandExecutor
 					}
 					else
 					{
-						if (karma.validGroup(sender, group))
+						if (Karma.validGroup(sender, group))
 						{
 							// remove other player to group
 							removePlayerFromGroup(sender, sender.getName(),
@@ -849,7 +848,7 @@ public class Commander implements CommandExecutor
 		try
 		{
 			// Insures that the player is added to the database
-			karma.getPlayerKarma(name);
+			Karma.getPlayerKarma(name);
 			String groups = "";
 			Query rs = ks.getDatabaseHandler().select(
 					"SELECT * FROM " + Table.PLAYERS.getName()
@@ -902,7 +901,7 @@ public class Commander implements CommandExecutor
 					try
 					{
 						// Colorize karma
-						sender.sendMessage(this.colorizeKarma(karma
+						sender.sendMessage(this.colorizeKarma(Karma
 								.getPlayerKarma(name)));
 					}
 					catch (SQLException e)
@@ -1190,7 +1189,7 @@ public class Commander implements CommandExecutor
 								{
 									if (!done)
 									{
-										int a = karma.takeItem(player, i,
+										int a = Karma.takeItem(player, i,
 												"gloabl");
 										if (a <= 0)
 										{
@@ -1215,12 +1214,12 @@ public class Commander implements CommandExecutor
 												i.setAmount(residual.size());
 												try
 												{
-													int currentKarma = karma
+													int currentKarma = Karma
 															.getPlayerKarma(player
 																	.getName());
-													karma.giveItem(player, i,
+													Karma.giveItem(player, i,
 															"global");
-													karma.updatePlayerKarma(
+													Karma.updatePlayerKarma(
 															player.getName(),
 															currentKarma);
 												}
@@ -1259,7 +1258,7 @@ public class Commander implements CommandExecutor
 						{
 							item = new ItemStack(itemid, amount,
 									Short.valueOf("" + data));
-							finalAmount = karma
+							finalAmount = Karma
 									.takeItem(player, item, "global");
 							if (finalAmount > 0)
 							{
@@ -1280,11 +1279,11 @@ public class Commander implements CommandExecutor
 									item.setAmount(residual.size());
 									try
 									{
-										int currentKarma = karma
+										int currentKarma = Karma
 												.getPlayerKarma(player
 														.getName());
-										karma.giveItem(player, item, "global");
-										karma.updatePlayerKarma(
+										Karma.giveItem(player, item, "global");
+										Karma.updatePlayerKarma(
 												player.getName(), currentKarma);
 									}
 									catch (SQLException e)
@@ -1301,7 +1300,7 @@ public class Commander implements CommandExecutor
 						{
 							item = new ItemStack(itemid, amount,
 									Byte.valueOf("" + data));
-							finalAmount = karma
+							finalAmount = Karma
 									.takeItem(player, item, "global");
 							if (finalAmount > 0)
 							{
@@ -1322,11 +1321,11 @@ public class Commander implements CommandExecutor
 									item.setAmount(residual.size());
 									try
 									{
-										int currentKarma = karma
+										int currentKarma = Karma
 												.getPlayerKarma(player
 														.getName());
-										karma.giveItem(player, item, "global");
-										karma.updatePlayerKarma(
+										Karma.giveItem(player, item, "global");
+										Karma.updatePlayerKarma(
 												player.getName(), currentKarma);
 									}
 									catch (SQLException e)
@@ -1398,7 +1397,7 @@ public class Commander implements CommandExecutor
 					if (itemid != 0)
 					{
 						// TODO un-hardcode global?
-						karma.giveItem(player, items, "global");
+						Karma.giveItem(player, items, "global");
 						// Remove item from player inventory
 						// Thanks to @nisovin for the following line
 						final Item i = new Item(items.getTypeId(), items
@@ -1607,7 +1606,7 @@ public class Commander implements CommandExecutor
 			try
 			{
 				// Retrieve karma from database and colorize
-				sender.sendMessage(this.colorizeKarma(karma
+				sender.sendMessage(this.colorizeKarma(Karma
 						.getPlayerKarma(player.getName())));
 			}
 			catch (SQLException e)
@@ -1918,7 +1917,7 @@ public class Commander implements CommandExecutor
 				if (args.length > 2)
 				{
 					group = args[2];
-					if (!karma.validGroup(sender, args[2]))
+					if (!Karma.validGroup(sender, args[2]))
 					{
 						sender.sendMessage(ChatColor.RED + prefix + " Group "
 								+ ChatColor.GRAY + group + ChatColor.RED
@@ -2067,14 +2066,14 @@ public class Commander implements CommandExecutor
 								try
 								{
 									// Set to zero
-									playerKarma = karma.getPlayerKarma(name)
+									playerKarma = Karma.getPlayerKarma(name)
 											* -1;
-									karma.updatePlayerKarma(name, playerKarma);
+									Karma.updatePlayerKarma(name, playerKarma);
 									if (config.playerKarmaDefault != 0)
 									{
 										// Default was non-zero, so re-update to
 										// config's default
-										karma.updatePlayerKarma(name,
+										Karma.updatePlayerKarma(name,
 												config.playerKarmaDefault);
 									}
 									sender.sendMessage(ChatColor.YELLOW
@@ -2206,13 +2205,13 @@ public class Commander implements CommandExecutor
 									// difference
 									// between the two
 									playerKarma = amount
-											- karma.getPlayerKarma(name);
-									karma.updatePlayerKarma(name, playerKarma);
+											- Karma.getPlayerKarma(name);
+									Karma.updatePlayerKarma(name, playerKarma);
 									if (config.playerKarmaDefault != 0)
 									{
 										// Default was non-zero, so re-update to
 										// config's default
-										karma.updatePlayerKarma(name,
+										Karma.updatePlayerKarma(name,
 												config.playerKarmaDefault);
 									}
 									sender.sendMessage(ChatColor.YELLOW
@@ -2280,7 +2279,7 @@ public class Commander implements CommandExecutor
 								sender.sendMessage(ChatColor.RED + prefix
 										+ " Cannot remove the global group.");
 							}
-							if (karma.validGroup(sender, group))
+							if (Karma.validGroup(sender, group))
 							{
 								if (sender instanceof Player)
 								{
@@ -2355,7 +2354,7 @@ public class Commander implements CommandExecutor
 						if (args.length > 3)
 						{
 							final String group = args[3].toLowerCase();
-							if (!karma.validGroup(sender, group))
+							if (!Karma.validGroup(sender, group))
 							{
 								// Create group
 								ks.getDatabaseHandler().standardQuery(
@@ -2425,7 +2424,7 @@ public class Commander implements CommandExecutor
 									{
 										name = args[i];
 									}
-									if (karma.playerHasGroup(sender, name,
+									if (Karma.playerHasGroup(sender, name,
 											group))
 									{
 										sender.sendMessage(ChatColor.YELLOW
@@ -2437,7 +2436,7 @@ public class Commander implements CommandExecutor
 									}
 									else
 									{
-										if (karma.validGroup(sender, group))
+										if (Karma.validGroup(sender, group))
 										{
 											// add player to group
 											addPlayerToGroup(sender, name,
@@ -2531,7 +2530,7 @@ public class Commander implements CommandExecutor
 									{
 										name = args[i];
 									}
-									if (!karma.playerHasGroup(sender, name,
+									if (!Karma.playerHasGroup(sender, name,
 											group))
 									{
 										sender.sendMessage(ChatColor.YELLOW
@@ -2543,7 +2542,7 @@ public class Commander implements CommandExecutor
 									}
 									else
 									{
-										if (karma.validGroup(sender, group))
+										if (Karma.validGroup(sender, group))
 										{
 											// remove other player to group
 											removePlayerFromGroup(sender, name,
@@ -3144,13 +3143,13 @@ public class Commander implements CommandExecutor
 				try
 				{
 					// Set to zero
-					playerKarma = karma.getPlayerKarma(name) * -1;
-					karma.updatePlayerKarma(name, playerKarma);
+					playerKarma = Karma.getPlayerKarma(name) * -1;
+					Karma.updatePlayerKarma(name, playerKarma);
 					if (config.playerKarmaDefault != 0)
 					{
 						// Default was non-zero, so re-update to
 						// config's default
-						karma.updatePlayerKarma(name, config.playerKarmaDefault);
+						Karma.updatePlayerKarma(name, config.playerKarmaDefault);
 					}
 					sender.sendMessage(ChatColor.GREEN + prefix + " " + name
 							+ "'s karma reset");

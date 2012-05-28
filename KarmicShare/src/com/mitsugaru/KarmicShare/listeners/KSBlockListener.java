@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
+import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.permissions.Permission;
 import com.splatbang.betterchest.BetterChest;
@@ -48,7 +49,7 @@ public class KSBlockListener implements Listener {
 						if(!ChatColor.stripColor(event.getLine(0)).equalsIgnoreCase(""))
 						{
 							//Group chest
-							if(plugin.getKarma().validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
+							if(Karma.validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
 							{
 								groupName = event.getLine(0);
 							}

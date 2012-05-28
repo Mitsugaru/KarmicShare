@@ -20,6 +20,8 @@ import lib.Mitsugaru.SQLibrary.Database.Query;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.mitsugaru.KarmicShare.inventory.Item;
+
 public class Config
 {
 	// Class variables
