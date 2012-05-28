@@ -44,9 +44,107 @@ public class KSPlayerListener implements Listener
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
+		if(event.getPlayer() == null || event.getClickedBlock() == null)
+		{
+			return;
+		}
+		//Grab block
+		final Block block = event.getClickedBlock();
+		//Determine if it is ours
+		boolean ours = false, isChest = false;
+		int page = 1;
+		if (block.getType().equals(Material.CHEST))
+		{
+			isChest = true;
+			if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
+			{
+				Sign sign = (Sign) block.getRelative(BlockFace.UP)
+						.getState();
+				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
+						"[KarmicShare]"))
+				{
+					ours = true;
+				}
+			}
+			else
+			{
+				// Check all 4 directions for adjacent chest
+				for (BlockFace face : nav)
+				{
+					if (block.getRelative(face).getType()
+							.equals(Material.CHEST))
+					{
+						final Block adjBlock = block.getRelative(face);
+						if (adjBlock.getRelative(BlockFace.UP).getType()
+								.equals(Material.WALL_SIGN))
+						{
+							Sign sign = (Sign) adjBlock.getRelative(
+									BlockFace.UP).getState();
+							if (ChatColor.stripColor(sign.getLine(1))
+									.equalsIgnoreCase("[KarmicShare]"))
+							{
+								ours = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		else if (block.getType().equals(Material.WALL_SIGN))
+		{
+			Sign sign = (Sign) block.getState();
+			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
+					"[KarmicShare]"))
+			{
+				ours = true;
+			}
+		}
+		
+		if(ours)
+		{
+			if(event.getPlayer().isSneaking())
+			{
+				/**
+				 * Group cycling / show inventory
+				 */
+				if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+				{
+					//Sign or chest
+					//TODO cycle group forward
+				}
+				else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
+				{
+					//TODO cycle group backward
+				}
+				else
+				{
+					//Right click and chest
+					//TODO Show inventory
+				}
+			}
+			else
+			{
+				/**
+				 * Page cycling / show inventory
+				 */
+				if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+				{
+					//TODO cycle page forward
+				}
+				else if(event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
+				{
+					//TODO cycle page backward
+				}
+				else
+				{
+					// Right click and chest
+					//Show inventory
+				}
+			}
+		}
+		
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
-			final Block block = event.getClickedBlock();
 			if (block.getType().equals(Material.CHEST))
 			{
 				if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
@@ -80,7 +178,7 @@ public class KSPlayerListener implements Listener
 								if (plugin.getPluginConfig().chests
 										&& plugin.useChest())
 								{
-									int page = 1;
+									page = 1;
 									try
 									{
 										page = Integer
@@ -167,7 +265,7 @@ public class KSPlayerListener implements Listener
 											chest.update();
 											if (plugin.getPluginConfig().chests)
 											{
-												int page = 1;
+												page = 1;
 												try
 												{
 													page = Integer
@@ -250,7 +348,6 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										int page;
 										if (plugin.getCommander()
 												.getChestPage()
 												.containsKey(name))
@@ -287,7 +384,6 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										int page;
 										if (plugin.getCommander()
 												.getChestPage()
 												.containsKey(name))
@@ -344,7 +440,6 @@ public class KSPlayerListener implements Listener
 		}
 		else if (event.getAction() == Action.LEFT_CLICK_BLOCK)
 		{
-			final Block block = event.getClickedBlock();
 			if (block.getType().equals(Material.CHEST))
 			{
 				if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
@@ -373,7 +468,7 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										int page = grabNextPage(
+										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
 												group, false);
@@ -393,7 +488,7 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										int page = grabNextPage(
+										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
 												group, false);
@@ -468,7 +563,7 @@ public class KSPlayerListener implements Listener
 											{
 												try
 												{
-													int page = grabNextPage(
+													page = grabNextPage(
 															Integer.parseInt(""
 																	+ sign.getLine(3)),
 															54, group, false);
@@ -488,7 +583,7 @@ public class KSPlayerListener implements Listener
 											{
 												try
 												{
-													int page = grabNextPage(
+													page = grabNextPage(
 															Integer.parseInt(""
 																	+ sign.getLine(3)),
 															27, group, false);
@@ -559,7 +654,7 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										int page = grabNextPage(
+										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 54,
 												group, false);
@@ -579,7 +674,7 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										int page = grabNextPage(
+										page = grabNextPage(
 												Integer.parseInt(""
 														+ sign.getLine(3)), 27,
 												group, false);

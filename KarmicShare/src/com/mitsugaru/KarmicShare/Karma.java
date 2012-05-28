@@ -24,6 +24,7 @@ import com.mitsugaru.KarmicShare.permissions.Permission;
 
 public class Karma {
 	private static KarmicShare plugin;
+	public static Map<String, String> selectedGroup = new HashMap<String, String>();
 	public static Map<GroupPageInfo, KSInventoryHolder> inventories = new HashMap<GroupPageInfo, KSInventoryHolder>();
 
 	public static void init(KarmicShare ks)
