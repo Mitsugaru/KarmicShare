@@ -12,6 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.EnchantmentWrapper;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -24,7 +25,8 @@ import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
-import com.mitsugaru.KarmicShare.permissions.Permission;
+import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSPlayerListener implements Listener
@@ -44,105 +46,86 @@ public class KSPlayerListener implements Listener
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-		if(event.getPlayer() == null || event.getClickedBlock() == null)
+		//Check if chests are enabled
+		if (!plugin.getPluginConfig().chests
+				|| !plugin.useChest())
 		{
 			return;
 		}
-		//Grab block
+		else if (event.getPlayer() == null || event.getClickedBlock() == null)
+		{
+			//Null check
+			return;
+		}
+		// Grab block
 		final Block block = event.getClickedBlock();
-		//Determine if it is ours
-		boolean ours = false, isChest = false;
+		// Determine if it is ours
+		boolean isChest = false;
 		int page = 1;
 		if (block.getType().equals(Material.CHEST))
 		{
 			isChest = true;
-			if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
+		}
+		// Assure that it is ours.
+		if (!isOurs(block))
+		{
+			return;
+		}
+		final Player player = event.getPlayer();
+		//Check permission
+		if (!PermCheck.checkPermission(
+				event.getPlayer(), PermissionNode.CHEST))
+		{
+			event.getPlayer().sendMessage(
+					ChatColor.RED
+							+ KarmicShare.TAG
+							+ " Lack permission: "
+							+ PermissionNode.CHEST
+									.getNode());
+			event.setCancelled(true);
+			return;
+		}
+		// Handle our logic
+		if (player.isSneaking())
+		{
+			/**
+			 * Group cycling / show inventory
+			 */
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
-				Sign sign = (Sign) block.getRelative(BlockFace.UP)
-						.getState();
-				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-						"[KarmicShare]"))
-				{
-					ours = true;
-				}
+				// Sign or chest
+				// TODO cycle group forward
+			}
+			else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
+			{
+				// TODO cycle group backward
 			}
 			else
 			{
-				// Check all 4 directions for adjacent chest
-				for (BlockFace face : nav)
-				{
-					if (block.getRelative(face).getType()
-							.equals(Material.CHEST))
-					{
-						final Block adjBlock = block.getRelative(face);
-						if (adjBlock.getRelative(BlockFace.UP).getType()
-								.equals(Material.WALL_SIGN))
-						{
-							Sign sign = (Sign) adjBlock.getRelative(
-									BlockFace.UP).getState();
-							if (ChatColor.stripColor(sign.getLine(1))
-									.equalsIgnoreCase("[KarmicShare]"))
-							{
-								ours = true;
-							}
-						}
-					}
-				}
+				// Right click and chest
+				// TODO Show inventory
 			}
 		}
-		else if (block.getType().equals(Material.WALL_SIGN))
+		else
 		{
-			Sign sign = (Sign) block.getState();
-			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-					"[KarmicShare]"))
+			/**
+			 * Page cycling / show inventory
+			 */
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
-				ours = true;
+				// TODO cycle page forward
 			}
-		}
-		
-		if(ours)
-		{
-			if(event.getPlayer().isSneaking())
+			else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
 			{
-				/**
-				 * Group cycling / show inventory
-				 */
-				if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-				{
-					//Sign or chest
-					//TODO cycle group forward
-				}
-				else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
-				{
-					//TODO cycle group backward
-				}
-				else
-				{
-					//Right click and chest
-					//TODO Show inventory
-				}
+				// TODO cycle page backward
 			}
 			else
 			{
-				/**
-				 * Page cycling / show inventory
-				 */
-				if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-				{
-					//TODO cycle page forward
-				}
-				else if(event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
-				{
-					//TODO cycle page backward
-				}
-				else
-				{
-					// Right click and chest
-					//Show inventory
-				}
+				// Right click and chest
+				// Show inventory
 			}
 		}
-		
+
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
 		{
 			if (block.getType().equals(Material.CHEST))
@@ -156,12 +139,12 @@ public class KSPlayerListener implements Listener
 					{
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
-						if (plugin.getPermissionHandler().checkPermission(
-								event.getPlayer(), Permission.CHEST.getNode()))
+						if (PermCheck.checkPermission(
+								event.getPlayer(), PermissionNode.CHEST))
 						{
 							if (Karma.playerHasGroup(event.getPlayer(), event
 									.getPlayer().getName(), group)
-									|| plugin.getPermissionHandler()
+									|| PermCheck
 											.checkPermission(event.getPlayer(),
 													"KarmicShare.ignore.group"))
 							{
@@ -193,7 +176,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -202,14 +185,14 @@ public class KSPlayerListener implements Listener
 									event.getPlayer()
 											.sendMessage(
 													ChatColor.RED
-															+ KarmicShare.prefix
+															+ KarmicShare.TAG
 															+ " Chests disabled. Cannot use physical chests.");
 								}
 							}
 							else
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.RED + KarmicShare.prefix
+										ChatColor.RED + KarmicShare.TAG
 												+ " Not part of group "
 												+ ChatColor.GRAY + group);
 								event.setCancelled(true);
@@ -218,9 +201,9 @@ public class KSPlayerListener implements Listener
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.prefix
+									ChatColor.RED + KarmicShare.TAG
 											+ " Lack permission: "
-											+ Permission.CHEST.getNode());
+											+ PermissionNode.CHEST.getNode());
 							event.setCancelled(true);
 						}
 					}
@@ -244,18 +227,17 @@ public class KSPlayerListener implements Listener
 								{
 									final String group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
-									if (plugin.getPermissionHandler()
+									if (PermCheck
 											.checkPermission(event.getPlayer(),
-													Permission.CHEST.getNode()))
+													PermissionNode.CHEST.getNode()))
 									{
 										if (Karma.playerHasGroup(event
 												.getPlayer(), event.getPlayer()
 												.getName(), group)
-												|| plugin
-														.getPermissionHandler()
+												|| PermCheck
 														.checkPermission(
 																event.getPlayer(),
-																Permission.IGNORE_GROUP
+																PermissionNode.IGNORE_GROUP
 																		.getNode()))
 										{
 											// populate chests
@@ -283,7 +265,7 @@ public class KSPlayerListener implements Listener
 													event.getPlayer()
 															.sendMessage(
 																	ChatColor.RED
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Sign has wrong formatting. Remake sign.");
 												}
 											}
@@ -293,7 +275,7 @@ public class KSPlayerListener implements Listener
 											event.getPlayer()
 													.sendMessage(
 															ChatColor.RED
-																	+ KarmicShare.prefix
+																	+ KarmicShare.TAG
 																	+ " Not part of group "
 																	+ ChatColor.GRAY
 																	+ group);
@@ -304,9 +286,9 @@ public class KSPlayerListener implements Listener
 									{
 										event.getPlayer().sendMessage(
 												ChatColor.RED
-														+ KarmicShare.prefix
+														+ KarmicShare.TAG
 														+ " Lack permission: "
-														+ Permission.CHEST
+														+ PermissionNode.CHEST
 																.getNode());
 										event.setCancelled(true);
 									}
@@ -326,15 +308,15 @@ public class KSPlayerListener implements Listener
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();
 
-					if (plugin.getPermissionHandler().checkPermission(
-							event.getPlayer(), Permission.CHEST.getNode()))
+					if (PermCheck.checkPermission(
+							event.getPlayer(), PermissionNode.CHEST.getNode()))
 					{
 						if (Karma.playerHasGroup(event.getPlayer(), event
 								.getPlayer().getName(), group)
-								|| plugin.getPermissionHandler()
+								|| PermCheck
 										.checkPermission(
 												event.getPlayer(),
-												Permission.IGNORE_GROUP
+												PermissionNode.IGNORE_GROUP
 														.getNode()))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
@@ -376,7 +358,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -412,7 +394,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -421,7 +403,7 @@ public class KSPlayerListener implements Listener
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.prefix
+									ChatColor.RED + KarmicShare.TAG
 											+ " Not part of group "
 											+ ChatColor.GRAY + group);
 							event.setCancelled(true);
@@ -430,9 +412,9 @@ public class KSPlayerListener implements Listener
 					else
 					{
 						event.getPlayer().sendMessage(
-								ChatColor.RED + KarmicShare.prefix
+								ChatColor.RED + KarmicShare.TAG
 										+ " Lack permission: "
-										+ Permission.CHEST.getNode());
+										+ PermissionNode.CHEST.getNode());
 						event.setCancelled(true);
 					}
 				}
@@ -451,15 +433,15 @@ public class KSPlayerListener implements Listener
 					{
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
-						if (plugin.getPermissionHandler().checkPermission(
-								event.getPlayer(), Permission.CHEST.getNode()))
+						if (PermCheck.checkPermission(
+								event.getPlayer(), PermissionNode.CHEST.getNode()))
 						{
 							if (Karma.playerHasGroup(event.getPlayer(), event
 									.getPlayer().getName(), group)
-									|| plugin.getPermissionHandler()
+									|| PermCheck
 											.checkPermission(
 													event.getPlayer(),
-													Permission.IGNORE_GROUP
+													PermissionNode.IGNORE_GROUP
 															.getNode()))
 							{
 								BetterChest chest = new BetterChest(
@@ -480,7 +462,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -500,7 +482,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -508,7 +490,7 @@ public class KSPlayerListener implements Listener
 							else
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.RED + KarmicShare.prefix
+										ChatColor.RED + KarmicShare.TAG
 												+ " Not part of group "
 												+ ChatColor.GRAY + group);
 								event.setCancelled(true);
@@ -517,9 +499,9 @@ public class KSPlayerListener implements Listener
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.prefix
+									ChatColor.RED + KarmicShare.TAG
 											+ " Lack permission: "
-											+ Permission.CHEST.getNode());
+											+ PermissionNode.CHEST.getNode());
 							event.setCancelled(true);
 						}
 					}
@@ -543,18 +525,17 @@ public class KSPlayerListener implements Listener
 								{
 									String group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
-									if (plugin.getPermissionHandler()
+									if (PermCheck
 											.checkPermission(event.getPlayer(),
-													Permission.CHEST.getNode()))
+													PermissionNode.CHEST.getNode()))
 									{
 										if (Karma.playerHasGroup(event
 												.getPlayer(), event.getPlayer()
 												.getName(), group)
-												|| plugin
-														.getPermissionHandler()
+												|| PermCheck
 														.checkPermission(
 																event.getPlayer(),
-																Permission.IGNORE_GROUP
+																PermissionNode.IGNORE_GROUP
 																		.getNode()))
 										{
 											BetterChest chest = new BetterChest(
@@ -575,7 +556,7 @@ public class KSPlayerListener implements Listener
 													event.getPlayer()
 															.sendMessage(
 																	ChatColor.RED
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Sign has wrong formatting. Remake sign.");
 												}
 											}
@@ -595,7 +576,7 @@ public class KSPlayerListener implements Listener
 													event.getPlayer()
 															.sendMessage(
 																	ChatColor.RED
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Sign has wrong formatting. Remake sign.");
 												}
 											}
@@ -605,7 +586,7 @@ public class KSPlayerListener implements Listener
 											event.getPlayer()
 													.sendMessage(
 															ChatColor.RED
-																	+ KarmicShare.prefix
+																	+ KarmicShare.TAG
 																	+ " Not part of group "
 																	+ ChatColor.GRAY
 																	+ group);
@@ -614,11 +595,12 @@ public class KSPlayerListener implements Listener
 									}
 									else
 									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.prefix
-																+ " Lack permission: " + Permission.CHEST.getNode());
+										event.getPlayer().sendMessage(
+												ChatColor.RED
+														+ KarmicShare.TAG
+														+ " Lack permission: "
+														+ PermissionNode.CHEST
+																.getNode());
 										event.setCancelled(true);
 									}
 								}
@@ -635,14 +617,16 @@ public class KSPlayerListener implements Listener
 				{
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();
-					if (plugin.getPermissionHandler().checkPermission(
-							event.getPlayer(), Permission.CHEST.getNode()))
+					if (PermCheck.checkPermission(
+							event.getPlayer(), PermissionNode.CHEST.getNode()))
 					{
 						if (Karma.playerHasGroup(event.getPlayer(), event
 								.getPlayer().getName(), group)
-								|| plugin.getPermissionHandler()
-										.checkPermission(event.getPlayer(),
-												Permission.IGNORE_GROUP.getNode()))
+								|| PermCheck
+										.checkPermission(
+												event.getPlayer(),
+												PermissionNode.IGNORE_GROUP
+														.getNode()))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -666,7 +650,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -686,7 +670,7 @@ public class KSPlayerListener implements Listener
 										event.getPlayer()
 												.sendMessage(
 														ChatColor.RED
-																+ KarmicShare.prefix
+																+ KarmicShare.TAG
 																+ " Sign has wrong formatting. Remake sign.");
 									}
 								}
@@ -695,7 +679,7 @@ public class KSPlayerListener implements Listener
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.prefix
+									ChatColor.RED + KarmicShare.TAG
 											+ " Not part of group "
 											+ ChatColor.GRAY + group);
 							event.setCancelled(true);
@@ -703,16 +687,64 @@ public class KSPlayerListener implements Listener
 					}
 					else
 					{
-						event.getPlayer()
-								.sendMessage(
-										ChatColor.RED
-												+ KarmicShare.prefix
-												+ " Lack permission: " + Permission.CHEST.getNode());
+						event.getPlayer().sendMessage(
+								ChatColor.RED + KarmicShare.TAG
+										+ " Lack permission: "
+										+ PermissionNode.CHEST.getNode());
 						event.setCancelled(true);
 					}
 				}
 			}
 		}
+	}
+
+	private boolean isOurs(final Block block)
+	{
+		if (block.getType().equals(Material.CHEST))
+		{
+			if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
+			{
+				final Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
+				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
+						KarmicShare.TAG))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				// Check all 4 directions for adjacent chest
+				for (BlockFace face : nav)
+				{
+					if (block.getRelative(face).getType()
+							.equals(Material.CHEST))
+					{
+						final Block adjBlock = block.getRelative(face);
+						if (adjBlock.getRelative(BlockFace.UP).getType()
+								.equals(Material.WALL_SIGN))
+						{
+							final Sign sign = (Sign) adjBlock.getRelative(
+									BlockFace.UP).getState();
+							if (ChatColor.stripColor(sign.getLine(1))
+									.equalsIgnoreCase(KarmicShare.TAG))
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		else if (block.getType().equals(Material.WALL_SIGN))
+		{
+			final Sign sign = (Sign) block.getState();
+			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
+					KarmicShare.TAG))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private int grabNextPage(int current, int limit, String group,
@@ -754,7 +786,7 @@ public class KSPlayerListener implements Listener
 		catch (SQLException e)
 		{
 			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.prefix + "SQL error.");
+					ChatColor.RED + KarmicShare.TAG + "SQL error.");
 			e.printStackTrace();
 		}
 		// if no slots, return 1
@@ -923,7 +955,7 @@ public class KSPlayerListener implements Listener
 		catch (SQLException e)
 		{
 			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.prefix + "SQL error.");
+					ChatColor.RED + KarmicShare.TAG + "SQL error.");
 			e.printStackTrace();
 		}
 	}

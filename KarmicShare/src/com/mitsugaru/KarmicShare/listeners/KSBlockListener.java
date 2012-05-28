@@ -16,7 +16,8 @@ import org.bukkit.event.block.SignChangeEvent;
 
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.permissions.Permission;
+import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.splatbang.betterchest.BetterChest;
 
 public class KSBlockListener implements Listener {
@@ -36,8 +37,8 @@ public class KSBlockListener implements Listener {
 			if (ChatColor.stripColor(event.getLine(1)).equalsIgnoreCase(
 					"[KarmicShare]"))
 			{
-				if (plugin.getPermissionHandler().checkPermission(
-						event.getPlayer(), Permission.SIGN.getNode()))
+				if (PermCheck.checkPermission(
+						event.getPlayer(), PermissionNode.SIGN))
 				{
 					if (!ChatColor.stripColor(event.getLine(2)).equals(""))
 					{
@@ -56,7 +57,7 @@ public class KSBlockListener implements Listener {
 							else
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.prefix
+										ChatColor.YELLOW + KarmicShare.TAG
 												+ " Group " + ChatColor.GRAY + event.getLine(0) + ChatColor.YELLOW + " not found");
 							}
 						}
@@ -76,13 +77,13 @@ public class KSBlockListener implements Listener {
 								if(!ChatColor.stripColor(groupName).equalsIgnoreCase("global"))
 								{
 									event.getPlayer().sendMessage(
-											ChatColor.GREEN + KarmicShare.prefix
+											ChatColor.GREEN + KarmicShare.TAG
 													+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(groupName).toLowerCase());
 								}
 								else
 								{
 									event.getPlayer().sendMessage(
-											ChatColor.GREEN + KarmicShare.prefix
+											ChatColor.GREEN + KarmicShare.TAG
 													+ " Chest linked to pool.");
 								}
 							}
@@ -95,14 +96,14 @@ public class KSBlockListener implements Listener {
 								event.setLine(2, "Page:");
 								event.setLine(3, "1");
 								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.prefix
+										ChatColor.YELLOW + KarmicShare.TAG
 												+ " No chest found!");
 							}
 						}
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.prefix
+									ChatColor.RED + KarmicShare.TAG
 											+ " Chests access disabled");
 							// Cancel event
 							event.setCancelled(true);
@@ -112,8 +113,8 @@ public class KSBlockListener implements Listener {
 				else
 				{
 					event.getPlayer().sendMessage(
-							ChatColor.RED + KarmicShare.prefix
-									+ " Lack permission: " + Permission.SIGN.getNode());
+							ChatColor.RED + KarmicShare.TAG
+									+ " Lack permission: " + PermissionNode.SIGN);
 					// Cancel event
 					event.setCancelled(true);
 				}
@@ -153,7 +154,7 @@ public class KSBlockListener implements Listener {
 					event.getPlayer()
 							.sendMessage(
 									ChatColor.RED
-											+ KarmicShare.prefix
+											+ KarmicShare.TAG
 											+ " Cannot have a sign next to a link sign!");
 					event.setCancelled(true);
 				}
@@ -188,13 +189,13 @@ public class KSBlockListener implements Listener {
 						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.GREEN + KarmicShare.prefix
+									ChatColor.GREEN + KarmicShare.TAG
 											+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 						}
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.GREEN + KarmicShare.prefix
+									ChatColor.GREEN + KarmicShare.TAG
 											+ " Chest linked to pool.");
 						}
 					}
@@ -226,13 +227,13 @@ public class KSBlockListener implements Listener {
 							if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.prefix
+										ChatColor.GREEN + KarmicShare.TAG
 												+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 							}
 							else
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.prefix
+										ChatColor.GREEN + KarmicShare.TAG
 												+ " Chest linked to pool.");
 							}
 						}
@@ -269,13 +270,13 @@ public class KSBlockListener implements Listener {
 						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.prefix
+									ChatColor.YELLOW + KarmicShare.TAG
 											+ " Chest unlinked from " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 						}
 						else
 						{
 							event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.prefix
+									ChatColor.YELLOW + KarmicShare.TAG
 											+ " Chest unlinked from pool.");
 						}
 					}
@@ -315,8 +316,8 @@ public class KSBlockListener implements Listener {
 				}
 				if (has)
 				{
-					if (plugin.getPermissionHandler().checkPermission(
-							event.getPlayer(), Permission.SIGN.getNode()))
+					if (PermCheck.checkPermission(
+							event.getPlayer(), PermissionNode.SIGN))
 					{
 						if (event.getBlock().getRelative(BlockFace.DOWN)
 								.getType().equals(Material.CHEST))
@@ -330,13 +331,13 @@ public class KSBlockListener implements Listener {
 							if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.prefix
+										ChatColor.YELLOW + KarmicShare.TAG
 												+ " Chest unlinked from " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
 							}
 							else
 							{
 								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.prefix
+										ChatColor.YELLOW + KarmicShare.TAG
 												+ " Chest unlinked from pool.");
 							}
 						}
@@ -345,8 +346,8 @@ public class KSBlockListener implements Listener {
 					else
 					{
 						event.getPlayer().sendMessage(
-								ChatColor.RED + KarmicShare.prefix
-										+ " Lack permission: " + Permission.SIGN.getNode());
+								ChatColor.RED + KarmicShare.TAG
+										+ " Lack permission: " + PermissionNode.SIGN.getNode());
 						event.setCancelled(true);
 					}
 				}

@@ -36,14 +36,14 @@ public class DBHandler {
 		if (useMySQL)
 		{
 			// Connect to mysql database
-			mysql = new MySQL(plugin.getLogger(), KarmicShare.prefix,
+			mysql = new MySQL(plugin.getLogger(), KarmicShare.TAG,
 					config.host, config.port, config.database, config.user,
 					config.password);
 			// Check if item table exists
 			if (!mysql.checkTable(Table.ITEMS.getName()))
 			{
 				plugin.getLogger().info(
-						KarmicShare.prefix + " Created item table");
+						KarmicShare.TAG + " Created item table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.ITEMS.getName()
 						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TINYTEXT NOT NULL, PRIMARY KEY (id));");
@@ -54,7 +54,7 @@ public class DBHandler {
 				//TODO add primary key row
 				//Change groups to use group id
 				plugin.getLogger().info(
-						KarmicShare.prefix + " Created players table");
+						KarmicShare.TAG + " Created players table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.PLAYERS.getName()
 						+ " (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
@@ -66,7 +66,7 @@ public class DBHandler {
 				//TODO need to record creator and managers
 				//TODO group settings
 				plugin.getLogger().info(
-						KarmicShare.prefix + " Created groups table");
+						KarmicShare.TAG + " Created groups table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
 						+ " (groupname varchar(32) NOT NULL, UNIQUE (groupname));");
@@ -75,13 +75,13 @@ public class DBHandler {
 		else
 		{
 			// Connect to sql database
-			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
+			sqlite = new SQLite(plugin.getLogger(), KarmicShare.TAG, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Check if item table exists
 			if (!sqlite.checkTable(Table.ITEMS.getName()))
 			{
 				plugin.getLogger().info(
-						KarmicShare.prefix + " Created item table");
+						KarmicShare.TAG + " Created item table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.ITEMS.getName()
 						+ " (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
@@ -91,7 +91,7 @@ public class DBHandler {
 			{
 				//TODO add primary key row
 				plugin.getLogger().info(
-						KarmicShare.prefix + " Created player table");
+						KarmicShare.TAG + " Created player table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.PLAYERS.getName()
 						+ " (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
@@ -101,7 +101,7 @@ public class DBHandler {
 			{
 				//TODO add primary key row
 				plugin.getLogger().info(
-						KarmicShare.prefix + " Created groups table");
+						KarmicShare.TAG + " Created groups table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
 						+ " (groupname TEXT NOT NULL, UNIQUE (groupname));");
@@ -115,7 +115,7 @@ public class DBHandler {
 		{
 			StringBuilder sb = new StringBuilder();
 			// Grab local SQLite database
-			sqlite = new SQLite(plugin.getLogger(), KarmicShare.prefix, "pool",
+			sqlite = new SQLite(plugin.getLogger(), KarmicShare.TAG, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Copy items
 			Query query = sqlite.select("SELECT * FROM " + Table.ITEMS.getName()

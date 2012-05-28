@@ -67,7 +67,7 @@ public class KSInventoryListener implements Listener
 							 * if(event.getWhoClicked() instanceof Player) {
 							 * ((Player
 							 * )event.getWhoClicked()).sendMessage(ChatColor.RED
-							 * + KarmicShare.prefix +
+							 * + KarmicShare.TAG +
 							 * " Something went wrong! D:"); }
 							 * //plugin.getLogger().warning(
 							 * "Error with getting the block for double chest."
@@ -92,7 +92,7 @@ public class KSInventoryListener implements Listener
 							 * if(event.getWhoClicked() instanceof Player) {
 							 * ((Player
 							 * )event.getWhoClicked()).sendMessage(ChatColor.RED
-							 * + KarmicShare.prefix +
+							 * + KarmicShare.TAG +
 							 * " Something went wrong! D:"); }
 							 * //plugin.getLogger()
 							 * .warning("Error with getting the block for chest."
@@ -251,7 +251,7 @@ public class KSInventoryListener implements Listener
 																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Could not repopulate slot.");
 												}
 												event.getInventory().clear(
@@ -285,7 +285,7 @@ public class KSInventoryListener implements Listener
 																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Could not repopulate slot.");
 												}
 												final ItemStack give = event
@@ -312,7 +312,7 @@ public class KSInventoryListener implements Listener
 																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Could not give item.");
 												}
 												// event.setResult(Event.Result.DENY);
@@ -394,7 +394,7 @@ public class KSInventoryListener implements Listener
 																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Could not repopulate slot.");
 												}
 												event.getWhoClicked()
@@ -592,7 +592,7 @@ public class KSInventoryListener implements Listener
 													 * event.getWhoClicked()
 													 * .getName()) .sendMessage(
 													 * ChatColor.YELLOW +
-													 * KarmicShare.prefix +
+													 * KarmicShare.TAG +
 													 * " Could not repopulate slot."
 													 * ); }
 													 */
@@ -649,7 +649,7 @@ public class KSInventoryListener implements Listener
 										 * plugin.getServer() .getPlayer(
 										 * event.getWhoClicked() .getName())
 										 * .sendMessage( ChatColor.YELLOW +
-										 * KarmicShare.prefix +
+										 * KarmicShare.TAG +
 										 * " Could not repopulate slot."); }
 										 */
 									}
@@ -767,7 +767,7 @@ public class KSInventoryListener implements Listener
 												 * event.getWhoClicked()
 												 * .getName()) .sendMessage(
 												 * ChatColor.YELLOW +
-												 * KarmicShare.prefix +
+												 * KarmicShare.TAG +
 												 * " Could not repopulate slot."
 												 * ); } final Repopulate clear =
 												 * new Repopulate(
@@ -782,7 +782,7 @@ public class KSInventoryListener implements Listener
 												 * event.getWhoClicked()
 												 * .getName()) .sendMessage(
 												 * ChatColor.YELLOW +
-												 * KarmicShare.prefix +
+												 * KarmicShare.TAG +
 												 * " Could not repopulate slot."
 												 * ); }
 												 */
@@ -815,7 +815,7 @@ public class KSInventoryListener implements Listener
 																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Could not repopulate slot.");
 												}
 												final ItemStack give = event
@@ -838,7 +838,7 @@ public class KSInventoryListener implements Listener
 																			.getName())
 															.sendMessage(
 																	ChatColor.YELLOW
-																			+ KarmicShare.prefix
+																			+ KarmicShare.TAG
 																			+ " Could not give item.");
 												}
 												event.setResult(Event.Result.DENY);
@@ -909,7 +909,7 @@ public class KSInventoryListener implements Listener
 																		.getName())
 														.sendMessage(
 																ChatColor.YELLOW
-																		+ KarmicShare.prefix
+																		+ KarmicShare.TAG
 																		+ " Could not repopulate slot.");
 											}
 											event.getWhoClicked()
@@ -1088,7 +1088,7 @@ public class KSInventoryListener implements Listener
 													 * event.getWhoClicked()
 													 * .getName()) .sendMessage(
 													 * ChatColor.YELLOW +
-													 * KarmicShare.prefix +
+													 * KarmicShare.TAG +
 													 * " Could not repopulate slot."
 													 * ); }
 													 */
@@ -1189,7 +1189,7 @@ public class KSInventoryListener implements Listener
 																	.getName())
 													.sendMessage(
 															ChatColor.YELLOW
-																	+ KarmicShare.prefix
+																	+ KarmicShare.TAG
 																	+ " Could not repopulate slot.");
 										}
 										item.setAmount(amount);
@@ -1212,7 +1212,7 @@ public class KSInventoryListener implements Listener
 																	.getName())
 													.sendMessage(
 															ChatColor.YELLOW
-																	+ KarmicShare.prefix
+																	+ KarmicShare.TAG
 																	+ "Could not give item.");
 										}
 										event.setResult(Event.Result.DENY);

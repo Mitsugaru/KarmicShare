@@ -32,10 +32,9 @@ import com.mitsugaru.KarmicShare.questioner.KarmicShareQuestionerPlayerListener;
 public class KarmicShare extends JavaPlugin {
 	// Class variables
 	private DBHandler database;
-	public static final String prefix = "[KarmicShare]";
+	public static final String TAG = "[KarmicShare]";
 	private Commander commander;
 	private Config config;
-	private PermCheck perm;
 	private int cleantask;
 	public final Vector<KSQuestion> questions = new Vector<KSQuestion>();
 	private boolean chest, economyFound;
@@ -78,7 +77,7 @@ public class KarmicShare extends JavaPlugin {
 		config.checkUpdate();
 
 		// Create permission handler
-		perm = new PermCheck(this);
+		PermCheck.init(this);
 
 		// Create Karma logic handler
 		Karma.init(this);
@@ -143,10 +142,6 @@ public class KarmicShare extends JavaPlugin {
 		return commander;
 	}
 
-	public PermCheck getPermissionHandler() {
-		return perm;
-	}
-
 	/**
 	 * Returns SQLite database
 	 * 
@@ -201,7 +196,7 @@ public class KarmicShare extends JavaPlugin {
 		else
 		{
 			// No economy system found, disable
-			getLogger().warning(prefix + " No economy found!");
+			getLogger().warning(TAG + " No economy found!");
 			this.getServer().getPluginManager().disablePlugin(this);
 			economyFound = false;
 		}

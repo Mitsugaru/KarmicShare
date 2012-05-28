@@ -26,16 +26,14 @@ import org.bukkit.inventory.ItemStack;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
-import com.mitsugaru.KarmicShare.permissions.Permission;
+import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 public class Commander implements CommandExecutor
 {
 	// Class variables
 	private final KarmicShare ks;
-	private final PermCheck perm;
 	private final static String bar = "======================";
 	public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
-	private final String prefix;
 	private final Config config;
 	private final Map<String, Integer> page = new HashMap<String, Integer>();
 	private final Map<String, Integer> multiPage = new HashMap<String, Integer>();
@@ -54,9 +52,7 @@ public class Commander implements CommandExecutor
 	{
 		// Instantiate variables
 		ks = karmicShare;
-		prefix = KarmicShare.prefix;
 		config = ks.getPluginConfig();
-		perm = ks.getPermissionHandler();
 		limit = config.listlimit;
 		time = 0;
 	}
@@ -80,7 +76,7 @@ public class Commander implements CommandExecutor
 		if (args.length == 0)
 		{
 			// Check if they have "karma" permission
-			if (perm.checkPermission(sender, Permission.KARMA.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.KARMA))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -91,7 +87,7 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// karma system disabled
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Karma disabled");
 				}
 				if (sender instanceof Player)
@@ -106,12 +102,12 @@ public class Commander implements CommandExecutor
 					try
 					{
 						sb.deleteCharAt(sb.length() - 1);
-						sender.sendMessage(ChatColor.YELLOW + prefix
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " Groups: " + sb.toString());
 					}
 					catch (StringIndexOutOfBoundsException e)
 					{
-						sender.sendMessage(ChatColor.YELLOW + prefix
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " No groups");
 					}
 
@@ -119,8 +115,8 @@ public class Commander implements CommandExecutor
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.KARMA.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.KARMA.getNode());
 			}
 		}
 		else
@@ -160,70 +156,70 @@ public class Commander implements CommandExecutor
 			// Previous page of item pool
 			else if (com.equals("prev"))
 			{
-				if (perm.checkPermission(sender,
-						Permission.COMMANDS_LIST.getNode()))
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_LIST))
 				{
 					// List, with previous page
 					this.listPool(sender, -1);
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Lack permission: "
-							+ Permission.COMMANDS_LIST.getNode());
+							+ PermissionNode.COMMANDS_LIST.getNode());
 				}
 			}
 			// Next page of item pool
 			else if (com.equals("next"))
 			{
-				if (perm.checkPermission(sender,
-						Permission.COMMANDS_LIST.getNode()))
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_LIST))
 				{
 					// List with next page
 					this.listPool(sender, 1);
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Lack permission: "
-							+ Permission.COMMANDS_LIST.getNode());
+							+ PermissionNode.COMMANDS_LIST.getNode());
 				}
 			}
 			// List items in pool
 			else if (com.equals("list"))
 			{
-				if (perm.checkPermission(sender,
-						Permission.COMMANDS_LIST.getNode()))
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_LIST))
 				{
 					this.listCommand(sender, args);
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Lack permission: "
-							+ Permission.COMMANDS_LIST.getNode());
+							+ PermissionNode.COMMANDS_LIST.getNode());
 				}
 			}
 			// Ask for karma multipliers / page through muliplier list
 			else if (com.equals("value"))
 			{
-				if (perm.checkPermission(sender,
-						Permission.COMMANDS_VALUE.getNode()))
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_VALUE))
 				{
 					this.valueCommand(sender, args);
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Lack permission: "
-							+ Permission.COMMANDS_VALUE.getNode());
+							+ PermissionNode.COMMANDS_VALUE.getNode());
 				}
 			}
 			else if (com.equals("page"))
 			{
 				if (ks.useChest())
 				{
-					if (perm.checkPermission(sender, Permission.CHEST.getNode()))
+					if (PermCheck.checkPermission(sender, PermissionNode.CHEST))
 					{
 						if (args.length > 1)
 						{
@@ -232,13 +228,13 @@ public class Commander implements CommandExecutor
 								Integer page = Integer.parseInt(args[1]);
 								chestPage.put(sender.getName(), page);
 								sender.sendMessage(ChatColor.GREEN
-										+ prefix
+										+ KarmicShare.TAG
 										+ " Right click on sign to jump to page "
 										+ ChatColor.GOLD + page.intValue());
 							}
 							catch (NumberFormatException e)
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Invalid number: " + ChatColor.GOLD
 										+ args[1]);
 							}
@@ -246,21 +242,21 @@ public class Commander implements CommandExecutor
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Lack permission: "
-								+ Permission.CHEST.getNode());
+								+ PermissionNode.CHEST.getNode());
 					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Chests are disabled.");
 				}
 			}
 			// Admin command
 			else if (com.equals("group"))
 			{
-				if (perm.checkPermission(sender, Permission.GROUP.getNode()))
+				if (PermCheck.checkPermission(sender, PermissionNode.GROUP))
 				{
 					if (args.length > 1)
 					{
@@ -270,7 +266,7 @@ public class Commander implements CommandExecutor
 						{
 							// Bad command
 							sender.sendMessage(ChatColor.RED
-									+ prefix
+									+ KarmicShare.TAG
 									+ " Syntax error. Use /ks group for list of commands");
 						}
 						if (config.debugTime)
@@ -286,32 +282,32 @@ public class Commander implements CommandExecutor
 						sender.sendMessage(ChatColor.BLUE + "==="
 								+ ChatColor.LIGHT_PURPLE + "KarmicShare Group"
 								+ ChatColor.BLUE + "===");
-						if (perm.checkPermission(sender,
-								Permission.GROUP_CREATE.getNode()))
+						if (PermCheck.checkPermission(sender,
+								PermissionNode.GROUP_CREATE))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group create <name>"
 									+ ChatColor.YELLOW
 									+ " : Creates a new group");
 						}
-						if (perm.checkPermission(sender,
-								Permission.GROUP_ADD.getNode()))
+						if (PermCheck.checkPermission(sender,
+								PermissionNode.GROUP_ADD))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group add <group> <player> [player2] ..."
 									+ ChatColor.YELLOW
 									+ " : Adds a player to the group");
 						}
-						if (perm.checkPermission(sender,
-								Permission.GROUP_REMOVE.getNode()))
+						if (PermCheck.checkPermission(sender,
+								PermissionNode.GROUP_REMOVE))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group remove <group> <player> [player2] ..."
 									+ ChatColor.YELLOW
 									+ " : Removes player from the group");
 						}
-						if (perm.checkPermission(sender,
-								Permission.GROUP_LEAVE.getNode()))
+						if (PermCheck.checkPermission(sender,
+								PermissionNode.GROUP_LEAVE))
 						{
 							sender.sendMessage(ChatColor.GREEN
 									+ "/ks group leave <group> [group2] ..."
@@ -322,7 +318,7 @@ public class Commander implements CommandExecutor
 				else
 				{
 					sender.sendMessage(ChatColor.RED + " Lack permission: "
-							+ Permission.GROUP.getNode());
+							+ PermissionNode.GROUP.getNode());
 				}
 			}
 			// Admin command
@@ -336,7 +332,7 @@ public class Commander implements CommandExecutor
 					{
 						// Bad command
 						sender.sendMessage(ChatColor.RED
-								+ prefix
+								+ KarmicShare.TAG
 								+ " Syntax error. Use /ks admin for list of commands");
 					}
 					if (config.debugTime)
@@ -350,67 +346,67 @@ public class Commander implements CommandExecutor
 					// Show admin commands help menu
 					sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.RED
 							+ "KarmicShare Admin" + ChatColor.BLUE + "===");
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_ADD.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_ADD))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin add <item>[:data] [amount]"
 								+ ChatColor.YELLOW + " : Add item(s) to pool");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_RESET.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_RESET))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin reset <player>" + ChatColor.YELLOW
 								+ " : Resets player's karma");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_SET.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_SET))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin set <player> <karma>"
 								+ ChatColor.YELLOW
 								+ " : Sets player's karma to value");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_DRAIN.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_DRAIN))
 					{
 						sender.sendMessage(ChatColor.GREEN + "/ks admin drain"
 								+ ChatColor.YELLOW + " : Empty item pool");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_CREATE.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_CREATE))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group create <group>"
 								+ ChatColor.YELLOW
 								+ " : Create group in database");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_DELETE.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_DELETE))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group delete <group>"
 								+ ChatColor.YELLOW
 								+ " : Remove group from database");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_ADD.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_ADD))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group add  <group> <player> [player2] ..."
 								+ ChatColor.YELLOW
 								+ " : Force add player to group");
 					}
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_REMOVE.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_REMOVE))
 					{
 						sender.sendMessage(ChatColor.GREEN
 								+ "/ks admin group remove  <group> <player> [player2] ..."
 								+ ChatColor.YELLOW
 								+ " : Force remove player to group");
 					}
-					if (perm.checkPermission(sender, "KarmicShare.admin.reload"))
+					if (PermCheck.checkPermission(sender, "KarmicShare.admin.reload"))
 					{
 						sender.sendMessage(ChatColor.GREEN + "/ks admin reload"
 								+ ChatColor.YELLOW + " : Reload configuration");
@@ -425,7 +421,7 @@ public class Commander implements CommandExecutor
 			else
 			{
 				// Bad command entered
-				sender.sendMessage(ChatColor.RED + prefix
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Wrong syntax. Try /ks ? for help.");
 			}
 		}
@@ -446,7 +442,7 @@ public class Commander implements CommandExecutor
 		// Add generated items to pool
 		if (com.equals("create"))
 		{
-			if (perm.checkPermission(sender, Permission.GROUP_CREATE.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_CREATE))
 			{
 				try
 				{
@@ -454,14 +450,14 @@ public class Commander implements CommandExecutor
 					final String group = args[2].toLowerCase();
 					if (!group.matches(GROUP_NAME_REGEX))
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Group name must be alphanumeric");
 						return true;
 					}
 					else if (group.length() > 15)
 					{
 						// Restrict length to sign character limit
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Group name must be 15 characters or less.");
 						return true;
 					}
@@ -474,7 +470,7 @@ public class Commander implements CommandExecutor
 									"INSERT INTO " + Table.GROUPS.getName()
 											+ " (groupname) VALUES ('" + group
 											+ "');");
-							sender.sendMessage(ChatColor.GREEN + prefix
+							sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.GREEN + " created");
 							if (sender instanceof Player)
@@ -482,7 +478,7 @@ public class Commander implements CommandExecutor
 								// add player to group
 								addPlayerToGroup(sender,
 										((Player) sender).getName(), group);
-								sender.sendMessage(ChatColor.GREEN + prefix
+								sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 										+ " Added " + ChatColor.GOLD
 										+ ((Player) sender).getName()
 										+ ChatColor.GREEN + " to "
@@ -491,13 +487,13 @@ public class Commander implements CommandExecutor
 							else
 							{
 								sender.sendMessage(ChatColor.YELLOW
-										+ prefix
+										+ KarmicShare.TAG
 										+ " Cannot add NPCs to groups. Group is empty.");
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.RED + " already exists");
 						}
@@ -505,7 +501,7 @@ public class Commander implements CommandExecutor
 				}
 				catch (IndexOutOfBoundsException e)
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Group name not given");
 					return false;
 				}
@@ -513,15 +509,15 @@ public class Commander implements CommandExecutor
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
-						+ Permission.GROUP_CREATE.getNode());
+						+ PermissionNode.GROUP_CREATE.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("add"))
 		{
-			if (perm.checkPermission(sender, Permission.GROUP_ADD.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_ADD))
 			{
 				// Grab group name
 				String group = "";
@@ -531,7 +527,7 @@ public class Commander implements CommandExecutor
 					group = args[2].toLowerCase();
 					if (group.equals("global"))
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Cannot modify global group.");
 						return true;
 					}
@@ -541,7 +537,7 @@ public class Commander implements CommandExecutor
 								((Player) sender).getName(), group))
 						{
 							sender.sendMessage(ChatColor.RED
-									+ prefix
+									+ KarmicShare.TAG
 									+ " Cannot add players to groups you're not in.");
 							return true;
 						}
@@ -550,13 +546,13 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// Group name was not given
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Must specify group");
 					return false;
 				}
 				if (!group.matches(GROUP_NAME_REGEX))
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Group name must be alphanumeric");
 					return true;
 				}
@@ -572,7 +568,7 @@ public class Commander implements CommandExecutor
 						}
 						else if (Karma.playerHasGroup(sender, name, group))
 						{
-							sender.sendMessage(ChatColor.YELLOW + prefix + " "
+							sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG + " "
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
 									+ " is already in " + ChatColor.GRAY
 									+ group);
@@ -589,24 +585,24 @@ public class Commander implements CommandExecutor
 									// add other player to group
 									addPlayerToGroup(sender, other.getName(),
 											group);
-									sender.sendMessage(ChatColor.GREEN + prefix
+									sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 											+ " Added " + ChatColor.GOLD + name
 											+ ChatColor.GREEN + " to "
 											+ ChatColor.GRAY + group);
-									other.sendMessage(ChatColor.GREEN + prefix
+									other.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 											+ " You have been added to "
 											+ ChatColor.GRAY + group);
 								}
 								else
 								{
 									sender.sendMessage(ChatColor.YELLOW
-											+ prefix
+											+ KarmicShare.TAG
 											+ " Can only add players if they're online.");
 								}
 							}
 							else
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " does not exist");
 							}
@@ -615,21 +611,21 @@ public class Commander implements CommandExecutor
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Must specify player");
 				}
 				return true;
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.GROUP_ADD.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.GROUP_ADD.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("remove"))
 		{
-			if (perm.checkPermission(sender, Permission.GROUP_REMOVE.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_REMOVE))
 			{
 				String group = "";
 				if (args.length > 2)
@@ -639,7 +635,7 @@ public class Commander implements CommandExecutor
 					group = args[2].toLowerCase();
 					if (group.equals("global"))
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Cannot remove players from global.");
 						return true;
 					}
@@ -649,14 +645,14 @@ public class Commander implements CommandExecutor
 								((Player) sender).getName(), group))
 						{
 							sender.sendMessage(ChatColor.RED
-									+ prefix
+									+ KarmicShare.TAG
 									+ " Cannot remove players from groups you're not in.");
 							return true;
 						}
 					}
 					if (!group.matches(GROUP_NAME_REGEX))
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Group name must be alphanumeric");
 						return true;
 					}
@@ -664,7 +660,7 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// Group name was not given
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Must specify group");
 					return false;
 				}
@@ -679,7 +675,7 @@ public class Commander implements CommandExecutor
 						}
 						if (!Karma.playerHasGroup(sender, name, group))
 						{
-							sender.sendMessage(ChatColor.YELLOW + prefix
+							sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 									+ ChatColor.AQUA + name + ChatColor.YELLOW
 									+ " not in " + ChatColor.GRAY + group);
 							return true;
@@ -690,21 +686,21 @@ public class Commander implements CommandExecutor
 							{
 								// remove other player to group
 								removePlayerFromGroup(sender, name, group);
-								sender.sendMessage(ChatColor.GREEN + prefix
+								sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 										+ " Removed " + ChatColor.GOLD + name
 										+ ChatColor.GREEN + " from "
 										+ ChatColor.GRAY + group);
 								final Player p = ks.getServer().getPlayer(name);
 								if (p != null)
 								{
-									p.sendMessage(ChatColor.GREEN + prefix
+									p.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 											+ " You have been removed from "
 											+ ChatColor.GRAY + group);
 								}
 							}
 							else
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " does not exist");
 							}
@@ -715,7 +711,7 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// Player name was not given
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Must specify player");
 					return false;
 				}
@@ -723,15 +719,15 @@ public class Commander implements CommandExecutor
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
-						+ Permission.GROUP_REMOVE.getNode());
+						+ PermissionNode.GROUP_REMOVE.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("leave"))
 		{
-			if (perm.checkPermission(sender, Permission.GROUP_LEAVE.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_LEAVE))
 			{
 				if (args.length > 2)
 				{
@@ -742,7 +738,7 @@ public class Commander implements CommandExecutor
 					}
 					if (!Karma.playerHasGroup(sender, sender.getName(), group))
 					{
-						sender.sendMessage(ChatColor.YELLOW + prefix
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ ChatColor.AQUA + sender.getName()
 								+ ChatColor.YELLOW + " not in "
 								+ ChatColor.GRAY + group);
@@ -750,7 +746,7 @@ public class Commander implements CommandExecutor
 					}
 					if (!group.matches(GROUP_NAME_REGEX))
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Group name must be alphanumeric");
 						return true;
 					}
@@ -761,14 +757,14 @@ public class Commander implements CommandExecutor
 							// remove other player to group
 							removePlayerFromGroup(sender, sender.getName(),
 									group);
-							sender.sendMessage(ChatColor.GREEN + prefix
+							sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 									+ " Removed " + ChatColor.GOLD
 									+ sender.getName() + ChatColor.GREEN
 									+ " from " + ChatColor.GRAY + group);
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Group " + ChatColor.GRAY + group
 									+ ChatColor.RED + " does not exist");
 						}
@@ -776,15 +772,15 @@ public class Commander implements CommandExecutor
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Must specify a group");
 				}
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
-						+ Permission.GROUP_LEAVE.getNode());
+						+ PermissionNode.GROUP_LEAVE.getNode());
 				return true;
 			}
 		}
@@ -836,7 +832,7 @@ public class Commander implements CommandExecutor
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 		}
@@ -873,7 +869,7 @@ public class Commander implements CommandExecutor
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 		}
@@ -888,8 +884,8 @@ public class Commander implements CommandExecutor
 			if (args.length > 1)
 			{
 				// Check if they have the permission node
-				if (perm.checkPermission(sender, "KarmicShare.admin")
-						|| perm.checkPermission(sender,
+				if (PermCheck.checkPermission(sender, "KarmicShare.admin")
+						|| PermCheck.checkPermission(sender,
 								"KarmicShare.karma.other"))
 				{
 					// attempt to parse name
@@ -906,7 +902,7 @@ public class Commander implements CommandExecutor
 					}
 					catch (SQLException e)
 					{
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Could not get " + name + "'s karma");
 						e.printStackTrace();
 					}
@@ -920,14 +916,14 @@ public class Commander implements CommandExecutor
 			else
 			{
 				// did not give a player name, therefore error
-				sender.sendMessage(ChatColor.RED + prefix
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " No player name given.");
 			}
 		}
 		else
 		{
 			// karma system disabled
-			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Karma disabled");
 		}
 	}
 
@@ -963,7 +959,7 @@ public class Commander implements CommandExecutor
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.YELLOW + prefix
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " Invalid extra parameter: " + args[1]);
 					}
 				}
@@ -977,7 +973,7 @@ public class Commander implements CommandExecutor
 		else
 		{
 			// karma system disabled
-			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled");
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Karma disabled");
 		}
 	}
 
@@ -1006,7 +1002,7 @@ public class Commander implements CommandExecutor
 				// Can't think of a good way to page through this
 				// new list without having a hashmap per custom
 				// cache, and I really don't want to do that :\
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ " Invalid integer for page number");
 			}
 		}
@@ -1025,10 +1021,10 @@ public class Commander implements CommandExecutor
 		{
 			Player player = (Player) sender;
 			// Check if they have "take" permission
-			if (perm.checkPermission(sender, Permission.TAKE.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.TAKE))
 			{
-				if (perm.checkPermission(sender,
-						Permission.COMMANDS_TAKE.getNode()))
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_TAKE))
 				{
 					// Check that they gave an item name/id
 					if (args.length > 1)
@@ -1068,7 +1064,7 @@ public class Commander implements CommandExecutor
 								catch (NumberFormatException r)
 								{
 									// Not a number given
-									player.sendMessage(ChatColor.RED + prefix
+									player.sendMessage(ChatColor.RED + KarmicShare.TAG
 											+ " Invalid item id / data value");
 									if (config.debugTime)
 									{
@@ -1127,7 +1123,7 @@ public class Commander implements CommandExecutor
 								{
 									// Item not in cache, therefore
 									// potential error on player part
-									player.sendMessage(ChatColor.RED + prefix
+									player.sendMessage(ChatColor.RED + KarmicShare.TAG
 											+ " Item not in pool...");
 									if (config.debugTime)
 									{
@@ -1208,7 +1204,7 @@ public class Commander implements CommandExecutor
 												{
 													// Did not give any items
 													player.sendMessage(ChatColor.YELLOW
-															+ prefix
+															+ KarmicShare.TAG
 															+ " Your inventory is completely full...");
 												}
 												i.setAmount(residual.size());
@@ -1228,7 +1224,7 @@ public class Commander implements CommandExecutor
 													// INFO Auto-generated catch
 													// block
 													sender.sendMessage(ChatColor.RED
-															+ KarmicShare.prefix
+															+ KarmicShare.TAG
 															+ " SQL Exception");
 													e.printStackTrace();
 												}
@@ -1249,7 +1245,7 @@ public class Commander implements CommandExecutor
 							}
 							catch (SQLException e)
 							{
-								player.sendMessage(ChatColor.RED + prefix
+								player.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ "Could not retrieve item in pool!");
 								e.printStackTrace();
 							}
@@ -1273,7 +1269,7 @@ public class Commander implements CommandExecutor
 									{
 										// Did not give any items
 										player.sendMessage(ChatColor.YELLOW
-												+ prefix
+												+ KarmicShare.TAG
 												+ " Your inventory is completely full...");
 									}
 									item.setAmount(residual.size());
@@ -1289,7 +1285,7 @@ public class Commander implements CommandExecutor
 									catch (SQLException e)
 									{
 										sender.sendMessage(ChatColor.RED
-												+ KarmicShare.prefix
+												+ KarmicShare.TAG
 												+ " SQL Exception");
 										e.printStackTrace();
 									}
@@ -1315,7 +1311,7 @@ public class Commander implements CommandExecutor
 									{
 										// Did not give any items
 										player.sendMessage(ChatColor.YELLOW
-												+ prefix
+												+ KarmicShare.TAG
 												+ " Your inventory is completely full...");
 									}
 									item.setAmount(residual.size());
@@ -1331,7 +1327,7 @@ public class Commander implements CommandExecutor
 									catch (SQLException e)
 									{
 										sender.sendMessage(ChatColor.RED
-												+ KarmicShare.prefix
+												+ KarmicShare.TAG
 												+ " SQL Exception");
 										e.printStackTrace();
 									}
@@ -1340,7 +1336,7 @@ public class Commander implements CommandExecutor
 						}
 						if (finalAmount > 0)
 						{
-							player.sendMessage(ChatColor.GREEN + prefix
+							player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 									+ " Given " + ChatColor.GOLD + finalAmount
 									+ ChatColor.GREEN + " of " + ChatColor.AQUA
 									+ temp.name);
@@ -1348,26 +1344,26 @@ public class Commander implements CommandExecutor
 					}
 					else
 					{
-						player.sendMessage(ChatColor.RED + prefix
+						player.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Need an item name or id");
 					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Lack permission: "
-							+ Permission.COMMANDS_TAKE.getNode());
+							+ PermissionNode.COMMANDS_TAKE.getNode());
 				}
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.TAKE.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.TAKE.getNode());
 			}
 		}
 		else
 		{
-			sender.sendMessage(prefix + " Cannot use this command as console.");
+			sender.sendMessage(KarmicShare.TAG + " Cannot use this command as console.");
 		}
 		if (config.debugTime)
 		{
@@ -1385,10 +1381,10 @@ public class Commander implements CommandExecutor
 		{
 			Player player = (Player) sender;
 			// Check if they have "give" permission
-			if (perm.checkPermission(sender, Permission.GIVE.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.GIVE))
 			{
-				if (perm.checkPermission(sender,
-						Permission.COMMANDS_GIVE.getNode()))
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_GIVE))
 				{
 					// Grab item in player's hand.
 					final ItemStack items = player.getItemInHand();
@@ -1403,7 +1399,7 @@ public class Commander implements CommandExecutor
 						final Item i = new Item(items.getTypeId(), items
 								.getData().getData(), items.getDurability());
 						player.setItemInHand(null);
-						player.sendMessage(ChatColor.GREEN + prefix + " Added "
+						player.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " Added "
 								+ ChatColor.GOLD + items.getAmount()
 								+ ChatColor.GREEN + " of " + ChatColor.AQUA
 								+ i.name + ChatColor.GREEN + " to pool.");
@@ -1411,26 +1407,26 @@ public class Commander implements CommandExecutor
 					else
 					{
 						// If there is no item, stop
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " No item in hand. Nothing to give.");
 					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Lack permission: "
-							+ Permission.COMMANDS_GIVE.getNode());
+							+ PermissionNode.COMMANDS_GIVE.getNode());
 				}
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.GIVE.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.GIVE.getNode());
 			}
 		}
 		else
 		{
-			sender.sendMessage(prefix + " Cannot use this command as console.");
+			sender.sendMessage(KarmicShare.TAG + " Cannot use this command as console.");
 		}
 	}
 
@@ -1440,7 +1436,7 @@ public class Commander implements CommandExecutor
 		if (sender instanceof Player)
 		{
 			// Permission check
-			if (perm.checkPermission(sender, Permission.INFO.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.INFO))
 			{
 				Player player = (Player) sender;
 				// Grab item in player's hand.
@@ -1546,28 +1542,28 @@ public class Commander implements CommandExecutor
 									+ e.getValue().intValue() + ", ");
 						}
 					}
-					player.sendMessage(ChatColor.GREEN + prefix
+					player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 							+ buf.toString());
 				}
 				else
 				{
 					// If there is no item, stop
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " No item in hand. Nothing to lookup.");
 				}
 			}
 			else
 			{
 				// Lack permission
-				sender.sendMessage(prefix + " Lack permission: "
-						+ Permission.INFO.getNode());
+				sender.sendMessage(KarmicShare.TAG + " Lack permission: "
+						+ PermissionNode.INFO.getNode());
 			}
 
 		}
 		else
 		{
 			// Console cannot inspect items
-			sender.sendMessage(prefix + " Cannot use this command as console.");
+			sender.sendMessage(KarmicShare.TAG + " Cannot use this command as console.");
 		}
 	}
 
@@ -1611,7 +1607,7 @@ public class Commander implements CommandExecutor
 			}
 			catch (SQLException e)
 			{
-				player.sendMessage(ChatColor.RED + prefix
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not obtain player karma!");
 				e.printStackTrace();
 			}
@@ -1621,7 +1617,7 @@ public class Commander implements CommandExecutor
 	private void debugTime(CommandSender sender, long time)
 	{
 		time = System.nanoTime() - time;
-		sender.sendMessage("[Debug]" + prefix + "Process time: " + time);
+		sender.sendMessage("[Debug]" + KarmicShare.TAG + "Process time: " + time);
 	}
 
 	/**
@@ -1636,12 +1632,12 @@ public class Commander implements CommandExecutor
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
 		sender.sendMessage(ChatColor.GREEN + "/ks" + ChatColor.YELLOW
 				+ " : Show karma");
-		if (perm.checkPermission(sender, Permission.GIVE.getNode()))
+		if (PermCheck.checkPermission(sender, PermissionNode.GIVE))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks give" + ChatColor.YELLOW
 					+ " : Give item stack in current hand");
 		}
-		if (perm.checkPermission(sender, Permission.TAKE.getNode()))
+		if (PermCheck.checkPermission(sender, PermissionNode.TAKE))
 		{
 			sender.sendMessage(ChatColor.GREEN
 					+ "/ks take <item>[:data] [amount]" + ChatColor.YELLOW
@@ -1666,32 +1662,32 @@ public class Commander implements CommandExecutor
 		}
 		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
 				+ " : Show help menu");
-		if (perm.checkPermission(sender, Permission.INFO.getNode()))
+		if (PermCheck.checkPermission(sender, PermissionNode.INFO))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
 					+ " : Inspect currently held item");
 		}
-		if (perm.checkPermission(sender, Permission.KARMA_OTHER.getNode()))
+		if (PermCheck.checkPermission(sender, PermissionNode.KARMA_OTHER))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
 					+ ChatColor.YELLOW + " : Show karma for given player name");
 		}
-		if (perm.checkPermission(sender, Permission.ADMIN_ADD.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_RESET.getNode())
-				|| perm.checkPermission(sender, Permission.ADMIN_SET.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_DRAIN.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_RELOAD.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_GROUP_ADD.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_GROUP_CREATE.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_GROUP_DELETE.getNode())
-				|| perm.checkPermission(sender,
-						Permission.ADMIN_GROUP_REMOVE.getNode()))
+		if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_ADD)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_RESET)
+				|| PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_DRAIN)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_RELOAD)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_GROUP_ADD)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_GROUP_CREATE)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_GROUP_DELETE)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.ADMIN_GROUP_REMOVE))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW
 					+ " : List admin commands");
@@ -1706,7 +1702,7 @@ public class Commander implements CommandExecutor
 		// Add generated items to pool
 		if (com.equals("add"))
 		{
-			if (perm.checkPermission(sender, Permission.ADMIN_ADD.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_ADD))
 			{
 				if (args.length > 2)
 				{
@@ -1735,7 +1731,7 @@ public class Commander implements CommandExecutor
 							catch (NumberFormatException r)
 							{
 								// Not a number given
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Invalid item id / data value");
 								return false;
 							}
@@ -1749,7 +1745,7 @@ public class Commander implements CommandExecutor
 							if (mat == null)
 							{
 								// Not a known material
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Item name/id is incorrect.");
 								return false;
 							}
@@ -1772,7 +1768,7 @@ public class Commander implements CommandExecutor
 						catch (NumberFormatException n)
 						{
 							// Not a number given
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Invalid item amount");
 							return false;
 						}
@@ -1824,7 +1820,7 @@ public class Commander implements CommandExecutor
 								}
 								rs.getResult().close();
 								ks.getDatabaseHandler().standardQuery(query);
-								sender.sendMessage(ChatColor.GREEN + prefix
+								sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 										+ " Added " + ChatColor.GOLD + amount
 										+ ChatColor.GREEN + " of "
 										+ ChatColor.AQUA + item.name
@@ -1832,7 +1828,7 @@ public class Commander implements CommandExecutor
 							}
 							catch (SQLException q)
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ "Could not add item to pool!");
 								q.printStackTrace();
 							}
@@ -1878,7 +1874,7 @@ public class Commander implements CommandExecutor
 								}
 								rs.closeQuery();
 								ks.getDatabaseHandler().standardQuery(query);
-								sender.sendMessage(ChatColor.GREEN + prefix
+								sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 										+ " Added " + ChatColor.GOLD + amount
 										+ ChatColor.GREEN + " of "
 										+ ChatColor.AQUA + item.name
@@ -1886,7 +1882,7 @@ public class Commander implements CommandExecutor
 							}
 							catch (SQLException q)
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Could not add item to pool!");
 								q.printStackTrace();
 							}
@@ -1895,7 +1891,7 @@ public class Commander implements CommandExecutor
 					else
 					{
 						// If there is no item, stop
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Cannot add air to pool.");
 					}
 				}
@@ -1903,14 +1899,14 @@ public class Commander implements CommandExecutor
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.ADMIN_ADD.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.ADMIN_ADD.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("drain"))
 		{
-			if (perm.checkPermission(sender, Permission.ADMIN_DRAIN.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
 			{
 				String group = "global";
 				// Check if group name was given
@@ -1919,7 +1915,7 @@ public class Commander implements CommandExecutor
 					group = args[2];
 					if (!Karma.validGroup(sender, args[2]))
 					{
-						sender.sendMessage(ChatColor.RED + prefix + " Group "
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Group "
 								+ ChatColor.GRAY + group + ChatColor.RED
 								+ " does not exist");
 						return true;
@@ -1935,7 +1931,7 @@ public class Commander implements CommandExecutor
 					if (id == -1)
 					{
 						sender.sendMessage(ChatColor.YELLOW
-								+ KarmicShare.prefix
+								+ KarmicShare.TAG
 								+ " Could not schedule confirmation.");
 					}
 				}
@@ -1947,38 +1943,38 @@ public class Commander implements CommandExecutor
 							+ " WHERE groups='" + group + "';";
 					ks.getDatabaseHandler().standardQuery(query);
 					ks.getLogger().info(
-							prefix + "Items for group '" + group + "' cleared");
+							KarmicShare.TAG + "Items for group '" + group + "' cleared");
 					cache.clear();
 				}
 				return true;
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.ADMIN_DRAIN.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.ADMIN_DRAIN.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("reload"))
 		{
-			if (perm.checkPermission(sender, Permission.ADMIN_RELOAD.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_RELOAD))
 			{
 				config.reloadConfig();
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ " Config reloaded");
 				multiPage.clear();
 				return true;
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.ADMIN_RELOAD.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.ADMIN_RELOAD.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("reset"))
 		{
-			if (perm.checkPermission(sender, Permission.ADMIN_RESET.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_RESET))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -2011,33 +2007,33 @@ public class Commander implements CommandExecutor
 								else if (rs.getResult().getInt(1) > 1)
 								{
 									sender.sendMessage(ChatColor.RED
-											+ prefix
+											+ KarmicShare.TAG
 											+ " Got more than one result. Possibly incomplete name?");
 								}
 								else
 								{
 									// Player not in database, therefore error
 									// on player part
-									sender.sendMessage(ChatColor.RED + prefix
+									sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 											+ " Player " + ChatColor.WHITE
 											+ name + ChatColor.RED
 											+ " not in database.");
 									sender.sendMessage(ChatColor.RED
-											+ prefix
+											+ KarmicShare.TAG
 											+ " Player names are case sensitive.");
 								}
 							}
 							else
 							{
 								// Error in query...
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " SQL query error");
 							}
 							rs.getResult().close();
 						}
 						catch (SQLException e)
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ "Could not reset " + name + "'s karma");
 							e.printStackTrace();
 						}
@@ -2055,7 +2051,7 @@ public class Commander implements CommandExecutor
 								if (i == -1)
 								{
 									sender.sendMessage(ChatColor.YELLOW
-											+ prefix
+											+ KarmicShare.TAG
 											+ " Could not schedule task.");
 								}
 							}
@@ -2077,12 +2073,12 @@ public class Commander implements CommandExecutor
 												config.playerKarmaDefault);
 									}
 									sender.sendMessage(ChatColor.YELLOW
-											+ prefix + " " + name
+											+ KarmicShare.TAG + " " + name
 											+ "'s karma reset");
 								}
 								catch (SQLException e)
 								{
-									sender.sendMessage(ChatColor.RED + prefix
+									sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 											+ "Could not reset " + name
 											+ "'s karma");
 									e.printStackTrace();
@@ -2093,7 +2089,7 @@ public class Commander implements CommandExecutor
 					else
 					{
 						// did not give a player name, therefore error
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " No player name given.");
 						return false;
 					}
@@ -2101,21 +2097,21 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// Karma system disabled
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Karma disabled.");
 				}
 				return true;
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.ADMIN_RESET.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.ADMIN_RESET.getNode());
 				return true;
 			}
 		}
 		else if (com.equals("set"))
 		{
-			if (perm.checkPermission(sender, Permission.ADMIN_SET.getNode()))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -2140,7 +2136,7 @@ public class Commander implements CommandExecutor
 							catch (NumberFormatException e)
 							{
 								// Invalid integer given for amount
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ args[2] + " is not a valid integer");
 								return false;
 							}
@@ -2164,7 +2160,7 @@ public class Commander implements CommandExecutor
 									else if (rs.getResult().getInt(1) > 1)
 									{
 										sender.sendMessage(ChatColor.RED
-												+ prefix
+												+ KarmicShare.TAG
 												+ " Got more than one result. Possibly incomplete name?");
 									}
 									else
@@ -2173,26 +2169,26 @@ public class Commander implements CommandExecutor
 										// error
 										// on player part
 										sender.sendMessage(ChatColor.RED
-												+ prefix + " Player "
+												+ KarmicShare.TAG + " Player "
 												+ ChatColor.WHITE + name
 												+ ChatColor.RED
 												+ " not in database.");
 										sender.sendMessage(ChatColor.RED
-												+ prefix
+												+ KarmicShare.TAG
 												+ " Player names are case sensitive.");
 									}
 								}
 								else
 								{
 									// Error in query...
-									sender.sendMessage(ChatColor.RED + prefix
+									sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 											+ " SQL query error");
 								}
 								rs.closeQuery();
 							}
 							catch (SQLException e)
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Could not set " + name + "'s karma");
 								e.printStackTrace();
 							}
@@ -2215,12 +2211,12 @@ public class Commander implements CommandExecutor
 												config.playerKarmaDefault);
 									}
 									sender.sendMessage(ChatColor.YELLOW
-											+ prefix + " " + name
+											+ KarmicShare.TAG + " " + name
 											+ "'s karma set");
 								}
 								catch (SQLException e)
 								{
-									sender.sendMessage(ChatColor.RED + prefix
+									sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 											+ "Could not set " + name
 											+ "'s karma");
 									e.printStackTrace();
@@ -2231,7 +2227,7 @@ public class Commander implements CommandExecutor
 						else
 						{
 							// did not give a karma value, therefore error
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " No karma amount given.");
 							return false;
 						}
@@ -2239,7 +2235,7 @@ public class Commander implements CommandExecutor
 					else
 					{
 						// did not give a player name, therefore error
-						sender.sendMessage(ChatColor.RED + prefix
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " No player name given.");
 						return false;
 					}
@@ -2247,15 +2243,15 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// Karma disabled
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Karma disabled.");
 				}
 				return true;
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.RED + prefix
-						+ " Lack permission: " + Permission.ADMIN_SET.getNode());
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.ADMIN_SET.getNode());
 				return true;
 			}
 		}
@@ -2268,15 +2264,15 @@ public class Commander implements CommandExecutor
 				final String groupCom = args[2];
 				if (groupCom.equals("delete"))
 				{
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_DELETE.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_DELETE))
 					{
 						if (args.length > 3)
 						{
 							final String group = args[3].toLowerCase();
 							if (group.equals("global"))
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Cannot remove the global group.");
 							}
 							if (Karma.validGroup(sender, group))
@@ -2294,7 +2290,7 @@ public class Commander implements CommandExecutor
 									if (i == -1)
 									{
 										sender.sendMessage(ChatColor.YELLOW
-												+ prefix
+												+ KarmicShare.TAG
 												+ " Could not schedule task.");
 									}
 								}
@@ -2311,7 +2307,7 @@ public class Commander implements CommandExecutor
 									if (i == -1)
 									{
 										sender.sendMessage(ChatColor.YELLOW
-												+ prefix
+												+ KarmicShare.TAG
 												+ " Could not schedule task.");
 									}
 									ks.getDatabaseHandler().standardQuery(
@@ -2319,21 +2315,21 @@ public class Commander implements CommandExecutor
 													+ Table.ITEMS.getName()
 													+ " WHERE groups='" + group
 													+ "';");
-									sender.sendMessage(prefix
+									sender.sendMessage(KarmicShare.TAG
 											+ " Removed all items of group: "
 											+ group);
 								}
 							}
 							else
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " does not exist");
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Missing group name.");
 							return false;
 						}
@@ -2341,15 +2337,15 @@ public class Commander implements CommandExecutor
 					else
 					{
 						sender.sendMessage(ChatColor.RED
-								+ prefix
-								+ " Lack permission: " + Permission.ADMIN_GROUP_DELETE.getNode());
+								+ KarmicShare.TAG
+								+ " Lack permission: " + PermissionNode.ADMIN_GROUP_DELETE.getNode());
 						return true;
 					}
 				}
 				else if (groupCom.equals("create"))
 				{
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_CREATE.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_CREATE))
 					{
 						if (args.length > 3)
 						{
@@ -2361,20 +2357,20 @@ public class Commander implements CommandExecutor
 										"INSERT INTO " + Table.GROUPS.getName()
 												+ " (groupname) VALUES ('"
 												+ group + "');");
-								sender.sendMessage(ChatColor.GREEN + prefix
+								sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.GREEN + " created");
 							}
 							else
 							{
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Group " + ChatColor.GRAY + group
 										+ ChatColor.RED + " already exists");
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Missing group name.");
 							return false;
 						}
@@ -2382,15 +2378,15 @@ public class Commander implements CommandExecutor
 					else
 					{
 						sender.sendMessage(ChatColor.RED
-								+ prefix
-								+ " Lack permission: " + Permission.ADMIN_GROUP_CREATE.getNode());
+								+ KarmicShare.TAG
+								+ " Lack permission: " + PermissionNode.ADMIN_GROUP_CREATE.getNode());
 						return true;
 					}
 				}
 				else if (groupCom.equals("add"))
 				{
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_ADD.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_ADD))
 					{
 						try
 						{
@@ -2403,7 +2399,7 @@ public class Commander implements CommandExecutor
 								if (!group.matches(GROUP_NAME_REGEX))
 								{
 									sender.sendMessage(ChatColor.RED
-											+ prefix
+											+ KarmicShare.TAG
 											+ " Group name must be alphanumeric");
 									return true;
 								}
@@ -2411,7 +2407,7 @@ public class Commander implements CommandExecutor
 							else
 							{
 								// Group name was not given
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Admin command must specify group");
 								return false;
 							}
@@ -2428,7 +2424,7 @@ public class Commander implements CommandExecutor
 											group))
 									{
 										sender.sendMessage(ChatColor.YELLOW
-												+ prefix + " " + ChatColor.AQUA
+												+ KarmicShare.TAG + " " + ChatColor.AQUA
 												+ name + ChatColor.YELLOW
 												+ " is already in "
 												+ ChatColor.GRAY + group);
@@ -2442,7 +2438,7 @@ public class Commander implements CommandExecutor
 											addPlayerToGroup(sender, name,
 													group);
 											sender.sendMessage(ChatColor.GREEN
-													+ prefix + " Added "
+													+ KarmicShare.TAG + " Added "
 													+ ChatColor.GOLD + name
 													+ ChatColor.GREEN + " to "
 													+ ChatColor.GRAY + group);
@@ -2451,7 +2447,7 @@ public class Commander implements CommandExecutor
 											if (p != null)
 											{
 												p.sendMessage(ChatColor.GREEN
-														+ prefix
+														+ KarmicShare.TAG
 														+ " You have been added to "
 														+ ChatColor.GRAY
 														+ group);
@@ -2460,7 +2456,7 @@ public class Commander implements CommandExecutor
 										else
 										{
 											sender.sendMessage(ChatColor.RED
-													+ prefix + " Group "
+													+ KarmicShare.TAG + " Group "
 													+ ChatColor.GRAY + group
 													+ ChatColor.RED
 													+ " does not exist");
@@ -2472,7 +2468,7 @@ public class Commander implements CommandExecutor
 							{
 								// Player name was not given
 								sender.sendMessage(ChatColor.RED
-										+ prefix
+										+ KarmicShare.TAG
 										+ " Admin command must specify player(s)");
 								return false;
 							}
@@ -2480,7 +2476,7 @@ public class Commander implements CommandExecutor
 						}
 						catch (IndexOutOfBoundsException e)
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Player name not given");
 							return false;
 						}
@@ -2488,15 +2484,15 @@ public class Commander implements CommandExecutor
 					else
 					{
 						sender.sendMessage(ChatColor.RED
-								+ prefix
-								+ " Lack permission: " + Permission.ADMIN_GROUP_CREATE.getNode());
+								+ KarmicShare.TAG
+								+ " Lack permission: " + PermissionNode.ADMIN_GROUP_CREATE.getNode());
 					}
 					return true;
 				}
 				else if (com.equals("remove"))
 				{
-					if (perm.checkPermission(sender,
-							Permission.ADMIN_GROUP_REMOVE.getNode()))
+					if (PermCheck.checkPermission(sender,
+							PermissionNode.ADMIN_GROUP_REMOVE))
 					{
 						try
 						{
@@ -2509,7 +2505,7 @@ public class Commander implements CommandExecutor
 								if (!group.matches(GROUP_NAME_REGEX))
 								{
 									sender.sendMessage(ChatColor.RED
-											+ prefix
+											+ KarmicShare.TAG
 											+ " Group name must be alphanumeric");
 									return true;
 								}
@@ -2517,7 +2513,7 @@ public class Commander implements CommandExecutor
 							else
 							{
 								// Group name was not given
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Admin must specify group");
 								return false;
 							}
@@ -2534,7 +2530,7 @@ public class Commander implements CommandExecutor
 											group))
 									{
 										sender.sendMessage(ChatColor.YELLOW
-												+ prefix + ChatColor.AQUA
+												+ KarmicShare.TAG + ChatColor.AQUA
 												+ name + ChatColor.YELLOW
 												+ " not in " + ChatColor.GRAY
 												+ group);
@@ -2548,7 +2544,7 @@ public class Commander implements CommandExecutor
 											removePlayerFromGroup(sender, name,
 													group);
 											sender.sendMessage(ChatColor.GREEN
-													+ prefix + " Removed "
+													+ KarmicShare.TAG + " Removed "
 													+ ChatColor.GOLD + name
 													+ ChatColor.GREEN
 													+ " from " + ChatColor.GRAY
@@ -2558,7 +2554,7 @@ public class Commander implements CommandExecutor
 											if (p != null)
 											{
 												p.sendMessage(ChatColor.GREEN
-														+ prefix
+														+ KarmicShare.TAG
 														+ " You have been removed from "
 														+ ChatColor.GRAY
 														+ group);
@@ -2567,7 +2563,7 @@ public class Commander implements CommandExecutor
 										else
 										{
 											sender.sendMessage(ChatColor.RED
-													+ prefix + " Group "
+													+ KarmicShare.TAG + " Group "
 													+ ChatColor.GRAY + group
 													+ ChatColor.RED
 													+ " does not exist");
@@ -2578,7 +2574,7 @@ public class Commander implements CommandExecutor
 							else
 							{
 								// Player name was not given
-								sender.sendMessage(ChatColor.RED + prefix
+								sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 										+ " Admin must specify player(s)");
 								return false;
 							}
@@ -2586,7 +2582,7 @@ public class Commander implements CommandExecutor
 						}
 						catch (IndexOutOfBoundsException e)
 						{
-							sender.sendMessage(ChatColor.RED + prefix
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ " Player name not given");
 							return false;
 						}
@@ -2595,8 +2591,8 @@ public class Commander implements CommandExecutor
 					else
 					{
 						sender.sendMessage(ChatColor.RED
-								+ prefix
-								+ " Lack permission: " + Permission.ADMIN_GROUP_REMOVE.getNode());
+								+ KarmicShare.TAG
+								+ " Lack permission: " + PermissionNode.ADMIN_GROUP_REMOVE.getNode());
 						return true;
 					}
 				}
@@ -2634,7 +2630,7 @@ public class Commander implements CommandExecutor
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + prefix + " SQL error.");
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL error.");
 			e.printStackTrace();
 		}
 	}
@@ -2676,7 +2672,7 @@ public class Commander implements CommandExecutor
 					if (multiPage.get(sender.getName()).intValue() < 0)
 					{
 						// They tried to use /ks prev when they're on page 0
-						sender.sendMessage(ChatColor.YELLOW + prefix
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " Page does not exist");
 						// reset their current page back to 0
 						multiPage.put(sender.getName(), 0);
@@ -2686,7 +2682,7 @@ public class Commander implements CommandExecutor
 							* limit > array.length)
 					{
 						// They tried to use /ks next at the end of the list
-						sender.sendMessage(ChatColor.YELLOW + prefix
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " Page does not exist");
 						// Revert to last page
 						multiPage.put(sender.getName(), num - 1);
@@ -2750,7 +2746,7 @@ public class Commander implements CommandExecutor
 				else
 				{
 					sender.sendMessage(ChatColor.YELLOW
-							+ prefix
+							+ KarmicShare.TAG
 							+ " No karma multipliers, all items have karma value of "
 							+ config.karmaChange);
 				}
@@ -2758,7 +2754,7 @@ public class Commander implements CommandExecutor
 			else
 			{
 				sender.sendMessage(ChatColor.YELLOW
-						+ prefix
+						+ KarmicShare.TAG
 						+ " Using static karma system, all items have karma value of "
 						+ config.karmaChange);
 			}
@@ -2766,7 +2762,7 @@ public class Commander implements CommandExecutor
 		else
 		{
 			// Karma disabled
-			sender.sendMessage(ChatColor.RED + prefix + " Karma disabled.");
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Karma disabled.");
 		}
 	}
 
@@ -2853,7 +2849,7 @@ public class Commander implements CommandExecutor
 				if (page.get(sender.getName()).intValue() < 0)
 				{
 					// They tried to use /ks prev when they're on page 0
-					sender.sendMessage(ChatColor.YELLOW + prefix
+					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 							+ " Page does not exist");
 					// reset their current page back to 0
 					page.put(sender.getName(), 0);
@@ -2862,7 +2858,7 @@ public class Commander implements CommandExecutor
 				else if ((page.get(sender.getName()).intValue()) * limit > array.length)
 				{
 					// They tried to use /ks next at the end of the list
-					sender.sendMessage(ChatColor.YELLOW + prefix
+					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 							+ " Page does not exist");
 					// Revert to last page
 					page.put(sender.getName(), num - 1);
@@ -2925,7 +2921,7 @@ public class Commander implements CommandExecutor
 			else
 			{
 				// No items in pool
-				sender.sendMessage(ChatColor.RED + prefix
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " No items in pool.");
 				// Clear hashmap (for memory reasons?)
 				// considering no items, therefore no pages,
@@ -2936,7 +2932,7 @@ public class Commander implements CommandExecutor
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + prefix + "SQL error.");
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + "SQL error.");
 			e.printStackTrace();
 		}
 	}
@@ -2957,13 +2953,13 @@ public class Commander implements CommandExecutor
 			if (((double) karma + Math.abs(config.lower))
 					/ ((double) Math.abs(config.upper) + Math.abs(config.lower)) >= config.upperPercent)
 			{
-				return (ChatColor.YELLOW + prefix + ChatColor.GREEN
+				return (ChatColor.YELLOW + KarmicShare.TAG + ChatColor.GREEN
 						+ " Karma: " + karma);
 			}
 			else
 			{
 				// Not in upper percentage
-				return (ChatColor.YELLOW + prefix + " Karma: " + karma);
+				return (ChatColor.YELLOW + KarmicShare.TAG + " Karma: " + karma);
 			}
 		}
 		else
@@ -2972,12 +2968,12 @@ public class Commander implements CommandExecutor
 			if (((double) karma + Math.abs(config.lower))
 					/ ((double) Math.abs(config.upper) + Math.abs(config.lower)) <= config.lowerPercent)
 			{
-				return (ChatColor.YELLOW + prefix + ChatColor.RED + " Karma: " + karma);
+				return (ChatColor.YELLOW + KarmicShare.TAG + ChatColor.RED + " Karma: " + karma);
 			}
 			else
 			{
 				// Not in lower percentage
-				return (ChatColor.YELLOW + prefix + " Karma: " + karma);
+				return (ChatColor.YELLOW + KarmicShare.TAG + " Karma: " + karma);
 			}
 		}
 	}
@@ -3007,7 +3003,7 @@ public class Commander implements CommandExecutor
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 		}
@@ -3093,7 +3089,7 @@ public class Commander implements CommandExecutor
 
 		public void run()
 		{
-			String answer = ks.ask(player, ChatColor.YELLOW + prefix
+			String answer = ks.ask(player, ChatColor.YELLOW + KarmicShare.TAG
 					+ ChatColor.DARK_AQUA + " Delete ALL items in "
 					+ ChatColor.GOLD + group + ChatColor.DARK_AQUA
 					+ " pool? No recovery...", ChatColor.GREEN + "yes",
@@ -3105,15 +3101,15 @@ public class Commander implements CommandExecutor
 						+ " WHERE groups='" + group + "';";
 				ks.getDatabaseHandler().standardQuery(query);
 				ks.getLogger().info(
-						prefix + " " + group + " items table cleared");
-				player.sendMessage(ChatColor.GREEN + prefix + " "
+						KarmicShare.TAG + " " + group + " items table cleared");
+				player.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " "
 						+ ChatColor.GOLD + group + ChatColor.GREEN
 						+ " item pool emptied.");
 				cache.clear();
 			}
 			else
 			{
-				player.sendMessage(ChatColor.YELLOW + prefix
+				player.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ " Drain cancelled.");
 			}
 		}
@@ -3133,7 +3129,7 @@ public class Commander implements CommandExecutor
 		@Override
 		public void run()
 		{
-			String answer = ks.ask(sender, ChatColor.YELLOW + prefix
+			String answer = ks.ask(sender, ChatColor.YELLOW + KarmicShare.TAG
 					+ ChatColor.DARK_AQUA + " Reset " + ChatColor.GOLD + name
 					+ ChatColor.DARK_AQUA + "'s karma?", ChatColor.GREEN
 					+ "yes", ChatColor.RED + "no");
@@ -3151,19 +3147,19 @@ public class Commander implements CommandExecutor
 						// config's default
 						Karma.updatePlayerKarma(name, config.playerKarmaDefault);
 					}
-					sender.sendMessage(ChatColor.GREEN + prefix + " " + name
+					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " " + name
 							+ "'s karma reset");
 				}
 				catch (SQLException e)
 				{
-					sender.sendMessage(ChatColor.RED + prefix
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not reset " + name + "'s karma");
 					e.printStackTrace();
 				}
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ ChatColor.DARK_AQUA + " Karma reset for "
 						+ ChatColor.GOLD + name + ChatColor.DARK_AQUA
 						+ " cancelled.");
@@ -3185,13 +3181,13 @@ public class Commander implements CommandExecutor
 		@Override
 		public void run()
 		{
-			String answer = ks.ask(sender, ChatColor.YELLOW + prefix
+			String answer = ks.ask(sender, ChatColor.YELLOW + KarmicShare.TAG
 					+ ChatColor.DARK_AQUA + " Remove group " + ChatColor.GOLD
 					+ group + ChatColor.DARK_AQUA + "? ", ChatColor.GREEN
 					+ "yes", ChatColor.RED + "no");
 			if (answer.equals("yes"))
 			{
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ " This could take a while...");
 				int i = ks
 						.getServer()
@@ -3200,19 +3196,19 @@ public class Commander implements CommandExecutor
 								new RemoveGroupTask(sender, group));
 				if (i == -1)
 				{
-					sender.sendMessage(ChatColor.YELLOW + prefix
+					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 							+ " Could not schedule task");
 				}
 				ks.getDatabaseHandler().standardQuery(
 						"DELETE FROM " + Table.ITEMS.getName()
 								+ " WHERE groups='" + group + "';");
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ " Removed all items of group: " + ChatColor.GOLD
 						+ group);
 			}
 			else
 			{
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ ChatColor.DARK_AQUA + " Cancelled removal of "
 						+ ChatColor.GOLD + group);
 			}
@@ -3305,13 +3301,13 @@ public class Commander implements CommandExecutor
 									+ "' WHERE playername='" + entry.getKey()
 									+ "';");
 				}
-				sender.sendMessage(ChatColor.YELLOW + prefix
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 						+ " Done removing group " + ChatColor.GRAY + group
 						+ ChatColor.YELLOW + " from all players.");
 			}
 			catch (SQLException e)
 			{
-				sender.sendMessage(ChatColor.RED + prefix + " SQL error");
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL error");
 				e.printStackTrace();
 			}
 		}

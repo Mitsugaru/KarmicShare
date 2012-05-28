@@ -19,7 +19,8 @@ import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
-import com.mitsugaru.KarmicShare.permissions.Permission;
+import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 
 public class Karma {
@@ -73,7 +74,7 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
 				return false;
@@ -115,7 +116,7 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
 				return false;
@@ -155,7 +156,7 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
 				return false;
@@ -166,14 +167,14 @@ public class Karma {
 
 	public static int takeItem(Player player, ItemStack item, String group) {
 		// Check if they have "take" permission
-		if (plugin.getPermissionHandler().checkPermission(player,
-				Permission.TAKE.getNode()))
+		if (PermCheck.checkPermission(player,
+				PermissionNode.TAKE))
 		{
 			int karma = 0;
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
-				if (!plugin.getPermissionHandler().checkPermission(player,
-						Permission.IGNORE_KARMA.getNode()))
+				if (!PermCheck.checkPermission(player,
+						PermissionNode.IGNORE_KARMA))
 				{
 					// Check karma before anything
 					karma = plugin.getPluginConfig().playerKarmaDefault;
@@ -185,14 +186,14 @@ public class Karma {
 							// They are at the limit, or somehow lower for
 							// whatever reason
 							player.sendMessage(ChatColor.RED
-									+ KarmicShare.prefix
+									+ KarmicShare.TAG
 									+ "Your karma is at the limit!");
 							return -1;
 						}
 					}
 					catch (SQLException e1)
 					{
-						player.sendMessage(ChatColor.RED + KarmicShare.prefix
+						player.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Could not retrieve player karma");
 						e1.printStackTrace();
 						return -1;
@@ -210,8 +211,8 @@ public class Karma {
 					boolean hasKarma = false;
 					if (!plugin.getPluginConfig().karmaDisabled)
 					{
-						if (!plugin.getPermissionHandler().checkPermission(
-								player, Permission.IGNORE_KARMA.getNode()))
+						if (!PermCheck.checkPermission(
+								player, PermissionNode.IGNORE_KARMA))
 						{
 							// Check karma again, before giving item, to
 							// adjust amount
@@ -242,14 +243,14 @@ public class Karma {
 										// they'd go beyond
 										// karma limit
 										player.sendMessage(ChatColor.RED
-												+ KarmicShare.prefix
+												+ KarmicShare.TAG
 												+ " Not enough karma to take item");
 										return -1;
 									}
 									else
 									{
 										player.sendMessage(ChatColor.YELLOW
-												+ KarmicShare.prefix
+												+ KarmicShare.TAG
 												+ " Near/Hit karma limit!");
 									}
 								}
@@ -303,14 +304,14 @@ public class Karma {
 												// as they'd go beyond
 												// karma limit
 												player.sendMessage(ChatColor.RED
-														+ KarmicShare.prefix
+														+ KarmicShare.TAG
 														+ " Not enough karma to take item");
 												return -1;
 											}
 											else
 											{
 												player.sendMessage(ChatColor.YELLOW
-														+ KarmicShare.prefix
+														+ KarmicShare.TAG
 														+ " Near/Hit karma limit!");
 											}
 										}
@@ -346,14 +347,14 @@ public class Karma {
 											if (amount <= 0)
 											{
 												player.sendMessage(ChatColor.RED
-														+ KarmicShare.prefix
+														+ KarmicShare.TAG
 														+ " Not enough karma to take item");
 												return -1;
 											}
 											else
 											{
 												player.sendMessage(ChatColor.YELLOW
-														+ KarmicShare.prefix
+														+ KarmicShare.TAG
 														+ " Near/Hit karma limit!");
 											}
 										}
@@ -395,14 +396,14 @@ public class Karma {
 											// they'd go beyond
 											// karma limit
 											player.sendMessage(ChatColor.RED
-													+ KarmicShare.prefix
+													+ KarmicShare.TAG
 													+ " Not enough karma to take item");
 											return -1;
 										}
 										else
 										{
 											player.sendMessage(ChatColor.YELLOW
-													+ KarmicShare.prefix
+													+ KarmicShare.TAG
 													+ " Near/Hit karma limit!");
 										}
 									}
@@ -514,7 +515,7 @@ public class Karma {
 						catch (SQLException e)
 						{
 							player.sendMessage(ChatColor.RED
-									+ KarmicShare.prefix
+									+ KarmicShare.TAG
 									+ "Could not retrieve item in pool!");
 							e.printStackTrace();
 							return -1;
@@ -563,7 +564,7 @@ public class Karma {
 						catch (SQLException e)
 						{
 							player.sendMessage(ChatColor.RED
-									+ KarmicShare.prefix
+									+ KarmicShare.TAG
 									+ "Could not retrieve item in pool!");
 							e.printStackTrace();
 							return -1;
@@ -610,7 +611,7 @@ public class Karma {
 						catch (SQLException e)
 						{
 							player.sendMessage(ChatColor.RED
-									+ KarmicShare.prefix
+									+ KarmicShare.TAG
 									+ "Could not retrieve item in pool!");
 							e.printStackTrace();
 							return -1;
@@ -621,8 +622,8 @@ public class Karma {
 					// Update karma
 					if (!plugin.getPluginConfig().karmaDisabled)
 					{
-						if (!plugin.getPermissionHandler().checkPermission(
-								player, Permission.IGNORE_KARMA.getNode()))
+						if (!PermCheck.checkPermission(
+								player, PermissionNode.IGNORE_KARMA))
 						{
 							if (hasKarma)
 							{
@@ -661,14 +662,14 @@ public class Karma {
 				}
 				else
 				{
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
+					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Item is no longer available.");
 					return -1;
 				}
 			}
 			catch (SQLException e)
 			{
-				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
 				return -1;
@@ -677,15 +678,15 @@ public class Karma {
 		}
 		else
 		{
-			player.sendMessage(ChatColor.RED + KarmicShare.prefix
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: KarmicShare.take");
 		}
 		return -1;
 	}
 
 	public static boolean giveItem(Player player, ItemStack item, String group) {
-		if (plugin.getPermissionHandler().checkPermission(player,
-				Permission.GIVE.getNode()))
+		if (PermCheck.checkPermission(player,
+				PermissionNode.GIVE))
 		{
 			final Item i = new Item(item);
 			// Check if its a tool
@@ -779,7 +780,7 @@ public class Karma {
 					}
 					catch (SQLException e)
 					{
-						player.sendMessage(ChatColor.RED + KarmicShare.prefix
+						player.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ "Could not query item pool!");
 						e.printStackTrace();
 						return false;
@@ -834,7 +835,7 @@ public class Karma {
 				}
 				catch (SQLException e)
 				{
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
+					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not query item pool!");
 					e.printStackTrace();
 					return false;
@@ -891,7 +892,7 @@ public class Karma {
 				}
 				catch (SQLException e)
 				{
-					player.sendMessage(ChatColor.RED + KarmicShare.prefix
+					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not query item pool!");
 					e.printStackTrace();
 					return false;
@@ -902,8 +903,8 @@ public class Karma {
 				// Update karma
 				if (!plugin.getPluginConfig().karmaDisabled)
 				{
-					if (!plugin.getPermissionHandler().checkPermission(player,
-							Permission.IGNORE_KARMA.getNode()))
+					if (!PermCheck.checkPermission(player,
+							PermissionNode.IGNORE_KARMA))
 					{
 						if (plugin.getPluginConfig().statickarma)
 						{
@@ -960,7 +961,7 @@ public class Karma {
 			}
 			catch (SQLException e)
 			{
-				player.sendMessage(ChatColor.RED + KarmicShare.prefix
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not adjust karma to pool!");
 				e.printStackTrace();
 				return false;
@@ -986,7 +987,7 @@ public class Karma {
 		}
 		else
 		{
-			player.sendMessage(ChatColor.RED + KarmicShare.prefix
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: KarmicShare.give");
 		}
 		return false;
@@ -1146,7 +1147,7 @@ public class Karma {
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 		}
@@ -1198,7 +1199,7 @@ public class Karma {
 		}
 		catch (SQLException e)
 		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.prefix
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 		}

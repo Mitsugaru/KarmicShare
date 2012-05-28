@@ -21,13 +21,10 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
  *
  */
 public class PermCheck {
-	private Permission perm;
-	private boolean hasVault;
-
-	/**
-	 * Constructor
-	 */
-	public PermCheck(KarmicShare ks)
+	private static Permission perm;
+	private static boolean hasVault;
+	
+	public static void init(KarmicShare ks)
 	{
 		if(ks.getServer().getPluginManager().getPlugin("Vault") != null)
 		{
@@ -45,16 +42,20 @@ public class PermCheck {
 		{
 			hasVault = false;
 		}
-
+	}
+	
+	public static boolean checkPermission(CommandSender sender, PermissionNode node)
+	{
+		return checkPermission(sender, node.getNode());
 	}
 
 	/**
 	 *
 	 * @param CommandSender that sent command
-	 * @param Permission node to check, as String
+	 * @param PermissionNode node to check, as String
 	 * @return true if sender has the node, else false
 	 */
-	public boolean checkPermission(CommandSender sender, String node)
+	public static boolean checkPermission(CommandSender sender, String node)
 	{
 		//Use PEX first
 		if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx"))

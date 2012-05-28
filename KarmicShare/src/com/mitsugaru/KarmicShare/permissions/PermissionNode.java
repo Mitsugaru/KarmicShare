@@ -1,6 +1,6 @@
 package com.mitsugaru.KarmicShare.permissions;
 
-public enum Permission
+public enum PermissionNode
 {
 	KARMA(".karma"), KARMA_OTHER(".karma.other"), GIVE(".give"), TAKE(".take"), INFO(
 			".info"), CHEST(".chest"), SIGN(".sign"), GROUP(".group"), GROUP_CREATE(
@@ -17,7 +17,7 @@ public enum Permission
 	private static final String prefix = "KarmicShare";
 	private String node;
 
-	private Permission(String node)
+	private PermissionNode(String node)
 	{
 		this.node = prefix + node;
 	}
