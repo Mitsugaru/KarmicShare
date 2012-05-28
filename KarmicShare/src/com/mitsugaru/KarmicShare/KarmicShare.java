@@ -19,7 +19,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.database.DBHandler;
-import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSEntityListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
@@ -112,30 +111,16 @@ public class KarmicShare extends JavaPlugin {
 				.scheduleSyncRepeatingTask(this,
 						new KSQuestionsReaper(questions), 15000, 15000);
 
-		// Generate listeners
-		KSBlockListener blockListener = new KSBlockListener(this);
-		KSPlayerListener playerListener = new KSPlayerListener(this);
-		KSEntityListener entityListener = new KSEntityListener(this);
-		pm.registerEvents(blockListener, this);
-		pm.registerEvents(playerListener, this);
-		pm.registerEvents(entityListener, this);
-		// TODO rename variable
+		// Register listeners
+		pm.registerEvents(new KSBlockListener(this), this);
+		pm.registerEvents(new KSPlayerListener(this), this);
+		pm.registerEvents(new KSEntityListener(this), this);
 		if (config.chests) {
-			KSInventoryListener invListener = new KSInventoryListener(this);
-			pm.registerEvents(invListener, this);
+			pm.registerEvents(new KSInventoryListener(this), this);
 			chest = true;
 		} else {
 			chest = false;
 		}
-		// Create cleaner task
-		cleantask = getServer().getScheduler().scheduleAsyncRepeatingTask(this,
-				new CleanupTask(), 15000, 15000);
-		if (cleantask == -1) {
-			getLogger().warning("Could not create cleaner task.");
-		}
-		getLogger().info(
-				"KarmicShare v" + this.getDescription().getVersion()
-						+ " enabled");
 	}
 
 	public Commander getCommander() {
@@ -166,22 +151,6 @@ public class KarmicShare extends JavaPlugin {
 				answers);
 		questions.add(question);
 		return question.ask();
-	}
-
-	
-	//TODO this might no longer be necessary...
-	class CleanupTask implements Runnable {
-
-		public CleanupTask() {
-		}
-
-		@Override
-		public void run() {
-			// Drop bad entries
-			getDatabaseHandler().standardQuery(
-					"DELETE FROM " + Table.ITEMS.getName()
-							+ " WHERE amount<='0';");
-		}
 	}
 	
 	private void setupEconomy() {

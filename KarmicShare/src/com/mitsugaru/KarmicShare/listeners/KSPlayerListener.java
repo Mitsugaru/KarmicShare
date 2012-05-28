@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.mitsugaru.KarmicShare.Commander;
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
@@ -40,11 +41,12 @@ public class KSPlayerListener implements Listener
 	{
 		plugin = karmicShare;
 	}
-	
+
 	public void onPlayerQuit(final PlayerQuitEvent event)
 	{
-		//TODO player quit event, since that doesn't throw an inventory close event
-		//just to double check
+		// TODO player quit event, since that doesn't throw an inventory close
+		// event
+		// just to double check
 	}
 
 	// TODO show our own inventory holder?
@@ -53,15 +55,14 @@ public class KSPlayerListener implements Listener
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-		//Check if chests are enabled
-		if (!plugin.getPluginConfig().chests
-				|| !plugin.useChest())
+		// Check if chests are enabled
+		if (!plugin.getPluginConfig().chests || !plugin.useChest())
 		{
 			return;
 		}
 		else if (event.getPlayer() == null || event.getClickedBlock() == null)
 		{
-			//Null check
+			// Null check
 			return;
 		}
 		// Grab block
@@ -79,16 +80,12 @@ public class KSPlayerListener implements Listener
 			return;
 		}
 		final Player player = event.getPlayer();
-		//Check permission
-		if (!PermCheck.checkPermission(
-				event.getPlayer(), PermissionNode.CHEST))
+		// Check permission
+		if (!PermCheck.checkPermission(event.getPlayer(), PermissionNode.CHEST))
 		{
 			event.getPlayer().sendMessage(
-					ChatColor.RED
-							+ KarmicShare.TAG
-							+ " Lack permission: "
-							+ PermissionNode.CHEST
-									.getNode());
+					ChatColor.RED + KarmicShare.TAG + " Lack permission: "
+							+ PermissionNode.CHEST.getNode());
 			event.setCancelled(true);
 			return;
 		}
@@ -149,14 +146,14 @@ public class KSPlayerListener implements Listener
 					{
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
-						if (PermCheck.checkPermission(
-								event.getPlayer(), PermissionNode.CHEST))
+						if (PermCheck.checkPermission(event.getPlayer(),
+								PermissionNode.CHEST))
 						{
 							if (Karma.playerHasGroup(event.getPlayer(), event
 									.getPlayer().getName(), group)
-									|| PermCheck
-											.checkPermission(event.getPlayer(),
-													"KarmicShare.ignore.group"))
+									|| PermCheck.checkPermission(
+											event.getPlayer(),
+											"KarmicShare.ignore.group"))
 							{
 								BetterChest chest = new BetterChest(
 										(Chest) block.getState());
@@ -237,9 +234,9 @@ public class KSPlayerListener implements Listener
 								{
 									final String group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
-									if (PermCheck
-											.checkPermission(event.getPlayer(),
-													PermissionNode.CHEST.getNode()))
+									if (PermCheck.checkPermission(
+											event.getPlayer(),
+											PermissionNode.CHEST.getNode()))
 									{
 										if (Karma.playerHasGroup(event
 												.getPlayer(), event.getPlayer()
@@ -318,16 +315,13 @@ public class KSPlayerListener implements Listener
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();
 
-					if (PermCheck.checkPermission(
-							event.getPlayer(), PermissionNode.CHEST.getNode()))
+					if (PermCheck.checkPermission(event.getPlayer(),
+							PermissionNode.CHEST.getNode()))
 					{
 						if (Karma.playerHasGroup(event.getPlayer(), event
 								.getPlayer().getName(), group)
-								|| PermCheck
-										.checkPermission(
-												event.getPlayer(),
-												PermissionNode.IGNORE_GROUP
-														.getNode()))
+								|| PermCheck.checkPermission(event.getPlayer(),
+										PermissionNode.IGNORE_GROUP.getNode()))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -340,18 +334,14 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										if (plugin.getCommander()
-												.getChestPage()
+										if (Commander.chestPage
 												.containsKey(name))
 										{
-											page = grabNextPage(plugin
-													.getCommander()
-													.getChestPage().get(name)
-													.intValue() - 1, 54, group,
-													false);
-											plugin.getCommander()
-													.getChestPage()
-													.remove(name);
+											page = grabNextPage(
+													Commander.chestPage.get(
+															name).intValue() - 1,
+													54, group, false);
+											Commander.chestPage.remove(name);
 										}
 										else
 										{
@@ -376,18 +366,14 @@ public class KSPlayerListener implements Listener
 								{
 									try
 									{
-										if (plugin.getCommander()
-												.getChestPage()
+										if (Commander.chestPage
 												.containsKey(name))
 										{
-											page = grabNextPage(plugin
-													.getCommander()
-													.getChestPage().get(name)
-													.intValue() - 1, 27, group,
-													false);
-											plugin.getCommander()
-													.getChestPage()
-													.remove(name);
+											page = grabNextPage(
+													Commander.chestPage.get(
+															name).intValue() - 1,
+													27, group, false);
+											Commander.chestPage.remove(name);
 										}
 										else
 										{
@@ -443,16 +429,15 @@ public class KSPlayerListener implements Listener
 					{
 						final String group = ChatColor.stripColor(
 								sign.getLine(0)).toLowerCase();
-						if (PermCheck.checkPermission(
-								event.getPlayer(), PermissionNode.CHEST.getNode()))
+						if (PermCheck.checkPermission(event.getPlayer(),
+								PermissionNode.CHEST.getNode()))
 						{
 							if (Karma.playerHasGroup(event.getPlayer(), event
 									.getPlayer().getName(), group)
-									|| PermCheck
-											.checkPermission(
-													event.getPlayer(),
-													PermissionNode.IGNORE_GROUP
-															.getNode()))
+									|| PermCheck.checkPermission(event
+											.getPlayer(),
+											PermissionNode.IGNORE_GROUP
+													.getNode()))
 							{
 								BetterChest chest = new BetterChest(
 										(Chest) block.getState());
@@ -535,9 +520,9 @@ public class KSPlayerListener implements Listener
 								{
 									String group = ChatColor.stripColor(
 											sign.getLine(0)).toLowerCase();
-									if (PermCheck
-											.checkPermission(event.getPlayer(),
-													PermissionNode.CHEST.getNode()))
+									if (PermCheck.checkPermission(
+											event.getPlayer(),
+											PermissionNode.CHEST.getNode()))
 									{
 										if (Karma.playerHasGroup(event
 												.getPlayer(), event.getPlayer()
@@ -627,16 +612,13 @@ public class KSPlayerListener implements Listener
 				{
 					final String group = ChatColor.stripColor(sign.getLine(0))
 							.toLowerCase();
-					if (PermCheck.checkPermission(
-							event.getPlayer(), PermissionNode.CHEST.getNode()))
+					if (PermCheck.checkPermission(event.getPlayer(),
+							PermissionNode.CHEST.getNode()))
 					{
 						if (Karma.playerHasGroup(event.getPlayer(), event
 								.getPlayer().getName(), group)
-								|| PermCheck
-										.checkPermission(
-												event.getPlayer(),
-												PermissionNode.IGNORE_GROUP
-														.getNode()))
+								|| PermCheck.checkPermission(event.getPlayer(),
+										PermissionNode.IGNORE_GROUP.getNode()))
 						{
 							if (block.getRelative(BlockFace.DOWN).getType()
 									.equals(Material.CHEST))
@@ -714,7 +696,8 @@ public class KSPlayerListener implements Listener
 		{
 			if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
 			{
-				final Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
+				final Sign sign = (Sign) block.getRelative(BlockFace.UP)
+						.getState();
 				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 						KarmicShare.TAG))
 				{

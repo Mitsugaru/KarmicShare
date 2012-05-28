@@ -27,6 +27,11 @@ import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
+import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmCleanup;
+import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmDrain;
+import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmPlayerKarmaReset;
+import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmRemoveGroup;
+import com.mitsugaru.KarmicShare.questioner.tasks.RemoveGroupTask;
 
 public class Commander implements CommandExecutor
 {
@@ -37,8 +42,8 @@ public class Commander implements CommandExecutor
 	private final Config config;
 	private final Map<String, Integer> page = new HashMap<String, Integer>();
 	private final Map<String, Integer> multiPage = new HashMap<String, Integer>();
-	private final Map<Item, Integer> cache = new HashMap<Item, Integer>();
-	private final Map<String, Integer> chestPage = new HashMap<String, Integer>();
+	public static final Map<Item, Integer> cache = new HashMap<Item, Integer>();
+	public static final Map<String, Integer> chestPage = new HashMap<String, Integer>();
 	private int limit;
 	private long time;
 
@@ -1927,7 +1932,7 @@ public class Commander implements CommandExecutor
 							.getServer()
 							.getScheduler()
 							.scheduleAsyncDelayedTask(ks,
-									new ConfirmDrain((Player) sender, group));
+									new ConfirmDrain(ks, (Player) sender, group));
 					if (id == -1)
 					{
 						sender.sendMessage(ChatColor.YELLOW
@@ -1943,7 +1948,7 @@ public class Commander implements CommandExecutor
 							+ " WHERE groups='" + group + "';";
 					ks.getDatabaseHandler().standardQuery(query);
 					ks.getLogger().info(
-							KarmicShare.TAG + "Items for group '" + group + "' cleared");
+							KarmicShare.TAG + " Items for group '" + group + "' cleared");
 					cache.clear();
 				}
 				return true;
@@ -1952,6 +1957,39 @@ public class Commander implements CommandExecutor
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: " + PermissionNode.ADMIN_DRAIN.getNode());
+				return true;
+			}
+		}
+		else if(com.equals("cleanup"))
+		{
+			if(PermCheck.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
+			{
+				if(sender instanceof Player)
+				{
+					int id = ks
+							.getServer()
+							.getScheduler()
+							.scheduleAsyncDelayedTask(ks,
+									new ConfirmCleanup(ks, (Player) sender));
+					if (id == -1)
+					{
+						sender.sendMessage(ChatColor.YELLOW
+								+ KarmicShare.TAG
+								+ " Could not schedule confirmation.");
+					}
+				}
+				else
+				{
+					// Sent from console
+					ks.getDatabaseHandler().standardQuery("DELETE FROM " + Table.ITEMS.getName()
+							+ " WHERE amount<='0';");
+					ks.getLogger().info(KarmicShare.TAG + " Cleanup query executed");
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Lack permission: " + PermissionNode.ADMIN_CLEANUP.getNode());
 				return true;
 			}
 		}
@@ -2046,7 +2084,7 @@ public class Commander implements CommandExecutor
 										.getScheduler()
 										.scheduleAsyncDelayedTask(
 												ks,
-												new ConfirmPlayerKarmaReset(
+												new ConfirmPlayerKarmaReset(ks, 
 														(Player) sender, name));
 								if (i == -1)
 								{
@@ -2284,7 +2322,7 @@ public class Commander implements CommandExecutor
 											.getScheduler()
 											.scheduleAsyncDelayedTask(
 													ks,
-													new ConfirmRemoveGroup(
+													new ConfirmRemoveGroup(ks,
 															(Player) sender,
 															group));
 									if (i == -1)
@@ -2302,7 +2340,7 @@ public class Commander implements CommandExecutor
 											.getScheduler()
 											.scheduleAsyncDelayedTask(
 													ks,
-													new RemoveGroupTask(sender,
+													new RemoveGroupTask(ks, sender,
 															group));
 									if (i == -1)
 									{
@@ -2983,7 +3021,7 @@ public class Commander implements CommandExecutor
 		List<String> list = new ArrayList<String>();
 		try
 		{
-			if (hasGroups(name))
+			if (Karma.hasGroups(name))
 			{
 				String groups = "";
 				Query rs = ks.getDatabaseHandler().select(
@@ -3042,275 +3080,5 @@ public class Commander implements CommandExecutor
 			return null;
 		}
 		return Name;
-	}
-
-	private boolean hasGroups(String playerName) throws SQLException
-	{
-		boolean hasGroups = false;
-		String groups = "";
-		Query rs = ks.getDatabaseHandler().select(
-				"SELECT * FROM " + Table.PLAYERS.getName()
-						+ " WHERE playername='" + playerName + "';");
-		if (rs.getResult().next())
-		{
-			groups = rs.getResult().getString("groups");
-			if (!rs.getResult().wasNull())
-			{
-				if (!groups.equals(""))
-				{
-					hasGroups = true;
-				}
-			}
-		}
-		rs.closeQuery();
-		return hasGroups;
-	}
-
-	public Map<Item, Integer> getCache()
-	{
-		return cache;
-	}
-
-	public Map<String, Integer> getChestPage()
-	{
-		return chestPage;
-	}
-
-	class ConfirmDrain implements Runnable
-	{
-		private Player player;
-		private String group;
-
-		public ConfirmDrain(Player p, String g)
-		{
-			player = p;
-			group = g;
-		}
-
-		public void run()
-		{
-			String answer = ks.ask(player, ChatColor.YELLOW + KarmicShare.TAG
-					+ ChatColor.DARK_AQUA + " Delete ALL items in "
-					+ ChatColor.GOLD + group + ChatColor.DARK_AQUA
-					+ " pool? No recovery...", ChatColor.GREEN + "yes",
-					ChatColor.RED + "no");
-			if (answer.equals("yes"))
-			{
-				// Wipe table
-				final String query = "DELETE FROM " + Table.ITEMS.getName()
-						+ " WHERE groups='" + group + "';";
-				ks.getDatabaseHandler().standardQuery(query);
-				ks.getLogger().info(
-						KarmicShare.TAG + " " + group + " items table cleared");
-				player.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " "
-						+ ChatColor.GOLD + group + ChatColor.GREEN
-						+ " item pool emptied.");
-				cache.clear();
-			}
-			else
-			{
-				player.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-						+ " Drain cancelled.");
-			}
-		}
-	}
-
-	class ConfirmPlayerKarmaReset implements Runnable
-	{
-		private String name;
-		private Player sender;
-
-		public ConfirmPlayerKarmaReset(Player p, String n)
-		{
-			name = n;
-			sender = p;
-		}
-
-		@Override
-		public void run()
-		{
-			String answer = ks.ask(sender, ChatColor.YELLOW + KarmicShare.TAG
-					+ ChatColor.DARK_AQUA + " Reset " + ChatColor.GOLD + name
-					+ ChatColor.DARK_AQUA + "'s karma?", ChatColor.GREEN
-					+ "yes", ChatColor.RED + "no");
-			if (answer.equals("yes"))
-			{
-				int playerKarma = config.playerKarmaDefault;
-				try
-				{
-					// Set to zero
-					playerKarma = Karma.getPlayerKarma(name) * -1;
-					Karma.updatePlayerKarma(name, playerKarma);
-					if (config.playerKarmaDefault != 0)
-					{
-						// Default was non-zero, so re-update to
-						// config's default
-						Karma.updatePlayerKarma(name, config.playerKarmaDefault);
-					}
-					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " " + name
-							+ "'s karma reset");
-				}
-				catch (SQLException e)
-				{
-					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ "Could not reset " + name + "'s karma");
-					e.printStackTrace();
-				}
-			}
-			else
-			{
-				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-						+ ChatColor.DARK_AQUA + " Karma reset for "
-						+ ChatColor.GOLD + name + ChatColor.DARK_AQUA
-						+ " cancelled.");
-			}
-		}
-	}
-
-	class ConfirmRemoveGroup implements Runnable
-	{
-		private String group;
-		private Player sender;
-
-		public ConfirmRemoveGroup(Player sender, String group)
-		{
-			this.sender = sender;
-			this.group = group;
-		}
-
-		@Override
-		public void run()
-		{
-			String answer = ks.ask(sender, ChatColor.YELLOW + KarmicShare.TAG
-					+ ChatColor.DARK_AQUA + " Remove group " + ChatColor.GOLD
-					+ group + ChatColor.DARK_AQUA + "? ", ChatColor.GREEN
-					+ "yes", ChatColor.RED + "no");
-			if (answer.equals("yes"))
-			{
-				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-						+ " This could take a while...");
-				int i = ks
-						.getServer()
-						.getScheduler()
-						.scheduleAsyncDelayedTask(ks,
-								new RemoveGroupTask(sender, group));
-				if (i == -1)
-				{
-					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-							+ " Could not schedule task");
-				}
-				ks.getDatabaseHandler().standardQuery(
-						"DELETE FROM " + Table.ITEMS.getName()
-								+ " WHERE groups='" + group + "';");
-				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-						+ " Removed all items of group: " + ChatColor.GOLD
-						+ group);
-			}
-			else
-			{
-				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-						+ ChatColor.DARK_AQUA + " Cancelled removal of "
-						+ ChatColor.GOLD + group);
-			}
-		}
-	}
-
-	class RemoveGroupTask implements Runnable
-	{
-		CommandSender sender;
-		String group;
-		Map<String, String> queries = new HashMap<String, String>();
-
-		public RemoveGroupTask(CommandSender sender, String group)
-		{
-			this.sender = sender;
-			this.group = group;
-		}
-
-		@Override
-		public void run()
-		{
-			try
-			{
-				Query rs = ks.getDatabaseHandler().select(
-						"SELECT * FROM " + Table.PLAYERS.getName() + ";");
-				if (rs.getResult().next())
-				{
-					do
-					{
-						boolean has = false;
-						String groups = rs.getResult().getString("groups");
-						if (!rs.getResult().wasNull())
-						{
-							if (groups.contains("&"))
-							{
-								// they have multiple groups
-								for (String s : groups.split("&"))
-								{
-									if (s.equals(group))
-									{
-										has = true;
-									}
-								}
-							}
-							else
-							{
-								// they only have one group
-								if (groups.equals(group))
-								{
-									has = true;
-								}
-							}
-							if (has)
-							{
-								if (groups.contains("&"))
-								{
-									// Multigroup
-									StringBuilder sb = new StringBuilder();
-									for (String s : groups.split("&"))
-									{
-										ks.getLogger().info(s);
-										// Add back all groups excluding
-										// specified group
-										if (!s.equals(group))
-										{
-											sb.append(s + "&");
-										}
-									}
-									// Remove trailing ampersand
-									sb.deleteCharAt(sb.length() - 1);
-									groups = sb.toString();
-									queries.put(
-											rs.getResult().getString(
-													"playername"), groups);
-								}
-								// Else, it was their only group, so clear it.
-								queries.put(
-										rs.getResult().getString("playername"),
-										"");
-							}
-						}
-					} while (rs.getResult().next());
-				}
-				rs.closeQuery();
-				for (Map.Entry<String, String> entry : queries.entrySet())
-				{
-					ks.getDatabaseHandler().standardQuery(
-							"UPDATE " + Table.PLAYERS.getName()
-									+ " SET groups='" + entry.getValue()
-									+ "' WHERE playername='" + entry.getKey()
-									+ "';");
-				}
-				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-						+ " Done removing group " + ChatColor.GRAY + group
-						+ ChatColor.YELLOW + " from all players.");
-			}
-			catch (SQLException e)
-			{
-				sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL error");
-				e.printStackTrace();
-			}
-		}
-
 	}
 }

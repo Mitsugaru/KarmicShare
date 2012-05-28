@@ -9,7 +9,7 @@ public enum PermissionNode
 			".ignore.karma"), IGNORE_GROUP(".ignore.group"), COMMANDS_GIVE(
 			".commands.give"), COMMANDS_TAKE(".commands.take"), COMMANDS_LIST(
 			".commands.list"), COMMANDS_VALUE(".commands.value"), ADMIN_ADD(
-			".admin.add"), ADMIN_RESET(".admin.reset"), ADMIN_SET(".admin.set"), ADMIN_DRAIN(
+			".admin.add"), ADMIN_CLEANUP(".admin.cleanup"), ADMIN_RESET(".admin.reset"), ADMIN_SET(".admin.set"), ADMIN_DRAIN(
 			".admin.drain"), ADMIN_RELOAD(".admin.reload"), ADMIN_GROUP_CREATE(
 			".admin.group.create"), ADMIN_GROUP_DELETE(".admin.group.delete"), ADMIN_GROUP_ADD(
 			".admin.group.add"), ADMIN_GROUP_REMOVE(".admin.group.remove");

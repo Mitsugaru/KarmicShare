@@ -114,6 +114,9 @@ permissions:
     KarmicShare.admin.add:
         description: Allows admin to add items to the pool
         default: op
+    KarmicShare.admin.cleanup:
+        description: Allows admin to cleanup bad entries
+        default: op
     KarmicShare.admin.reset:
         description: Allows admin to reset a player's karma
         default: op
@@ -153,6 +156,7 @@ permissions:
             KarmicShare.karma.other: true
             KarmicShare.info: true
             KarmicShare.admin.add: true
+            KarmicShare.admin.cleanup: true
             KarmicShare.admin.reset: true
             KarmicShare.admin.set: true
             KarmicShare.admin.drain: true
