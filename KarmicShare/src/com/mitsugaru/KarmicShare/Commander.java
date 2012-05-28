@@ -1978,8 +1978,7 @@ public class Commander implements CommandExecutor
 					final String query = "DELETE FROM " + Table.ITEMS.getName()
 							+ " WHERE groups='" + group + "';";
 					ks.getDatabaseHandler().standardQuery(query);
-					ks.getLogger().info(
-							KarmicShare.TAG + " Items for group '" + group
+					ks.getLogger().info("Items for group '" + group
 									+ "' cleared");
 					cache.clear();
 				}
@@ -2016,8 +2015,7 @@ public class Commander implements CommandExecutor
 					ks.getDatabaseHandler().standardQuery(
 							"DELETE FROM " + Table.ITEMS.getName()
 									+ " WHERE amount<='0';");
-					ks.getLogger().info(
-							KarmicShare.TAG + " Cleanup query executed");
+					ks.getLogger().info("Cleanup query executed");
 				}
 			}
 			else
