@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare.questioner.tasks;
+package com.mitsugaru.KarmicShare.tasks;
 
 import java.sql.SQLException;
 import java.util.HashMap;

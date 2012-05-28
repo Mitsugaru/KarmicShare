@@ -9,7 +9,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
@@ -26,14 +25,17 @@ import com.mitsugaru.KarmicShare.Commander;
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
+import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
-import com.splatbang.betterchest.BetterChest;
+import com.mitsugaru.KarmicShare.tasks.ShowKSInventoryTask;
 
 public class KSPlayerListener implements Listener
 {
 	private KarmicShare plugin;
+	private static final int chestSize = 54;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
 
@@ -55,32 +57,37 @@ public class KSPlayerListener implements Listener
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-		// Check if chests are enabled
-		if (!plugin.getPluginConfig().chests || !plugin.useChest())
-		{
-			return;
-		}
-		else if (event.getPlayer() == null || event.getClickedBlock() == null)
+		if (event.getPlayer() == null || event.getClickedBlock() == null)
 		{
 			// Null check
 			return;
 		}
+		// Grab player
+		final Player player = event.getPlayer();
 		// Grab block
 		final Block block = event.getClickedBlock();
-		// Determine if it is ours
-		boolean isChest = false;
+		boolean isChest = false, showInventory = false;
 		int page = 1;
+		//Determine if its a chest
 		if (block.getType().equals(Material.CHEST))
 		{
 			isChest = true;
 		}
-		// Assure that it is ours.
-		final Sign sign = isOurs(block);
+		// Determine if it is ours.
+		final Sign sign = grabOurSign(block);
 		if (sign == null)
 		{
+			//Not ours, so don't care
 			return;
 		}
-		final Player player = event.getPlayer();
+		// Check if chests are enabled
+		if (!plugin.getPluginConfig().chests || !plugin.useChest())
+		{
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Chests disabled. Cannot use physical chests.");
+			event.setCancelled(true);
+			return;
+		}
 		// Check permission
 		if (!PermCheck.checkPermission(event.getPlayer(), PermissionNode.CHEST))
 		{
@@ -103,7 +110,7 @@ public class KSPlayerListener implements Listener
 			if (Commander.chestPage.containsKey(player.getName()))
 			{
 				page = grabNextPage(Commander.chestPage.get(player.getName())
-						.intValue() - 1, 54, group, Direction.CURRENT);
+						.intValue() - 1, chestSize, group, Direction.CURRENT);
 				Commander.chestPage.remove(player.getName());
 				sign.setLine(3, "" + page);
 				sign.update();
@@ -112,8 +119,8 @@ public class KSPlayerListener implements Listener
 			{
 				// Assures that the page number on sign does not conflict with
 				// players selected group's page limit
-				page = grabNextPage(Integer.parseInt("" + sign.getLine(3)), 54,
-						group, Direction.CURRENT);
+				page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
+						chestSize, group, Direction.CURRENT);
 			}
 		}
 		catch (NumberFormatException e)
@@ -125,7 +132,7 @@ public class KSPlayerListener implements Listener
 									+ " Sign has wrong formatting. Noninteger page number. Remake sign.");
 			return;
 		}
-		// Handle our logic
+		// Handle click logic
 		if (player.isSneaking())
 		{
 			/**
@@ -143,7 +150,7 @@ public class KSPlayerListener implements Listener
 			else
 			{
 				// Right click and chest
-				// TODO Show inventory
+				showInventory = true;
 			}
 		}
 		else
@@ -151,577 +158,83 @@ public class KSPlayerListener implements Listener
 			/**
 			 * Page cycling / show inventory
 			 */
-			if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+			try
 			{
-				// TODO cycle page forward
+				if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+				{
+					// cycle page forward
+
+					page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
+							chestSize, group, Direction.FORWARD);
+					sign.setLine(3, "" + page);
+					sign.update();
+
+				}
+				else if (event.getAction() == Action.RIGHT_CLICK_BLOCK
+						&& !isChest)
+				{
+					// cycle page backward
+					page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
+							chestSize, group, Direction.BACKWARD);
+					sign.setLine(3, "" + page);
+					sign.update();
+				}
+				else
+				{
+					// Right click and chest
+					showInventory = true;
+				}
 			}
-			else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
+			catch (NumberFormatException e)
 			{
-				// TODO cycle page backward
+				event.getPlayer()
+						.sendMessage(
+								ChatColor.RED
+										+ KarmicShare.TAG
+										+ " Sign has wrong formatting. Noninteger page number. Remake sign.");
+				return;
+			}
+		}
+		if (showInventory)
+		{
+			// Cancel event to stop chest inventory from interferring
+			event.setCancelled(true);
+			// Show inventory
+			final GroupPageInfo info = new GroupPageInfo(group, page);
+			Inventory inventory = null;
+			if (Karma.inventories.containsKey(info))
+			{
+				// Grab already open inventory
+				inventory = Karma.inventories.get(info).getInventory();
 			}
 			else
 			{
-				// Right click and chest
-				// Show inventory
+				final KSInventoryHolder holder = new KSInventoryHolder(info);
+				inventory = plugin.getServer().createInventory(holder,
+						chestSize);
+				populateInventory(inventory, page, true, group);
+				holder.setInventory(inventory);
+				Karma.inventories.put(info, holder);
 			}
-		}
-
-		/**
-		 * ===================================================== OLD OLD OLD
-		 * TODO phase out =====================================================
-		 */
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
-		{
-			if (block.getType().equals(Material.CHEST))
+			// Set task
+			final int id = plugin
+					.getServer()
+					.getScheduler()
+					.scheduleSyncDelayedTask(plugin,
+							new ShowKSInventoryTask(plugin, player, inventory),
+							1);
+			if (id == -1)
 			{
-				if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
-				{
-					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-							KarmicShare.TAG))
-					{
-						group = ChatColor.stripColor(sign.getLine(0))
-								.toLowerCase();
-						if (PermCheck.checkPermission(event.getPlayer(),
-								PermissionNode.CHEST))
-						{
-							if (Karma.playerHasGroup(event.getPlayer(), event
-									.getPlayer().getName(), group)
-									|| PermCheck.checkPermission(
-											event.getPlayer(),
-											"KarmicShare.ignore.group"))
-							{
-								BetterChest chest = new BetterChest(
-										(Chest) block.getState());
-								if (chest.isDoubleChest())
-								{
-									BetterChest adj = new BetterChest(
-											chest.attached());
-									chest = adj;
-								}
-								chest.getInventory().clear();
-								chest.update();
-								if (plugin.getPluginConfig().chests
-										&& plugin.useChest())
-								{
-									page = 1;
-									try
-									{
-										page = Integer
-												.parseInt(sign.getLine(3));
-										populateChest(chest.getInventory(),
-												page, chest.isDoubleChest(),
-												group);
-										chest.update();
-									}
-									catch (NumberFormatException n)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-								else
-								{
-									event.getPlayer()
-											.sendMessage(
-													ChatColor.RED
-															+ KarmicShare.TAG
-															+ " Chests disabled. Cannot use physical chests.");
-								}
-							}
-							else
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.RED + KarmicShare.TAG
-												+ " Not part of group "
-												+ ChatColor.GRAY + group);
-								event.setCancelled(true);
-							}
-						}
-						else
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.TAG
-											+ " Lack permission: "
-											+ PermissionNode.CHEST.getNode());
-							event.setCancelled(true);
-						}
-					}
-				}
-				else
-				{
-					// Check all 4 directions for adjacent chest
-					for (BlockFace face : nav)
-					{
-						if (block.getRelative(face).getType()
-								.equals(Material.CHEST))
-						{
-							final Block adjBlock = block.getRelative(face);
-							if (adjBlock.getRelative(BlockFace.UP).getType()
-									.equals(Material.WALL_SIGN))
-							{
-								if (ChatColor.stripColor(sign.getLine(1))
-										.equalsIgnoreCase(KarmicShare.TAG))
-								{
-									group = ChatColor.stripColor(
-											sign.getLine(0)).toLowerCase();
-									if (PermCheck.checkPermission(
-											event.getPlayer(),
-											PermissionNode.CHEST.getNode()))
-									{
-										if (Karma.playerHasGroup(event
-												.getPlayer(), event.getPlayer()
-												.getName(), group)
-												|| PermCheck
-														.checkPermission(
-																event.getPlayer(),
-																PermissionNode.IGNORE_GROUP
-																		.getNode()))
-										{
-											// populate chests
-											BetterChest chest = new BetterChest(
-													(Chest) block.getState());
-											chest.getInventory().clear();
-											chest.update();
-											if (plugin.getPluginConfig().chests)
-											{
-												page = 1;
-												try
-												{
-													page = Integer
-															.parseInt(sign
-																	.getLine(3));
-													populateChest(
-															chest.getInventory(),
-															page,
-															chest.isDoubleChest(),
-															group);
-													chest.update();
-												}
-												catch (NumberFormatException n)
-												{
-													event.getPlayer()
-															.sendMessage(
-																	ChatColor.RED
-																			+ KarmicShare.TAG
-																			+ " Sign has wrong formatting. Remake sign.");
-												}
-											}
-										}
-										else
-										{
-											event.getPlayer()
-													.sendMessage(
-															ChatColor.RED
-																	+ KarmicShare.TAG
-																	+ " Not part of group "
-																	+ ChatColor.GRAY
-																	+ group);
-											event.setCancelled(true);
-										}
-									}
-									else
-									{
-										event.getPlayer().sendMessage(
-												ChatColor.RED
-														+ KarmicShare.TAG
-														+ " Lack permission: "
-														+ PermissionNode.CHEST
-																.getNode());
-										event.setCancelled(true);
-									}
-								}
-							}
-						}
-					}
-				}
-
-			}
-			else if (block.getType().equals(Material.WALL_SIGN))
-			{
-				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-						KarmicShare.TAG))
-				{
-					group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
-
-					if (PermCheck.checkPermission(event.getPlayer(),
-							PermissionNode.CHEST.getNode()))
-					{
-						if (Karma.playerHasGroup(event.getPlayer(), event
-								.getPlayer().getName(), group)
-								|| PermCheck.checkPermission(event.getPlayer(),
-										PermissionNode.IGNORE_GROUP.getNode()))
-						{
-							if (block.getRelative(BlockFace.DOWN).getType()
-									.equals(Material.CHEST))
-							{
-								BetterChest chest = new BetterChest(
-										(Chest) block.getRelative(
-												BlockFace.DOWN).getState());
-								final String name = event.getPlayer().getName();
-								if (chest.isDoubleChest())
-								{
-									try
-									{
-										if (Commander.chestPage
-												.containsKey(name))
-										{
-											page = grabNextPage(
-													Commander.chestPage.get(
-															name).intValue() - 1,
-													54, group,
-													Direction.FORWARD);
-											Commander.chestPage.remove(name);
-										}
-										else
-										{
-											page = grabNextPage(
-													Integer.parseInt(""
-															+ sign.getLine(3)),
-													54, group,
-													Direction.BACKWARD);
-										}
-										sign.setLine(3, "" + page);
-										sign.update();
-									}
-									catch (NumberFormatException e)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-								else
-								{
-									try
-									{
-										if (Commander.chestPage
-												.containsKey(name))
-										{
-											page = grabNextPage(
-													Commander.chestPage.get(
-															name).intValue() - 1,
-													27, group,
-													Direction.BACKWARD);
-											Commander.chestPage.remove(name);
-										}
-										else
-										{
-											page = grabNextPage(
-													Integer.parseInt(""
-															+ sign.getLine(3)),
-													27, group,
-													Direction.BACKWARD);
-										}
-										sign.setLine(3, "" + page);
-										sign.update();
-									}
-									catch (NumberFormatException e)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-							}
-						}
-						else
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.TAG
-											+ " Not part of group "
-											+ ChatColor.GRAY + group);
-							event.setCancelled(true);
-						}
-					}
-					else
-					{
-						event.getPlayer().sendMessage(
-								ChatColor.RED + KarmicShare.TAG
-										+ " Lack permission: "
-										+ PermissionNode.CHEST.getNode());
-						event.setCancelled(true);
-					}
-				}
-			}
-		}
-		else if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-		{
-			if (block.getType().equals(Material.CHEST))
-			{
-				if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
-				{
-					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-							KarmicShare.TAG))
-					{
-						group = ChatColor.stripColor(sign.getLine(0))
-								.toLowerCase();
-						if (PermCheck.checkPermission(event.getPlayer(),
-								PermissionNode.CHEST.getNode()))
-						{
-							if (Karma.playerHasGroup(event.getPlayer(), event
-									.getPlayer().getName(), group)
-									|| PermCheck.checkPermission(event
-											.getPlayer(),
-											PermissionNode.IGNORE_GROUP
-													.getNode()))
-							{
-								BetterChest chest = new BetterChest(
-										(Chest) block.getState());
-								if (chest.isDoubleChest())
-								{
-									try
-									{
-										page = grabNextPage(
-												Integer.parseInt(""
-														+ sign.getLine(3)), 54,
-												group, Direction.FORWARD);
-										sign.setLine(3, "" + page);
-										sign.update();
-									}
-									catch (NumberFormatException e)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-								else
-								{
-									try
-									{
-										page = grabNextPage(
-												Integer.parseInt(""
-														+ sign.getLine(3)), 27,
-												group, Direction.FORWARD);
-										sign.setLine(3, "" + page);
-										sign.update();
-									}
-									catch (NumberFormatException e)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-							}
-							else
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.RED + KarmicShare.TAG
-												+ " Not part of group "
-												+ ChatColor.GRAY + group);
-								event.setCancelled(true);
-							}
-						}
-						else
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.TAG
-											+ " Lack permission: "
-											+ PermissionNode.CHEST.getNode());
-							event.setCancelled(true);
-						}
-					}
-				}
-				else
-				{
-					// Check all 4 directions for adjacent chest
-					for (BlockFace face : nav)
-					{
-						if (block.getRelative(face).getType()
-								.equals(Material.CHEST))
-						{
-							final Block adjBlock = block.getRelative(face);
-							if (adjBlock.getRelative(BlockFace.UP).getType()
-									.equals(Material.WALL_SIGN))
-							{
-								if (ChatColor.stripColor(sign.getLine(1))
-										.equalsIgnoreCase(KarmicShare.TAG))
-								{
-									group = ChatColor.stripColor(
-											sign.getLine(0)).toLowerCase();
-									if (PermCheck.checkPermission(
-											event.getPlayer(),
-											PermissionNode.CHEST.getNode()))
-									{
-										if (Karma.playerHasGroup(event
-												.getPlayer(), event.getPlayer()
-												.getName(), group)
-												|| PermCheck
-														.checkPermission(
-																event.getPlayer(),
-																PermissionNode.IGNORE_GROUP
-																		.getNode()))
-										{
-											BetterChest chest = new BetterChest(
-													(Chest) block.getState());
-											if (chest.isDoubleChest())
-											{
-												try
-												{
-													page = grabNextPage(
-															Integer.parseInt(""
-																	+ sign.getLine(3)),
-															54, group,
-															Direction.FORWARD);
-													sign.setLine(3, "" + page);
-													sign.update();
-												}
-												catch (NumberFormatException e)
-												{
-													event.getPlayer()
-															.sendMessage(
-																	ChatColor.RED
-																			+ KarmicShare.TAG
-																			+ " Sign has wrong formatting. Remake sign.");
-												}
-											}
-											else
-											{
-												try
-												{
-													page = grabNextPage(
-															Integer.parseInt(""
-																	+ sign.getLine(3)),
-															27, group,
-															Direction.FORWARD);
-													sign.setLine(3, "" + page);
-													sign.update();
-												}
-												catch (NumberFormatException e)
-												{
-													event.getPlayer()
-															.sendMessage(
-																	ChatColor.RED
-																			+ KarmicShare.TAG
-																			+ " Sign has wrong formatting. Remake sign.");
-												}
-											}
-										}
-										else
-										{
-											event.getPlayer()
-													.sendMessage(
-															ChatColor.RED
-																	+ KarmicShare.TAG
-																	+ " Not part of group "
-																	+ ChatColor.GRAY
-																	+ group);
-											event.setCancelled(true);
-										}
-									}
-									else
-									{
-										event.getPlayer().sendMessage(
-												ChatColor.RED
-														+ KarmicShare.TAG
-														+ " Lack permission: "
-														+ PermissionNode.CHEST
-																.getNode());
-										event.setCancelled(true);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else if (block.getType().equals(Material.WALL_SIGN))
-			{
-				if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-						KarmicShare.TAG))
-				{
-					group = ChatColor.stripColor(sign.getLine(0)).toLowerCase();
-					if (PermCheck.checkPermission(event.getPlayer(),
-							PermissionNode.CHEST.getNode()))
-					{
-						if (Karma.playerHasGroup(event.getPlayer(), event
-								.getPlayer().getName(), group)
-								|| PermCheck.checkPermission(event.getPlayer(),
-										PermissionNode.IGNORE_GROUP.getNode()))
-						{
-							if (block.getRelative(BlockFace.DOWN).getType()
-									.equals(Material.CHEST))
-							{
-								BetterChest chest = new BetterChest(
-										(Chest) block.getRelative(
-												BlockFace.DOWN).getState());
-								if (chest.isDoubleChest())
-								{
-									try
-									{
-										page = grabNextPage(
-												Integer.parseInt(""
-														+ sign.getLine(3)), 54,
-												group, Direction.FORWARD);
-										sign.setLine(3, "" + page);
-										sign.update();
-									}
-									catch (NumberFormatException e)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-								else
-								{
-									try
-									{
-										page = grabNextPage(
-												Integer.parseInt(""
-														+ sign.getLine(3)), 27,
-												group, Direction.FORWARD);
-										sign.setLine(3, "" + page);
-										sign.update();
-									}
-									catch (NumberFormatException e)
-									{
-										event.getPlayer()
-												.sendMessage(
-														ChatColor.RED
-																+ KarmicShare.TAG
-																+ " Sign has wrong formatting. Remake sign.");
-									}
-								}
-							}
-						}
-						else
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.RED + KarmicShare.TAG
-											+ " Not part of group "
-											+ ChatColor.GRAY + group);
-							event.setCancelled(true);
-						}
-					}
-					else
-					{
-						event.getPlayer().sendMessage(
-								ChatColor.RED + KarmicShare.TAG
-										+ " Lack permission: "
-										+ PermissionNode.CHEST.getNode());
-						event.setCancelled(true);
-					}
-				}
+				plugin.getLogger().warning(
+						"Could not schedule open inventory for "
+								+ player.getName());
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Could not schedule open inventory!");
 			}
 		}
 	}
 
-	private Sign isOurs(final Block block)
+	private Sign grabOurSign(final Block block)
 	{
 		if (block.getType().equals(Material.CHEST))
 		{
@@ -869,8 +382,8 @@ public class KSPlayerListener implements Listener
 		FORWARD, BACKWARD, CURRENT;
 	}
 
-	private void populateChest(Inventory inventory, int page, boolean isDouble,
-			String group)
+	private void populateInventory(Inventory inventory, int page,
+			boolean isDouble, String group)
 	{
 		try
 		{
@@ -878,7 +391,7 @@ public class KSPlayerListener implements Listener
 			int limit = 27;
 			if (isDouble)
 			{
-				limit = 54;
+				limit = chestSize;
 			}
 			int start = (page - 1) * limit;
 			Query itemList = plugin.getDatabaseHandler().select(

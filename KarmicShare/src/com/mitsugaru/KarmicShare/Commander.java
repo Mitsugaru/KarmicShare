@@ -26,11 +26,11 @@ import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
-import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmCleanup;
-import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmDrain;
-import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmPlayerKarmaReset;
-import com.mitsugaru.KarmicShare.questioner.tasks.ConfirmRemoveGroup;
-import com.mitsugaru.KarmicShare.questioner.tasks.RemoveGroupTask;
+import com.mitsugaru.KarmicShare.tasks.ConfirmCleanup;
+import com.mitsugaru.KarmicShare.tasks.ConfirmDrain;
+import com.mitsugaru.KarmicShare.tasks.ConfirmPlayerKarmaReset;
+import com.mitsugaru.KarmicShare.tasks.ConfirmRemoveGroup;
+import com.mitsugaru.KarmicShare.tasks.RemoveGroupTask;
 
 public class Commander implements CommandExecutor
 {
