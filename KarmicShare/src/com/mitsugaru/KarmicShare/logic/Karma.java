@@ -8,6 +8,10 @@ import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.EnchantmentWrapper;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
@@ -15,10 +19,12 @@ import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
+import com.mitsugaru.KarmicShare.tasks.ShowKSInventoryTask;
 
 public class Karma
 {
 	private static KarmicShare plugin;
+	public static final int chestSize = 54;
 	public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
 	public static final Map<String, String> selectedGroup = new HashMap<String, String>();
 	public static final Map<GroupPageInfo, KSInventoryHolder> inventories = new HashMap<GroupPageInfo, KSInventoryHolder>();
@@ -342,7 +348,7 @@ public class Karma
 		}
 		return group;
 	}
-	
+
 	/**
 	 * Quietly updates the local cache of the item pool
 	 */
@@ -376,7 +382,7 @@ public class Karma
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void removePlayerFromGroup(CommandSender sender, String name,
 			String group)
 	{
@@ -461,6 +467,184 @@ public class Karma
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
+			e.printStackTrace();
+		}
+	}
+
+	public static void showInventory(Player player, String group, int page)
+	{
+		// Show inventory
+		final GroupPageInfo info = new GroupPageInfo(group, page);
+		Inventory inventory = null;
+		if (Karma.inventories.containsKey(info))
+		{
+			// Grab already open inventory
+			inventory = Karma.inventories.get(info).getInventory();
+		}
+		else
+		{
+			final KSInventoryHolder holder = new KSInventoryHolder(info);
+			inventory = plugin.getServer().createInventory(holder, chestSize,
+					group + " : " + page);
+			populateInventory(inventory, page, group);
+			holder.setInventory(inventory);
+			Karma.inventories.put(info, holder);
+		}
+		// Set task
+		final int id = plugin
+				.getServer()
+				.getScheduler()
+				.scheduleSyncDelayedTask(plugin,
+						new ShowKSInventoryTask(plugin, player, inventory), 3);
+		if (id == -1)
+		{
+			plugin.getLogger()
+					.warning(
+							"Could not schedule open inventory for "
+									+ player.getName());
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Could not schedule open inventory!");
+		}
+	}
+
+	private static void populateInventory(Inventory inventory, int page,
+			String group)
+	{
+		try
+		{
+			int count = 0;
+			int start = (page - 1) * chestSize;
+			int groupId = Karma.getGroupId(group);
+			if (groupId == -1)
+			{
+				return;
+			}
+			Query itemList = plugin.getDatabaseHandler().select(
+					"SELECT * FROM " + Table.ITEMS.getName()
+							+ " WHERE groups='" + groupId + "';");
+			if (itemList.getResult().next())
+			{
+				boolean done = false;
+				do
+				{
+					// Generate item
+					int id = itemList.getResult().getInt("itemid");
+					int amount = itemList.getResult().getInt("amount");
+					byte data = itemList.getResult().getByte("data");
+					short dur = itemList.getResult().getShort("durability");
+					ItemStack item = null;
+					if (Item.isTool(id))
+					{
+						item = new ItemStack(id, amount, dur);
+					}
+					else
+					{
+						item = new ItemStack(id, amount, dur, data);
+					}
+					// Generate psudo item to calculate slots taken up
+					int maxStack = item.getType().getMaxStackSize();
+					if (maxStack <= 0)
+					{
+						maxStack = 1;
+					}
+					int stacks = amount / maxStack;
+					final double rem = (double) amount % (double) maxStack;
+					if (rem != 0)
+					{
+						stacks++;
+					}
+					for (int x = 0; x < stacks; x++)
+					{
+						ItemStack add = item.clone();
+						if (amount < maxStack)
+						{
+							add.setAmount(amount);
+						}
+						else
+						{
+							add.setAmount(maxStack);
+							amount -= maxStack;
+						}
+
+						if (count >= start)
+						{
+							Item meta = new Item(id, data, dur);
+							try
+							{
+								// If tool
+								if (meta.isTool())
+								{
+									// Check for enchantments
+									String enchantments = itemList.getResult()
+											.getString("enchantments");
+									if (!itemList.getResult().wasNull())
+									{
+										if (!enchantments.equals(""))
+										{
+											String[] cut = enchantments
+													.split("i");
+											for (int s = 0; s < cut.length; s++)
+											{
+												String[] cutter = cut[s]
+														.split("v");
+												EnchantmentWrapper e = new EnchantmentWrapper(
+														Integer.parseInt(cutter[0]));
+												add.addUnsafeEnchantment(
+														e.getEnchantment(),
+														Integer.parseInt(cutter[1]));
+
+											}
+										}
+									}
+									final HashMap<Integer, ItemStack> residual = inventory
+											.addItem(add);
+									if (!residual.isEmpty())
+									{
+										done = true;
+									}
+								}
+								else if (meta.isPotion())
+								{
+									// Remove data for full potion compatibility
+									item = new ItemStack(id, amount, dur);
+									final HashMap<Integer, ItemStack> residual = inventory
+											.addItem(add);
+									if (!residual.isEmpty())
+									{
+										done = true;
+									}
+								}
+								else
+								{
+									final HashMap<Integer, ItemStack> residual = inventory
+											.addItem(add);
+									if (!residual.isEmpty())
+									{
+										done = true;
+									}
+								}
+							}
+							catch (NumberFormatException e)
+							{
+								// Ignore faulty item
+							}
+						}
+						count++;
+					}
+				} while (itemList.getResult().next() && !done);
+			}
+			else
+			{
+				// No items to add.
+				inventory.clear();
+			}
+			// Close select
+			itemList.closeQuery();
+		}
+		catch (SQLException e)
+		{
+			plugin.getLogger().warning(
+					ChatColor.RED + KarmicShare.TAG + "SQL error.");
 			e.printStackTrace();
 		}
 	}

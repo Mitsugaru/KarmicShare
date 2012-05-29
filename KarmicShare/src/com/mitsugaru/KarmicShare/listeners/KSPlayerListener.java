@@ -1,7 +1,6 @@
 package com.mitsugaru.KarmicShare.listeners;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -9,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,24 +15,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
-import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
-import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
-import com.mitsugaru.KarmicShare.tasks.ShowKSInventoryTask;
 
 public class KSPlayerListener implements Listener
 {
 	private KarmicShare plugin;
-	private static final int chestSize = 54;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
 
@@ -45,9 +38,8 @@ public class KSPlayerListener implements Listener
 
 	public void onPlayerQuit(final PlayerQuitEvent event)
 	{
-		// TODO player quit event, since that doesn't throw an inventory close
-		// event
-		// just to double check
+		// player quit event, since that doesn't throw an inventory close
+		// event just to double check and just viewers for inventories
 		try
 		{
 			if (event.getPlayer().getInventory().getHolder() != null)
@@ -121,7 +113,8 @@ public class KSPlayerListener implements Listener
 			if (Karma.chestPage.containsKey(player.getName()))
 			{
 				page = grabNextPage(Karma.chestPage.get(player.getName())
-						.intValue() - 1, chestSize, group, Direction.CURRENT);
+						.intValue() - 1, Karma.chestSize, group,
+						Direction.CURRENT);
 				Karma.chestPage.remove(player.getName());
 				sign.setLine(3, "" + page);
 				sign.update();
@@ -131,7 +124,7 @@ public class KSPlayerListener implements Listener
 				// Assures that the page number on sign does not conflict with
 				// players selected group's page limit
 				page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
-						chestSize, group, Direction.CURRENT);
+						Karma.chestSize, group, Direction.CURRENT);
 			}
 		}
 		catch (NumberFormatException e)
@@ -178,7 +171,7 @@ public class KSPlayerListener implements Listener
 					// cycle page forward
 
 					page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
-							chestSize, group, Direction.FORWARD);
+							Karma.chestSize, group, Direction.FORWARD);
 					sign.setLine(3, "" + page);
 					sign.update();
 
@@ -188,7 +181,7 @@ public class KSPlayerListener implements Listener
 				{
 					// cycle page backward
 					page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
-							chestSize, group, Direction.BACKWARD);
+							Karma.chestSize, group, Direction.BACKWARD);
 					sign.setLine(3, "" + page);
 					sign.update();
 				}
@@ -212,38 +205,7 @@ public class KSPlayerListener implements Listener
 		{
 			// Cancel event to stop chest inventory from interferring
 			event.setCancelled(true);
-			// Show inventory
-			final GroupPageInfo info = new GroupPageInfo(group, page);
-			Inventory inventory = null;
-			if (Karma.inventories.containsKey(info))
-			{
-				// Grab already open inventory
-				inventory = Karma.inventories.get(info).getInventory();
-			}
-			else
-			{
-				final KSInventoryHolder holder = new KSInventoryHolder(info);
-				inventory = plugin.getServer().createInventory(holder,
-						chestSize, group + " : " + page);
-				populateInventory(inventory, page, true, group);
-				holder.setInventory(inventory);
-				Karma.inventories.put(info, holder);
-			}
-			// Set task
-			final int id = plugin
-					.getServer()
-					.getScheduler()
-					.scheduleSyncDelayedTask(plugin,
-							new ShowKSInventoryTask(plugin, player, inventory),
-							3);
-			if (id == -1)
-			{
-				plugin.getLogger().warning(
-						"Could not schedule open inventory for "
-								+ player.getName());
-				player.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " Could not schedule open inventory!");
-			}
+			Karma.showInventory(player, group, page);
 		}
 	}
 
@@ -437,152 +399,5 @@ public class KSPlayerListener implements Listener
 	private enum Direction
 	{
 		FORWARD, BACKWARD, CURRENT;
-	}
-
-	private void populateInventory(Inventory inventory, int page,
-			boolean isDouble, String group)
-	{
-		try
-		{
-			int count = 0;
-			int limit = 27;
-			if (isDouble)
-			{
-				limit = chestSize;
-			}
-			int start = (page - 1) * limit;
-			int groupId = Karma.getGroupId(group);
-			if (groupId == -1)
-			{
-				return;
-			}
-			Query itemList = plugin.getDatabaseHandler().select(
-					"SELECT * FROM " + Table.ITEMS.getName()
-							+ " WHERE groups='" + groupId + "';");
-			if (itemList.getResult().next())
-			{
-				boolean done = false;
-				do
-				{
-					// Generate item
-					int id = itemList.getResult().getInt("itemid");
-					int amount = itemList.getResult().getInt("amount");
-					byte data = itemList.getResult().getByte("data");
-					short dur = itemList.getResult().getShort("durability");
-					ItemStack item = null;
-					if (Item.isTool(id))
-					{
-						item = new ItemStack(id, amount, dur);
-					}
-					else
-					{
-						item = new ItemStack(id, amount, dur, data);
-					}
-					// Generate psudo item to calculate slots taken up
-					int maxStack = item.getType().getMaxStackSize();
-					if (maxStack <= 0)
-					{
-						maxStack = 1;
-					}
-					int stacks = amount / maxStack;
-					final double rem = (double) amount % (double) maxStack;
-					if (rem != 0)
-					{
-						stacks++;
-					}
-					for (int x = 0; x < stacks; x++)
-					{
-						ItemStack add = item.clone();
-						if (amount < maxStack)
-						{
-							add.setAmount(amount);
-						}
-						else
-						{
-							add.setAmount(maxStack);
-							amount -= maxStack;
-						}
-
-						if (count >= start)
-						{
-							Item meta = new Item(id, data, dur);
-							try
-							{
-								// If tool
-								if (meta.isTool())
-								{
-									// Check for enchantments
-									String enchantments = itemList.getResult()
-											.getString("enchantments");
-									if (!itemList.getResult().wasNull())
-									{
-										if (!enchantments.equals(""))
-										{
-											String[] cut = enchantments
-													.split("i");
-											for (int s = 0; s < cut.length; s++)
-											{
-												String[] cutter = cut[s]
-														.split("v");
-												EnchantmentWrapper e = new EnchantmentWrapper(
-														Integer.parseInt(cutter[0]));
-												add.addUnsafeEnchantment(
-														e.getEnchantment(),
-														Integer.parseInt(cutter[1]));
-
-											}
-										}
-									}
-									final HashMap<Integer, ItemStack> residual = inventory
-											.addItem(add);
-									if (!residual.isEmpty())
-									{
-										done = true;
-									}
-								}
-								else if (meta.isPotion())
-								{
-									// Remove data for full potion compatibility
-									item = new ItemStack(id, amount, dur);
-									final HashMap<Integer, ItemStack> residual = inventory
-											.addItem(add);
-									if (!residual.isEmpty())
-									{
-										done = true;
-									}
-								}
-								else
-								{
-									final HashMap<Integer, ItemStack> residual = inventory
-											.addItem(add);
-									if (!residual.isEmpty())
-									{
-										done = true;
-									}
-								}
-							}
-							catch (NumberFormatException e)
-							{
-								// Ignore faulty item
-							}
-						}
-						count++;
-					}
-				} while (itemList.getResult().next() && !done);
-			}
-			else
-			{
-				// No items to add.
-				inventory.clear();
-			}
-			// Close select
-			itemList.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.TAG + "SQL error.");
-			e.printStackTrace();
-		}
 	}
 }

@@ -74,6 +74,7 @@ public class Commander implements CommandExecutor
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Karma disabled");
 				}
+				// Show groups
 				if (sender instanceof Player)
 				{
 					String current = Karma.selectedGroup.get(sender.getName());
@@ -122,6 +123,7 @@ public class Commander implements CommandExecutor
 		}
 		else
 		{
+			// Grab command
 			final String com = args[0].toLowerCase();
 			if (com.equals("version") || com.equals("ver"))
 			{
@@ -130,6 +132,7 @@ public class Commander implements CommandExecutor
 			}
 			else if (com.equals("?") || com.equals("help"))
 			{
+				// Help
 				this.displayHelp(sender);
 			}
 			else if (com.equals("info"))
@@ -137,19 +140,19 @@ public class Commander implements CommandExecutor
 				// Info command
 				ItemCommands.inspectItem(sender, args);
 			}
-			// Player is giving item to pool
 			else if (com.equals("give"))
 			{
+				// Player is giving item to pool
 				ItemCommands.giveItem(sender, args);
 			}
-			// Player requested an item
 			else if (com.equals("take"))
 			{
+				// Player requested an item
 				ItemCommands.takeItem(sender, args);
 			}
-			// Previous page of item pool
 			else if (com.equals("prev"))
 			{
+				// Previous page of item pool
 				if (PermCheck.checkPermission(sender,
 						PermissionNode.COMMANDS_LIST))
 				{
@@ -163,9 +166,9 @@ public class Commander implements CommandExecutor
 							+ PermissionNode.COMMANDS_LIST.getNode());
 				}
 			}
-			// Next page of item pool
 			else if (com.equals("next"))
 			{
+				// Next page of item pool
 				if (PermCheck.checkPermission(sender,
 						PermissionNode.COMMANDS_LIST))
 				{
@@ -179,9 +182,9 @@ public class Commander implements CommandExecutor
 							+ PermissionNode.COMMANDS_LIST.getNode());
 				}
 			}
-			// List items in pool
 			else if (com.equals("list"))
 			{
+				// List items in pool
 				if (PermCheck.checkPermission(sender,
 						PermissionNode.COMMANDS_LIST))
 				{
@@ -194,9 +197,9 @@ public class Commander implements CommandExecutor
 							+ PermissionNode.COMMANDS_LIST.getNode());
 				}
 			}
-			// Ask for karma multipliers / page through muliplier list
 			else if (com.equals("value"))
 			{
+				// Ask for karma multipliers / page through muliplier list
 				if (PermCheck.checkPermission(sender,
 						PermissionNode.COMMANDS_VALUE))
 				{
@@ -247,19 +250,87 @@ public class Commander implements CommandExecutor
 							+ " Chests are disabled.");
 				}
 			}
-			// Admin command
+			else if (com.equals("open"))
+			{
+				if (plugin.useChest())
+				{
+					if (sender instanceof Player)
+					{
+						final Player player = (Player) sender;
+						if (PermCheck.checkPermission(sender,
+								PermissionNode.COMMANDS_OPEN))
+						{
+							// Grab current group
+							String current = Karma.selectedGroup.get(sender
+									.getName());
+							if (current == null)
+							{
+								Karma.selectedGroup.put(sender.getName(),
+										"global");
+								current = "global";
+							}
+							// Validate group
+							if (Karma.validGroup(sender, current))
+							{
+								//check if page is given, else default to 1
+								int page = 1;
+								if (args.length > 1)
+								{
+									try
+									{
+										page = Integer.parseInt(args[1]);
+									}
+									catch (NumberFormatException e)
+									{
+										sender.sendMessage(ChatColor.RED
+												+ KarmicShare.TAG + " Invalid number: "
+												+ ChatColor.GOLD + args[1]);
+										page = 1;
+									}
+								}
+								//Show inventory
+								Karma.showInventory(player, current, page);
+							}
+							else
+							{
+								sender.sendMessage(ChatColor.RED
+										+ KarmicShare.TAG + " Group "
+										+ ChatColor.GRAY + current
+										+ ChatColor.RED + " does not exist");
+							}
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+									+ " Lack permission: "
+									+ PermissionNode.COMMANDS_OPEN.getNode());
+						}
+					}
+					else
+					{
+						sender.sendMessage(KarmicShare.TAG
+								+ " Cannot use this command as console.");
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+							+ " Chests are disabled.");
+				}
+			}
 			else if (com.equals("group"))
 			{
+				// Group command
 				GroupCommands.parseCommand(sender, args);
 			}
-			// Admin command
 			else if (com.equals("admin"))
 			{
+				// Admin command
 				AdminCommands.parseCommand(sender, args);
 			}
-			// Other player karma lookup
 			else if (com.equals("player"))
 			{
+				// Other player karma lookup
 				this.otherPlayerKarma(sender, args);
 			}
 			else

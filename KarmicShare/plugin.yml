@@ -103,6 +103,9 @@ permissions:
     KarmicShare.commands.value:
         description: Allows usage for command /ks value
         default: op
+    KarmicShare.commands.open:
+        description: Allows usage for command /ks open
+        default: op
     KarmicShare.commands.*:
         description: Allows user to use all restricted commands
         default: op
@@ -111,6 +114,7 @@ permissions:
             KarmicShare.commands.take: true
             KarmicShare.commands.list: true
             KarmicShare.commands.value: true
+            KarmicShare.commands.open: true
     KarmicShare.admin.add:
         description: Allows admin to add items to the pool
         default: op
