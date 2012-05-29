@@ -20,14 +20,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.mitsugaru.KarmicShare.Commander;
-import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
+import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.mitsugaru.KarmicShare.tasks.ShowKSInventoryTask;
@@ -66,9 +65,6 @@ public class KSPlayerListener implements Listener
 		}
 	}
 
-	// TODO show our own inventory holder?
-	// That way, we can live update player interactions if they are of the
-	// same group and same page.
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
@@ -122,11 +118,11 @@ public class KSPlayerListener implements Listener
 		// Handle chest page jump / grab current page number
 		try
 		{
-			if (Commander.chestPage.containsKey(player.getName()))
+			if (Karma.chestPage.containsKey(player.getName()))
 			{
-				page = grabNextPage(Commander.chestPage.get(player.getName())
+				page = grabNextPage(Karma.chestPage.get(player.getName())
 						.intValue() - 1, chestSize, group, Direction.CURRENT);
-				Commander.chestPage.remove(player.getName());
+				Karma.chestPage.remove(player.getName());
 				sign.setLine(3, "" + page);
 				sign.update();
 			}
@@ -345,7 +341,7 @@ public class KSPlayerListener implements Listener
 	{
 		// Calculate number of slots
 		int slots = 0;
-		int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
 			return 1;
@@ -455,7 +451,7 @@ public class KSPlayerListener implements Listener
 				limit = chestSize;
 			}
 			int start = (page - 1) * limit;
-			int groupId = plugin.getDatabaseHandler().getGroupId(group);
+			int groupId = Karma.getGroupId(group);
 			if (groupId == -1)
 			{
 				return;

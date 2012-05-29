@@ -1,6 +1,6 @@
 package com.mitsugaru.KarmicShare.inventory;
 
-import com.mitsugaru.KarmicShare.Karma;
+import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class GroupPageInfo
 {

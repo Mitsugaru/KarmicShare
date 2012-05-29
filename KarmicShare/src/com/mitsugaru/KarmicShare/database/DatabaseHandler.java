@@ -9,7 +9,7 @@ import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.config.Config;
 
 
-public class DBHandler
+public class DatabaseHandler
 {
 	// Class Variables
 	private KarmicShare plugin;
@@ -18,7 +18,7 @@ public class DBHandler
 	private MySQL mysql;
 	private boolean useMySQL;
 
-	public DBHandler(KarmicShare ks, Config conf)
+	public DatabaseHandler(KarmicShare ks, Config conf)
 	{
 		plugin = ks;
 		config = conf;
@@ -237,58 +237,6 @@ public class DBHandler
 			plugin.getLogger().warning("SQL Exception on Import");
 			e.printStackTrace();
 		}
-	}
-
-	public int getGroupId(String group)
-	{
-		int id = -1;
-		try
-		{
-			final Query query = select("SELECT * FROM "
-					+ Table.GROUPS.getName() + " WHERE groupname='" + group
-					+ "';");
-			if (query.getResult().next())
-			{
-				id = query.getResult().getInt("id");
-				if (query.getResult().wasNull())
-				{
-					id = -1;
-				}
-			}
-			query.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			plugin.getLogger().warning(
-					"SQL Exception on getting group '" + group + "' id");
-			e.printStackTrace();
-		}
-		return id;
-	}
-	
-	public String getGroupName(int id)
-	{
-		String group = "NONE";
-		try
-		{
-			final Query query = select("SELECT * FROM " + Table.GROUPS.getName() + " WHERE id='" + id +"';");
-			if(query.getResult().next())
-			{
-				group = query.getResult().getString("groupname");
-				if(query.getResult().wasNull())
-				{
-					group = "NONE";
-				}
-			}
-			query.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			plugin.getLogger().warning(
-					"SQL Exception on getting group name for  id '" + id + "'");
-			e.printStackTrace();
-		}
-		return group;
 	}
 
 	public boolean checkConnection()

@@ -15,10 +15,10 @@ import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
+import com.mitsugaru.KarmicShare.logic.ItemLogic;
 import com.mitsugaru.KarmicShare.tasks.Repopulate;
 
 public class KSInventoryListener implements Listener
@@ -137,7 +137,7 @@ public class KSInventoryListener implements Listener
 								/*
 								 * Of the same time, so add to current stack
 								 */
-								if (!Karma.giveItem(
+								if (!ItemLogic.giveItem(
 										plugin.getServer()
 												.getPlayer(
 														event.getWhoClicked()
@@ -174,7 +174,7 @@ public class KSInventoryListener implements Listener
 						/*
 						 * Attempting to take item
 						 */
-						final int amount = Karma.takeItem(plugin.getServer()
+						final int amount = ItemLogic.takeItem(plugin.getServer()
 								.getPlayer(event.getWhoClicked().getName()),
 								event.getCurrentItem(), group);
 						final int original = event.getCurrentItem().getAmount();
@@ -207,7 +207,7 @@ public class KSInventoryListener implements Listener
 					{
 						// plugin.getLogger().info("left click empty slot");
 						// Putting item into empty slot in chest
-						if (!Karma.giveItem(
+						if (!ItemLogic.giveItem(
 								plugin.getServer().getPlayer(
 										event.getWhoClicked().getName()),
 								event.getCursor(), group))
@@ -224,7 +224,7 @@ public class KSInventoryListener implements Listener
 								.getCurrentItem());
 						// Only giving one
 						item.setAmount(1);
-						if (!Karma.giveItem(
+						if (!ItemLogic.giveItem(
 								plugin.getServer().getPlayer(
 										event.getWhoClicked().getName()), item,
 								group))
@@ -280,7 +280,7 @@ public class KSInventoryListener implements Listener
 		{
 			// plugin.getLogger().info(
 			// "can add 1 to stack");
-			if (Karma.giveItem(
+			if (ItemLogic.giveItem(
 					plugin.getServer().getPlayer(
 							event.getWhoClicked().getName()), item, group))
 			{
@@ -315,7 +315,7 @@ public class KSInventoryListener implements Listener
 		ItemStack item = handleEnchantments(event.getCurrentItem());
 		item.setAmount(half);
 		// Send to database
-		final int amount = Karma.takeItem(
+		final int amount = ItemLogic.takeItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				item, group);
 		if (amount == half)
@@ -385,11 +385,11 @@ public class KSInventoryListener implements Listener
 	 */
 	private void switchingItems(InventoryClickEvent event, String group)
 	{
-		if (Karma.giveItem(
+		if (ItemLogic.giveItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				event.getCursor(), group))
 		{
-			final int amount = Karma.takeItem(
+			final int amount = ItemLogic.takeItem(
 					plugin.getServer().getPlayer(
 							event.getWhoClicked().getName()),
 					event.getCurrentItem(), group);
@@ -423,7 +423,7 @@ public class KSInventoryListener implements Listener
 		{
 			event.setCancelled(true);
 		}
-		if (Karma.giveItem(
+		if (ItemLogic.giveItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				event.getCurrentItem(), group))
 		{
@@ -454,7 +454,7 @@ public class KSInventoryListener implements Listener
 		{
 			event.setCancelled(true);
 		}
-		final int amount = Karma.takeItem(
+		final int amount = ItemLogic.takeItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				event.getCurrentItem(), group);
 		final int original = event.getCurrentItem().getAmount();

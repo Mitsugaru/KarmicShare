@@ -18,10 +18,12 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.config.Config;
-import com.mitsugaru.KarmicShare.database.DBHandler;
+import com.mitsugaru.KarmicShare.database.DatabaseHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
 import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
+import com.mitsugaru.KarmicShare.logic.ItemLogic;
+import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.questioner.KSQuestion;
 import com.mitsugaru.KarmicShare.questioner.KSQuestionsReaper;
@@ -30,9 +32,8 @@ import com.mitsugaru.KarmicShare.questioner.KarmicShareQuestionerPlayerListener;
 public class KarmicShare extends JavaPlugin
 {
 	// Class variables
-	private DBHandler database;
+	private DatabaseHandler database;
 	public static final String TAG = "[KarmicShare]";
-	private Commander commander;
 	private Config config;
 	private int cleantask;
 	public final Vector<KSQuestion> questions = new Vector<KSQuestion>();
@@ -74,16 +75,17 @@ public class KarmicShare extends JavaPlugin
 		// Config
 		config = new Config(this);
 		// Database handler
-		database = new DBHandler(this, config);
-		// Config update
-		config.checkUpdate();
+		database = new DatabaseHandler(this, config);
 		// Initialize permission handler
 		PermCheck.init(this);
 		// Initialize Karma logic handler
 		Karma.init(this);
+		// Initialize ItemLogic handler
+		ItemLogic.init(this);
+		// Config update
+		config.checkUpdate();
 		// Grab Commander to handle commands
-		commander = new Commander(this);
-		getCommand("ks").setExecutor(commander);
+		getCommand("ks").setExecutor(new Commander(this));
 		// Setup economy
 		if (config.economy)
 		{
@@ -120,17 +122,12 @@ public class KarmicShare extends JavaPlugin
 		}
 	}
 
-	public Commander getCommander()
-	{
-		return commander;
-	}
-
 	/**
 	 * Returns SQLite database
 	 * 
 	 * @return SQLite database
 	 */
-	public DBHandler getDatabaseHandler()
+	public DatabaseHandler getDatabaseHandler()
 	{
 		return database;
 	}
@@ -182,7 +179,7 @@ public class KarmicShare extends JavaPlugin
 	{
 		return eco;
 	}
-	
+
 	/**
 	 * Colorizes a given string to Bukkit standards
 	 * 

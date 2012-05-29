@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class ConfirmPlayerKarmaReset implements Runnable
 {

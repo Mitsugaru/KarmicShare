@@ -24,6 +24,8 @@ import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.config.Config;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
+import com.mitsugaru.KarmicShare.logic.ItemLogic;
+import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.mitsugaru.KarmicShare.tasks.ConfirmCleanup;
@@ -41,8 +43,6 @@ public class Commander implements CommandExecutor
 	private final Config config;
 	private final Map<String, Integer> page = new HashMap<String, Integer>(),
 			multiPage = new HashMap<String, Integer>();
-	public static final Map<Item, Integer> cache = new HashMap<Item, Integer>();
-	public static final Map<String, Integer> chestPage = new HashMap<String, Integer>();
 	private long time;
 
 	/**
@@ -234,7 +234,7 @@ public class Commander implements CommandExecutor
 							try
 							{
 								Integer page = Integer.parseInt(args[1]);
-								chestPage.put(sender.getName(), page);
+								Karma.chestPage.put(sender.getName(), page);
 								sender.sendMessage(ChatColor.GREEN
 										+ KarmicShare.TAG
 										+ " Right click on sign to jump to page "
@@ -1105,7 +1105,7 @@ public class Commander implements CommandExecutor
 			Karma.selectedGroup.put(sender.getName(), "global");
 			group = "global";
 		}
-		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		final int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -1180,7 +1180,7 @@ public class Commander implements CommandExecutor
 				this.updateCache(sender);
 				// Check if item exists in cache through
 				// reverse lookup: name -> id:data
-				Item[] array = cache.keySet().toArray(new Item[0]);
+				Item[] array = Karma.cache.keySet().toArray(new Item[0]);
 				for (int i = 0; i < array.length; i++)
 				{
 					String cacheName = array[i].name.toLowerCase();
@@ -1259,7 +1259,7 @@ public class Commander implements CommandExecutor
 				{
 					if (!done)
 					{
-						int a = Karma.takeItem(player, i, group);
+						int a = ItemLogic.takeItem(player, i, group);
 						if (a <= 0)
 						{
 							done = true;
@@ -1285,7 +1285,7 @@ public class Commander implements CommandExecutor
 								{
 									int currentKarma = Karma
 											.getPlayerKarma(player.getName());
-									Karma.giveItem(player, i, group);
+									ItemLogic.giveItem(player, i, group);
 									Karma.updatePlayerKarma(player.getName(),
 											currentKarma);
 								}
@@ -1321,7 +1321,7 @@ public class Commander implements CommandExecutor
 		else if (temp.isPotion())
 		{
 			item = new ItemStack(itemid, amount, Short.valueOf("" + data));
-			finalAmount = Karma.takeItem(player, item, group);
+			finalAmount = ItemLogic.takeItem(player, item, group);
 			if (finalAmount > 0)
 			{
 				item.setAmount(finalAmount);
@@ -1342,7 +1342,7 @@ public class Commander implements CommandExecutor
 					{
 						int currentKarma = Karma.getPlayerKarma(player
 								.getName());
-						Karma.giveItem(player, item, group);
+						ItemLogic.giveItem(player, item, group);
 						Karma.updatePlayerKarma(player.getName(), currentKarma);
 					}
 					catch (SQLException e)
@@ -1357,7 +1357,7 @@ public class Commander implements CommandExecutor
 		else
 		{
 			item = new ItemStack(itemid, amount, Byte.valueOf("" + data));
-			finalAmount = Karma.takeItem(player, item, group);
+			finalAmount = ItemLogic.takeItem(player, item, group);
 			if (finalAmount > 0)
 			{
 				item.setAmount(finalAmount);
@@ -1378,7 +1378,7 @@ public class Commander implements CommandExecutor
 					{
 						int currentKarma = Karma.getPlayerKarma(player
 								.getName());
-						Karma.giveItem(player, item, group);
+						ItemLogic.giveItem(player, item, group);
 						Karma.updatePlayerKarma(player.getName(), currentKarma);
 					}
 					catch (SQLException e)
@@ -1431,7 +1431,7 @@ public class Commander implements CommandExecutor
 			Karma.selectedGroup.put(sender.getName(), "global");
 			group = "global";
 		}
-		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		final int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -1449,7 +1449,7 @@ public class Commander implements CommandExecutor
 					+ " No item in hand. Nothing to give.");
 			return;
 		}
-		Karma.giveItem(player, items, group);
+		ItemLogic.giveItem(player, items, group);
 		// Remove item from player inventory
 		// Thanks to @nisovin for the following line
 		final Item i = new Item(items.getTypeId(), items.getData().getData(),
@@ -1797,7 +1797,7 @@ public class Commander implements CommandExecutor
 				Karma.selectedGroup.put(sender.getName(), "global");
 				group = "global";
 			}
-			final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+			final int groupId = Karma.getGroupId(group);
 			if (groupId == -1)
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -1962,7 +1962,7 @@ public class Commander implements CommandExecutor
 						+ " WHERE groups='" + group + "';";
 				plugin.getDatabaseHandler().standardQuery(query);
 				plugin.getLogger().info("Items for group '" + group + "' cleared");
-				cache.clear();
+				Karma.cache.clear();
 			}
 			return true;
 		}
@@ -2592,7 +2592,7 @@ public class Commander implements CommandExecutor
 					Item i = new Item(itemlist.getResult().getInt("itemid"),
 							itemlist.getResult().getByte("data"), itemlist
 									.getResult().getShort("durability"));
-					cache.put(i, itemlist.getResult().getInt("amount"));
+					Karma.cache.put(i, itemlist.getResult().getInt("amount"));
 				} while (itemlist.getResult().next());
 			}
 			itemlist.closeQuery();
@@ -2737,7 +2737,7 @@ public class Commander implements CommandExecutor
 			Karma.selectedGroup.put(sender.getName(), "global");
 			current = "global";
 		}
-		final int groupId = plugin.getDatabaseHandler().getGroupId(current);
+		final int groupId = Karma.getGroupId(current);
 		if (groupId == -1)
 		{
 			return;
@@ -2767,12 +2767,12 @@ public class Commander implements CommandExecutor
 					}
 				}
 				// Clear all tool entry amounts to refresh properly
-				Item[] toolClear = cache.keySet().toArray(new Item[0]);
+				Item[] toolClear = Karma.cache.keySet().toArray(new Item[0]);
 				for (int i = 0; i < toolClear.length; i++)
 				{
 					if (toolClear[i].isTool())
 					{
-						cache.remove(toolClear[i]);
+						Karma.cache.remove(toolClear[i]);
 					}
 				}
 				// Loop that updates the hashmap cache
@@ -2788,20 +2788,20 @@ public class Commander implements CommandExecutor
 					{
 						// add to current amount
 						int itemAmount = itemlist.getResult().getInt("amount");
-						if (cache.containsKey(i))
+						if (Karma.cache.containsKey(i))
 						{
-							itemAmount += cache.get(i).intValue();
+							itemAmount += Karma.cache.get(i).intValue();
 						}
-						cache.put(i, itemAmount);
+						Karma.cache.put(i, itemAmount);
 					}
 					else
 					{
-						cache.put(i, itemlist.getResult().getInt("amount"));
+						Karma.cache.put(i, itemlist.getResult().getInt("amount"));
 					}
 				} while (itemlist.getResult().next());
 
 				// Set hashmap to array
-				Object[] array = cache.entrySet().toArray();
+				Object[] array = Karma.cache.entrySet().toArray();
 				boolean valid = true;
 				// Caluclate amount of pages
 				int num = array.length / config.listlimit;

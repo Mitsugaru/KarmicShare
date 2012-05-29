@@ -1,9 +1,7 @@
-package com.mitsugaru.KarmicShare;
+package com.mitsugaru.KarmicShare.logic;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -11,36 +9,32 @@ import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
-import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
-import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
-public class Karma
+public class ItemLogic
 {
 	private static KarmicShare plugin;
-	public static Map<String, String> selectedGroup = new HashMap<String, String>();
-	public static Map<GroupPageInfo, KSInventoryHolder> inventories = new HashMap<GroupPageInfo, KSInventoryHolder>();
-
+	
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 	}
-
+	
 	public static boolean hasItem(Player player, ItemStack item, String group)
 	{
 		// Check if pool contains item requested + amount
 		boolean has = false;
-		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		final int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -182,7 +176,7 @@ public class Karma
 					+ " Lack permission: KarmicShare.take");
 			return -1;
 		}
-		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		final int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -199,7 +193,7 @@ public class Karma
 				karma = plugin.getPluginConfig().playerKarmaDefault;
 				try
 				{
-					karma = getPlayerKarma(player.getName());
+					karma = Karma.getPlayerKarma(player.getName());
 					if (karma <= plugin.getPluginConfig().lower)
 					{
 						// They are at the limit, or somehow lower for
@@ -572,7 +566,7 @@ public class Karma
 				{
 					if (hasKarma)
 					{
-						updatePlayerKarma(
+						Karma.updatePlayerKarma(
 								player.getName(),
 								amount
 										* plugin.getPluginConfig().karma
@@ -580,25 +574,25 @@ public class Karma
 					}
 					else
 					{
-						updatePlayerKarma(player.getName(),
+						Karma.updatePlayerKarma(player.getName(),
 								amount * plugin.getPluginConfig().karmaChange
 										* -1);
 					}
 				}
 			}
 			// Update cache
-			if (!Commander.cache.isEmpty())
+			if (!Karma.cache.isEmpty())
 			{
-				if (Commander.cache.containsKey(temp))
+				if (Karma.cache.containsKey(temp))
 				{
-					int cacheAmount = Commander.cache.get(temp).intValue();
+					int cacheAmount = Karma.cache.get(temp).intValue();
 					if ((cacheAmount - amount) <= 0)
 					{
-						Commander.cache.remove(temp);
+						Karma.cache.remove(temp);
 					}
 					else
 					{
-						Commander.cache.put(temp, (cacheAmount - amount));
+						Karma.cache.put(temp, (cacheAmount - amount));
 					}
 				}
 			}
@@ -621,7 +615,7 @@ public class Karma
 					+ " Lack permission: KarmicShare.give");
 			return false;
 		}
-		int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -830,7 +824,7 @@ public class Karma
 				{
 					if (plugin.getPluginConfig().statickarma)
 					{
-						updatePlayerKarma(player.getName(), item.getAmount()
+						Karma.updatePlayerKarma(player.getName(), item.getAmount()
 								* plugin.getPluginConfig().karmaChange);
 					}
 					else
@@ -851,7 +845,7 @@ public class Karma
 						{
 							try
 							{
-								updatePlayerKarma(
+								Karma.updatePlayerKarma(
 										player.getName(),
 										item.getAmount()
 												* plugin.getPluginConfig().karma
@@ -862,7 +856,7 @@ public class Karma
 								// Found item, but there is no
 								// config for specific data value
 								// thus adjust using regular means
-								updatePlayerKarma(
+								Karma.updatePlayerKarma(
 										player.getName(),
 										item.getAmount()
 												* plugin.getPluginConfig().karmaChange);
@@ -870,7 +864,7 @@ public class Karma
 						}
 						else
 						{
-							updatePlayerKarma(
+							Karma.updatePlayerKarma(
 									player.getName(),
 									item.getAmount()
 											* plugin.getPluginConfig().karmaChange);
@@ -889,115 +883,21 @@ public class Karma
 		// Smoke effect
 		smokePlayer(player);
 		// Update cache
-		if (!Commander.cache.isEmpty())
+		if (!Karma.cache.isEmpty())
 		{
-			if (Commander.cache.containsKey(i))
+			if (Karma.cache.containsKey(i))
 			{
-				int cacheAmount = Commander.cache.get(i).intValue();
-				Commander.cache.put(i, (cacheAmount + item.getAmount()));
+				int cacheAmount = Karma.cache.get(i).intValue();
+				Karma.cache.put(i, (cacheAmount + item.getAmount()));
 			}
 			else
 			{
-				Commander.cache.put(i, item.getAmount());
+				Karma.cache.put(i, item.getAmount());
 			}
 		}
 		return true;
 	}
-
-	/**
-	 * Updates the player's karma
-	 * 
-	 * @param Name
-	 *            of player
-	 * @param Amount
-	 *            of karma to add
-	 * @param Boolean
-	 *            if to add to current karma, or to set it as given value
-	 * @throws SQLException
-	 */
-	public static void updatePlayerKarma(String name, int k)
-			throws SQLException
-	{
-		try
-		{
-			// Retrieve karma from database
-			int karma = getPlayerKarma(name);
-			// Add to existing value
-			karma += k;
-			String query;
-			// Check updated karma value to limits in config
-			if (karma <= plugin.getPluginConfig().lower)
-			{
-				// Updated karma value is beyond lower limit, so set to min
-				query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
-						+ plugin.getPluginConfig().lower
-						+ "' WHERE playername='" + name + "';";
-			}
-			else if (karma >= plugin.getPluginConfig().upper)
-			{
-				// Updated karma value is beyond upper limit, so set to max
-				query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
-						+ plugin.getPluginConfig().upper
-						+ "' WHERE playername='" + name + "';";
-			}
-			else
-			{
-				// Updated karma value is within acceptable range
-				query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
-						+ karma + "' WHERE playername='" + name + "';";
-			}
-			plugin.getDatabaseHandler().standardQuery(query);
-		}
-		catch (SQLException e)
-		{
-			throw e;
-		}
-	}
-
-	/**
-	 * Retrieves karma value of a player from the database. Forces player to be
-	 * added to database if they don't exist
-	 * 
-	 * @param Player
-	 *            name
-	 * @return karma value associated with name
-	 */
-	public static int getPlayerKarma(String name) throws SQLException
-	{
-		String query = "SELECT * FROM " + Table.PLAYERS.getName()
-				+ " WHERE playername='" + name + "';";
-		final Query rs = plugin.getDatabaseHandler().select(query);
-		int karma = plugin.getPluginConfig().playerKarmaDefault;
-		boolean has = false;
-		// Retrieve karma from database
-		try
-		{
-			if (rs.getResult().next())
-			{
-				do
-				{
-					// Grab player karma value
-					karma = rs.getResult().getInt("karma");
-					has = true;
-				} while (rs.getResult().next());
-			}
-			rs.closeQuery();
-			if (!has)
-			{
-				// Player not in database, therefore add them
-				query = "INSERT INTO " + Table.PLAYERS.getName()
-						+ " (playername,karma) VALUES ('" + name + "','"
-						+ karma + "');";
-				plugin.getDatabaseHandler().standardQuery(query);
-			}
-		}
-		catch (SQLException e)
-		{
-			throw e;
-		}
-		return karma;
-	}
-
+	
 	/**
 	 * Provides a smoke effect for the player.
 	 * 
@@ -1008,7 +908,7 @@ public class Karma
 	 *            that should get the effect
 	 * @author Adamki11s
 	 */
-	public static void smokePlayer(Player player)
+	private static void smokePlayer(Player player)
 	{
 		// Check if enabled in config
 		if (!plugin.getPluginConfig().effects)
@@ -1028,152 +928,5 @@ public class Karma
 				}
 			}
 		}
-	}
-
-	public static boolean validGroup(CommandSender sender, String group)
-	{
-		if (group.equals("global"))
-		{
-			return true;
-		}
-		else if (group.equals("self_" + sender.getName()))
-		{
-			return true;
-		}
-		boolean valid = false;
-		try
-		{
-			final Query rs = plugin.getDatabaseHandler().select(
-					"SELECT * FROM " + Table.GROUPS.getName()
-							+ " WHERE groupname='" + group + "';");
-			if (rs.getResult().next())
-			{
-				valid = true;
-			}
-			rs.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return valid;
-	}
-
-	public static boolean playerHasGroup(CommandSender sender, String name,
-			String group)
-	{
-		if (group.equals("global"))
-		{
-			return true;
-		}
-		else if (group.equals("self_" + sender.getName()))
-		{
-			return true;
-		}
-		boolean has = false;
-		try
-		{
-			// TODO grab id of given group and compare against ids
-			// Insures that the player is added to the database
-			getPlayerKarma(name);
-			String groups = "";
-			final Query rs = plugin.getDatabaseHandler().select(
-					"SELECT * FROM " + Table.PLAYERS.getName()
-							+ " WHERE playername='" + name + "';");
-			if (rs.getResult().next())
-			{
-				groups = rs.getResult().getString("groups");
-				if (!rs.getResult().wasNull())
-				{
-					if (groups.contains("&"))
-					{
-						// they have multiple groups
-						for (String s : groups.split("&"))
-						{
-							if (s.equals(group))
-							{
-								has = true;
-							}
-						}
-					}
-					else
-					{
-						// they only have one group
-						if (groups.equals(group))
-						{
-							has = true;
-						}
-					}
-				}
-			}
-			rs.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return has;
-	}
-
-	public static List<String> getPlayerGroups(CommandSender sender, String name)
-	{
-		List<String> list = new ArrayList<String>();
-		boolean wasNull = false;
-		try
-		{
-			String groups = "";
-			Query rs = plugin.getDatabaseHandler().select(
-					"SELECT * FROM " + Table.PLAYERS.getName()
-							+ " WHERE playername='" + name + "';");
-			if (rs.getResult().next())
-			{
-				groups = rs.getResult().getString("groups");
-				wasNull = rs.getResult().wasNull();
-			}
-			rs.closeQuery();
-			if (wasNull)
-			{
-				// No groups, add in the global and self
-				plugin.getDatabaseHandler().standardQuery(
-						"INSERT INTO " + Table.GROUPS.getName()
-								+ " (groupname) VALUES ('self_"
-								+ name.toLowerCase() + "');");
-				groups = plugin.getDatabaseHandler().getGroupId("global")
-						+ "&"
-						+ plugin.getDatabaseHandler()
-								.getGroupId("self_" + name);
-				// Set groups for future reference
-				plugin.getDatabaseHandler()
-						.standardQuery(
-								"UPDATE " + Table.PLAYERS.getName()
-										+ " SET groups='" + groups
-										+ "' WHERE playername='" + name + "';");
-			}
-			String[] split = groups.split("&");
-			for (String s : split)
-			{
-				try
-				{
-					list.add(plugin.getDatabaseHandler().getGroupName(
-							Integer.parseInt(s)));
-				}
-				catch (NumberFormatException n)
-				{
-					plugin.getLogger().severe("Bad group id '" + s + "'");
-					n.printStackTrace();
-				}
-			}
-		}
-		catch (SQLException e)
-		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ " SQL Exception");
-			e.printStackTrace();
-		}
-		return list;
 	}
 }

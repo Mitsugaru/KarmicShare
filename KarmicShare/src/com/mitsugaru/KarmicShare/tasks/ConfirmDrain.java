@@ -3,9 +3,9 @@ package com.mitsugaru.KarmicShare.tasks;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.mitsugaru.KarmicShare.Commander;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class ConfirmDrain implements Runnable
 {
@@ -38,7 +38,7 @@ public class ConfirmDrain implements Runnable
 			player.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " "
 					+ ChatColor.GOLD + group + ChatColor.GREEN
 					+ " item pool emptied.");
-			Commander.cache.clear();
+			Karma.cache.clear();
 		}
 		else
 		{

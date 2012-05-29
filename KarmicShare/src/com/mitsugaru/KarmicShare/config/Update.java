@@ -13,6 +13,7 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
+import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class Update
 {
@@ -290,7 +291,7 @@ public class Update
 					{
 						for (String s : player.groups.split("&"))
 						{
-							int id = plugin.getDatabaseHandler().getGroupId(s);
+							int id = Karma.getGroupId(s);
 							sb.append(id + "&");
 						}
 						// Remove extra &
@@ -298,8 +299,7 @@ public class Update
 					}
 					else
 					{
-						sb.append(plugin.getDatabaseHandler().getGroupId(
-								player.groups));
+						sb.append(Karma.getGroupId(player.groups));
 					}
 					query = "INSERT INTO " + Table.PLAYERS.getName()
 							+ " (playername, karma, groups) VALUES ('"
@@ -363,8 +363,7 @@ public class Update
 			// Add them back in
 			for (ZeroPointTwoSixTwoItemObject item : itemList)
 			{
-				final int groupid = plugin.getDatabaseHandler().getGroupId(
-						item.groups);
+				final int groupid = Karma.getGroupId(item.groups);
 				query = "INSERT INTO " + Table.ITEMS.getName()
 						+ " (itemid,amount,data,durability,groups) VALUES ('"
 						+ item.itemid + "','" + item.amount + "','" + item.data
@@ -375,7 +374,8 @@ public class Update
 					{
 						// Order
 						/**
-						 * http://stackoverflow.com/questions/922528/how-to-sort-map-values-by-key-in-java
+						 * http://stackoverflow.com/questions/922528/how-to-sort
+						 * -map-values-by-key-in-java
 						 */
 						final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
 						TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
@@ -385,7 +385,8 @@ public class Update
 						{
 							try
 							{
-								//Attempt to recover as many of the enchantments
+								// Attempt to recover as many of the
+								// enchantments
 								String[] cutter = cut[i].split("v");
 								EnchantmentWrapper e = new EnchantmentWrapper(
 										Integer.parseInt(cutter[0]));
