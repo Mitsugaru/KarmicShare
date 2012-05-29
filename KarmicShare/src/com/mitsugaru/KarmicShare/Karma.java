@@ -178,84 +178,119 @@ public class Karma
 		// Check if they have "take" permission
 		if (PermCheck.checkPermission(player, PermissionNode.TAKE))
 		{
-			final int groupId = plugin.getDatabaseHandler().getGroupId(group);
-			if (groupId == -1)
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Lack permission: KarmicShare.take");
+			return -1;
+		}
+		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		if (groupId == -1)
+		{
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Unknown group '" + ChatColor.GOLD + group
+					+ ChatColor.RED + "'");
+			return -1;
+		}
+		int karma = 0;
+		if (!plugin.getPluginConfig().karmaDisabled)
+		{
+			if (!PermCheck.checkPermission(player, PermissionNode.IGNORE_KARMA))
+			{
+				// Check karma before anything
+				karma = plugin.getPluginConfig().playerKarmaDefault;
+				try
+				{
+					karma = getPlayerKarma(player.getName());
+					if (karma <= plugin.getPluginConfig().lower)
+					{
+						// They are at the limit, or somehow lower for
+						// whatever reason
+						player.sendMessage(ChatColor.RED + KarmicShare.TAG
+								+ "Your karma is at the limit!");
+						return -1;
+					}
+				}
+				catch (SQLException e1)
+				{
+					player.sendMessage(ChatColor.RED + KarmicShare.TAG
+							+ " Could not retrieve player karma");
+					e1.printStackTrace();
+					return -1;
+				}
+			}
+		}
+		int amount = item.getAmount();
+		String query = "";
+		boolean has = hasItem(player, item, group);
+		Item temp = new Item(item);
+		try
+		{
+			if (!has)
 			{
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " Unknown group '" + ChatColor.GOLD + group
-						+ ChatColor.RED + "'");
+						+ " Item is no longer available.");
 				return -1;
 			}
-			int karma = 0;
+			boolean hasKarma = false;
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
 				if (!PermCheck.checkPermission(player,
 						PermissionNode.IGNORE_KARMA))
 				{
-					// Check karma before anything
-					karma = plugin.getPluginConfig().playerKarmaDefault;
-					try
+					// Check karma again, before giving item, to
+					// adjust amount
+					// based on karma and karma multipliers
+					int karmaAdj = 0;
+					boolean staticKarma = false;
+					if (plugin.getPluginConfig().statickarma)
 					{
-						karma = getPlayerKarma(player.getName());
-						if (karma <= plugin.getPluginConfig().lower)
-						{
-							// They are at the limit, or somehow lower for
-							// whatever reason
-							player.sendMessage(ChatColor.RED + KarmicShare.TAG
-									+ "Your karma is at the limit!");
-							return -1;
-						}
+						staticKarma = true;
 					}
-					catch (SQLException e1)
+					else
 					{
-						player.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ " Could not retrieve player karma");
-						e1.printStackTrace();
-						return -1;
-					}
-				}
-			}
-			int amount = item.getAmount();
-			String query = "";
-			boolean has = hasItem(player, item, group);
-			Item temp = new Item(item);
-			try
-			{
-				if (has)
-				{
-					boolean hasKarma = false;
-					if (!plugin.getPluginConfig().karmaDisabled)
-					{
-						if (!PermCheck.checkPermission(player,
-								PermissionNode.IGNORE_KARMA))
+						// Using per-item karma
+						Item[] karmaList = plugin.getPluginConfig().karma
+								.keySet().toArray(new Item[0]);
+						// Check if requested item is in the
+						// karma list
+						for (Item k : karmaList)
 						{
-							// Check karma again, before giving item, to
-							// adjust amount
-							// based on karma and karma multipliers
-							int karmaAdj = 0;
-							if (plugin.getPluginConfig().statickarma)
+							if (k.areSame(temp))
 							{
-								// Using static karma, everything goes
-								// by
-								// the config's default karma change
-								// value
+								// Item karma needs to be
+								// adjusted
+								hasKarma = true;
+							}
+						}
+						if (hasKarma)
+						{
+							try
+							{
+								karmaAdj = karma
+										+ (plugin.getPluginConfig().karma
+												.get(temp) * amount * -1);
 								if (karmaAdj < plugin.getPluginConfig().lower)
 								{
-									karmaAdj = karma
-											+ (plugin.getPluginConfig().karmaChange
-													* amount * -1);
-									// They went beyond the lower limit
-									// adjust amount given based on
-									// karma now
-									amount = Math
-											.abs(plugin.getPluginConfig().lower)
-											- Math.abs(karma);
-									amount = amount
-											/ plugin.getPluginConfig().karmaChange;
+									// They went beyond the
+									// lower limit
+									// adjust amount given based
+									// on karma now
+									int tempKarma = Math.abs(karmaAdj)
+											- Math.abs(plugin.getPluginConfig().lower);
+									int div = tempKarma
+											/ plugin.getPluginConfig().karma
+													.get(temp);
+									int rem = tempKarma
+											% plugin.getPluginConfig().karma
+													.get(temp);
+									if (rem != 0)
+									{
+										div++;
+									}
+									amount -= div;
 									if (amount <= 0)
 									{
-										// Cannot get any items as
-										// they'd go beyond
+										// Cannot give any items
+										// as they'd go beyond
 										// karma limit
 										player.sendMessage(ChatColor.RED
 												+ KarmicShare.TAG
@@ -270,581 +305,210 @@ public class Karma
 									}
 								}
 							}
-							else
+							catch (NullPointerException n)
 							{
-								// Using per-item karma
-								Item[] karmaList = plugin.getPluginConfig().karma
-										.keySet().toArray(new Item[0]);
-								// Check if requested item is in the
-								// karma list
-								for (Item k : karmaList)
-								{
-									if (k.areSame(temp))
-									{
-										// Item karma needs to be
-										// adjusted
-										hasKarma = true;
-									}
-								}
-								if (hasKarma)
-								{
-									try
-									{
-										karmaAdj = karma
-												+ (plugin.getPluginConfig().karma
-														.get(temp) * amount * -1);
-										if (karmaAdj < plugin.getPluginConfig().lower)
-										{
-											// They went beyond the
-											// lower limit
-											// adjust amount given based
-											// on karma now
-											int tempKarma = Math.abs(karmaAdj)
-													- Math.abs(plugin
-															.getPluginConfig().lower);
-											int div = tempKarma
-													/ plugin.getPluginConfig().karma
-															.get(temp);
-											int rem = tempKarma
-													% plugin.getPluginConfig().karma
-															.get(temp);
-											if (rem != 0)
-											{
-												div++;
-											}
-											amount -= div;
-											if (amount <= 0)
-											{
-												// Cannot give any items
-												// as they'd go beyond
-												// karma limit
-												player.sendMessage(ChatColor.RED
-														+ KarmicShare.TAG
-														+ " Not enough karma to take item");
-												return -1;
-											}
-											else
-											{
-												player.sendMessage(ChatColor.YELLOW
-														+ KarmicShare.TAG
-														+ " Near/Hit karma limit!");
-											}
-										}
-									}
-									catch (NullPointerException n)
-									{
-										// Found item, but there is no
-										// config for specific data
-										// value
-										// thus adjust using regular
-										// means
-										karmaAdj = karma
-												+ (plugin.getPluginConfig().karmaChange
-														* amount * -1);
-										if (karmaAdj < plugin.getPluginConfig().lower)
-										{
-											// They went beyond the
-											// lower limit
-											// adjust amount given based
-											// on karma now
-											int tempKarma = Math.abs(karmaAdj)
-													- Math.abs(plugin
-															.getPluginConfig().lower);
-											int div = tempKarma
-													/ plugin.getPluginConfig().karmaChange;
-											int rem = tempKarma
-													% plugin.getPluginConfig().karmaChange;
-											if (rem != 0)
-											{
-												div++;
-											}
-											amount -= div;
-											if (amount <= 0)
-											{
-												player.sendMessage(ChatColor.RED
-														+ KarmicShare.TAG
-														+ " Not enough karma to take item");
-												return -1;
-											}
-											else
-											{
-												player.sendMessage(ChatColor.YELLOW
-														+ KarmicShare.TAG
-														+ " Near/Hit karma limit!");
-											}
-										}
-										// Reset so later we use default
-										// karma change
-										hasKarma = false;
-									}
-								}
-								else
-								{
-									// Item does not have a multiplier,
-									// so use default
-									karmaAdj = karma
-											+ (plugin.getPluginConfig().karmaChange
-													* amount * -1);
-									if (karmaAdj < plugin.getPluginConfig().lower)
-									{
-										// They went beyond the lower
-										// limit
-										// adjust amount given based on
-										// karma now
-										int tempKarma = Math.abs(karmaAdj)
-												- Math.abs(plugin
-														.getPluginConfig().lower);
-										int div = tempKarma
-												/ plugin.getPluginConfig().karmaChange;
-										int rem = tempKarma
-												% plugin.getPluginConfig().karmaChange;
-										if (rem != 0)
-										{
-											div++;
-										}
-										amount -= div;
-										amount = amount
-												/ plugin.getPluginConfig().karmaChange;
-										if (amount <= 0)
-										{
-											// Cannot give any items as
-											// they'd go beyond
-											// karma limit
-											player.sendMessage(ChatColor.RED
-													+ KarmicShare.TAG
-													+ " Not enough karma to take item");
-											return -1;
-										}
-										else
-										{
-											player.sendMessage(ChatColor.YELLOW
-													+ KarmicShare.TAG
-													+ " Near/Hit karma limit!");
-										}
-									}
-								}
+								// Found item, but there is no
+								// config for specific data
+								// value
+								// thus adjust using regular
+								// means
+								staticKarma = true;
+								// Reset so later we use default
+								// karma change
+								hasKarma = false;
 							}
-						}
-					}
-					if (temp.isTool())
-					{
-						// Handle tools
-						try
-						{
-							String toolQuery = "";
-							if (!item.getEnchantments().isEmpty())
-							{
-								// Enchanted
-								StringBuilder sb = new StringBuilder();
-								final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
-								for (Map.Entry<Enchantment, Integer> entry : item
-										.getEnchantments().entrySet())
-								{
-									map.put(new ComparableEnchantment(entry
-											.getKey()), entry.getValue());
-								}
-								TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
-										map.keySet());
-								for (ComparableEnchantment key : keys)
-								{
-									sb.append(key.getId()
-											+ "v"
-											+ item.getEnchantments()
-													.get(key.getEnchantment())
-													.intValue() + "i");
-								}
-								// Remove trailing comma
-								sb.deleteCharAt(sb.length() - 1);
-								toolQuery = "SELECT * FROM "
-										+ Table.ITEMS.getName()
-										+ " WHERE itemid='" + item.getTypeId()
-										+ "' AND enchantments='"
-										+ sb.toString() + "' AND groups='"
-										+ groupId + "';";
-								Query toolRS = plugin.getDatabaseHandler()
-										.select(toolQuery);
-								// plugin.getLogger().info("enchanted tool taken");
-								//plugin.getLogger().info(
-								//		"enchant string: " + sb.toString());
-								if (toolRS.getResult().next())
-								{
-									if ((toolRS.getResult().getInt("amount") - amount) <= 0)
-									{
-										// DROP
-										toolQuery = "DELETE FROM "
-												+ Table.ITEMS.getName()
-												+ " WHERE id='"
-												+ toolRS.getResult().getInt(
-														"id") + "';";
-										// plugin.getLogger().info("enchanted tool drop");
-									}
-									else
-									{
-										// UPDATE
-										toolQuery = "UPDATE "
-												+ Table.ITEMS.getName()
-												+ " SET amount='"
-												+ (toolRS.getResult().getInt(
-														"amount") - amount)
-												+ "' WHERE id='"
-												+ toolRS.getResult().getInt(
-														"id") + "';";
-										// plugin.getLogger().info("enchanted tool update");
-									}
-								}
-								toolRS.closeQuery();
-							}
-							else
-							{
-								// Non-enchanted tool
-								toolQuery = "SELECT * FROM "
-										+ Table.ITEMS.getName()
-										+ " WHERE itemid='" + item.getTypeId()
-										+ "' AND groups='" + groupId + "';";
-								Query toolRS = plugin.getDatabaseHandler()
-										.select(toolQuery);
-								if (toolRS.getResult().next())
-								{
-									if ((toolRS.getResult().getInt("amount") - amount) <= 0)
-									{
-										// DROP
-										toolQuery = "DELETE FROM "
-												+ Table.ITEMS.getName()
-												+ " WHERE itemid='"
-												+ item.getTypeId()
-												+ "' AND amount='" + amount
-												+ "' AND groups='" + groupId
-												+ "';";
-									}
-									else
-									{
-										// UPDATE
-										toolQuery = "UPDATE "
-												+ Table.ITEMS.getName()
-												+ " SET amount='"
-												+ (toolRS.getResult().getInt(
-														"amount") - amount)
-												+ "' WHERE itemid='"
-												+ item.getTypeId()
-												+ "' AND groups='" + groupId
-												+ "';";
-									}
-								}
-								toolRS.closeQuery();
-							}
-							if (!toolQuery.contains("SELECT"))
-							{
-								plugin.getDatabaseHandler().standardQuery(
-										toolQuery);
-							}
-						}
-						catch (SQLException e)
-						{
-							player.sendMessage(ChatColor.RED + KarmicShare.TAG
-									+ "Could not retrieve item in pool!");
-							e.printStackTrace();
-							return -1;
-						}
-					}
-					else if (temp.isPotion())
-					{
-						query = "SELECT * FROM " + Table.ITEMS.getName()
-								+ " WHERE itemid='" + item.getTypeId()
-								+ "' AND durability='" + item.getDurability()
-								+ "' AND groups='" + groupId + "';";
-						Query rs = plugin.getDatabaseHandler().select(query);
-						try
-						{
-							if (rs.getResult().next())
-							{
-								if ((rs.getResult().getInt("amount") - amount) <= 0)
-								{
-									// Drop record as there are none left
-									query = "DELETE FROM "
-											+ Table.ITEMS.getName()
-											+ " WHERE itemid='"
-											+ item.getTypeId()
-											+ "' AND durability='"
-											+ item.getDurability()
-											+ "' AND groups='" + groupId + "';";
-								}
-								else
-								{
-									query = "UPDATE "
-											+ Table.ITEMS.getName()
-											+ " SET amount='"
-											+ (rs.getResult().getInt("amount") - amount)
-											+ "' WHERE itemid='"
-											+ item.getTypeId()
-											+ "' AND durability='"
-											+ item.getDurability()
-											+ "' AND groups='" + groupId + "';";
-								}
-							}
-							rs.closeQuery();
-							plugin.getDatabaseHandler().standardQuery(query);
-						}
-						catch (SQLException e)
-						{
-							player.sendMessage(ChatColor.RED + KarmicShare.TAG
-									+ "Could not retrieve item in pool!");
-							e.printStackTrace();
-							return -1;
-						}
-					}
-					else
-					{
-						query = "SELECT * FROM " + Table.ITEMS.getName()
-								+ " WHERE itemid='" + item.getTypeId()
-								+ "' AND data='" + item.getData().getData()
-								+ "' AND groups='" + groupId + "';";
-						Query rs = plugin.getDatabaseHandler().select(query);
-						try
-						{
-							if (rs.getResult().next())
-							{
-								if ((rs.getResult().getInt("amount") - amount) <= 0)
-								{
-									// Drop record as there are none left
-									query = "DELETE FROM "
-											+ Table.ITEMS.getName()
-											+ " WHERE itemid='"
-											+ item.getTypeId() + "' AND data='"
-											+ item.getData().getData()
-											+ "' AND groups='" + groupId + "';";
-								}
-								else
-								{
-									query = "UPDATE "
-											+ Table.ITEMS.getName()
-											+ " SET amount='"
-											+ (rs.getResult().getInt("amount") - amount)
-											+ "' WHERE itemid='"
-											+ item.getTypeId() + "' AND data='"
-											+ item.getData().getData()
-											+ "' AND groups='" + groupId + "';";
-								}
-							}
-							rs.closeQuery();
-							plugin.getDatabaseHandler().standardQuery(query);
-						}
-						catch (SQLException e)
-						{
-							player.sendMessage(ChatColor.RED + KarmicShare.TAG
-									+ "Could not retrieve item in pool!");
-							e.printStackTrace();
-							return -1;
-						}
-					}
-					// Smoke effect
-					smokePlayer(player);
-					// Update karma
-					if (!plugin.getPluginConfig().karmaDisabled)
-					{
-						if (!PermCheck.checkPermission(player,
-								PermissionNode.IGNORE_KARMA))
-						{
-							if (hasKarma)
-							{
-								updatePlayerKarma(
-										player.getName(),
-										amount
-												* plugin.getPluginConfig().karma
-														.get(temp) * -1);
-							}
-							else
-							{
-								updatePlayerKarma(player.getName(), amount
-										* plugin.getPluginConfig().karmaChange
-										* -1);
-							}
-						}
-					}
-					// Update cache
-					if (!Commander.cache.isEmpty())
-					{
-						if (Commander.cache.containsKey(temp))
-						{
-							int cacheAmount = Commander.cache.get(temp)
-									.intValue();
-							if ((cacheAmount - amount) <= 0)
-							{
-								Commander.cache.remove(temp);
-							}
-							else
-							{
-								Commander.cache.put(temp,
-										(cacheAmount - amount));
-							}
-						}
-					}
-				}
-				else
-				{
-					player.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ " Item is no longer available.");
-					return -1;
-				}
-			}
-			catch (SQLException e)
-			{
-				player.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ "Could not retrieve item in pool!");
-				e.printStackTrace();
-				return -1;
-			}
-			return amount;
-		}
-		else
-		{
-			player.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ " Lack permission: KarmicShare.take");
-		}
-		return -1;
-	}
-
-	public static boolean giveItem(Player player, ItemStack item, String group)
-	{
-		if (PermCheck.checkPermission(player, PermissionNode.GIVE))
-		{
-			int groupId = plugin.getDatabaseHandler().getGroupId(group);
-			if (groupId == -1)
-			{
-				player.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " Unknown group '" + ChatColor.GOLD + group
-						+ ChatColor.RED + "'");
-				return false;
-			}
-			final Item i = new Item(item);
-			// Check if its a tool
-			String query = "";
-			if (i.isTool())
-			{
-				// Check if enchanted
-				Map<Enchantment, Integer> enchantments = item.getEnchantments();
-				if (!enchantments.isEmpty())
-				{
-					// Tool has enchantments
-					StringBuilder sb = new StringBuilder();
-					final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
-					for (Map.Entry<Enchantment, Integer> entry : item
-							.getEnchantments().entrySet())
-					{
-						map.put(new ComparableEnchantment(entry.getKey()),
-								entry.getValue());
-					}
-					TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
-							map.keySet());
-					for (ComparableEnchantment key : keys)
-					{
-						sb.append(key.getId()
-								+ "v"
-								+ item.getEnchantments()
-										.get(key.getEnchantment()).intValue()
-								+ "i");
-					}
-					// Remove trailing comma
-					sb.deleteCharAt(sb.length() - 1);
-					// Add new instance of item to database
-					query = "INSERT INTO "
-							+ Table.ITEMS.getName()
-							+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
-							+ item.getTypeId() + "','" + item.getAmount()
-							+ "','" + item.getData().getData() + "','"
-							+ item.getDurability() + "','" + sb.toString()
-							+ "','" + groupId + "');";
-					plugin.getDatabaseHandler().standardQuery(query);
-				}
-				else
-				{
-					// Normal tool
-					// Create SQL query to see if item is already in
-					// database
-					query = "SELECT * FROM " + Table.ITEMS.getName()
-							+ " WHERE itemid='" + item.getTypeId()
-							+ "' AND durability='" + item.getDurability()
-							+ "' AND groups='" + groupId + "' AND enchantments IS NULL;";
-					Query rs = plugin.getDatabaseHandler().select(query);
-
-					// Send Item to database
-					try
-					{
-						if (rs.getResult().next())
-						{
-							do
-							{
-								// For tools, look up for similar
-								// durability. Add amount that way
-								// if it exists
-								int total = item.getAmount()
-										+ rs.getResult().getInt("amount");
-								query = "UPDATE " + Table.ITEMS.getName()
-										+ " SET amount='" + total
-										+ "' WHERE itemid='" + item.getTypeId()
-										+ "' AND groups='" + groupId + "';";
-							} while (rs.getResult().next());
 						}
 						else
 						{
-							// Item not in database, therefore add it
-							query = "INSERT INTO "
-									+ Table.ITEMS.getName()
-									+ " (itemid,amount,data,durability,groups) VALUES ('"
-									+ item.getTypeId() + "','"
-									+ item.getAmount() + "','"
-									+ item.getData().getData() + "','"
-									+ item.getDurability() + "','" + groupId
-									+ "');";
+							staticKarma = true;
 						}
-						rs.closeQuery();
-						plugin.getDatabaseHandler().standardQuery(query);
 					}
-					catch (SQLException e)
+					if (staticKarma)
 					{
-						player.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ "Could not query item pool!");
-						e.printStackTrace();
-						return false;
+						// Item does not have a multiplier,
+						// so use default
+						karmaAdj = karma
+								+ (plugin.getPluginConfig().karmaChange
+										* amount * -1);
+						if (karmaAdj < plugin.getPluginConfig().lower)
+						{
+							// They went beyond the lower
+							// limit
+							// adjust amount given based on
+							// karma now
+							int tempKarma = Math.abs(karmaAdj)
+									- Math.abs(plugin.getPluginConfig().lower);
+							int div = tempKarma
+									/ plugin.getPluginConfig().karmaChange;
+							int rem = tempKarma
+									% plugin.getPluginConfig().karmaChange;
+							if (rem != 0)
+							{
+								div++;
+							}
+							amount -= div;
+							amount = amount
+									/ plugin.getPluginConfig().karmaChange;
+							if (amount <= 0)
+							{
+								// Cannot give any items as
+								// they'd go beyond
+								// karma limit
+								player.sendMessage(ChatColor.RED
+										+ KarmicShare.TAG
+										+ " Not enough karma to take item");
+								return -1;
+							}
+							else
+							{
+								player.sendMessage(ChatColor.YELLOW
+										+ KarmicShare.TAG
+										+ " Near/Hit karma limit!");
+							}
+						}
 					}
 				}
 			}
-			else if (i.isPotion())
+			if (temp.isTool())
 			{
-				// Handle potion case
-				// Potion item
-				// Create SQL query to see if item is already in
-				// database
+				// Handle tools
+				try
+				{
+					String toolQuery = "";
+					if (!item.getEnchantments().isEmpty())
+					{
+						// Enchanted
+						StringBuilder sb = new StringBuilder();
+						final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
+						for (Map.Entry<Enchantment, Integer> entry : item
+								.getEnchantments().entrySet())
+						{
+							map.put(new ComparableEnchantment(entry.getKey()),
+									entry.getValue());
+						}
+						TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
+								map.keySet());
+						for (ComparableEnchantment key : keys)
+						{
+							sb.append(key.getId()
+									+ "v"
+									+ item.getEnchantments()
+											.get(key.getEnchantment())
+											.intValue() + "i");
+						}
+						// Remove trailing comma
+						sb.deleteCharAt(sb.length() - 1);
+						toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
+								+ " WHERE itemid='" + item.getTypeId()
+								+ "' AND enchantments='" + sb.toString()
+								+ "' AND groups='" + groupId + "';";
+						Query toolRS = plugin.getDatabaseHandler().select(
+								toolQuery);
+						// plugin.getLogger().info("enchanted tool taken");
+						// plugin.getLogger().info(
+						// "enchant string: " + sb.toString());
+						if (toolRS.getResult().next())
+						{
+							if ((toolRS.getResult().getInt("amount") - amount) <= 0)
+							{
+								// DROP
+								toolQuery = "DELETE FROM "
+										+ Table.ITEMS.getName() + " WHERE id='"
+										+ toolRS.getResult().getInt("id")
+										+ "';";
+								// plugin.getLogger().info("enchanted tool drop");
+							}
+							else
+							{
+								// UPDATE
+								toolQuery = "UPDATE "
+										+ Table.ITEMS.getName()
+										+ " SET amount='"
+										+ (toolRS.getResult().getInt("amount") - amount)
+										+ "' WHERE id='"
+										+ toolRS.getResult().getInt("id")
+										+ "';";
+								// plugin.getLogger().info("enchanted tool update");
+							}
+						}
+						toolRS.closeQuery();
+					}
+					else
+					{
+						// Non-enchanted tool
+						toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
+								+ " WHERE itemid='" + item.getTypeId()
+								+ "' AND groups='" + groupId + "';";
+						Query toolRS = plugin.getDatabaseHandler().select(
+								toolQuery);
+						if (toolRS.getResult().next())
+						{
+							if ((toolRS.getResult().getInt("amount") - amount) <= 0)
+							{
+								// DROP
+								toolQuery = "DELETE FROM "
+										+ Table.ITEMS.getName()
+										+ " WHERE itemid='" + item.getTypeId()
+										+ "' AND amount='" + amount
+										+ "' AND groups='" + groupId + "';";
+							}
+							else
+							{
+								// UPDATE
+								toolQuery = "UPDATE "
+										+ Table.ITEMS.getName()
+										+ " SET amount='"
+										+ (toolRS.getResult().getInt("amount") - amount)
+										+ "' WHERE itemid='" + item.getTypeId()
+										+ "' AND groups='" + groupId + "';";
+							}
+						}
+						toolRS.closeQuery();
+					}
+					if (!toolQuery.contains("SELECT"))
+					{
+						plugin.getDatabaseHandler().standardQuery(toolQuery);
+					}
+				}
+				catch (SQLException e)
+				{
+					player.sendMessage(ChatColor.RED + KarmicShare.TAG
+							+ "Could not retrieve item in pool!");
+					e.printStackTrace();
+					return -1;
+				}
+			}
+			else if (temp.isPotion())
+			{
 				query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
 						+ "' AND groups='" + groupId + "';";
 				Query rs = plugin.getDatabaseHandler().select(query);
-
-				// Send Item to database
 				try
 				{
 					if (rs.getResult().next())
 					{
-						// For potions, look up for similar
-						// durability. Add amount that way
-						// if it exists
-						int total = item.getAmount()
-								+ rs.getResult().getInt("amount");
-						query = "UPDATE " + Table.ITEMS.getName()
-								+ " SET amount='" + total + "' WHERE itemid='"
-								+ item.getTypeId() + "' AND durability='"
-								+ item.getDurability() + "' AND groups='"
-								+ groupId + "';";
-					}
-					else
-					{
-						// Item not in database, therefore add it
-						query = "INSERT INTO "
-								+ Table.ITEMS.getName()
-								+ " (itemid,amount,data,durability,groups) VALUES ('"
-								+ item.getTypeId() + "','" + item.getAmount()
-								+ "','0','" + item.getDurability() + "','"
-								+ groupId + "');";
+						if ((rs.getResult().getInt("amount") - amount) <= 0)
+						{
+							// Drop record as there are none left
+							query = "DELETE FROM " + Table.ITEMS.getName()
+									+ " WHERE itemid='" + item.getTypeId()
+									+ "' AND durability='"
+									+ item.getDurability() + "' AND groups='"
+									+ groupId + "';";
+						}
+						else
+						{
+							query = "UPDATE "
+									+ Table.ITEMS.getName()
+									+ " SET amount='"
+									+ (rs.getResult().getInt("amount") - amount)
+									+ "' WHERE itemid='" + item.getTypeId()
+									+ "' AND durability='"
+									+ item.getDurability() + "' AND groups='"
+									+ groupId + "';";
+						}
 					}
 					rs.closeQuery();
 					plugin.getDatabaseHandler().standardQuery(query);
@@ -852,20 +516,168 @@ public class Karma
 				catch (SQLException e)
 				{
 					player.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ "Could not query item pool!");
+							+ "Could not retrieve item in pool!");
 					e.printStackTrace();
-					return false;
+					return -1;
 				}
 			}
 			else
 			{
-				// Normal item
-				// Create SQL query to see if item is already in
-				// database
 				query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + item.getTypeId() + "' AND data='"
 						+ item.getData().getData() + "' AND groups='" + groupId
 						+ "';";
+				Query rs = plugin.getDatabaseHandler().select(query);
+				try
+				{
+					if (rs.getResult().next())
+					{
+						if ((rs.getResult().getInt("amount") - amount) <= 0)
+						{
+							// Drop record as there are none left
+							query = "DELETE FROM " + Table.ITEMS.getName()
+									+ " WHERE itemid='" + item.getTypeId()
+									+ "' AND data='" + item.getData().getData()
+									+ "' AND groups='" + groupId + "';";
+						}
+						else
+						{
+							query = "UPDATE "
+									+ Table.ITEMS.getName()
+									+ " SET amount='"
+									+ (rs.getResult().getInt("amount") - amount)
+									+ "' WHERE itemid='" + item.getTypeId()
+									+ "' AND data='" + item.getData().getData()
+									+ "' AND groups='" + groupId + "';";
+						}
+					}
+					rs.closeQuery();
+					plugin.getDatabaseHandler().standardQuery(query);
+				}
+				catch (SQLException e)
+				{
+					player.sendMessage(ChatColor.RED + KarmicShare.TAG
+							+ "Could not retrieve item in pool!");
+					e.printStackTrace();
+					return -1;
+				}
+			}
+			// Smoke effect
+			smokePlayer(player);
+			// Update karma
+			if (!plugin.getPluginConfig().karmaDisabled)
+			{
+				if (!PermCheck.checkPermission(player,
+						PermissionNode.IGNORE_KARMA))
+				{
+					if (hasKarma)
+					{
+						updatePlayerKarma(
+								player.getName(),
+								amount
+										* plugin.getPluginConfig().karma
+												.get(temp) * -1);
+					}
+					else
+					{
+						updatePlayerKarma(player.getName(),
+								amount * plugin.getPluginConfig().karmaChange
+										* -1);
+					}
+				}
+			}
+			// Update cache
+			if (!Commander.cache.isEmpty())
+			{
+				if (Commander.cache.containsKey(temp))
+				{
+					int cacheAmount = Commander.cache.get(temp).intValue();
+					if ((cacheAmount - amount) <= 0)
+					{
+						Commander.cache.remove(temp);
+					}
+					else
+					{
+						Commander.cache.put(temp, (cacheAmount - amount));
+					}
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ "Could not retrieve item in pool!");
+			e.printStackTrace();
+			return -1;
+		}
+		return amount;
+	}
+
+	public static boolean giveItem(Player player, ItemStack item, String group)
+	{
+		if (PermCheck.checkPermission(player, PermissionNode.GIVE))
+		{
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Lack permission: KarmicShare.give");
+			return false;
+		}
+		int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		if (groupId == -1)
+		{
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Unknown group '" + ChatColor.GOLD + group
+					+ ChatColor.RED + "'");
+			return false;
+		}
+		final Item i = new Item(item);
+		// Check if its a tool
+		String query = "";
+		if (i.isTool())
+		{
+			// Check if enchanted
+			Map<Enchantment, Integer> enchantments = item.getEnchantments();
+			if (!enchantments.isEmpty())
+			{
+				// Tool has enchantments
+				StringBuilder sb = new StringBuilder();
+				final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
+				for (Map.Entry<Enchantment, Integer> entry : item
+						.getEnchantments().entrySet())
+				{
+					map.put(new ComparableEnchantment(entry.getKey()),
+							entry.getValue());
+				}
+				TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
+						map.keySet());
+				for (ComparableEnchantment key : keys)
+				{
+					sb.append(key.getId()
+							+ "v"
+							+ item.getEnchantments().get(key.getEnchantment())
+									.intValue() + "i");
+				}
+				// Remove trailing comma
+				sb.deleteCharAt(sb.length() - 1);
+				// Add new instance of item to database
+				query = "INSERT INTO "
+						+ Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+						+ item.getTypeId() + "','" + item.getAmount() + "','"
+						+ item.getData().getData() + "','"
+						+ item.getDurability() + "','" + sb.toString() + "','"
+						+ groupId + "');";
+				plugin.getDatabaseHandler().standardQuery(query);
+			}
+			else
+			{
+				// Normal tool
+				// Create SQL query to see if item is already in
+				// database
+				query = "SELECT * FROM " + Table.ITEMS.getName()
+						+ " WHERE itemid='" + item.getTypeId()
+						+ "' AND durability='" + item.getDurability()
+						+ "' AND groups='" + groupId
+						+ "' AND enchantments IS NULL;";
 				Query rs = plugin.getDatabaseHandler().select(query);
 
 				// Send Item to database
@@ -883,7 +695,6 @@ public class Karma
 							query = "UPDATE " + Table.ITEMS.getName()
 									+ " SET amount='" + total
 									+ "' WHERE itemid='" + item.getTypeId()
-									+ "' AND data='" + item.getData().getData()
 									+ "' AND groups='" + groupId + "';";
 						} while (rs.getResult().next());
 					}
@@ -909,97 +720,188 @@ public class Karma
 					return false;
 				}
 			}
+		}
+		else if (i.isPotion())
+		{
+			// Handle potion case
+			// Potion item
+			// Create SQL query to see if item is already in
+			// database
+			query = "SELECT * FROM " + Table.ITEMS.getName()
+					+ " WHERE itemid='" + item.getTypeId()
+					+ "' AND durability='" + item.getDurability()
+					+ "' AND groups='" + groupId + "';";
+			Query rs = plugin.getDatabaseHandler().select(query);
+
+			// Send Item to database
 			try
 			{
-				// Update karma
-				if (!plugin.getPluginConfig().karmaDisabled)
+				if (rs.getResult().next())
 				{
-					if (!PermCheck.checkPermission(player,
-							PermissionNode.IGNORE_KARMA))
+					// For potions, look up for similar
+					// durability. Add amount that way
+					// if it exists
+					int total = item.getAmount()
+							+ rs.getResult().getInt("amount");
+					query = "UPDATE " + Table.ITEMS.getName() + " SET amount='"
+							+ total + "' WHERE itemid='" + item.getTypeId()
+							+ "' AND durability='" + item.getDurability()
+							+ "' AND groups='" + groupId + "';";
+				}
+				else
+				{
+					// Item not in database, therefore add it
+					query = "INSERT INTO "
+							+ Table.ITEMS.getName()
+							+ " (itemid,amount,data,durability,groups) VALUES ('"
+							+ item.getTypeId() + "','" + item.getAmount()
+							+ "','0','" + item.getDurability() + "','"
+							+ groupId + "');";
+				}
+				rs.closeQuery();
+				plugin.getDatabaseHandler().standardQuery(query);
+			}
+			catch (SQLException e)
+			{
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ "Could not query item pool!");
+				e.printStackTrace();
+				return false;
+			}
+		}
+		else
+		{
+			// Normal item
+			// Create SQL query to see if item is already in
+			// database
+			query = "SELECT * FROM " + Table.ITEMS.getName()
+					+ " WHERE itemid='" + item.getTypeId() + "' AND data='"
+					+ item.getData().getData() + "' AND groups='" + groupId
+					+ "';";
+			Query rs = plugin.getDatabaseHandler().select(query);
+
+			// Send Item to database
+			try
+			{
+				if (rs.getResult().next())
+				{
+					do
 					{
-						if (plugin.getPluginConfig().statickarma)
+						// For tools, look up for similar
+						// durability. Add amount that way
+						// if it exists
+						int total = item.getAmount()
+								+ rs.getResult().getInt("amount");
+						query = "UPDATE " + Table.ITEMS.getName()
+								+ " SET amount='" + total + "' WHERE itemid='"
+								+ item.getTypeId() + "' AND data='"
+								+ item.getData().getData() + "' AND groups='"
+								+ groupId + "';";
+					} while (rs.getResult().next());
+				}
+				else
+				{
+					// Item not in database, therefore add it
+					query = "INSERT INTO "
+							+ Table.ITEMS.getName()
+							+ " (itemid,amount,data,durability,groups) VALUES ('"
+							+ item.getTypeId() + "','" + item.getAmount()
+							+ "','" + item.getData().getData() + "','"
+							+ item.getDurability() + "','" + groupId + "');";
+				}
+				rs.closeQuery();
+				plugin.getDatabaseHandler().standardQuery(query);
+			}
+			catch (SQLException e)
+			{
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ "Could not query item pool!");
+				e.printStackTrace();
+				return false;
+			}
+		}
+		try
+		{
+			// Update karma
+			if (!plugin.getPluginConfig().karmaDisabled)
+			{
+				if (!PermCheck.checkPermission(player,
+						PermissionNode.IGNORE_KARMA))
+				{
+					if (plugin.getPluginConfig().statickarma)
+					{
+						updatePlayerKarma(player.getName(), item.getAmount()
+								* plugin.getPluginConfig().karmaChange);
+					}
+					else
+					{
+						// Check if given item has a multiplier
+						Item[] karmaList = plugin.getPluginConfig().karma
+								.keySet().toArray(new Item[0]);
+						boolean hasKarma = false;
+						for (Item k : karmaList)
 						{
-							updatePlayerKarma(
-									player.getName(),
-									item.getAmount()
-											* plugin.getPluginConfig().karmaChange);
+							if (k.areSame(i))
+							{
+								// Item karma needs to be adjusted
+								hasKarma = true;
+							}
 						}
-						else
+						if (hasKarma)
 						{
-							// Check if given item has a multiplier
-							Item[] karmaList = plugin.getPluginConfig().karma
-									.keySet().toArray(new Item[0]);
-							boolean hasKarma = false;
-							for (Item k : karmaList)
+							try
 							{
-								if (k.areSame(i))
-								{
-									// Item karma needs to be adjusted
-									hasKarma = true;
-								}
+								updatePlayerKarma(
+										player.getName(),
+										item.getAmount()
+												* plugin.getPluginConfig().karma
+														.get(i));
 							}
-							if (hasKarma)
+							catch (NullPointerException n)
 							{
-								try
-								{
-									updatePlayerKarma(
-											player.getName(),
-											item.getAmount()
-													* plugin.getPluginConfig().karma
-															.get(i));
-								}
-								catch (NullPointerException n)
-								{
-									// Found item, but there is no
-									// config for specific data value
-									// thus adjust using regular means
-									updatePlayerKarma(
-											player.getName(),
-											item.getAmount()
-													* plugin.getPluginConfig().karmaChange);
-								}
-							}
-							else
-							{
+								// Found item, but there is no
+								// config for specific data value
+								// thus adjust using regular means
 								updatePlayerKarma(
 										player.getName(),
 										item.getAmount()
 												* plugin.getPluginConfig().karmaChange);
 							}
 						}
+						else
+						{
+							updatePlayerKarma(
+									player.getName(),
+									item.getAmount()
+											* plugin.getPluginConfig().karmaChange);
+						}
 					}
 				}
 			}
-			catch (SQLException e)
-			{
-				player.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ "Could not adjust karma to pool!");
-				e.printStackTrace();
-				return false;
-			}
-			// Smoke effect
-			smokePlayer(player);
-			// Update cache
-			if (!Commander.cache.isEmpty())
-			{
-				if (Commander.cache.containsKey(i))
-				{
-					int cacheAmount = Commander.cache.get(i).intValue();
-					Commander.cache.put(i, (cacheAmount + item.getAmount()));
-				}
-				else
-				{
-					Commander.cache.put(i, item.getAmount());
-				}
-			}
-			return true;
 		}
-		else
+		catch (SQLException e)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ " Lack permission: KarmicShare.give");
+					+ "Could not adjust karma to pool!");
+			e.printStackTrace();
+			return false;
 		}
-		return false;
+		// Smoke effect
+		smokePlayer(player);
+		// Update cache
+		if (!Commander.cache.isEmpty())
+		{
+			if (Commander.cache.containsKey(i))
+			{
+				int cacheAmount = Commander.cache.get(i).intValue();
+				Commander.cache.put(i, (cacheAmount + item.getAmount()));
+			}
+			else
+			{
+				Commander.cache.put(i, item.getAmount());
+			}
+		}
+		return true;
 	}
 
 	/**
