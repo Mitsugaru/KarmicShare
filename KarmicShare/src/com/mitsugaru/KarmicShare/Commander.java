@@ -43,7 +43,6 @@ public class Commander implements CommandExecutor
 			multiPage = new HashMap<String, Integer>();
 	public static final Map<Item, Integer> cache = new HashMap<Item, Integer>();
 	public static final Map<String, Integer> chestPage = new HashMap<String, Integer>();
-	private int limit;
 	private long time;
 
 	/**
@@ -57,7 +56,6 @@ public class Commander implements CommandExecutor
 		// Instantiate variables
 		this.plugin = plugin;
 		config = plugin.getPluginConfig();
-		limit = config.listlimit;
 		time = 0;
 	}
 
@@ -2649,8 +2647,8 @@ public class Commander implements CommandExecutor
 		}
 		// Set hashmap to array
 		Object[] array = config.karma.entrySet().toArray();
-		int num = array.length / limit;
-		double rem = (double) array.length % (double) limit;
+		int num = array.length / config.listlimit;
+		double rem = (double) array.length % (double) config.listlimit;
 		boolean valid = true;
 		if (rem != 0)
 		{
@@ -2665,7 +2663,7 @@ public class Commander implements CommandExecutor
 			multiPage.put(sender.getName(), 0);
 			valid = false;
 		}
-		else if ((multiPage.get(sender.getName()).intValue()) * limit > array.length)
+		else if ((multiPage.get(sender.getName()).intValue()) * config.listlimit > array.length)
 		{
 			// They tried to use /ks next at the end of the list
 			sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
@@ -2683,8 +2681,8 @@ public class Commander implements CommandExecutor
 					+ ((multiPage.get(sender.getName()).intValue()) + 1)
 					+ " of " + num + ChatColor.BLUE + "===");
 			// list
-			for (int i = ((multiPage.get(sender.getName()).intValue()) * limit); i < ((multiPage
-					.get(sender.getName()).intValue()) * limit) + limit; i++)
+			for (int i = ((multiPage.get(sender.getName()).intValue()) * config.listlimit); i < ((multiPage
+					.get(sender.getName()).intValue()) * config.listlimit) + config.listlimit; i++)
 			{
 				// Don't try to pull something beyond the bounds
 				if (i < array.length)
@@ -2806,8 +2804,8 @@ public class Commander implements CommandExecutor
 				Object[] array = cache.entrySet().toArray();
 				boolean valid = true;
 				// Caluclate amount of pages
-				int num = array.length / limit;
-				double rem = (double) array.length % (double) limit;
+				int num = array.length / config.listlimit;
+				double rem = (double) array.length % (double) config.listlimit;
 				if (rem != 0)
 				{
 					num++;
@@ -2821,7 +2819,7 @@ public class Commander implements CommandExecutor
 					page.put(sender.getName(), 0);
 					valid = false;
 				}
-				else if ((page.get(sender.getName()).intValue()) * limit > array.length)
+				else if ((page.get(sender.getName()).intValue()) * config.listlimit > array.length)
 				{
 					// They tried to use /ks next at the end of the list
 					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
@@ -2839,8 +2837,8 @@ public class Commander implements CommandExecutor
 							+ ((page.get(sender.getName()).intValue()) + 1)
 							+ " of " + num + ChatColor.BLUE + "===");
 					// list
-					for (int i = ((page.get(sender.getName()).intValue()) * limit); i < ((page
-							.get(sender.getName()).intValue()) * limit) + limit; i++)
+					for (int i = ((page.get(sender.getName()).intValue()) * config.listlimit); i < ((page
+							.get(sender.getName()).intValue()) * config.listlimit) + config.listlimit; i++)
 					{
 						// Don't try to pull something beyond the bounds
 						if (i < array.length)
