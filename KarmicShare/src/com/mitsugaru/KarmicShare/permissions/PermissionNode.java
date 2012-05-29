@@ -3,7 +3,7 @@ package com.mitsugaru.KarmicShare.permissions;
 public enum PermissionNode
 {
 	KARMA(".karma"), KARMA_OTHER(".karma.other"), GIVE(".give"), TAKE(".take"), INFO(
-			".info"), CHEST(".chest"), SIGN(".sign"), GROUP(".group"), GROUP_CREATE(
+			".info"), CHEST(".chest"), SIGN(".sign"), GROUP_CREATE(
 			".group.create"), GROUP_ADD(".group.add"), GROUP_REMOVE(
 			".group.remove"), GROUP_LEAVE(".group.leave"), IGNORE_KARMA(
 			".ignore.karma"), IGNORE_GROUP(".ignore.group"), COMMANDS_GIVE(

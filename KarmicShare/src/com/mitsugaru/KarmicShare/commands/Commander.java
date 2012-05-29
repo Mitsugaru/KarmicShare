@@ -272,7 +272,7 @@ public class Commander implements CommandExecutor
 							// Validate group
 							if (Karma.validGroup(sender, current))
 							{
-								//check if page is given, else default to 1
+								// check if page is given, else default to 1
 								int page = 1;
 								if (args.length > 1)
 								{
@@ -283,12 +283,13 @@ public class Commander implements CommandExecutor
 									catch (NumberFormatException e)
 									{
 										sender.sendMessage(ChatColor.RED
-												+ KarmicShare.TAG + " Invalid number: "
+												+ KarmicShare.TAG
+												+ " Invalid number: "
 												+ ChatColor.GOLD + args[1]);
 										page = 1;
 									}
 								}
-								//Show inventory
+								// Show inventory
 								Karma.showInventory(player, current, page);
 							}
 							else
@@ -475,22 +476,36 @@ public class Commander implements CommandExecutor
 					+ "/ks take <item name> [amount]" + ChatColor.YELLOW
 					+ " : Take item(s) from pool");
 		}
-		sender.sendMessage(ChatColor.GREEN + "/ks list [page]"
-				+ ChatColor.YELLOW + " : List items in pool");
-		sender.sendMessage(ChatColor.GREEN + "/ks <prev | next>"
-				+ ChatColor.YELLOW + " : Show previous/next page of list");
-		sender.sendMessage(ChatColor.GREEN + "/ks value [prev|next|page#]"
-				+ ChatColor.YELLOW
-				+ " : List karma multiplier values, and page through list");
-		if (plugin.useChest())
+		if (PermCheck.checkPermission(sender, PermissionNode.COMMANDS_LIST))
+		{
+			sender.sendMessage(ChatColor.GREEN + "/ks list [page]"
+					+ ChatColor.YELLOW + " : List items in pool");
+			sender.sendMessage(ChatColor.GREEN + "/ks <prev | next>"
+					+ ChatColor.YELLOW + " : Show previous/next page of list");
+		}
+		if (PermCheck.checkPermission(sender, PermissionNode.COMMANDS_VALUE))
+		{
+			sender.sendMessage(ChatColor.GREEN + "/ks value [prev|next|page#]"
+					+ ChatColor.YELLOW + " : List karma multiplier values");
+		}
+		if (plugin.useChest()
+				&& PermCheck.checkPermission(sender, PermissionNode.CHEST))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks page <num>"
 					+ ChatColor.YELLOW + " : Jump page numbers for chests");
+			sender.sendMessage(ChatColor.GREEN + "/ks open [page]"
+					+ ChatColor.YELLOW + " : Open inventory view");
+		}
+		if (PermCheck.checkPermission(sender, PermissionNode.GROUP_CREATE)
+				|| PermCheck.checkPermission(sender, PermissionNode.GROUP_ADD)
+				|| PermCheck.checkPermission(sender,
+						PermissionNode.GROUP_REMOVE)
+				|| PermCheck
+						.checkPermission(sender, PermissionNode.GROUP_LEAVE))
+		{
 			sender.sendMessage(ChatColor.GREEN + "/ks group" + ChatColor.YELLOW
 					+ " : List group commands");
 		}
-		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
-				+ " : Show help menu");
 		if (PermCheck.checkPermission(sender, PermissionNode.INFO))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
@@ -521,6 +536,8 @@ public class Commander implements CommandExecutor
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW
 					+ " : List admin commands");
 		}
+		sender.sendMessage(ChatColor.GREEN + "/ks help" + ChatColor.YELLOW
+				+ " : Show help menu");
 		sender.sendMessage(ChatColor.GREEN + "/ks version" + ChatColor.YELLOW
 				+ " : Show version and config");
 	}

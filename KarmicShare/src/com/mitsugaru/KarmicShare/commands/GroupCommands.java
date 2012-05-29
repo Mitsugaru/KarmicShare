@@ -21,8 +21,6 @@ public class GroupCommands
 	
 	public static void parseCommand(CommandSender sender, String[] args)
 	{
-		if (PermCheck.checkPermission(sender, PermissionNode.GROUP))
-		{
 			if (args.length > 1)
 			{
 				// They have a parameter, thus
@@ -77,16 +75,11 @@ public class GroupCommands
 						+ "/ks group set <group>" + ChatColor.YELLOW
 						+ " : Set current group");
 			}
-		}
-		else
-		{
-			sender.sendMessage(ChatColor.RED + " Lack permission: "
-					+ PermissionNode.GROUP.getNode());
-		}
 	}
 
 	// TODO need to also check against if they are creator/manager of group
 	// TODO group settings
+	//TODO list groups, highlight public versus private groups
 	public static boolean groupCommand(CommandSender sender, String[] args)
 	{
 		// Show group commands help menu
