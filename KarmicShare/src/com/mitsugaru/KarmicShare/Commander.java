@@ -35,7 +35,7 @@ import com.mitsugaru.KarmicShare.tasks.RemoveGroupTask;
 public class Commander implements CommandExecutor
 {
 	// Class variables
-	private final KarmicShare ks;
+	private final KarmicShare plugin;
 	private final static String bar = "======================",
 			GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
 	private final Config config;
@@ -52,11 +52,11 @@ public class Commander implements CommandExecutor
 	 * @param karmicShare
 	 *            plugin
 	 */
-	public Commander(KarmicShare karmicShare)
+	public Commander(KarmicShare plugin)
 	{
 		// Instantiate variables
-		ks = karmicShare;
-		config = ks.getPluginConfig();
+		this.plugin = plugin;
+		config = plugin.getPluginConfig();
 		limit = config.listlimit;
 		time = 0;
 	}
@@ -227,7 +227,7 @@ public class Commander implements CommandExecutor
 			}
 			else if (com.equals("page"))
 			{
-				if (ks.useChest())
+				if (plugin.useChest())
 				{
 					if (PermCheck.checkPermission(sender, PermissionNode.CHEST))
 					{
@@ -482,7 +482,7 @@ public class Commander implements CommandExecutor
 				else if (!Karma.validGroup(sender, group))
 				{
 					// Create group
-					ks.getDatabaseHandler().standardQuery(
+					plugin.getDatabaseHandler().standardQuery(
 							"INSERT INTO " + Table.GROUPS.getName()
 									+ " (groupname) VALUES ('" + group + "');");
 					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
@@ -597,7 +597,7 @@ public class Commander implements CommandExecutor
 					if (Karma.validGroup(sender, group))
 					{
 						// Grab player on server
-						Player other = ks.getServer().getPlayer(name);
+						Player other = plugin.getServer().getPlayer(name);
 						if (other != null)
 						{
 							// add other player to group
@@ -707,7 +707,7 @@ public class Commander implements CommandExecutor
 								+ " Removed " + ChatColor.GOLD + name
 								+ ChatColor.GREEN + " from " + ChatColor.GRAY
 								+ group);
-						final Player p = ks.getServer().getPlayer(name);
+						final Player p = plugin.getServer().getPlayer(name);
 						if (p != null)
 						{
 							p.sendMessage(ChatColor.GREEN + KarmicShare.TAG
@@ -846,7 +846,7 @@ public class Commander implements CommandExecutor
 		try
 		{
 			String groups = "";
-			Query rs = ks.getDatabaseHandler().select(
+			Query rs = plugin.getDatabaseHandler().select(
 					"SELECT * FROM " + Table.PLAYERS.getName()
 							+ " WHERE playername='" + name + "';");
 			if (rs.getResult().next())
@@ -860,7 +860,7 @@ public class Commander implements CommandExecutor
 						StringBuilder sb = new StringBuilder();
 						for (String s : groups.split("&"))
 						{
-							ks.getLogger().info(s);
+							plugin.getLogger().info(s);
 							// Add back all groups excluding specified group
 							if (!s.equals(group))
 							{
@@ -879,7 +879,7 @@ public class Commander implements CommandExecutor
 			}
 			rs.closeQuery();
 			// Update their groups
-			ks.getDatabaseHandler().standardQuery(
+			plugin.getDatabaseHandler().standardQuery(
 					"UPDATE " + Table.PLAYERS.getName() + " SET groups='"
 							+ groups + "' WHERE playername='" + name + "';");
 		}
@@ -899,7 +899,7 @@ public class Commander implements CommandExecutor
 			// Insures that the player is added to the database
 			Karma.getPlayerKarma(name);
 			String groups = "";
-			Query rs = ks.getDatabaseHandler().select(
+			Query rs = plugin.getDatabaseHandler().select(
 					"SELECT * FROM " + Table.PLAYERS.getName()
 							+ " WHERE playername='" + name + "';");
 			if (rs.getResult().next())
@@ -916,7 +916,7 @@ public class Commander implements CommandExecutor
 			}
 			rs.closeQuery();
 			// Update their groups
-			ks.getDatabaseHandler().standardQuery(
+			plugin.getDatabaseHandler().standardQuery(
 					"UPDATE " + Table.PLAYERS.getName() + " SET groups='"
 							+ groups + "' WHERE playername='" + name + "';");
 		}
@@ -1107,7 +1107,7 @@ public class Commander implements CommandExecutor
 			Karma.selectedGroup.put(sender.getName(), "global");
 			group = "global";
 		}
-		final int groupId = ks.getDatabaseHandler().getGroupId(group);
+		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -1217,7 +1217,7 @@ public class Commander implements CommandExecutor
 			String toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
 					+ " WHERE itemid='" + itemid + "' AND groups='" + groupId
 					+ "';";
-			Query toolRS = ks.getDatabaseHandler().select(toolQuery);
+			Query toolRS = plugin.getDatabaseHandler().select(toolQuery);
 			try
 			{
 				ArrayList<ItemStack> itemList = new ArrayList<ItemStack>();
@@ -1433,7 +1433,7 @@ public class Commander implements CommandExecutor
 			Karma.selectedGroup.put(sender.getName(), "global");
 			group = "global";
 		}
-		final int groupId = ks.getDatabaseHandler().getGroupId(group);
+		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
 		if (groupId == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -1584,7 +1584,7 @@ public class Commander implements CommandExecutor
 	{
 		sender.sendMessage(ChatColor.BLUE + bar + "=====");
 		sender.sendMessage(ChatColor.GREEN + "KarmicShare v"
-				+ ks.getDescription().getVersion());
+				+ plugin.getDescription().getVersion());
 		sender.sendMessage(ChatColor.GREEN + "Coded by Mitsugaru");
 		sender.sendMessage(ChatColor.BLUE + "===========" + ChatColor.GRAY
 				+ "Config" + ChatColor.BLUE + "===========");
@@ -1667,7 +1667,7 @@ public class Commander implements CommandExecutor
 		sender.sendMessage(ChatColor.GREEN + "/ks value [prev|next|page#]"
 				+ ChatColor.YELLOW
 				+ " : List karma multiplier values, and page through list");
-		if (ks.useChest())
+		if (plugin.useChest())
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks page <num>"
 					+ ChatColor.YELLOW + " : Jump page numbers for chests");
@@ -1799,7 +1799,7 @@ public class Commander implements CommandExecutor
 				Karma.selectedGroup.put(sender.getName(), "global");
 				group = "global";
 			}
-			final int groupId = ks.getDatabaseHandler().getGroupId(group);
+			final int groupId = plugin.getDatabaseHandler().getGroupId(group);
 			if (groupId == -1)
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -1824,7 +1824,7 @@ public class Commander implements CommandExecutor
 				String query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + itemid + "' AND durability='"
 						+ dur + "' AND groups='" + groupId + "';";
-				Query rs = ks.getDatabaseHandler().select(query);
+				Query rs = plugin.getDatabaseHandler().select(query);
 				// Send Item to database
 				try
 				{
@@ -1854,7 +1854,7 @@ public class Commander implements CommandExecutor
 								+ dur + ",'" + groupId + "');";
 					}
 					rs.getResult().close();
-					ks.getDatabaseHandler().standardQuery(query);
+					plugin.getDatabaseHandler().standardQuery(query);
 					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 							+ " Added " + ChatColor.GOLD + amount
 							+ ChatColor.GREEN + " of " + ChatColor.AQUA
@@ -1875,7 +1875,7 @@ public class Commander implements CommandExecutor
 				String query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + itemid + "' AND data='" + data
 						+ "' AND groups='" + groupId + "';";
-				Query rs = ks.getDatabaseHandler().select(query);
+				Query rs = plugin.getDatabaseHandler().select(query);
 				// Send Item to database
 				try
 				{
@@ -1905,7 +1905,7 @@ public class Commander implements CommandExecutor
 								+ dur + ",'" + groupId + "');";
 					}
 					rs.closeQuery();
-					ks.getDatabaseHandler().standardQuery(query);
+					plugin.getDatabaseHandler().standardQuery(query);
 					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 							+ " Added " + ChatColor.GOLD + amount
 							+ ChatColor.GREEN + " of " + ChatColor.AQUA
@@ -1945,11 +1945,11 @@ public class Commander implements CommandExecutor
 			}
 			if (sender instanceof Player)
 			{
-				int id = ks
+				int id = plugin
 						.getServer()
 						.getScheduler()
-						.scheduleAsyncDelayedTask(ks,
-								new ConfirmDrain(ks, (Player) sender, group));
+						.scheduleAsyncDelayedTask(plugin,
+								new ConfirmDrain(plugin, (Player) sender, group));
 				if (id == -1)
 				{
 					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
@@ -1962,8 +1962,8 @@ public class Commander implements CommandExecutor
 				// Wipe table
 				final String query = "DELETE FROM " + Table.ITEMS.getName()
 						+ " WHERE groups='" + group + "';";
-				ks.getDatabaseHandler().standardQuery(query);
-				ks.getLogger().info("Items for group '" + group + "' cleared");
+				plugin.getDatabaseHandler().standardQuery(query);
+				plugin.getLogger().info("Items for group '" + group + "' cleared");
 				cache.clear();
 			}
 			return true;
@@ -1979,11 +1979,11 @@ public class Commander implements CommandExecutor
 			}
 			if (sender instanceof Player)
 			{
-				int id = ks
+				int id = plugin
 						.getServer()
 						.getScheduler()
-						.scheduleAsyncDelayedTask(ks,
-								new ConfirmCleanup(ks, (Player) sender));
+						.scheduleAsyncDelayedTask(plugin,
+								new ConfirmCleanup(plugin, (Player) sender));
 				if (id == -1)
 				{
 					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
@@ -1993,10 +1993,10 @@ public class Commander implements CommandExecutor
 			else
 			{
 				// Sent from console
-				ks.getDatabaseHandler().standardQuery(
+				plugin.getDatabaseHandler().standardQuery(
 						"DELETE FROM " + Table.ITEMS.getName()
 								+ " WHERE amount<='0';");
-				ks.getLogger().info("Cleanup query executed");
+				plugin.getLogger().info("Cleanup query executed");
 			}
 			return true;
 		}
@@ -2048,7 +2048,7 @@ public class Commander implements CommandExecutor
 			// SQL query to get player count for specified name
 			String query = "SELECT COUNT(*) FROM " + Table.PLAYERS.getName()
 					+ " WHERE playername='" + name + "';";
-			Query rs = ks.getDatabaseHandler().select(query);
+			Query rs = plugin.getDatabaseHandler().select(query);
 			// Check ResultSet
 			boolean has = false;
 			try
@@ -2096,12 +2096,12 @@ public class Commander implements CommandExecutor
 			{
 				if (sender instanceof Player)
 				{
-					int i = ks
+					int i = plugin
 							.getServer()
 							.getScheduler()
 							.scheduleAsyncDelayedTask(
-									ks,
-									new ConfirmPlayerKarmaReset(ks,
+									plugin,
+									new ConfirmPlayerKarmaReset(plugin,
 											(Player) sender, name));
 					if (i == -1)
 					{
@@ -2192,7 +2192,7 @@ public class Commander implements CommandExecutor
 			// SQL query to get player count for specified name
 			String query = "SELECT COUNT(*) FROM " + Table.PLAYERS.getName()
 					+ " WHERE playername='" + name + "';";
-			Query rs = ks.getDatabaseHandler().select(query);
+			Query rs = plugin.getDatabaseHandler().select(query);
 			// Check ResultSet
 			boolean has = false;
 			try
@@ -2315,12 +2315,12 @@ public class Commander implements CommandExecutor
 				}
 				if (sender instanceof Player)
 				{
-					int i = ks
+					int i = plugin
 							.getServer()
 							.getScheduler()
 							.scheduleAsyncDelayedTask(
-									ks,
-									new ConfirmRemoveGroup(ks, (Player) sender,
+									plugin,
+									new ConfirmRemoveGroup(plugin, (Player) sender,
 											group));
 					if (i == -1)
 					{
@@ -2331,17 +2331,17 @@ public class Commander implements CommandExecutor
 				else
 				{
 					// Sent via console
-					int i = ks
+					int i = plugin
 							.getServer()
 							.getScheduler()
-							.scheduleAsyncDelayedTask(ks,
-									new RemoveGroupTask(ks, sender, group));
+							.scheduleAsyncDelayedTask(plugin,
+									new RemoveGroupTask(plugin, sender, group));
 					if (i == -1)
 					{
 						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " Could not schedule task.");
 					}
-					ks.getDatabaseHandler().standardQuery(
+					plugin.getDatabaseHandler().standardQuery(
 							"DELETE FROM " + Table.ITEMS.getName()
 									+ " WHERE groups='" + group + "';");
 					sender.sendMessage(KarmicShare.TAG
@@ -2369,7 +2369,7 @@ public class Commander implements CommandExecutor
 				if (!Karma.validGroup(sender, group))
 				{
 					// Create group
-					ks.getDatabaseHandler().standardQuery(
+					plugin.getDatabaseHandler().standardQuery(
 							"INSERT INTO " + Table.GROUPS.getName()
 									+ " (groupname) VALUES ('" + group + "');");
 					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
@@ -2450,7 +2450,7 @@ public class Commander implements CommandExecutor
 										+ ChatColor.GOLD + name
 										+ ChatColor.GREEN + " to "
 										+ ChatColor.GRAY + group);
-								final Player p = ks.getServer().getPlayer(
+								final Player p = plugin.getServer().getPlayer(
 										"name");
 								if (p != null)
 								{
@@ -2540,7 +2540,7 @@ public class Commander implements CommandExecutor
 										+ ChatColor.GOLD + name
 										+ ChatColor.GREEN + " from "
 										+ ChatColor.GRAY + group);
-								final Player p = ks.getServer().getPlayer(
+								final Player p = plugin.getServer().getPlayer(
 										"name");
 								if (p != null)
 								{
@@ -2578,7 +2578,7 @@ public class Commander implements CommandExecutor
 	private void updateCache(CommandSender sender)
 	{
 		// Get list of items from database
-		Query itemlist = ks.getDatabaseHandler().select(
+		Query itemlist = plugin.getDatabaseHandler().select(
 				"SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE groups='global';");
 		try
@@ -2739,13 +2739,13 @@ public class Commander implements CommandExecutor
 			Karma.selectedGroup.put(sender.getName(), "global");
 			current = "global";
 		}
-		final int groupId = ks.getDatabaseHandler().getGroupId(current);
+		final int groupId = plugin.getDatabaseHandler().getGroupId(current);
 		if (groupId == -1)
 		{
 			return;
 		}
 		// Get list of items from database
-		Query itemlist = ks.getDatabaseHandler().select(
+		Query itemlist = plugin.getDatabaseHandler().select(
 				"SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
 						+ groupId + "';");
 		try
@@ -2955,9 +2955,9 @@ public class Commander implements CommandExecutor
 	{
 		int m = 0;
 		String Result = "";
-		for (int n = 0; n < ks.getServer().getOnlinePlayers().length; n++)
+		for (int n = 0; n < plugin.getServer().getOnlinePlayers().length; n++)
 		{
-			String str = ks.getServer().getOnlinePlayers()[n].getName();
+			String str = plugin.getServer().getOnlinePlayers()[n].getName();
 			if (str.matches("(?i).*" + Name + ".*"))
 			{
 				m++;
