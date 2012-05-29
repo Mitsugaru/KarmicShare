@@ -1,33 +1,34 @@
 /**
- * MySQL
- * Inherited subclass for making a connection to a MySQL server.
- *
+ * MySQL Inherited subclass for making a connection to a MySQL server.
+ * 
  * Date Created: 2011-08-26 19:08
+ * 
  * @author PatPeter
  */
-package lib.Mitsugaru.SQLibrary;
+package com.mitsugaru.KarmicShare.SQLibrary;
 
 /*
  * MySQL
  */
-//import java.net.MalformedURLException;
+// import java.net.MalformedURLException;
 
 /*
  * Both
  */
-//import java.net.MalformedURLException;
+// import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-//import java.util.logging.Logger;
+// import java.util.logging.Logger;
 import java.util.logging.Logger;
 
-//import com.sun.rowset.JdbcRowSetImpl;
+// import com.sun.rowset.JdbcRowSetImpl;
 
-public class MySQL extends Database {
+public class MySQL extends Database
+{
 	private String hostname = "localhost";
 	private String portnmbr = "3306";
 	private String username = "minecraft";
@@ -35,7 +36,8 @@ public class MySQL extends Database {
 	private String database = "minecraft";
 
 	public MySQL(Logger log, String prefix, String hostname, String portnmbr,
-			String database, String username, String password) {
+			String database, String username, String password)
+	{
 		super(log, prefix, "[MySQL] ");
 		this.hostname = hostname;
 		this.portnmbr = portnmbr;
@@ -54,7 +56,8 @@ public class MySQL extends Database {
 	 */
 
 	@Override
-	protected boolean initialize() {
+	protected boolean initialize()
+	{
 		try
 		{
 			Class.forName("com.mysql.jdbc.Driver"); // Check that server's Java
@@ -64,13 +67,14 @@ public class MySQL extends Database {
 		catch (ClassNotFoundException e)
 		{
 			this.writeError("Class Not Found Exception: " + e.getMessage()
-					+ ".", true);
+					+ ".", true, e);
 			return false;
 		}
 	}
 
 	@Override
-	public Connection open() {
+	public Connection open()
+	{
 		if (initialize())
 		{
 			String url = "";
@@ -83,17 +87,18 @@ public class MySQL extends Database {
 			}
 			catch (SQLException e)
 			{
-				this.writeError(url, true);
+				this.writeError(url, true, null);
 				this.writeError(
 						"Could not be resolved because of an SQL Exception: "
-								+ e.getMessage() + ".", true);
+								+ e.getMessage() + ".", true, e);
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public void close() {
+	public void close()
+	{
 		Connection connection = open();
 		try
 		{
@@ -104,26 +109,29 @@ public class MySQL extends Database {
 		{
 			this.writeError(
 					"Failed to close database connection: " + e.getMessage(),
-					true);
+					true, e);
 		}
 	}
 
 	@Override
-	public Connection getConnection() {
+	public Connection getConnection()
+	{
 		// if (this.connection == null)
 		return open();
 		// return this.connection;
 	}
 
 	@Override
-	public boolean checkConnection() { // http://forums.bukkit.org/threads/lib-tut-mysql-sqlite-bukkit-drivers.33849/page-4#post-701550
+	public boolean checkConnection()
+	{ // http://forums.bukkit.org/threads/lib-tut-mysql-sqlite-bukkit-drivers.33849/page-4#post-701550
 		Connection connection = this.open();
 		if (connection != null)
 			return true;
 		return false;
 	}
 
-	public Query select(String query) {
+	public Query select(String query)
+	{
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet result = null/* new JdbcRowSetImpl() */;
@@ -146,12 +154,13 @@ public class MySQL extends Database {
 		}
 		catch (SQLException e)
 		{
-			this.writeError("Error in SQL query: " + e.getMessage(), false);
+			this.writeError("Error in SQL query: " + e.getMessage(), false, e);
 		}
 		return new Query(connection, statement, result);
 	}
 
-	public void standardQuery(String query) {
+	public void standardQuery(String query)
+	{
 		Connection connection = null;
 		Statement statement = null;
 
@@ -166,12 +175,14 @@ public class MySQL extends Database {
 		catch (SQLException ex)
 		{
 			if (!(ex.toString().contains("not return ResultSet")))
-				this.writeError("Error at SQL Query: " + ex.getMessage(), false);
+				this.writeError("Error at SQL Query: " + ex.getMessage(),
+						false, ex);
 		}
 	}
 
 	@Override
-	public PreparedStatement prepare(String query) {
+	public PreparedStatement prepare(String query)
+	{
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try
@@ -185,25 +196,26 @@ public class MySQL extends Database {
 			if (!e.toString().contains("not return ResultSet"))
 				this.writeError(
 						"Error in SQL prepare() query: " + e.getMessage(),
-						false);
+						false, e);
 		}
 		return ps;
 	}
 
 	@Override
-	public boolean createTable(String query) {
+	public boolean createTable(String query)
+	{
 		Statement statement = null;
 		try
 		{
 			if (query == null)
 			{
-				this.writeError("SQL query null", true);
+				this.writeError("SQL query null", true, null);
 				return false;
 			}
 			if (query.equals(""))
 			{
 				this.writeError("SQL query empty: createTable(" + query + ")",
-						true);
+						true, null);
 				return false;
 			}
 			this.connection = this.open();
@@ -215,18 +227,19 @@ public class MySQL extends Database {
 		}
 		catch (SQLException e)
 		{
-			this.writeError(e.getMessage(), true);
+			this.writeError(e.getMessage(), true, e);
 			return false;
 		}
 		catch (Exception e)
 		{
-			this.writeError(e.getMessage(), true);
+			this.writeError(e.getMessage(), true, e);
 			return false;
 		}
 	}
 
 	@Override
-	public boolean checkTable(String table) {
+	public boolean checkTable(String table)
+	{
 		try
 		{
 			Connection connection = open();
@@ -249,18 +262,20 @@ public class MySQL extends Database {
 			}
 			else
 			{
-				this.writeError("Error in SQL query: " + e.getMessage(), false);
+				this.writeError("Error in SQL query: " + e.getMessage(), false,
+						e);
 			}
 		}
 
-		//TODO fix
+		// TODO fix
 		if (select("SELECT * FROM " + table) == null)
 			return true;
 		return false;
 	}
 
 	@Override
-	public boolean wipeTable(String table) {
+	public boolean wipeTable(String table)
+	{
 		// Connection connection = null;
 		Statement statement = null;
 		String query = null;
@@ -269,7 +284,7 @@ public class MySQL extends Database {
 			if (!this.checkTable(table))
 			{
 				this.writeError("Error wiping table: \"" + table
-						+ "\" does not exist.", true);
+						+ "\" does not exist.", true, null);
 				return false;
 			}
 			// connection = open();
@@ -287,43 +302,4 @@ public class MySQL extends Database {
 		}
 		return false;
 	}
-
-	/*@Override
-	public ResultSet query(String query) {
-		Connection connection = null;
-		Statement statement = null;
-		ResultSet result = null/* new JdbcRowSetImpl() ;
-		try
-		{
-			connection = open();
-			// WARN ODR_OPEN_DATABASE_RESOURCE
-			/*
-			 * The method creates a database resource (such as a database
-			 * connection or row set), does not assign it to any fields, pass it
-			 * to other methods, or return it, and does not appear to close the
-			 * object on all paths out of the method. Failure to close database
-			 * resources on all paths out of a method may result in poor
-			 * performance, and could cause the application to have problems
-			 * communicating with the database.
-			 
-			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT CURTIME()");
-
-			switch (this.getStatement(query))
-			{
-				case SELECT:
-					result = statement.executeQuery(query);
-					return result;
-
-				default:
-					statement.executeUpdate(query);
-					return result;
-			}
-		}
-		catch (SQLException e)
-		{
-			this.writeError("Error in SQL query: " + e.getMessage(), false);
-		}
-		return result;
-	}*/
 }

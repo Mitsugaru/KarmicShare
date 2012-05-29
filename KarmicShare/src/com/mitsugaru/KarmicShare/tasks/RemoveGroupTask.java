@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
 
 public class RemoveGroupTask implements Runnable

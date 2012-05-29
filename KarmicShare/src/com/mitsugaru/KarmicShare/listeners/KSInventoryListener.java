@@ -126,7 +126,8 @@ public class KSInventoryListener implements Listener
 							{
 								// plugin.getLogger().info(
 								// "item stack not at max stack");
-								ItemStack item = handleEnchantments(event.getCursor());
+								ItemStack item = handleEnchantments(event
+										.getCursor());
 								if (totalAmount > event.getCurrentItem()
 										.getMaxStackSize())
 								{
@@ -148,7 +149,8 @@ public class KSInventoryListener implements Listener
 							}
 							else
 							{
-								// event.setResult(Event.Result.DENY);
+								// TODO fix logic to give the partial amount
+								// that would be added
 								event.setCancelled(true);
 							}
 						}
@@ -176,7 +178,11 @@ public class KSInventoryListener implements Listener
 								.getPlayer(event.getWhoClicked().getName()),
 								event.getCurrentItem(), group);
 						final int original = event.getCurrentItem().getAmount();
-						if (amount < event.getCurrentItem().getAmount()
+						if (amount == event.getCurrentItem().getAmount())
+						{
+							// IGNORE
+						}
+						else if (amount < event.getCurrentItem().getAmount()
 								&& amount > 0)
 						{
 							event.getCurrentItem().setAmount(amount);
@@ -214,7 +220,8 @@ public class KSInventoryListener implements Listener
 					{
 						// plugin.getLogger().info("left click give one");
 						// Clone
-						ItemStack item = handleEnchantments(event.getCurrentItem());
+						ItemStack item = handleEnchantments(event
+								.getCurrentItem());
 						// Only giving one
 						item.setAmount(1);
 						if (!Karma.giveItem(
@@ -311,7 +318,11 @@ public class KSInventoryListener implements Listener
 		final int amount = Karma.takeItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				item, group);
-		if (amount < event.getCurrentItem().getAmount() && amount > 0)
+		if (amount == half)
+		{
+			// IGNORE
+		}
+		else if (amount < event.getCurrentItem().getAmount() && amount > 0)
 		{
 			final ItemStack bak = event.getCurrentItem().clone();
 			bak.setAmount(event.getCurrentItem().getAmount() - amount);
@@ -383,7 +394,11 @@ public class KSInventoryListener implements Listener
 							event.getWhoClicked().getName()),
 					event.getCurrentItem(), group);
 			final int original = event.getCurrentItem().getAmount();
-			if (amount < event.getCurrentItem().getAmount() && amount > 0)
+			if (amount == event.getCurrentItem().getAmount())
+			{
+				// IGNORE
+			}
+			else if (amount < event.getCurrentItem().getAmount() && amount > 0)
 			{
 				event.getCurrentItem().setAmount(amount);
 				final ItemStack bak = event.getCurrentItem().clone();

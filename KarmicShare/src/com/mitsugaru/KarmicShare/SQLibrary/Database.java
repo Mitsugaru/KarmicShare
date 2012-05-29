@@ -1,44 +1,46 @@
 /**
- * Database Handler
- * Abstract superclass for all subclass database files.
+ * Database Handler Abstract superclass for all subclass database files.
  * 
  * Date Created: 2011-08-26 19:08
+ * 
  * @author PatPeter
  */
-package lib.Mitsugaru.SQLibrary;
+package com.mitsugaru.KarmicShare.SQLibrary;
 
 /*
- *  MySQL
+ * MySQL
  */
 // import java.net.MalformedURLException;
 
 /*
- *  SQLLite
+ * SQLLite
  */
-//import java.io.File;
-//import java.sql.DatabaseMetaData;
+// import java.io.File;
+// import java.sql.DatabaseMetaData;
 
 /*
- *  Both
+ * Both
  */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-//import java.sql.DriverManager;
+// import java.sql.DriverManager;
 import java.sql.ResultSet;
-//import java.sql.SQLException;
-//import java.sql.Statement;
+// import java.sql.SQLException;
+// import java.sql.Statement;
 import java.util.logging.Logger;
 
-public abstract class Database {
+public abstract class Database
+{
 	protected Logger log;
 	protected final String PREFIX;
 	protected final String DATABASE_PREFIX;
 	protected boolean connected;
 	protected Connection connection;
 
-	protected enum Statements {
+	protected enum Statements
+	{
 		SELECT, INSERT, UPDATE, DELETE, DO, REPLACE, LOAD, HANDLER, CALL, // Data
 																			// manipulation
 																			// statements
@@ -49,7 +51,8 @@ public abstract class Database {
 	 * MySQL, SQLLite
 	 */
 
-	public Database(Logger log, String prefix, String dp) {
+	public Database(Logger log, String prefix, String dp)
+	{
 		this.log = log;
 		this.PREFIX = prefix;
 		this.DATABASE_PREFIX = dp;
@@ -68,9 +71,11 @@ public abstract class Database {
 	 *            "http://download.oracle.com/javase/6/docs/api/java/lang/String.html"
 	 *            >String</a> of content to write to the console.
 	 */
-	protected void writeInfo(String toWrite) {
-		if (toWrite != null) {
-			this.log.info(this.PREFIX + this.DATABASE_PREFIX + toWrite);
+	protected void writeInfo(String toWrite)
+	{
+		if (toWrite != null)
+		{
+			this.log.info(this.DATABASE_PREFIX + toWrite);
 		}
 	}
 
@@ -87,13 +92,22 @@ public abstract class Database {
 	 * @param severe
 	 *            - whether console output should appear as an error or warning.
 	 */
-	protected void writeError(String toWrite, boolean severe) {
-		if (toWrite != null) {
-			if (severe) {
-				this.log.severe(this.PREFIX + this.DATABASE_PREFIX + toWrite);
-			} else {
-				this.log.warning(this.PREFIX + this.DATABASE_PREFIX + toWrite);
+	protected void writeError(String toWrite, boolean severe, Exception exception)
+	{
+		if (toWrite != null)
+		{
+			if (severe)
+			{
+				this.log.severe(this.DATABASE_PREFIX + toWrite);
 			}
+			else
+			{
+				this.log.warning(this.DATABASE_PREFIX + toWrite);
+			}
+		}
+		if (exception != null)
+		{
+			exception.printStackTrace();
 		}
 	}
 
@@ -175,7 +189,8 @@ public abstract class Database {
 	 * enum. <br>
 	 * <br>
 	 */
-	protected Statements getStatement(String query) {
+	protected Statements getStatement(String query)
+	{
 		String trimmedQuery = query.trim();
 		if (trimmedQuery.substring(0, 6).equalsIgnoreCase("SELECT"))
 			return Statements.SELECT;
@@ -244,25 +259,26 @@ public abstract class Database {
 	 * @return success of the method.
 	 */
 	abstract boolean wipeTable(String table);
-	
+
 	public class Query
 	{
 		private Connection connection;
 		private Statement statement;
 		private ResultSet resultSet;
-		
-		public Query(Connection connection, Statement statement, ResultSet resultSet)
+
+		public Query(Connection connection, Statement statement,
+				ResultSet resultSet)
 		{
 			this.connection = connection;
 			this.statement = statement;
 			this.resultSet = resultSet;
 		}
-		
+
 		public ResultSet getResult()
 		{
 			return resultSet;
 		}
-		
+
 		public void closeQuery() throws SQLException
 		{
 			resultSet.close();

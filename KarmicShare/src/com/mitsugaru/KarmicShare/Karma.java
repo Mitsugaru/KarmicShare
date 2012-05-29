@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -17,6 +15,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
@@ -515,8 +514,11 @@ public class Karma
 								}
 								toolRS.closeQuery();
 							}
-							plugin.getDatabaseHandler()
-									.standardQuery(toolQuery);
+							if (!toolQuery.contains("SELECT"))
+							{
+								plugin.getDatabaseHandler().standardQuery(
+										toolQuery);
+							}
 						}
 						catch (SQLException e)
 						{
@@ -1206,7 +1208,8 @@ public class Karma
 				// No groups, add in the global and self
 				plugin.getDatabaseHandler().standardQuery(
 						"INSERT INTO " + Table.GROUPS.getName()
-								+ " (groupname) VALUES ('self_" + name.toLowerCase() + "');");
+								+ " (groupname) VALUES ('self_"
+								+ name.toLowerCase() + "');");
 				groups = plugin.getDatabaseHandler().getGroupId("global")
 						+ "&"
 						+ plugin.getDatabaseHandler()

@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import com.mitsugaru.KarmicShare.Commander;
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;

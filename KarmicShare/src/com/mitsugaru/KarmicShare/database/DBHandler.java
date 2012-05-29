@@ -3,11 +3,11 @@ package com.mitsugaru.KarmicShare.database;
 import java.sql.SQLException;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.SQLibrary.MySQL;
+import com.mitsugaru.KarmicShare.SQLibrary.SQLite;
+import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.config.Config;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
-import lib.Mitsugaru.SQLibrary.MySQL;
-import lib.Mitsugaru.SQLibrary.SQLite;
 
 public class DBHandler
 {
