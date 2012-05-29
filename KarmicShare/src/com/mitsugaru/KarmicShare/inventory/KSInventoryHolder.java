@@ -15,7 +15,7 @@ public class KSInventoryHolder implements InventoryHolder
 	
 	public void setInventory(Inventory inventory)
 	{
-		//TODO populate inventory
+		this.inventory = inventory;
 	}
 	
 	@Override

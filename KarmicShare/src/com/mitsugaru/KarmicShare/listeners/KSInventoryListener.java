@@ -19,6 +19,7 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.logic.ItemLogic;
+import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.tasks.Repopulate;
 
 public class KSInventoryListener implements Listener
@@ -72,7 +73,7 @@ public class KSInventoryListener implements Listener
 		// Differentiate between chest inventory and player
 		// inventory click
 		// plugin.getLogger().info("slot: " + event.getRawSlot());
-		if (event.getRawSlot() < 54)
+		if (event.getRawSlot() < Karma.chestSize)
 		{
 			fromChest = true;
 		}
@@ -250,12 +251,12 @@ public class KSInventoryListener implements Listener
 				}
 				else if (event.isLeftClick())
 				{
-					plugin.getLogger().info("shift left click from player");
+					//plugin.getLogger().info("shift left click from player");
 					shiftGiveItem(event, group);
 				}
 				else if (event.isRightClick())
 				{
-					plugin.getLogger().info("shift right click from player");
+					//plugin.getLogger().info("shift right click from player");
 					shiftGiveItem(event, group);
 				}
 			}

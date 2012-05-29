@@ -170,7 +170,7 @@ public class ItemLogic
 	public static int takeItem(Player player, ItemStack item, String group)
 	{
 		// Check if they have "take" permission
-		if (PermCheck.checkPermission(player, PermissionNode.TAKE))
+		if (!PermCheck.checkPermission(player, PermissionNode.TAKE))
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: KarmicShare.take");
@@ -609,7 +609,7 @@ public class ItemLogic
 
 	public static boolean giveItem(Player player, ItemStack item, String group)
 	{
-		if (PermCheck.checkPermission(player, PermissionNode.GIVE))
+		if (!PermCheck.checkPermission(player, PermissionNode.GIVE))
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: KarmicShare.give");

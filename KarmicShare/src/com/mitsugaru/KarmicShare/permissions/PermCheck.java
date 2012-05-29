@@ -2,15 +2,15 @@ package com.mitsugaru.KarmicShare.permissions;
 
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.Bukkit;
+//import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+//import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 
-import ru.tehkode.permissions.PermissionManager;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
+//import ru.tehkode.permissions.PermissionManager;
+//import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 /**
  * Class to handle permission node checks.
@@ -58,7 +58,7 @@ public class PermCheck {
 	public static boolean checkPermission(CommandSender sender, String node)
 	{
 		//Use PEX first
-		if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx"))
+		/*if(Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx"))
 		{
 			//Pex only supports player check, no CommandSender objects
 			if(sender instanceof Player)
@@ -71,7 +71,7 @@ public class PermCheck {
 					return true;
 				}
 			}
-		}
+		}*/
 		//Use vault if we have it
 		if(hasVault && perm != null)
 		{
