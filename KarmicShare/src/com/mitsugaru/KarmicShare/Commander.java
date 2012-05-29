@@ -2930,10 +2930,21 @@ public class Commander implements CommandExecutor
 	@SuppressWarnings("unchecked")
 	private void listPool(CommandSender sender, int pageAdjust)
 	{
+		String current = Karma.selectedGroup.get(sender.getName());
+		if (current == null)
+		{
+			Karma.selectedGroup.put(sender.getName(), "global");
+			current = "global";
+		}
+		final int groupId = ks.getDatabaseHandler().getGroupId(current);
+		if (groupId == -1)
+		{
+			return;
+		}
 		// Get list of items from database
 		Query itemlist = ks.getDatabaseHandler().select(
 				"SELECT * FROM " + Table.ITEMS.getName()
-						+ " WHERE groups='global';");
+						+ " WHERE groups='" + groupId +"';");
 		try
 		{
 			if (itemlist.getResult().next())

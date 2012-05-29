@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -511,51 +510,64 @@ public class KSPlayerListener implements Listener
 						if (count >= start)
 						{
 							Item meta = new Item(id, data, dur);
-							// If tool
-							if (meta.isTool())
+							try
 							{
-								// Check for enchantments
-								String enchantments = itemList.getResult()
-										.getString("enchantments");
-								if (!itemList.getResult().wasNull())
+								// If tool
+								if (meta.isTool())
 								{
-									String[] cut = enchantments.split("i");
-									for (int s = 0; s < cut.length; s++)
+									// Check for enchantments
+									String enchantments = itemList.getResult()
+											.getString("enchantments");
+									if (!itemList.getResult().wasNull())
 									{
-										String[] cutter = cut[s].split("v");
-										EnchantmentWrapper e = new EnchantmentWrapper(
-												Integer.parseInt(cutter[0]));
-										add.addUnsafeEnchantment(
-												e.getEnchantment(),
-												Integer.parseInt(cutter[1]));
+										if (!enchantments.equals(""))
+										{
+											String[] cut = enchantments
+													.split("i");
+											for (int s = 0; s < cut.length; s++)
+											{
+												String[] cutter = cut[s]
+														.split("v");
+												EnchantmentWrapper e = new EnchantmentWrapper(
+														Integer.parseInt(cutter[0]));
+												add.addUnsafeEnchantment(
+														e.getEnchantment(),
+														Integer.parseInt(cutter[1]));
+
+											}
+										}
+									}
+									final HashMap<Integer, ItemStack> residual = inventory
+											.addItem(add);
+									if (!residual.isEmpty())
+									{
+										done = true;
 									}
 								}
-								final HashMap<Integer, ItemStack> residual = inventory
-										.addItem(add);
-								if (!residual.isEmpty())
+								else if (meta.isPotion())
 								{
-									done = true;
+									// Remove data for full potion compatibility
+									item = new ItemStack(id, amount, dur);
+									final HashMap<Integer, ItemStack> residual = inventory
+											.addItem(add);
+									if (!residual.isEmpty())
+									{
+										done = true;
+									}
+								}
+								else
+								{
+									final HashMap<Integer, ItemStack> residual = inventory
+											.addItem(add);
+									if (!residual.isEmpty())
+									{
+										done = true;
+									}
 								}
 							}
-							else if (meta.isPotion())
+							catch (NumberFormatException e)
 							{
-								// Remove data for full potion compatibility
-								item = new ItemStack(id, amount, dur);
-								final HashMap<Integer, ItemStack> residual = inventory
-										.addItem(add);
-								if (!residual.isEmpty())
-								{
-									done = true;
-								}
-							}
-							else
-							{
-								final HashMap<Integer, ItemStack> residual = inventory
-										.addItem(add);
-								if (!residual.isEmpty())
-								{
-									done = true;
-								}
+								// Ignore faulty item
 							}
 						}
 						count++;

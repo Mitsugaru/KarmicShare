@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
@@ -434,11 +436,22 @@ public class Karma
 							{
 								// Enchanted
 								StringBuilder sb = new StringBuilder();
-								for (Map.Entry<Enchantment, Integer> e : item
+								final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
+								for (Map.Entry<Enchantment, Integer> entry : item
 										.getEnchantments().entrySet())
 								{
-									sb.append(e.getKey().getId() + "v"
-											+ e.getValue().intValue() + "i");
+									map.put(new ComparableEnchantment(entry
+											.getKey()), entry.getValue());
+								}
+								TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
+										map.keySet());
+								for (ComparableEnchantment key : keys)
+								{
+									sb.append(key.getId()
+											+ "v"
+											+ item.getEnchantments()
+													.get(key.getEnchantment())
+													.intValue() + "i");
 								}
 								// Remove trailing comma
 								sb.deleteCharAt(sb.length() - 1);
@@ -450,6 +463,9 @@ public class Karma
 										+ groupId + "';";
 								Query toolRS = plugin.getDatabaseHandler()
 										.select(toolQuery);
+								// plugin.getLogger().info("enchanted tool taken");
+								//plugin.getLogger().info(
+								//		"enchant string: " + sb.toString());
 								if (toolRS.getResult().next())
 								{
 									if ((toolRS.getResult().getInt("amount") - amount) <= 0)
@@ -460,6 +476,7 @@ public class Karma
 												+ " WHERE id='"
 												+ toolRS.getResult().getInt(
 														"id") + "';";
+										// plugin.getLogger().info("enchanted tool drop");
 									}
 									else
 									{
@@ -472,6 +489,7 @@ public class Karma
 												+ "' WHERE id='"
 												+ toolRS.getResult().getInt(
 														"id") + "';";
+										// plugin.getLogger().info("enchanted tool update");
 									}
 								}
 								toolRS.closeQuery();
@@ -708,11 +726,22 @@ public class Karma
 				{
 					// Tool has enchantments
 					StringBuilder sb = new StringBuilder();
-					for (Map.Entry<Enchantment, Integer> e : enchantments
-							.entrySet())
+					final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
+					for (Map.Entry<Enchantment, Integer> entry : item
+							.getEnchantments().entrySet())
 					{
-						sb.append(e.getKey().getId() + "v"
-								+ e.getValue().intValue() + "i");
+						map.put(new ComparableEnchantment(entry.getKey()),
+								entry.getValue());
+					}
+					TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
+							map.keySet());
+					for (ComparableEnchantment key : keys)
+					{
+						sb.append(key.getId()
+								+ "v"
+								+ item.getEnchantments()
+										.get(key.getEnchantment()).intValue()
+								+ "i");
 					}
 					// Remove trailing comma
 					sb.deleteCharAt(sb.length() - 1);
@@ -733,7 +762,8 @@ public class Karma
 					// database
 					query = "SELECT * FROM " + Table.ITEMS.getName()
 							+ " WHERE itemid='" + item.getTypeId()
-							+ "' AND groups='" + groupId + "';";
+							+ "' AND durability='" + item.getDurability()
+							+ "' AND groups='" + groupId + "' AND enchantments IS NULL;";
 					Query rs = plugin.getDatabaseHandler().select(query);
 
 					// Send Item to database

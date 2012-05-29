@@ -2,12 +2,17 @@ package com.mitsugaru.KarmicShare.config;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
+import org.bukkit.enchantments.EnchantmentWrapper;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
 
 public class Update
 {
@@ -360,12 +365,62 @@ public class Update
 			{
 				final int groupid = plugin.getDatabaseHandler().getGroupId(
 						item.groups);
-				query = "INSERT INTO "
-						+ Table.ITEMS.getName()
-						+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+				query = "INSERT INTO " + Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,groups) VALUES ('"
 						+ item.itemid + "','" + item.amount + "','" + item.data
-						+ "','" + item.durability + "','" + item.enchantments
-						+ "','" + groupid + "');";
+						+ "','" + item.enchantments + "','" + groupid + "');";
+				if (item.enchantments != null)
+				{
+					if (!item.enchantments.equalsIgnoreCase("null"))
+					{
+						// Order
+
+						final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
+						TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
+								map.keySet());
+
+						String[] cut = item.enchantments.split("i");
+						for (int i = 0; i < cut.length; i++)
+						{
+							try
+							{
+								//Attempt to recover as many of the enchantments
+								String[] cutter = cut[i].split("v");
+								EnchantmentWrapper e = new EnchantmentWrapper(
+										Integer.parseInt(cutter[0]));
+								map.put(new ComparableEnchantment(e
+										.getEnchantment()), Integer
+										.parseInt(cutter[1]));
+							}
+							catch (NumberFormatException n)
+							{
+								// INGORE
+							}
+						}
+						StringBuilder sb = new StringBuilder();
+						for (ComparableEnchantment key : keys)
+						{
+							sb.append(key.getId() + "v"
+									+ map.get(key).intValue() + "i");
+						}
+						try
+						{
+							sb.deleteCharAt(sb.length() - 1);
+							item.enchantments = sb.toString();
+							query = "INSERT INTO "
+									+ Table.ITEMS.getName()
+									+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+									+ item.itemid + "','" + item.amount + "','"
+									+ item.data + "','" + item.durability
+									+ "','" + item.enchantments + "','"
+									+ groupid + "');";
+						}
+						catch (StringIndexOutOfBoundsException s)
+						{
+							// IGNORE
+						}
+					}
+				}
 				plugin.getDatabaseHandler().standardQuery(query);
 			}
 			// Set old config options to new format
