@@ -15,12 +15,18 @@ public class GroupPageInfo
 	}
 	
 	@Override
+	public int hashCode()
+	{
+		return group.hashCode() + page;
+	}
+
+	@Override
 	public boolean equals(Object obj)
 	{
 		if(obj instanceof GroupPageInfo)
 		{
 			final GroupPageInfo info = (GroupPageInfo) obj;
-			if(info.getGroup().equals(group) && info.getPage() == page)
+			if(info.getGroup().equalsIgnoreCase(group) && info.getPage() == page)
 			{
 				return true;
 			}

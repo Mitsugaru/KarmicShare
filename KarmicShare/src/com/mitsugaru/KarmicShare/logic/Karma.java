@@ -480,6 +480,7 @@ public class Karma
 		{
 			// Grab already open inventory
 			inventory = Karma.inventories.get(info).getInventory();
+			//plugin.getLogger().info("inventory already open");
 		}
 		else
 		{
@@ -489,6 +490,7 @@ public class Karma
 			populateInventory(inventory, page, group);
 			holder.setInventory(inventory);
 			Karma.inventories.put(info, holder);
+			//plugin.getLogger().info("inventory first open");
 		}
 		// Set task
 		final int id = plugin
