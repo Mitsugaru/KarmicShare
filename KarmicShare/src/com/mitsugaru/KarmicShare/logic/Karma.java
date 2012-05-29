@@ -138,7 +138,7 @@ public class Karma
 		{
 			return true;
 		}
-		else if (group.equals("self_" + sender.getName()))
+		else if (group.equals("self_" + sender.getName().toLowerCase()))
 		{
 			return true;
 		}
@@ -170,7 +170,7 @@ public class Karma
 		{
 			return true;
 		}
-		else if (group.equals("self_" + sender.getName()))
+		else if (group.equals("self_" + sender.getName().toLowerCase()))
 		{
 			return true;
 		}
@@ -264,7 +264,7 @@ public class Karma
 								+ " (groupname) VALUES ('self_"
 								+ name.toLowerCase() + "');");
 				groups = getGroupId("global") + "&"
-						+ getGroupId("self_" + name);
+						+ getGroupId("self_" + name.toLowerCase());
 				// Set groups for future reference
 				plugin.getDatabaseHandler()
 						.standardQuery(
@@ -480,7 +480,7 @@ public class Karma
 		{
 			// Grab already open inventory
 			inventory = Karma.inventories.get(info).getInventory();
-			//plugin.getLogger().info("inventory already open");
+			// plugin.getLogger().info("inventory already open");
 		}
 		else
 		{
@@ -490,7 +490,7 @@ public class Karma
 			populateInventory(inventory, page, group);
 			holder.setInventory(inventory);
 			Karma.inventories.put(info, holder);
-			//plugin.getLogger().info("inventory first open");
+			// plugin.getLogger().info("inventory first open");
 		}
 		// Set task
 		final int id = plugin

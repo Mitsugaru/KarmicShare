@@ -188,7 +188,12 @@ public class Update
 				{
 					do
 					{
-						groups.add(rs.getResult().getString("groupname"));
+						final String g = rs.getResult().getString("groupname");
+						if (!groups.contains(g))
+						{
+							groups.add(g);
+						}
+
 					} while (rs.getResult().next());
 				}
 				rs.closeQuery();
@@ -274,32 +279,58 @@ public class Update
 										+ " (id INTEGER PRIMARY KEY, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
 			// Add them back in
+			final int globalId = Karma.getGroupId("global");
 			for (final ZeroPointTwoSixTwoPlayerObject player : playerList)
 			{
+				// Add in player specific group
+				plugin.getDatabaseHandler().standardQuery(
+						"INSERT INTO " + Table.GROUPS.getName()
+								+ " (groupname) VALUES('self_"
+								+ player.playername.toLowerCase() + "');");
+				// Grab id for player specific group
+				int selfId = Karma.getGroupId("self_"
+						+ player.playername.toLowerCase());
 				if (player.groups == null || player.groups.equals("null"))
 				{
 					query = "INSERT INTO " + Table.PLAYERS.getName()
-							+ " (playername, karma) VALUES('"
+							+ " (playername, karma, groups) VALUES('"
 							+ player.playername + "','" + player.karma + "','"
-							+ "');";
+							+ globalId + "&" + selfId + "');";
 				}
 				else
 				{
 					// Translate groups into ids
 					final StringBuilder sb = new StringBuilder();
+					// Add initials
+					sb.append(globalId + "&" + selfId + "&");
 					if (player.groups.contains("&"))
 					{
 						for (String s : player.groups.split("&"))
 						{
-							int id = Karma.getGroupId(s);
-							sb.append(id + "&");
+							if (!s.equalsIgnoreCase("global"))
+							{
+								int id = Karma.getGroupId(s);
+								if (id != -1)
+								{
+									sb.append(id + "&");
+								}
+							}
 						}
 						// Remove extra &
 						sb.deleteCharAt(sb.length() - 1);
 					}
 					else
 					{
-						sb.append(Karma.getGroupId(player.groups));
+						int id = Karma.getGroupId(player.groups);
+						if (id != -1)
+						{
+							sb.append(id);
+						}
+						else
+						{
+							// Remove extra &
+							sb.deleteCharAt(sb.length() - 1);
+						}
 					}
 					query = "INSERT INTO " + Table.PLAYERS.getName()
 							+ " (playername, karma, groups) VALUES ('"
@@ -363,7 +394,13 @@ public class Update
 			// Add them back in
 			for (ZeroPointTwoSixTwoItemObject item : itemList)
 			{
-				final int groupid = Karma.getGroupId(item.groups);
+				int groupid = Karma.getGroupId(item.groups);
+				if (groupid == -1)
+				{
+					// Somehow that group no longer exists, so, throwing it off
+					// to global item pool
+					groupid = Karma.getGroupId("global");
+				}
 				query = "INSERT INTO " + Table.ITEMS.getName()
 						+ " (itemid,amount,data,durability,groups) VALUES ('"
 						+ item.itemid + "','" + item.amount + "','" + item.data
