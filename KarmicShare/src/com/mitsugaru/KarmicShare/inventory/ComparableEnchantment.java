@@ -3,6 +3,12 @@ package com.mitsugaru.KarmicShare.inventory;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 
+/**
+ * Wrapper class so that Enchantments can be ordered / comparable
+ * 
+ * @author Tokume
+ *
+ */
 public class ComparableEnchantment extends EnchantmentWrapper implements Comparable<ComparableEnchantment>
 {
 

@@ -374,11 +374,12 @@ public class Update
 					if (!item.enchantments.equalsIgnoreCase("null"))
 					{
 						// Order
-
+						/**
+						 * http://stackoverflow.com/questions/922528/how-to-sort-map-values-by-key-in-java
+						 */
 						final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
 						TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
 								map.keySet());
-
 						String[] cut = item.enchantments.split("i");
 						for (int i = 0; i < cut.length; i++)
 						{
