@@ -25,6 +25,7 @@ public class Config
 	private KarmicShare plugin;
 	public String host, port, database, user, password;
 	public static String tablePrefix;
+	public static boolean debugDatabase;
 	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
 			chests, importSQL, economy, blacklist;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
@@ -70,6 +71,7 @@ public class Config
 		defaults.put("mysql.tablePrefix", "ks_");
 		defaults.put("mysql.import", false);
 		defaults.put("debug.time", false);
+		defaults.put("debug.database", false);
 		defaults.put("version", ks.getDescription().getVersion());
 		// TODO defaults.put("blacklist", false);
 		// Insert defaults into config file if they're not present
@@ -102,6 +104,7 @@ public class Config
 		chests = config.getBoolean("chests", true);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debug.time", false);
+		debugDatabase = config.getBoolean("debug.database", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
 		// TODO blacklist = config.getBoolean("blacklist", false);
@@ -226,6 +229,7 @@ public class Config
 		chests = config.getBoolean("chests", false);
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debug.time", false);
+		debugDatabase = config.getBoolean("debug.database", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
 		blacklist = config.getBoolean("blacklist", false);

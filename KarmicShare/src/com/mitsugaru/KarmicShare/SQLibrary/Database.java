@@ -31,6 +31,8 @@ import java.sql.ResultSet;
 // import java.sql.Statement;
 import java.util.logging.Logger;
 
+import com.mitsugaru.KarmicShare.config.Config;
+
 public abstract class Database
 {
 	protected Logger log;
@@ -105,7 +107,7 @@ public abstract class Database
 				this.log.warning(this.DATABASE_PREFIX + toWrite);
 			}
 		}
-		if (exception != null)
+		if (exception != null && Config.debugDatabase)
 		{
 			exception.printStackTrace();
 		}

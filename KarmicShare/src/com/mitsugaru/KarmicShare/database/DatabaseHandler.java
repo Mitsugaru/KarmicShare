@@ -66,7 +66,7 @@ public class DatabaseHandler
 				mysql.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
 						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname), PRIMARY KEY (id));");
-				sqlite.standardQuery("INSERT INTO " + Table.GROUPS.getName()
+				mysql.standardQuery("INSERT INTO " + Table.GROUPS.getName()
 						+ " (groupname) VALUES ('global');");
 			}
 		}
