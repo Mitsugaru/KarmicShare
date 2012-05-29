@@ -276,7 +276,7 @@ public class Update
 			// Add them back in
 			for (final ZeroPointTwoSixTwoPlayerObject player : playerList)
 			{
-				if (player.groups == null)
+				if (player.groups == null || player.groups.equals("null"))
 				{
 					query = "INSERT INTO " + Table.PLAYERS.getName()
 							+ " (playername, karma) VALUES('"
