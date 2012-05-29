@@ -21,6 +21,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.config.Update.ZeroPointFourteenItemObject;
+import com.mitsugaru.KarmicShare.config.Update.ZeroPointTwoSixTwoItemObject;
+import com.mitsugaru.KarmicShare.config.Update.ZeroPointTwoSixTwoPlayerObject;
+import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.Item;
 
 public class Config
@@ -311,7 +315,6 @@ public class Config
 			}
 			catch (SQLException e)
 			{
-				// INFO Auto-generated catch block
 				plugin.getLogger().warning("SQL Exception");
 				e.printStackTrace();
 			}
@@ -330,29 +333,240 @@ public class Config
 			// Drop newly created tables
 			plugin.getLogger().info("Dropping empty tables.");
 			plugin.getDatabaseHandler().standardQuery(
-					"DROP TABLE " + tablePrefix + "items;");
+					"DROP TABLE " + Table.ITEMS.getName() + ";");
 			plugin.getDatabaseHandler().standardQuery(
-					"DROP TABLE " + tablePrefix + "players;");
+					"DROP TABLE " + Table.PLAYERS.getName() + ";");
 			plugin.getDatabaseHandler().standardQuery(
-					"DROP TABLE " + tablePrefix + "groups;");
+					"DROP TABLE " + Table.GROUPS.getName() + ";");
 			// Update tables to have prefix
 			plugin.getLogger().info(
-					"Renaming items table to '" + tablePrefix + "items'.");
-			query = "ALTER TABLE items RENAME TO " + tablePrefix + "items;";
+					"Renaming items table to '" + Table.ITEMS.getName() + "'.");
+			query = "ALTER TABLE items RENAME TO " + Table.ITEMS.getName()
+					+ ";";
 			plugin.getDatabaseHandler().standardQuery(query);
 			plugin.getLogger().info(
-					"Renaming players table to '" + tablePrefix + "players'.");
-			query = "ALTER TABLE players RENAME TO " + tablePrefix + "players;";
+					"Renaming players table to '" + Table.PLAYERS.getName()
+							+ "'.");
+			query = "ALTER TABLE players RENAME TO " + Table.PLAYERS.getName()
+					+ ";";
 			plugin.getDatabaseHandler().standardQuery(query);
 			plugin.getLogger().info(
-					"Renaming groups table to '" + tablePrefix + "groups'.");
-			query = "ALTER TABLE groups RENAME TO " + tablePrefix + "groups;";
+					"Renaming groups table to '" + Table.GROUPS.getName()
+							+ "'.");
+			query = "ALTER TABLE groups RENAME TO " + Table.GROUPS.getName()
+					+ ";";
 			plugin.getDatabaseHandler().standardQuery(query);
 		}
-		// TODO update tables to version 0.3 schema. Need to grab objects, drop
-		// tables, and reinsert
-		// TODO need do groups table first so that they get their id, convert
-		// player's groups to use id than name
+		if (ver < 0.3)
+		{
+			/**
+			 * Rebuild groups table
+			 */
+			plugin.getLogger().info("Rebuilding groups table...");
+			// Save old groups
+			final List<String> groups = new ArrayList<String>();
+			//Add global to be known
+			groups.add("global");
+			try
+			{
+				Query rs = plugin.getDatabaseHandler().select(
+						"SELECT * FROM " + Table.GROUPS.getName());
+				if (rs.getResult().next())
+				{
+					do
+					{
+						groups.add(rs.getResult().getString("groupname"));
+					} while (rs.getResult().next());
+				}
+				rs.closeQuery();
+			}
+			catch (SQLException sql)
+			{
+				plugin.getLogger().warning("SQL Exception");
+				sql.printStackTrace();
+			}
+			// Drop previous table
+			plugin.getDatabaseHandler().standardQuery(
+					"DROP TABLE " + Table.GROUPS.getName() + ";");
+			// Recreate table
+			if (useMySQL)
+			{
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE "
+										+ Table.GROUPS.getName()
+										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname));");
+			}
+			else
+			{
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE "
+										+ Table.GROUPS.getName()
+										+ " (id INTEGER PRIMARY KEY, groupname TEXT NOT NULL, UNIQUE (groupname));");
+			}
+			// Add back in groups
+			for (final String group : groups)
+			{
+				plugin.getDatabaseHandler().standardQuery(
+						"INSERT INTO " + Table.GROUPS.getName()
+								+ " (groupname) VALUES('" + group + "');");
+			}
+			/**
+			 * Rebuild player table
+			 */
+			plugin.getLogger().info("Rebuilding player table...");
+			// Save old players
+			List<ZeroPointTwoSixTwoPlayerObject> playerList = new ArrayList<ZeroPointTwoSixTwoPlayerObject>();
+			try
+			{
+				Query rs = plugin.getDatabaseHandler().select(
+						"SELECT * FROM " + Table.PLAYERS.getName());
+				if (rs.getResult().next())
+				{
+					do
+					{
+						final String playerGroups = rs.getResult().getString(
+								"groups");
+						playerList.add(new ZeroPointTwoSixTwoPlayerObject(rs
+								.getResult().getString("playername"), rs
+								.getResult().getInt("karma"), playerGroups));
+					} while (rs.getResult().next());
+				}
+				rs.closeQuery();
+			}
+			catch (SQLException sql)
+			{
+				plugin.getLogger().warning("SQL Exception");
+				sql.printStackTrace();
+			}
+			// Drop previous table
+			plugin.getDatabaseHandler().standardQuery(
+					"DROP TABLE " + Table.PLAYERS.getName() + ";");
+			// Recreate table
+			if (useMySQL)
+			{
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE "
+										+ Table.PLAYERS.getName()
+										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+			}
+			else
+			{
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE "
+										+ Table.PLAYERS.getName()
+										+ " (id INTEGER PRIMARY KEY, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+			}
+			// Add them back in
+			for (final ZeroPointTwoSixTwoPlayerObject player : playerList)
+			{
+				if (player.groups == null)
+				{
+					query = "INSERT INTO " + Table.PLAYERS.getName()
+							+ " (playername, karma) VALUES('"
+							+ player.playername + "','" + player.karma + "','"
+							+ "');";
+				}
+				else
+				{
+					// Translate groups into ids
+					final StringBuilder sb = new StringBuilder();
+					if (player.groups.contains("&"))
+					{
+						for (String s : player.groups.split("&"))
+						{
+							int id = plugin.getDatabaseHandler().getGroupId(s);
+							sb.append(id + "&");
+						}
+						// Remove extra &
+						sb.deleteCharAt(sb.length() - 1);
+					}
+					else
+					{
+						sb.append(plugin.getDatabaseHandler().getGroupId(
+								player.groups));
+					}
+					query = "INSERT INTO " + Table.PLAYERS.getName()
+							+ " (playername, karma, groups) VALUES ('"
+							+ player.playername + "','" + player.karma + "','"
+							+ sb.toString() + "');";
+				}
+				plugin.getDatabaseHandler().standardQuery(query);
+			}
+			/**
+			 * Rebuild items table
+			 */
+			plugin.getLogger().info("Rebuilding items table...");
+			// Save old items
+			List<ZeroPointTwoSixTwoItemObject> itemList = new ArrayList<ZeroPointTwoSixTwoItemObject>();
+			try
+			{
+				Query rs = plugin.getDatabaseHandler().select(
+						"SELECT * FROM " + Table.ITEMS.getName() + ";");
+				if (rs.getResult().next())
+				{
+					do
+					{
+						final int id = rs.getResult().getInt("itemid");
+						final int amount = rs.getResult().getInt("amount");
+						final byte data = rs.getResult().getByte("data");
+						final short dur = rs.getResult().getShort("durability");
+						final String enchantments = rs.getResult().getString(
+								"enchantments");
+						final String itemGroups = rs.getResult().getString(
+								"groups");
+						itemList.add(new ZeroPointTwoSixTwoItemObject(id,
+								amount, data, dur, enchantments, itemGroups));
+					} while (rs.getResult().next());
+				}
+			}
+			catch (SQLException sql)
+			{
+				plugin.getLogger().warning("SQL Exception");
+				sql.printStackTrace();
+			}
+			// Drop previous table
+			plugin.getDatabaseHandler().standardQuery(
+					"DROP TABLE " + Table.ITEMS.getName() + ";");
+			// Recreate table
+			if (useMySQL)
+			{
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE "
+										+ Table.ITEMS.getName()
+										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TEXT NOT NULL, PRIMARY KEY (id));");
+			}
+			else
+			{
+				plugin.getDatabaseHandler()
+						.createTable(
+								"CREATE TABLE "
+										+ Table.ITEMS.getName()
+										+ " (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
+			}
+			// Add them back in
+			for (ZeroPointTwoSixTwoItemObject item : itemList)
+			{
+				final int groupid = plugin.getDatabaseHandler().getGroupId(
+						item.groups);
+				query = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+						+ item.itemid
+						+ "','"
+						+ item.amount
+						+ "','"
+						+ item.data
+						+ "','"
+						+ item.durability
+						+ "','"
+						+ item.enchantments
+						+ "','" + groupid + "');";
+				plugin.getDatabaseHandler().standardQuery(query);
+			}
+		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
@@ -557,23 +771,5 @@ public class Config
 			}
 		}
 		return blacklistFile;
-	}
-
-	static class ZeroPointFourteenItemObject
-	{
-		public int itemid, amount;
-		public byte data;
-		public short durability;
-		public String enchantments;
-
-		public ZeroPointFourteenItemObject(int id, int quantity, byte dv,
-				short dur, String en)
-		{
-			itemid = id;
-			amount = quantity;
-			data = dv;
-			durability = dur;
-			enchantments = en;
-		}
 	}
 }

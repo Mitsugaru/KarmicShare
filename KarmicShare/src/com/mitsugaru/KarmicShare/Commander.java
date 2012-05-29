@@ -1244,8 +1244,6 @@ public class Commander implements CommandExecutor
 												}
 												catch (SQLException e)
 												{
-													// INFO Auto-generated catch
-													// block
 													sender.sendMessage(ChatColor.RED
 															+ KarmicShare.TAG
 															+ " SQL Exception");

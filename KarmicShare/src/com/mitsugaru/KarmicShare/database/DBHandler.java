@@ -9,7 +9,8 @@ import lib.Mitsugaru.SQLibrary.Database.Query;
 import lib.Mitsugaru.SQLibrary.MySQL;
 import lib.Mitsugaru.SQLibrary.SQLite;
 
-public class DBHandler {
+public class DBHandler
+{
 	// Class Variables
 	private KarmicShare plugin;
 	private Config config;
@@ -17,7 +18,8 @@ public class DBHandler {
 	private MySQL mysql;
 	private boolean useMySQL;
 
-	public DBHandler(KarmicShare ks, Config conf) {
+	public DBHandler(KarmicShare ks, Config conf)
+	{
 		plugin = ks;
 		config = conf;
 		useMySQL = config.useMySQL;
@@ -32,44 +34,43 @@ public class DBHandler {
 		}
 	}
 
-	private void checkTables() {
+	private void checkTables()
+	{
 		if (useMySQL)
 		{
 			// Connect to mysql database
-			mysql = new MySQL(plugin.getLogger(), KarmicShare.TAG,
-					config.host, config.port, config.database, config.user,
-					config.password);
+			mysql = new MySQL(plugin.getLogger(), KarmicShare.TAG, config.host,
+					config.port, config.database, config.user, config.password);
 			// Check if item table exists
 			if (!mysql.checkTable(Table.ITEMS.getName()))
 			{
-				plugin.getLogger().info(
-						KarmicShare.TAG + " Created item table");
+				plugin.getLogger()
+						.info(KarmicShare.TAG + " Created item table");
+				// TODO Change groups to use group id
 				mysql.createTable("CREATE TABLE "
 						+ Table.ITEMS.getName()
-						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TINYTEXT NOT NULL, PRIMARY KEY (id));");
+						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TEXT NOT NULL, PRIMARY KEY (id));");
 			}
 			// Check if player table exists
 			if (!mysql.checkTable(Table.PLAYERS.getName()))
 			{
-				//TODO add primary key row
-				//Change groups to use group id
+				// TODO Change groups to use group id
 				plugin.getLogger().info(
 						KarmicShare.TAG + " Created players table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.PLAYERS.getName()
-						+ " (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
 			// Check if group table exists
 			if (!mysql.checkTable(Table.GROUPS.getName()))
 			{
-				//TODO add primary key id
-				//TODO need to record creator and managers
-				//TODO group settings
+				// TODO need to record creator and managers
+				// TODO group settings
 				plugin.getLogger().info(
 						KarmicShare.TAG + " Created groups table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
-						+ " (groupname varchar(32) NOT NULL, UNIQUE (groupname));");
+						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname));");
 			}
 		}
 		else
@@ -80,8 +81,8 @@ public class DBHandler {
 			// Check if item table exists
 			if (!sqlite.checkTable(Table.ITEMS.getName()))
 			{
-				plugin.getLogger().info(
-						KarmicShare.TAG + " Created item table");
+				plugin.getLogger()
+						.info(KarmicShare.TAG + " Created item table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.ITEMS.getName()
 						+ " (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
@@ -89,27 +90,26 @@ public class DBHandler {
 			// Check if player table exists
 			if (!sqlite.checkTable(Table.PLAYERS.getName()))
 			{
-				//TODO add primary key row
 				plugin.getLogger().info(
 						KarmicShare.TAG + " Created player table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.PLAYERS.getName()
-						+ " (playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+						+ " (id INTEGER PRIMARY KEY, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
 			}
 			// Check if groups table exists
 			if (!sqlite.checkTable(Table.GROUPS.getName()))
 			{
-				//TODO add primary key row
 				plugin.getLogger().info(
 						KarmicShare.TAG + " Created groups table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
-						+ " (groupname TEXT NOT NULL, UNIQUE (groupname));");
+						+ " (id INTEGER PRIMARY KEY, groupname TEXT NOT NULL, UNIQUE (groupname));");
 			}
 		}
 	}
 
-	private void importSQL() {
+	private void importSQL()
+	{
 		// Connect to sql database
 		try
 		{
@@ -118,14 +118,13 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.getLogger(), KarmicShare.TAG, "pool",
 					plugin.getDataFolder().getAbsolutePath());
 			// Copy items
-			Query query = sqlite.select("SELECT * FROM " + Table.ITEMS.getName()
-					+ ";");
+			Query query = sqlite.select("SELECT * FROM "
+					+ Table.ITEMS.getName() + ";");
 			if (query.getResult().next())
 			{
 				plugin.getLogger().info("Importing items...");
 				do
 				{
-					//TODO use prepared statement
 					boolean hasData = false;
 					boolean hasDurability = false;
 					boolean hasEnchantments = false;
@@ -141,7 +140,8 @@ public class DBHandler {
 					{
 						hasDurability = true;
 					}
-					final String enchantments = query.getResult().getString("enchantments");
+					final String enchantments = query.getResult().getString(
+							"enchantments");
 					if (!query.getResult().wasNull())
 					{
 						hasEnchantments = true;
@@ -178,36 +178,35 @@ public class DBHandler {
 					final String send = sb.toString();
 					mysql.standardQuery(send);
 					sb = new StringBuilder();
-				}
-				while (query.getResult().next());
+				} while (query.getResult().next());
 			}
 			query.closeQuery();
 			sb = new StringBuilder();
 			// Copy players
 			query = sqlite.select("SELECT * FROM " + Table.PLAYERS.getName()
 					+ ";");
-			if(query.getResult().next())
+			if (query.getResult().next())
 			{
 				plugin.getLogger().info("Importing players...");
-				//TODO change to prepared statement
 				do
 				{
 					boolean hasGroups = false;
-					final String player = query.getResult().getString("playername");
+					final String player = query.getResult().getString(
+							"playername");
 					final int karma = query.getResult().getInt("karma");
 					final String groups = query.getResult().getString("groups");
-					if(!query.getResult().wasNull())
+					if (!query.getResult().wasNull())
 					{
 						hasGroups = true;
 					}
 					sb.append("INSERT INTO " + Table.PLAYERS.getName()
 							+ " (playername,karma");
-					if(hasGroups)
+					if (hasGroups)
 					{
 						sb.append(",groups");
 					}
 					sb.append(") VALUES('" + player + "','" + karma + "'");
-					if(hasGroups)
+					if (hasGroups)
 					{
 						sb.append(",'" + groups + "'");
 					}
@@ -215,22 +214,24 @@ public class DBHandler {
 					final String send = sb.toString();
 					mysql.standardQuery(send);
 					sb = new StringBuilder();
-				}while(query.getResult().next());
+				} while (query.getResult().next());
 			}
 			query.closeQuery();
 			sb = new StringBuilder();
 			// Copy groups
 			query = sqlite.select("SELECT * FROM " + Table.GROUPS.getName()
 					+ ";");
-			if(query.getResult().next())
+			if (query.getResult().next())
 			{
 				plugin.getLogger().info("Importing groups...");
-				//TODO change to prepared statement
 				do
 				{
-					final String send = "INSERT INTO " + Table.GROUPS.getName() + " (groupname) VALUES('" + query.getResult().getString("groupname") + "');";
+					final String send = "INSERT INTO " + Table.GROUPS.getName()
+							+ " (id, groupname) VALUES('"
+							+ query.getResult().getInt("id") + "','"
+							+ query.getResult().getString("groupname") + "');";
 					mysql.standardQuery(send);
-				}while(query.getResult().next());
+				} while (query.getResult().next());
 			}
 			query.closeQuery();
 			plugin.getLogger().info("Done importing SQLite into MySQL");
@@ -240,10 +241,36 @@ public class DBHandler {
 			plugin.getLogger().warning("SQL Exception on Import");
 			e.printStackTrace();
 		}
-
 	}
 
-	public boolean checkConnection() {
+	public int getGroupId(String group)
+	{
+		int id = -1;
+		try
+		{
+			final Query query = select("SELECT * FROM "
+					+ Table.GROUPS.getName() + " WHERE groupname='" + group
+					+ "';");
+			if (query.getResult().next())
+			{
+				id = query.getResult().getInt("id");
+				if(query.getResult().wasNull())
+				{
+					id = -1;
+				}
+			}
+			query.closeQuery();
+		}
+		catch (SQLException e)
+		{
+			plugin.getLogger().warning("SQL Exception on getting group '" + group +"' id");
+			e.printStackTrace();
+		}
+		return id;
+	}
+
+	public boolean checkConnection()
+	{
 		boolean connected = false;
 		if (useMySQL)
 		{
@@ -256,7 +283,8 @@ public class DBHandler {
 		return connected;
 	}
 
-	public void close() {
+	public void close()
+	{
 		if (useMySQL)
 		{
 			mysql.close();
@@ -267,7 +295,8 @@ public class DBHandler {
 		}
 	}
 
-	public Query select(String query) {
+	public Query select(String query)
+	{
 		if (useMySQL)
 		{
 			return mysql.select(query);
@@ -278,7 +307,8 @@ public class DBHandler {
 		}
 	}
 
-	public void standardQuery(String query) {
+	public void standardQuery(String query)
+	{
 		if (useMySQL)
 		{
 			mysql.standardQuery(query);
@@ -289,7 +319,8 @@ public class DBHandler {
 		}
 	}
 
-	public void createTable(String query) {
+	public void createTable(String query)
+	{
 		if (useMySQL)
 		{
 			mysql.createTable(query);

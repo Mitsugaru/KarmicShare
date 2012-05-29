@@ -39,6 +39,14 @@ public class Karma
 	{
 		// Check if pool contains item requested + amount
 		boolean has = false;
+		final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		if (groupId == -1)
+		{
+			player.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Unknown group '" + ChatColor.GOLD + group
+					+ ChatColor.RED + "'");
+			return has;
+		}
 		// SQL query to see if item is in pool
 		// Create temp item to check if its a tool
 		final Item temp = new Item(item);
@@ -50,7 +58,7 @@ public class Karma
 			// Grab all entries of the same tool id
 			String toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
 					+ " WHERE itemid='" + item.getTypeId() + "' AND groups='"
-					+ group + "';";
+					+ groupId + "';";
 			Query toolRS = plugin.getDatabaseHandler().select(toolQuery);
 			try
 			{
@@ -89,7 +97,7 @@ public class Karma
 			query = "SELECT * FROM " + Table.ITEMS.getName()
 					+ " WHERE itemid='" + item.getTypeId()
 					+ "' AND durability='" + item.getDurability()
-					+ "' AND groups='" + group + "';";
+					+ "' AND groups='" + groupId + "';";
 			Query rs = plugin.getDatabaseHandler().select(query);
 
 			// Check ResultSet
@@ -127,7 +135,7 @@ public class Karma
 			// Not a tool or potion
 			query = "SELECT * FROM " + Table.ITEMS.getName()
 					+ " WHERE itemid='" + item.getTypeId() + "' AND data='"
-					+ item.getData().getData() + "' AND groups='" + group
+					+ item.getData().getData() + "' AND groups='" + groupId
 					+ "';";
 			Query rs = plugin.getDatabaseHandler().select(query);
 
@@ -169,6 +177,14 @@ public class Karma
 		// Check if they have "take" permission
 		if (PermCheck.checkPermission(player, PermissionNode.TAKE))
 		{
+			final int groupId = plugin.getDatabaseHandler().getGroupId(group);
+			if (groupId == -1)
+			{
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Unknown group '" + ChatColor.GOLD + group
+						+ ChatColor.RED + "'");
+				return -1;
+			}
 			int karma = 0;
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
@@ -430,11 +446,9 @@ public class Karma
 								toolQuery = "SELECT * FROM "
 										+ Table.ITEMS.getName()
 										+ " WHERE itemid='" + item.getTypeId()
-										+ "' AND data='"
-										+ item.getData().getData()
 										+ "' AND enchantments='"
 										+ sb.toString() + "' AND groups='"
-										+ group + "';";
+										+ groupId + "';";
 								Query toolRS = plugin.getDatabaseHandler()
 										.select(toolQuery);
 								if (toolRS.getResult().next())
@@ -469,9 +483,7 @@ public class Karma
 								toolQuery = "SELECT * FROM "
 										+ Table.ITEMS.getName()
 										+ " WHERE itemid='" + item.getTypeId()
-										+ "' AND data='"
-										+ item.getData().getData()
-										+ "' AND groups='" + group + "';";
+										+ "' AND groups='" + groupId + "';";
 								Query toolRS = plugin.getDatabaseHandler()
 										.select(toolQuery);
 								if (toolRS.getResult().next())
@@ -484,9 +496,7 @@ public class Karma
 												+ " WHERE itemid='"
 												+ item.getTypeId()
 												+ "' AND amount='" + amount
-												+ "' AND data='"
-												+ item.getData().getData()
-												+ "' AND groups='" + group
+												+ "' AND groups='" + groupId
 												+ "';";
 									}
 									else
@@ -499,9 +509,7 @@ public class Karma
 														"amount") - amount)
 												+ "' WHERE itemid='"
 												+ item.getTypeId()
-												+ "' AND data='"
-												+ item.getData().getData()
-												+ "' AND groups='" + group
+												+ "' AND groups='" + groupId
 												+ "';";
 									}
 								}
@@ -523,7 +531,7 @@ public class Karma
 						query = "SELECT * FROM " + Table.ITEMS.getName()
 								+ " WHERE itemid='" + item.getTypeId()
 								+ "' AND durability='" + item.getDurability()
-								+ "' AND groups='" + group + "';";
+								+ "' AND groups='" + groupId + "';";
 						Query rs = plugin.getDatabaseHandler().select(query);
 						try
 						{
@@ -538,7 +546,7 @@ public class Karma
 											+ item.getTypeId()
 											+ "' AND durability='"
 											+ item.getDurability()
-											+ "' AND groups='" + group + "';";
+											+ "' AND groups='" + groupId + "';";
 								}
 								else
 								{
@@ -550,7 +558,7 @@ public class Karma
 											+ item.getTypeId()
 											+ "' AND durability='"
 											+ item.getDurability()
-											+ "' AND groups='" + group + "';";
+											+ "' AND groups='" + groupId + "';";
 								}
 							}
 							rs.closeQuery();
@@ -569,7 +577,7 @@ public class Karma
 						query = "SELECT * FROM " + Table.ITEMS.getName()
 								+ " WHERE itemid='" + item.getTypeId()
 								+ "' AND data='" + item.getData().getData()
-								+ "' AND groups='" + group + "';";
+								+ "' AND groups='" + groupId + "';";
 						Query rs = plugin.getDatabaseHandler().select(query);
 						try
 						{
@@ -583,7 +591,7 @@ public class Karma
 											+ " WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
 											+ item.getData().getData()
-											+ "' AND groups='" + group + "';";
+											+ "' AND groups='" + groupId + "';";
 								}
 								else
 								{
@@ -594,7 +602,7 @@ public class Karma
 											+ "' WHERE itemid='"
 											+ item.getTypeId() + "' AND data='"
 											+ item.getData().getData()
-											+ "' AND groups='" + group + "';";
+											+ "' AND groups='" + groupId + "';";
 								}
 							}
 							rs.closeQuery();
@@ -679,6 +687,14 @@ public class Karma
 	{
 		if (PermCheck.checkPermission(player, PermissionNode.GIVE))
 		{
+			int groupId = plugin.getDatabaseHandler().getGroupId(group);
+			if (groupId == -1)
+			{
+				player.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Unknown group '" + ChatColor.GOLD + group
+						+ ChatColor.RED + "'");
+				return false;
+			}
 			final Item i = new Item(item);
 			// Check if its a tool
 			String query = "";
@@ -705,7 +721,7 @@ public class Karma
 							+ item.getTypeId() + "','" + item.getAmount()
 							+ "','" + item.getData().getData() + "','"
 							+ item.getDurability() + "','" + sb.toString()
-							+ "','" + group + "');";
+							+ "','" + groupId + "');";
 					plugin.getDatabaseHandler().standardQuery(query);
 				}
 				else
@@ -715,8 +731,7 @@ public class Karma
 					// database
 					query = "SELECT * FROM " + Table.ITEMS.getName()
 							+ " WHERE itemid='" + item.getTypeId()
-							+ "' AND data='" + item.getData().getData()
-							+ "' AND groups='" + group + "';";
+							+ "' AND groups='" + groupId + "';";
 					Query rs = plugin.getDatabaseHandler().select(query);
 
 					// Send Item to database
@@ -734,9 +749,7 @@ public class Karma
 								query = "UPDATE " + Table.ITEMS.getName()
 										+ " SET amount='" + total
 										+ "' WHERE itemid='" + item.getTypeId()
-										+ "' AND data='"
-										+ item.getData().getData()
-										+ "' AND groups='" + group + "';";
+										+ "' AND groups='" + groupId + "';";
 							} while (rs.getResult().next());
 						}
 						else
@@ -748,7 +761,7 @@ public class Karma
 									+ item.getTypeId() + "','"
 									+ item.getAmount() + "','"
 									+ item.getData().getData() + "','"
-									+ item.getDurability() + "','" + group
+									+ item.getDurability() + "','" + groupId
 									+ "');";
 						}
 						rs.closeQuery();
@@ -772,7 +785,7 @@ public class Karma
 				query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
-						+ "' AND groups='" + group + "';";
+						+ "' AND groups='" + groupId + "';";
 				Query rs = plugin.getDatabaseHandler().select(query);
 
 				// Send Item to database
@@ -789,7 +802,7 @@ public class Karma
 								+ " SET amount='" + total + "' WHERE itemid='"
 								+ item.getTypeId() + "' AND durability='"
 								+ item.getDurability() + "' AND groups='"
-								+ group + "';";
+								+ groupId + "';";
 					}
 					else
 					{
@@ -799,7 +812,7 @@ public class Karma
 								+ " (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId() + "','" + item.getAmount()
 								+ "','0','" + item.getDurability() + "','"
-								+ group + "');";
+								+ groupId + "');";
 					}
 					rs.closeQuery();
 					plugin.getDatabaseHandler().standardQuery(query);
@@ -819,7 +832,7 @@ public class Karma
 				// database
 				query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + item.getTypeId() + "' AND data='"
-						+ item.getData().getData() + "' AND groups='" + group
+						+ item.getData().getData() + "' AND groups='" + groupId
 						+ "';";
 				Query rs = plugin.getDatabaseHandler().select(query);
 
@@ -839,7 +852,7 @@ public class Karma
 									+ " SET amount='" + total
 									+ "' WHERE itemid='" + item.getTypeId()
 									+ "' AND data='" + item.getData().getData()
-									+ "' AND groups='" + group + "';";
+									+ "' AND groups='" + groupId + "';";
 						} while (rs.getResult().next());
 					}
 					else
@@ -850,7 +863,7 @@ public class Karma
 								+ " (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId() + "','" + item.getAmount()
 								+ "','" + item.getData().getData() + "','"
-								+ item.getDurability() + "','" + group + "');";
+								+ item.getDurability() + "','" + groupId + "');";
 					}
 					rs.closeQuery();
 					plugin.getDatabaseHandler().standardQuery(query);
@@ -1088,6 +1101,10 @@ public class Karma
 		{
 			return true;
 		}
+		else if (group.equals("s_" + sender.getName()))
+		{
+			return true;
+		}
 		boolean valid = false;
 		try
 		{
@@ -1116,9 +1133,14 @@ public class Karma
 		{
 			return true;
 		}
+		else if (group.equals("s_" + sender.getName()))
+		{
+			return true;
+		}
 		boolean has = false;
 		try
 		{
+			// TODO grab id of given group and compare against ids
 			// Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
@@ -1177,7 +1199,7 @@ public class Karma
 			}
 			rs.closeQuery();
 			String[] split = groups.split("&");
-			//TODO add in global / self groups
+			// TODO add in global / self groups
 			for (String s : split)
 			{
 				list.add(s);
