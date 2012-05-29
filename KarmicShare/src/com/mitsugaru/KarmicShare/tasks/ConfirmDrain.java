@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
-import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class ConfirmDrain implements Runnable
 {
@@ -33,12 +32,10 @@ public class ConfirmDrain implements Runnable
 			final String query = "DELETE FROM " + Table.ITEMS.getName()
 					+ " WHERE groups='" + group + "';";
 			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info("'" +
-					group + "'" + " items table cleared");
+			plugin.getLogger().info("'" + group + "'" + " items table cleared");
 			player.sendMessage(ChatColor.GREEN + KarmicShare.TAG + " "
 					+ ChatColor.GOLD + group + ChatColor.GREEN
 					+ " item pool emptied.");
-			Karma.cache.clear();
 		}
 		else
 		{

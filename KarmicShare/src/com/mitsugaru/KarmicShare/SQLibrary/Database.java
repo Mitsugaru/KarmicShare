@@ -94,7 +94,8 @@ public abstract class Database
 	 * @param severe
 	 *            - whether console output should appear as an error or warning.
 	 */
-	protected void writeError(String toWrite, boolean severe, Exception exception)
+	protected void writeError(String toWrite, boolean severe,
+			Exception exception)
 	{
 		if (toWrite != null)
 		{

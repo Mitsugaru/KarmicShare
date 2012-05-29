@@ -1,6 +1,7 @@
 package com.mitsugaru.KarmicShare.commands;
 
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
@@ -17,12 +18,13 @@ public class ListCommands
 {
 	private static KarmicShare plugin;
 	private static Config config;
-	
+
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
+		config = ks.getPluginConfig();
 	}
-	
+
 	public static void valueCommand(CommandSender sender, String[] args)
 	{
 		if (!config.karmaDisabled)
@@ -109,7 +111,7 @@ public class ListCommands
 			listPool(sender, 0);
 		}
 	}
-	
+
 	private static void listMultipliers(CommandSender sender, int pageAdjust)
 	{
 		if (config.karmaDisabled)
@@ -254,8 +256,10 @@ public class ListCommands
 		Query itemlist = plugin.getDatabaseHandler().select(
 				"SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
 						+ groupId + "';");
+		boolean empty = false;
 		try
 		{
+			final Map<Item, Integer> cache = new LinkedHashMap<Item, Integer>();
 			if (itemlist.getResult().next())
 			{
 				// Add player to page hashmap, if they're not in it
@@ -274,18 +278,8 @@ public class ListCommands
 						Karma.page.put(sender.getName(), adj);
 					}
 				}
-				// Clear all tool entry amounts to refresh properly
-				Item[] toolClear = Karma.cache.keySet().toArray(new Item[0]);
-				for (int i = 0; i < toolClear.length; i++)
-				{
-					if (toolClear[i].isTool())
-					{
-						Karma.cache.remove(toolClear[i]);
-					}
-				}
-				// Loop that updates the hashmap cache
-				// This way I won't be querying the database
-				// every time list is called
+				// Clear cache
+				cache.clear();
 				do
 				{
 					// update cache with current result set
@@ -296,21 +290,35 @@ public class ListCommands
 					{
 						// add to current amount
 						int itemAmount = itemlist.getResult().getInt("amount");
-						if (Karma.cache.containsKey(i))
+						if (cache.containsKey(i))
 						{
-							itemAmount += Karma.cache.get(i).intValue();
+							itemAmount += cache.get(i).intValue();
 						}
-						Karma.cache.put(i, itemAmount);
+						cache.put(i, itemAmount);
 					}
 					else
 					{
-						Karma.cache.put(i, itemlist.getResult()
-								.getInt("amount"));
+						cache.put(i, itemlist.getResult().getInt("amount"));
 					}
 				} while (itemlist.getResult().next());
-
+			}
+			else
+			{
+				// No items in pool
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " No items in pool.");
+				// Clear hashmap (for memory reasons?)
+				// considering no items, therefore no pages,
+				// and thus no need to know what page a player is on
+				Karma.page.clear();
+				empty = true;
+			}
+			// Close query
+			itemlist.closeQuery();
+			if (!empty)
+			{
 				// Set hashmap to array
-				Object[] array = Karma.cache.entrySet().toArray();
+				Object[] array = cache.entrySet().toArray();
 				boolean valid = true;
 				// Caluclate amount of pages
 				int num = array.length / config.listlimit;
@@ -344,7 +352,7 @@ public class ListCommands
 					sender.sendMessage(ChatColor.BLUE
 							+ "==="
 							+ ChatColor.GOLD
-							+ "Item Pool"
+							+ current
 							+ ChatColor.BLUE
 							+ "==="
 							+ ChatColor.GREEN
@@ -371,24 +379,25 @@ public class ListCommands
 									+ ChatColor.GOLD
 									+ ((Map.Entry<Item, Integer>) array[i])
 											.getValue());
-							sb.append(ChatColor.WHITE
-									+ " ID: "
-									+ ChatColor.LIGHT_PURPLE
-									+ ((Map.Entry<Item, Integer>) array[i])
-											.getKey().itemId());
-							sb.append(ChatColor.WHITE + " Data: "
-									+ ChatColor.LIGHT_PURPLE);
-							if (((Map.Entry<Item, Integer>) array[i]).getKey()
-									.isPotion())
-							{
-								sb.append(((Map.Entry<Item, Integer>) array[i])
-										.getKey().itemDurability());
-							}
-							else
-							{
-								sb.append(((Map.Entry<Item, Integer>) array[i])
-										.getKey().itemData());
-							}
+							// sb.append(ChatColor.WHITE
+							// + " ID: "
+							// + ChatColor.LIGHT_PURPLE
+							// + ((Map.Entry<Item, Integer>) array[i])
+							// .getKey().itemId());
+							// sb.append(ChatColor.WHITE + " Data: "
+							// + ChatColor.LIGHT_PURPLE);
+							// if (((Map.Entry<Item, Integer>)
+							// array[i]).getKey()
+							// .isPotion())
+							// {
+							// sb.append(((Map.Entry<Item, Integer>) array[i])
+							// .getKey().itemDurability());
+							// }
+							// else
+							// {
+							// sb.append(((Map.Entry<Item, Integer>) array[i])
+							// .getKey().itemData());
+							// }
 							sender.sendMessage(sb.toString());
 						}
 						else
@@ -398,22 +407,17 @@ public class ListCommands
 					}
 				}
 			}
-			else
-			{
-				// No items in pool
-				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " No items in pool.");
-				// Clear hashmap (for memory reasons?)
-				// considering no items, therefore no pages,
-				// and thus no need to know what page a player is on
-				Karma.page.clear();
-			}
-			itemlist.closeQuery();
 		}
 		catch (SQLException e)
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + "SQL error.");
 			e.printStackTrace();
+		}
+		catch (NullPointerException n)
+		{
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Error getting item list.");
+			n.printStackTrace();
 		}
 	}
 }

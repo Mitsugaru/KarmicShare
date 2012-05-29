@@ -290,8 +290,9 @@ public class Commander implements CommandExecutor
 										page = 1;
 									}
 								}
-								//Get correct page
-								page = Karma.grabPage(page, current, Direction.CURRENT);
+								// Get valid page
+								page = Karma.grabPage(page, current,
+										Direction.CURRENT);
 								// Show inventory
 								Karma.showInventory(player, current, page);
 							}

@@ -175,8 +175,9 @@ public class KSInventoryListener implements Listener
 						/*
 						 * Attempting to take item
 						 */
-						final int amount = ItemLogic.takeItem(plugin.getServer()
-								.getPlayer(event.getWhoClicked().getName()),
+						final int amount = ItemLogic.takeItem(
+								plugin.getServer().getPlayer(
+										event.getWhoClicked().getName()),
 								event.getCurrentItem(), group);
 						final int original = event.getCurrentItem().getAmount();
 						if (amount == event.getCurrentItem().getAmount())
@@ -251,12 +252,12 @@ public class KSInventoryListener implements Listener
 				}
 				else if (event.isLeftClick())
 				{
-					//plugin.getLogger().info("shift left click from player");
+					// plugin.getLogger().info("shift left click from player");
 					shiftGiveItem(event, group);
 				}
 				else if (event.isRightClick())
 				{
-					//plugin.getLogger().info("shift right click from player");
+					// plugin.getLogger().info("shift right click from player");
 					shiftGiveItem(event, group);
 				}
 			}

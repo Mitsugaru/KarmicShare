@@ -3,6 +3,7 @@ package com.mitsugaru.KarmicShare.logic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+// import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,8 @@ public class Karma
 	public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
 	public static final Map<String, String> selectedGroup = new HashMap<String, String>();
 	public static final Map<GroupPageInfo, KSInventoryHolder> inventories = new HashMap<GroupPageInfo, KSInventoryHolder>();
-	public static final Map<Item, Integer> cache = new HashMap<Item, Integer>();
+	// public static final Map<Item, Integer> cache = new LinkedHashMap<Item,
+	// Integer>();
 	public static final Map<String, Integer> chestPage = new HashMap<String, Integer>();
 	public static final Map<String, Integer> page = new HashMap<String, Integer>(),
 			multiPage = new HashMap<String, Integer>();
@@ -352,36 +354,36 @@ public class Karma
 	/**
 	 * Quietly updates the local cache of the item pool
 	 */
-	public static void updateCache(CommandSender sender)
-	{
-		// Get list of items from database
-		Query itemlist = plugin.getDatabaseHandler().select(
-				"SELECT * FROM " + Table.ITEMS.getName()
-						+ " WHERE groups='global';");
-		try
-		{
-			if (itemlist.getResult().next())
-			{
-				// Loop that updates the hashmap cache
-				// This way I won't be querying the database
-				// every time list is called
-				do
-				{
-					// update cache with current result set
-					Item i = new Item(itemlist.getResult().getInt("itemid"),
-							itemlist.getResult().getByte("data"), itemlist
-									.getResult().getShort("durability"));
-					Karma.cache.put(i, itemlist.getResult().getInt("amount"));
-				} while (itemlist.getResult().next());
-			}
-			itemlist.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL error.");
-			e.printStackTrace();
-		}
-	}
+	// public static void updateCache(CommandSender sender)
+	// {
+	// // Get list of items from database
+	// Query itemlist = plugin.getDatabaseHandler().select(
+	// "SELECT * FROM " + Table.ITEMS.getName()
+	// + " WHERE groups='global';");
+	// try
+	// {
+	// if (itemlist.getResult().next())
+	// {
+	// // Loop that updates the hashmap cache
+	// // This way I won't be querying the database
+	// // every time list is called
+	// do
+	// {
+	// // update cache with current result set
+	// Item i = new Item(itemlist.getResult().getInt("itemid"),
+	// itemlist.getResult().getByte("data"), itemlist
+	// .getResult().getShort("durability"));
+	// Karma.cache.put(i, itemlist.getResult().getInt("amount"));
+	// } while (itemlist.getResult().next());
+	// }
+	// itemlist.closeQuery();
+	// }
+	// catch (SQLException e)
+	// {
+	// sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL error.");
+	// e.printStackTrace();
+	// }
+	// }
 
 	public static void removePlayerFromGroup(CommandSender sender, String name,
 			String group)

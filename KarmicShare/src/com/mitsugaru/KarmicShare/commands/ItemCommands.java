@@ -26,13 +26,13 @@ public class ItemCommands
 {
 	private static KarmicShare plugin;
 	private static Config config;
-	
+
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 		config = ks.getPluginConfig();
 	}
-	
+
 	public static void takeItem(CommandSender sender, String[] args)
 	{
 		// Take item from pool
@@ -144,24 +144,24 @@ public class ItemCommands
 				temp = temp.replaceAll("\\s+$", "");
 				temp = temp.toLowerCase();
 				// Update cache
-				Karma.updateCache(sender);
-				// Check if item exists in cache through
+				// Karma.updateCache(sender);
+				// FIXME Check if item exists in cache through
 				// reverse lookup: name -> id:data
-				Item[] array = Karma.cache.keySet().toArray(new Item[0]);
-				for (int i = 0; i < array.length; i++)
-				{
-					String cacheName = array[i].name.toLowerCase();
-					if (temp.equals(cacheName))
-					{
-						// Item is in cache, so get item id
-						// and data values
-						itemid = array[i].itemId();
-						data = array[i].getData();
-						dur = array[i].itemDurability();
-						has = true;
-						break;
-					}
-				}
+				// Item[] array = Karma.cache.keySet().toArray(new Item[0]);
+				// for (int i = 0; i < array.length; i++)
+				// {
+				// String cacheName = array[i].name.toLowerCase();
+				// if (temp.equals(cacheName))
+				// {
+				// // Item is in cache, so get item id
+				// // and data values
+				// itemid = array[i].itemId();
+				// data = array[i].getData();
+				// dur = array[i].itemDurability();
+				// has = true;
+				// break;
+				// }
+				// }
 				if (!has)
 				{
 					// Item not in cache, therefore

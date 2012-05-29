@@ -8,7 +8,6 @@ import com.mitsugaru.KarmicShare.SQLibrary.SQLite;
 import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.config.Config;
 
-
 public class DatabaseHandler
 {
 	// Class Variables

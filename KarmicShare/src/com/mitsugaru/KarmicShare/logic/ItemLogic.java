@@ -24,12 +24,12 @@ import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 public class ItemLogic
 {
 	private static KarmicShare plugin;
-	
+
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 	}
-	
+
 	public static boolean hasItem(Player player, ItemStack item, String group)
 	{
 		// Check if pool contains item requested + amount
@@ -566,33 +566,13 @@ public class ItemLogic
 				{
 					if (hasKarma)
 					{
-						Karma.updatePlayerKarma(
-								player.getName(),
-								amount
-										* plugin.getPluginConfig().karma
-												.get(temp) * -1);
+						Karma.updatePlayerKarma(player.getName(), amount
+								* plugin.getPluginConfig().karma.get(temp) * -1);
 					}
 					else
 					{
-						Karma.updatePlayerKarma(player.getName(),
-								amount * plugin.getPluginConfig().karmaChange
-										* -1);
-					}
-				}
-			}
-			// Update cache
-			if (!Karma.cache.isEmpty())
-			{
-				if (Karma.cache.containsKey(temp))
-				{
-					int cacheAmount = Karma.cache.get(temp).intValue();
-					if ((cacheAmount - amount) <= 0)
-					{
-						Karma.cache.remove(temp);
-					}
-					else
-					{
-						Karma.cache.put(temp, (cacheAmount - amount));
+						Karma.updatePlayerKarma(player.getName(), amount
+								* plugin.getPluginConfig().karmaChange * -1);
 					}
 				}
 			}
@@ -824,8 +804,9 @@ public class ItemLogic
 				{
 					if (plugin.getPluginConfig().statickarma)
 					{
-						Karma.updatePlayerKarma(player.getName(), item.getAmount()
-								* plugin.getPluginConfig().karmaChange);
+						Karma.updatePlayerKarma(player.getName(),
+								item.getAmount()
+										* plugin.getPluginConfig().karmaChange);
 					}
 					else
 					{
@@ -882,22 +863,9 @@ public class ItemLogic
 		}
 		// Smoke effect
 		smokePlayer(player);
-		// Update cache
-		if (!Karma.cache.isEmpty())
-		{
-			if (Karma.cache.containsKey(i))
-			{
-				int cacheAmount = Karma.cache.get(i).intValue();
-				Karma.cache.put(i, (cacheAmount + item.getAmount()));
-			}
-			else
-			{
-				Karma.cache.put(i, item.getAmount());
-			}
-		}
 		return true;
 	}
-	
+
 	/**
 	 * Provides a smoke effect for the player.
 	 * 

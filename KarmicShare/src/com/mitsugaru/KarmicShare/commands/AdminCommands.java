@@ -25,13 +25,13 @@ public class AdminCommands
 {
 	private static KarmicShare plugin;
 	private static Config config;
-	
+
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 		config = ks.getPluginConfig();
 	}
-	
+
 	public static void parseCommand(CommandSender sender, String[] args)
 	{
 		if (args.length > 1)
@@ -41,8 +41,7 @@ public class AdminCommands
 			if (!adminCommand(sender, args))
 			{
 				// Bad command
-				sender.sendMessage(ChatColor.RED
-						+ KarmicShare.TAG
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Syntax error. Use /ks admin for list of commands");
 			}
 		}
@@ -51,30 +50,24 @@ public class AdminCommands
 			// Show admin commands help menu
 			sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.RED
 					+ "KarmicShare Admin" + ChatColor.BLUE + "===");
-			if (PermCheck.checkPermission(sender,
-					PermissionNode.ADMIN_ADD))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_ADD))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin add <item>[:data] [amount]"
 						+ ChatColor.YELLOW + " : Add item(s) to pool");
 			}
-			if (PermCheck.checkPermission(sender,
-					PermissionNode.ADMIN_RESET))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_RESET))
 			{
-				sender.sendMessage(ChatColor.GREEN
-						+ "/ks admin reset <player>" + ChatColor.YELLOW
-						+ " : Resets player's karma");
+				sender.sendMessage(ChatColor.GREEN + "/ks admin reset <player>"
+						+ ChatColor.YELLOW + " : Resets player's karma");
 			}
-			if (PermCheck.checkPermission(sender,
-					PermissionNode.ADMIN_SET))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET))
 			{
 				sender.sendMessage(ChatColor.GREEN
-						+ "/ks admin set <player> <karma>"
-						+ ChatColor.YELLOW
+						+ "/ks admin set <player> <karma>" + ChatColor.YELLOW
 						+ " : Sets player's karma to value");
 			}
-			if (PermCheck.checkPermission(sender,
-					PermissionNode.ADMIN_DRAIN))
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks admin drain"
 						+ ChatColor.YELLOW + " : Empty item pool");
@@ -83,16 +76,14 @@ public class AdminCommands
 					PermissionNode.ADMIN_GROUP_CREATE))
 			{
 				sender.sendMessage(ChatColor.GREEN
-						+ "/ks admin group create <group>"
-						+ ChatColor.YELLOW
+						+ "/ks admin group create <group>" + ChatColor.YELLOW
 						+ " : Create group in database");
 			}
 			if (PermCheck.checkPermission(sender,
 					PermissionNode.ADMIN_GROUP_DELETE))
 			{
 				sender.sendMessage(ChatColor.GREEN
-						+ "/ks admin group delete <group>"
-						+ ChatColor.YELLOW
+						+ "/ks admin group delete <group>" + ChatColor.YELLOW
 						+ " : Remove group from database");
 			}
 			if (PermCheck.checkPermission(sender,
@@ -100,26 +91,23 @@ public class AdminCommands
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group add  <group> <player> [player2] ..."
-						+ ChatColor.YELLOW
-						+ " : Force add player to group");
+						+ ChatColor.YELLOW + " : Force add player to group");
 			}
 			if (PermCheck.checkPermission(sender,
 					PermissionNode.ADMIN_GROUP_REMOVE))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group remove  <group> <player> [player2] ..."
-						+ ChatColor.YELLOW
-						+ " : Force remove player to group");
+						+ ChatColor.YELLOW + " : Force remove player to group");
 			}
-			if (PermCheck.checkPermission(sender,
-					"KarmicShare.admin.reload"))
+			if (PermCheck.checkPermission(sender, "KarmicShare.admin.reload"))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks admin reload"
 						+ ChatColor.YELLOW + " : Reload configuration");
 			}
 		}
 	}
-	
+
 	private static boolean adminCommand(CommandSender sender, String[] args)
 	{
 		final String com = args[1];
@@ -358,7 +346,8 @@ public class AdminCommands
 				int id = plugin
 						.getServer()
 						.getScheduler()
-						.scheduleAsyncDelayedTask(plugin,
+						.scheduleAsyncDelayedTask(
+								plugin,
 								new ConfirmDrain(plugin, (Player) sender, group));
 				if (id == -1)
 				{
@@ -373,8 +362,8 @@ public class AdminCommands
 				final String query = "DELETE FROM " + Table.ITEMS.getName()
 						+ " WHERE groups='" + group + "';";
 				plugin.getDatabaseHandler().standardQuery(query);
-				plugin.getLogger().info("Items for group '" + group + "' cleared");
-				Karma.cache.clear();
+				plugin.getLogger().info(
+						"Items for group '" + group + "' cleared");
 			}
 			return true;
 		}
@@ -730,8 +719,8 @@ public class AdminCommands
 							.getScheduler()
 							.scheduleAsyncDelayedTask(
 									plugin,
-									new ConfirmRemoveGroup(plugin, (Player) sender,
-											group));
+									new ConfirmRemoveGroup(plugin,
+											(Player) sender, group));
 					if (i == -1)
 					{
 						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
