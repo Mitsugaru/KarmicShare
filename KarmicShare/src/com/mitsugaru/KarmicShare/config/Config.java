@@ -370,7 +370,7 @@ public class Config
 			try
 			{
 				Query rs = plugin.getDatabaseHandler().select(
-						"SELECT * FROM " + Table.GROUPS.getName());
+						"SELECT * FROM " + Table.GROUPS.getName() + ";");
 				if (rs.getResult().next())
 				{
 					do
@@ -395,7 +395,7 @@ public class Config
 						.createTable(
 								"CREATE TABLE "
 										+ Table.GROUPS.getName()
-										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname));");
+										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname), PRIMARY KEY (id));");
 			}
 			else
 			{
@@ -450,7 +450,7 @@ public class Config
 						.createTable(
 								"CREATE TABLE "
 										+ Table.PLAYERS.getName()
-										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+										+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername), PRIMARY KEY (id));");
 			}
 			else
 			{
@@ -553,7 +553,7 @@ public class Config
 			{
 				final int groupid = plugin.getDatabaseHandler().getGroupId(
 						item.groups);
-				query = "INSERT INTO items (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+				query = "INSERT INTO " + Table.ITEMS.getName() +" (itemid,amount,data,durability,enchantments,groups) VALUES ('"
 						+ item.itemid
 						+ "','"
 						+ item.amount

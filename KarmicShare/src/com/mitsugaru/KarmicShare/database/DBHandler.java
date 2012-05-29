@@ -44,9 +44,7 @@ public class DBHandler
 			// Check if item table exists
 			if (!mysql.checkTable(Table.ITEMS.getName()))
 			{
-				plugin.getLogger()
-						.info(KarmicShare.TAG + " Created item table");
-				// TODO Change groups to use group id
+				plugin.getLogger().info("Created item table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.ITEMS.getName()
 						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, itemid SMALLINT UNSIGNED, amount INT NOT NULL, data TINYTEXT, durability TINYTEXT, enchantments TEXT, groups TEXT NOT NULL, PRIMARY KEY (id));");
@@ -54,23 +52,22 @@ public class DBHandler
 			// Check if player table exists
 			if (!mysql.checkTable(Table.PLAYERS.getName()))
 			{
-				// TODO Change groups to use group id
-				plugin.getLogger().info(
-						KarmicShare.TAG + " Created players table");
+				plugin.getLogger().info("Created players table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.PLAYERS.getName()
-						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
+						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername), PRIMARY KEY (id));");
 			}
 			// Check if group table exists
 			if (!mysql.checkTable(Table.GROUPS.getName()))
 			{
 				// TODO need to record creator and managers
 				// TODO group settings
-				plugin.getLogger().info(
-						KarmicShare.TAG + " Created groups table");
+				plugin.getLogger().info("Created groups table");
 				mysql.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
-						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname));");
+						+ " (id INT UNSIGNED NOT NULL AUTO_INCREMENT, groupname varchar(32) NOT NULL, UNIQUE (groupname), PRIMARY KEY (id));");
+				sqlite.standardQuery("INSERT INTO " + Table.GROUPS.getName()
+						+ " (groupname) VALUES ('global');");
 			}
 		}
 		else
@@ -81,8 +78,7 @@ public class DBHandler
 			// Check if item table exists
 			if (!sqlite.checkTable(Table.ITEMS.getName()))
 			{
-				plugin.getLogger()
-						.info(KarmicShare.TAG + " Created item table");
+				plugin.getLogger().info("Created item table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.ITEMS.getName()
 						+ " (id INTEGER PRIMARY KEY, itemid SMALLINT UNSIGNED,amount INT NOT NULL,data TEXT,durability TEXT,enchantments TEXT, groups TEXT NOT NULL);");
@@ -90,8 +86,7 @@ public class DBHandler
 			// Check if player table exists
 			if (!sqlite.checkTable(Table.PLAYERS.getName()))
 			{
-				plugin.getLogger().info(
-						KarmicShare.TAG + " Created player table");
+				plugin.getLogger().info("Created player table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.PLAYERS.getName()
 						+ " (id INTEGER PRIMARY KEY, playername varchar(32) NOT NULL,karma INT NOT NULL, groups TEXT, UNIQUE (playername));");
@@ -99,11 +94,12 @@ public class DBHandler
 			// Check if groups table exists
 			if (!sqlite.checkTable(Table.GROUPS.getName()))
 			{
-				plugin.getLogger().info(
-						KarmicShare.TAG + " Created groups table");
+				plugin.getLogger().info("Created groups table");
 				sqlite.createTable("CREATE TABLE "
 						+ Table.GROUPS.getName()
 						+ " (id INTEGER PRIMARY KEY, groupname TEXT NOT NULL, UNIQUE (groupname));");
+				sqlite.standardQuery("INSERT INTO " + Table.GROUPS.getName()
+						+ " (groupname) VALUES ('global');");
 			}
 		}
 	}
@@ -254,7 +250,7 @@ public class DBHandler
 			if (query.getResult().next())
 			{
 				id = query.getResult().getInt("id");
-				if(query.getResult().wasNull())
+				if (query.getResult().wasNull())
 				{
 					id = -1;
 				}
@@ -263,7 +259,8 @@ public class DBHandler
 		}
 		catch (SQLException e)
 		{
-			plugin.getLogger().warning("SQL Exception on getting group '" + group +"' id");
+			plugin.getLogger().warning(
+					"SQL Exception on getting group '" + group + "' id");
 			e.printStackTrace();
 		}
 		return id;
