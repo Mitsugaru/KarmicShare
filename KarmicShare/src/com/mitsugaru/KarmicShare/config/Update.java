@@ -12,12 +12,12 @@ import com.mitsugaru.KarmicShare.database.Table;
 public class Update
 {
 	private static KarmicShare plugin;
-	
+
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 	}
-	
+
 	/**
 	 * This method is called to make the appropriate changes, most likely only
 	 * necessary for database schema modification, for a proper update.
@@ -172,7 +172,7 @@ public class Update
 			plugin.getLogger().info("Rebuilding groups table...");
 			// Save old groups
 			final List<String> groups = new ArrayList<String>();
-			//Add global to be known
+			// Add global to be known
 			groups.add("global");
 			try
 			{
@@ -360,26 +360,37 @@ public class Update
 			{
 				final int groupid = plugin.getDatabaseHandler().getGroupId(
 						item.groups);
-				query = "INSERT INTO " + Table.ITEMS.getName() +" (itemid,amount,data,durability,enchantments,groups) VALUES ('"
-						+ item.itemid
-						+ "','"
-						+ item.amount
-						+ "','"
-						+ item.data
-						+ "','"
-						+ item.durability
-						+ "','"
-						+ item.enchantments
+				query = "INSERT INTO "
+						+ Table.ITEMS.getName()
+						+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
+						+ item.itemid + "','" + item.amount + "','" + item.data
+						+ "','" + item.durability + "','" + item.enchantments
 						+ "','" + groupid + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}
+			// Set old config options to new format
+			plugin.getConfig().set("karma.upper.limit",
+					plugin.getConfig().getInt("karma.upperlimit", 200));
+			plugin.getConfig().set("karma.lower.limit",
+					plugin.getConfig().getInt("karma.lowerlimit", -200));
+			plugin.getConfig().set("karma.lower.percent",
+					plugin.getConfig().getDouble("karma.upperPercent", 0.85));
+			plugin.getConfig().set("karma.lower.percent",
+					plugin.getConfig().getDouble("karma.lowerPercent", 0.15));
+			// Remove old entries
+			plugin.getConfig().set("karma.upperlimit", null);
+			plugin.getConfig().set("karma.lowerlimit", null);
+			plugin.getConfig().set("karma.upperPercent", null);
+			plugin.getConfig().set("karma.lowerPercent", null);
+			plugin.saveConfig();
+			plugin.getPluginConfig().reloadConfig();
 		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
 		plugin.getLogger().info("Upgrade complete");
 	}
-	
+
 	static class ZeroPointFourteenItemObject
 	{
 		public int itemid, amount;
@@ -397,24 +408,26 @@ public class Update
 			this.enchantments = en;
 		}
 	}
-	
+
 	static class ZeroPointTwoSixTwoPlayerObject
 	{
 		public String playername, groups;
 		public int karma;
-		
-		public ZeroPointTwoSixTwoPlayerObject(String playername, int karma, String groups)
+
+		public ZeroPointTwoSixTwoPlayerObject(String playername, int karma,
+				String groups)
 		{
 			this.playername = playername;
 			this.karma = karma;
 			this.groups = groups;
 		}
 	}
-	
-	static class ZeroPointTwoSixTwoItemObject extends ZeroPointFourteenItemObject
+
+	static class ZeroPointTwoSixTwoItemObject extends
+			ZeroPointFourteenItemObject
 	{
 		public String groups;
-		
+
 		public ZeroPointTwoSixTwoItemObject(int id, int quantity, byte dv,
 				short dur, String en, String groups)
 		{

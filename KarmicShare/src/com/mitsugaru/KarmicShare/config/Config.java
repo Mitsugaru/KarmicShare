@@ -9,6 +9,7 @@ package com.mitsugaru.KarmicShare.config;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -47,8 +48,19 @@ public class Config
 		// Grab config
 		final ConfigurationSection config = ks.getConfig();
 		// Hashmap of defaults
-		final Map<String, Object> defaults = new HashMap<String, Object>();
-		defaults.put("version", ks.getDescription().getVersion());
+		final Map<String, Object> defaults = new LinkedHashMap<String, Object>();
+		defaults.put("chests", true);
+		defaults.put("effects", true);
+		defaults.put("listlimit", 10);
+		defaults.put("karma.static", false);
+		defaults.put("karma.disabled", false);
+		defaults.put("karma.upper.limit", 200);
+		defaults.put("karma.upper.percent", 0.85);
+		defaults.put("karma.lower.limit", -200);
+		defaults.put("karma.lower.percent", 0.15);
+		defaults.put("karma.playerDefault", 0);
+		defaults.put("karma.changeDefault", 1);
+		defaults.put("karma.useEconomy", false);
 		defaults.put("mysql.use", false);
 		defaults.put("mysql.host", "localhost");
 		defaults.put("mysql.port", 3306);
@@ -57,18 +69,8 @@ public class Config
 		defaults.put("mysql.password", "pass");
 		defaults.put("mysql.tablePrefix", "ks_");
 		defaults.put("mysql.import", false);
-		defaults.put("karma.upperlimit", 200);
-		defaults.put("karma.upperPercent", 0.85);
-		defaults.put("karma.lowerlimit", -200);
-		defaults.put("karma.lowerPercent", 0.15);
-		defaults.put("karma.playerDefault", 0);
-		defaults.put("karma.changeDefault", 1);
-		defaults.put("karma.static", false);
-		defaults.put("karma.disabled", false);
-		defaults.put("karma.useEconomy", false);
-		defaults.put("effects", true);
-		defaults.put("listlimit", 10);
-		defaults.put("chests", true);
+		defaults.put("debug.time", false);
+		defaults.put("version", ks.getDescription().getVersion());
 		// TODO defaults.put("blacklist", false);
 		// Insert defaults into config file if they're not present
 		for (final Entry<String, Object> e : defaults.entrySet())
@@ -90,16 +92,16 @@ public class Config
 		tablePrefix = config.getString("mysql.prefix", "ks_");
 		importSQL = config.getBoolean("mysql.import", false);
 		statickarma = config.getBoolean("karma.static", false);
-		upper = config.getInt("karma.upperlimit", 200);
-		lower = config.getInt("karma.lowerlimit", -200);
-		upperPercent = config.getDouble("karma.upperPercent", 0.85);
-		lowerPercent = config.getDouble("karma.lowerPercent", 0.15);
+		upper = config.getInt("karma.upper.limit", 200);
+		lower = config.getInt("karma.lower.limit", -200);
+		upperPercent = config.getDouble("karma.upper.percent", 0.85);
+		lowerPercent = config.getDouble("karma.lower.percent", 0.15);
 		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
 		karmaChange = config.getInt("karma.changeDefault", 1);
 		effects = config.getBoolean("effects", true);
 		chests = config.getBoolean("chests", true);
 		listlimit = config.getInt("listlimit", 10);
-		debugTime = config.getBoolean("debugTime", false);
+		debugTime = config.getBoolean("debug.time", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
 		// TODO blacklist = config.getBoolean("blacklist", false);
@@ -214,16 +216,16 @@ public class Config
 		plugin.reloadConfig();
 		// Grab config
 		ConfigurationSection config = plugin.getConfig();
-		upper = config.getInt("karma.upperlimit", 200);
-		lower = config.getInt("karma.lowerlimit", -200);
-		upperPercent = config.getDouble("karma.upperPercent", 0.85);
-		lowerPercent = config.getDouble("karma.lowerPercent", 0.15);
+		upper = config.getInt("karma.upper.limit", 200);
+		lower = config.getInt("karma.lower.limit", -200);
+		upperPercent = config.getDouble("karma.upper.percent", 0.85);
+		lowerPercent = config.getDouble("karma.lower.percent", 0.15);
 		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
 		karmaChange = config.getInt("karma.changeDefault", 1);
 		effects = config.getBoolean("effects", true);
 		chests = config.getBoolean("chests", false);
 		listlimit = config.getInt("listlimit", 10);
-		debugTime = config.getBoolean("debugTime", false);
+		debugTime = config.getBoolean("debug.time", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
 		blacklist = config.getBoolean("blacklist", false);
