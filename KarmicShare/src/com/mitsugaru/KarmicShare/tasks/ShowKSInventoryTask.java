@@ -33,7 +33,7 @@ public class ShowKSInventoryTask implements Runnable
 						player.openInventory(inventory);
 					}
 
-				}, 1);
+				}, 3);
 		if (i == -1)
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG

@@ -1,9 +1,12 @@
 package com.mitsugaru.KarmicShare.inventory;
 
+import com.mitsugaru.KarmicShare.Karma;
+
 public class GroupPageInfo
 {
 	private String group = "global";
-	private int page = 0;
+	private int page = 0, viewers = 0;
+	
 	
 	public GroupPageInfo(String group, int page)
 	{
@@ -33,5 +36,20 @@ public class GroupPageInfo
 	public int getPage()
 	{
 		return page;
+	}
+	
+	public void addViewer()
+	{
+		viewers += 1;
+	}
+	
+	public void removeViewer()
+	{
+		viewers -= 1;
+		if(viewers <= 0)
+		{
+			//Remove from inventories hashmap as there are no more viewers
+			Karma.inventories.remove(this);
+		}
 	}
 }

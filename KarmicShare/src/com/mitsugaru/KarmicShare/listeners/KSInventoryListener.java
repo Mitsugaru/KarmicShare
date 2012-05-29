@@ -10,13 +10,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
+import com.mitsugaru.KarmicShare.tasks.Repopulate;
 
 public class KSInventoryListener implements Listener
 {
@@ -26,9 +29,30 @@ public class KSInventoryListener implements Listener
 	{
 		plugin = karmicShare;
 	}
-
-	// TODO check for our custom inventory holder class.
-	// Handle logic if it is ours.
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onInventoryOpen(InventoryOpenEvent event)
+	{
+		if (!event.isCancelled())
+		{
+			final KSInventoryHolder holder = instanceCheck(event);
+			if(holder != null)
+			{
+				holder.getInfo().addViewer();
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onInventoryClose(InventoryCloseEvent event)
+	{
+		final KSInventoryHolder holder = instanceCheck(event);
+		if(holder != null)
+		{
+			holder.getInfo().removeViewer();
+		}
+	}
+	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onInventoryClick(InventoryClickEvent event)
 	{
@@ -38,21 +62,21 @@ public class KSInventoryListener implements Listener
 			return;
 		}
 		// Verify our inventory holder
-		if (!(event.getInventory().getHolder() instanceof KSInventoryHolder))
+		final KSInventoryHolder holder = instanceCheck(event);
+		if(holder == null)
 		{
-			// Not ours, we don't care
-			plugin.getLogger().info("NOT ours");
+			//Not ours, we don't care
 			return;
 		}
-		plugin.getLogger().info("our holder");
 		boolean fromChest = false;
 		// Differentiate between chest inventory and player
 		// inventory click
+		plugin.getLogger().info("slot: " + event.getRawSlot());
 		if (event.getRawSlot() < 54)
 		{
 			fromChest = true;
 		}
-		String group = "global";
+		String group = holder.getInfo().getGroup();
 		if (plugin.useChest())
 		{
 			// plugin.getLogger().info("our chest");
@@ -60,10 +84,10 @@ public class KSInventoryListener implements Listener
 			{
 				if (event.isLeftClick())
 				{
-					// plugin.getLogger().info("left click");
+					plugin.getLogger().info("left click");
 					if (event.isShiftClick())
 					{
-						// plugin.getLogger().info("shift click");
+						plugin.getLogger().info("shift click");
 						/*
 						 * Shift Left click We don't care about the cursor as it
 						 * doesn't get changed on a shift click
@@ -71,11 +95,10 @@ public class KSInventoryListener implements Listener
 						if (!event.getCurrentItem().getType()
 								.equals(Material.AIR))
 						{
-							// plugin.getLogger().info("not air");
+							plugin.getLogger().info("not air");
 							if (fromChest)
 							{
-								// plugin.getLogger().info(
-								// "from chest");
+								plugin.getLogger().info("from chest");
 								if (event.getWhoClicked().getInventory()
 										.firstEmpty() >= 0)
 								{
@@ -89,8 +112,7 @@ public class KSInventoryListener implements Listener
 									if (amount == event.getCurrentItem()
 											.getAmount())
 									{
-										// plugin.getLogger().info(
-										// "same amount");
+										plugin.getLogger().info("same amount");
 										// event.setResult(Event.Result.ALLOW);
 										ItemStack item;
 										if (event.getCurrentItem()
@@ -145,8 +167,8 @@ public class KSInventoryListener implements Listener
 									else if (amount < event.getCurrentItem()
 											.getAmount() && amount > 0)
 									{
-										// plugin.getLogger()
-										// .info("amount less than current item amount");
+										plugin.getLogger()
+												.info("amount less than current item amount");
 										final ItemStack bak = event
 												.getCurrentItem().clone();
 										bak.setAmount(original - amount);
@@ -209,8 +231,7 @@ public class KSInventoryListener implements Listener
 							}
 							else
 							{
-								// plugin.getLogger().info(
-								// "from player");
+								plugin.getLogger().info("from player");
 								if (event.getInventory().firstEmpty() >= 0)
 								{
 									if (Karma.giveItem(
@@ -219,9 +240,8 @@ public class KSInventoryListener implements Listener
 															.getName()), event
 													.getCurrentItem(), group))
 									{
-										// plugin.getLogger().info(
-										// "gave item");
-										// event.setResult(Event.Result.ALLOW);
+										plugin.getLogger().info("gave item");
+										event.setResult(Event.Result.ALLOW);
 										ItemStack item;
 										if (event.getCurrentItem()
 												.getEnchantments().isEmpty())
@@ -284,9 +304,9 @@ public class KSInventoryListener implements Listener
 							}
 						}
 					}
-					else
+					else if(fromChest)
 					{
-						// plugin.getLogger().info("not shift");
+						plugin.getLogger().info("not shift");
 						/*
 						 * Regular left click
 						 */
@@ -295,7 +315,7 @@ public class KSInventoryListener implements Listener
 								&& !event.getCursor().getType()
 										.equals(Material.AIR))
 						{
-							// plugin.getLogger().info("not both air");
+							plugin.getLogger().info("not both air");
 							if (event.getCurrentItem() != null
 									&& event.getCursor() != null)
 							{
@@ -303,8 +323,7 @@ public class KSInventoryListener implements Listener
 								final Item b = new Item(event.getCursor());
 								if (a.areSame(b))
 								{
-									// plugin.getLogger().info(
-									// "same type");
+									plugin.getLogger().info("same type");
 									int cursorAmount = event.getCursor()
 											.getAmount();
 									int itemAmount = event.getCurrentItem()
@@ -313,8 +332,8 @@ public class KSInventoryListener implements Listener
 									if (itemAmount < event.getCurrentItem()
 											.getMaxStackSize())
 									{
-										// plugin.getLogger()
-										// .info("item stack not at max stack");
+										plugin.getLogger().info(
+												"item stack not at max stack");
 										ItemStack item;
 										if (event.getCursor().getEnchantments()
 												.isEmpty())
@@ -386,8 +405,7 @@ public class KSInventoryListener implements Listener
 								}
 								else
 								{
-									// plugin.getLogger().info(
-									// "switching items");
+									plugin.getLogger().info("switching items");
 									/*
 									 * Switching items from chest to cursor When
 									 * switching, put item first, then attempt
@@ -454,7 +472,7 @@ public class KSInventoryListener implements Listener
 						else if (!event.getCurrentItem().getType()
 								.equals(Material.AIR))
 						{
-							// plugin.getLogger().info("take item");
+							plugin.getLogger().info("take item");
 							/*
 							 * Attempting to take item
 							 */
@@ -498,8 +516,8 @@ public class KSInventoryListener implements Listener
 						else if (!event.getCursor().getType()
 								.equals(Material.AIR))
 						{
-							// plugin.getLogger().info(
-							// "putting item into empty slot");
+							plugin.getLogger().info(
+									"putting item into empty slot");
 							/*
 							 * Putting item into empty slot in chest
 							 */
@@ -520,21 +538,21 @@ public class KSInventoryListener implements Listener
 				}
 				else
 				{
-					// plugin.getLogger().info("right click");
+					plugin.getLogger().info("right click");
 					if (event.isShiftClick())
 					{
-						// plugin.getLogger().info("shift click");
+						plugin.getLogger().info("shift click");
 						/*
 						 * Shift right click
 						 */
 						if (!event.getCurrentItem().getType()
 								.equals(Material.AIR))
 						{
-							// plugin.getLogger().info("not air");
+							plugin.getLogger().info("not air");
 							if (fromChest)
 							{
-								// plugin.getLogger().info(
-								// "from chest, take item");
+								plugin.getLogger()
+										.info("from chest, take item");
 								if (event.getWhoClicked().getInventory()
 										.firstEmpty() >= 0)
 								{
@@ -548,9 +566,8 @@ public class KSInventoryListener implements Listener
 									if (amount == event.getCurrentItem()
 											.getAmount())
 									{
-										// plugin.getLogger().info(
-										// "take all");
-										// event.setResult(Event.Result.DENY);
+										plugin.getLogger().info("take all");
+										event.setResult(Event.Result.DENY);
 										ItemStack item;
 										if (event.getCurrentItem()
 												.getEnchantments().isEmpty())
@@ -607,8 +624,7 @@ public class KSInventoryListener implements Listener
 									else if (amount < event.getCurrentItem()
 											.getAmount() && amount > 0)
 									{
-										// plugin.getLogger().info(
-										// "take some");
+										plugin.getLogger().info("take some");
 										final ItemStack bak = event
 												.getCurrentItem().clone();
 										bak.setAmount(original - amount);
@@ -664,8 +680,7 @@ public class KSInventoryListener implements Listener
 							}
 							else
 							{
-								// plugin.getLogger().info(
-								// "player inventory");
+								plugin.getLogger().info("player inventory");
 								if (Karma.giveItem(
 										plugin.getServer()
 												.getPlayer(
@@ -673,9 +688,8 @@ public class KSInventoryListener implements Listener
 																.getName()),
 										event.getCurrentItem(), group))
 								{
-									// plugin.getLogger().info(
-									// "gave item");
-									// event.setResult(Event.Result.ALLOW);
+									plugin.getLogger().info("gave item");
+									event.setResult(Event.Result.ALLOW);
 									ItemStack item;
 									if (event.getCurrentItem()
 											.getEnchantments().isEmpty())
@@ -730,15 +744,15 @@ public class KSInventoryListener implements Listener
 							}
 						}
 					}
-					else
+					else if(fromChest)
 					{
-						// plugin.getLogger().info("not shift");
+						plugin.getLogger().info("not shift");
 						if (!event.getCurrentItem().getType()
 								.equals(Material.AIR)
 								&& !event.getCursor().getType()
 										.equals(Material.AIR))
 						{
-							// plugin.getLogger().info("not both air");
+							plugin.getLogger().info("not both air");
 							if (event.getCurrentItem() != null
 									&& event.getCursor() != null)
 							{
@@ -746,8 +760,8 @@ public class KSInventoryListener implements Listener
 								final Item b = new Item(event.getCursor());
 								if (a.areSame(b))
 								{
-									// plugin.getLogger().info(
-									// "same item, give one");
+									plugin.getLogger().info(
+											"same item, give one");
 									/*
 									 * Same item, so give only one from cursor
 									 * to item
@@ -782,8 +796,8 @@ public class KSInventoryListener implements Listener
 									if (itemAmount < event.getCurrentItem()
 											.getMaxStackSize())
 									{
-										// plugin.getLogger()
-										// .info("can add 1 to stack");
+										plugin.getLogger().info(
+												"can add 1 to stack");
 										if (Karma.giveItem(
 												plugin.getServer().getPlayer(
 														event.getWhoClicked()
@@ -817,8 +831,7 @@ public class KSInventoryListener implements Listener
 								}
 								else
 								{
-									// plugin.getLogger().info(
-									// "switching item");
+									plugin.getLogger().info("switching item");
 									/*
 									 * Switching Put item first, then attempt to
 									 * take item
@@ -887,8 +900,7 @@ public class KSInventoryListener implements Listener
 						else if (!event.getCurrentItem().getType()
 								.equals(Material.AIR))
 						{
-							// plugin.getLogger().info(
-							// "take half the stack");
+							plugin.getLogger().info("take half the stack");
 							/*
 							 * If cursor is air and item is not air they are
 							 * taking half of the stack, with the larger half
@@ -995,8 +1007,7 @@ public class KSInventoryListener implements Listener
 						else if (!event.getCursor().getType()
 								.equals(Material.AIR))
 						{
-							// plugin.getLogger()
-							// .info("only give one");
+							plugin.getLogger().info("only give one");
 							// Clone
 							ItemStack item;
 							if (event.getCursor().getEnchantments().isEmpty())
@@ -1039,48 +1050,24 @@ public class KSInventoryListener implements Listener
 			}
 		}
 	}
-
-	static class Repopulate implements Runnable
+	
+	private KSInventoryHolder instanceCheck(InventoryEvent event)
 	{
-		int slot;
-		ItemStack item;
-		Inventory inventory;
-		boolean clear;
-
-		public Repopulate(Inventory inv, ItemStack i)
+		KSInventoryHolder holder = null;
+		try
 		{
-			slot = -999;
-			inventory = inv;
-			item = i;
-		}
-
-		public Repopulate(Inventory inv, ItemStack i, int s, boolean c)
-		{
-			inventory = inv;
-			item = i;
-			slot = s;
-			clear = c;
-		}
-
-		@Override
-		public void run()
-		{
-			if (slot >= 0)
+			if (event.getInventory().getHolder() != null)
 			{
-				if (clear)
+				if(event.getInventory().getHolder() instanceof KSInventoryHolder)
 				{
-					inventory.clear(slot);
-				}
-				else
-				{
-					inventory.setItem(slot, item);
+					holder = (KSInventoryHolder) event.getInventory().getHolder();
 				}
 			}
-			else
-			{
-				inventory.addItem(item);
-			}
 		}
-
+		catch(NullPointerException n)
+		{
+			//IGNORE
+		}
+		return holder;
 	}
 }

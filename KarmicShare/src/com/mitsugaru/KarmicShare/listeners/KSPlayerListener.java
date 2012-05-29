@@ -49,6 +49,20 @@ public class KSPlayerListener implements Listener
 		// TODO player quit event, since that doesn't throw an inventory close
 		// event
 		// just to double check
+		try
+		{
+			if(event.getPlayer().getInventory().getHolder() != null)
+			{
+				if(event.getPlayer().getInventory().getHolder() instanceof KSInventoryHolder)
+				{
+					((KSInventoryHolder) event.getPlayer().getInventory().getHolder()).getInfo().removeViewer();
+				}
+			}
+		}
+		catch (NullPointerException n)
+		{
+			// IGNORE
+		}
 	}
 
 	// TODO show our own inventory holder?
@@ -222,7 +236,7 @@ public class KSPlayerListener implements Listener
 					.getScheduler()
 					.scheduleSyncDelayedTask(plugin,
 							new ShowKSInventoryTask(plugin, player, inventory),
-							1);
+							3);
 			if (id == -1)
 			{
 				plugin.getLogger().warning(
@@ -289,9 +303,14 @@ public class KSPlayerListener implements Listener
 	{
 		// Calculate number of slots
 		int slots = 0;
-		Query all = plugin.getDatabaseHandler().select(
+		int groupId = plugin.getDatabaseHandler().getGroupId(group);
+		if (groupId == -1)
+		{
+			return 1;
+		}
+		final Query all = plugin.getDatabaseHandler().select(
 				"SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
-						+ group + "';");
+						+ groupId + "';");
 		try
 		{
 			if (all.getResult().next())
@@ -394,9 +413,14 @@ public class KSPlayerListener implements Listener
 				limit = chestSize;
 			}
 			int start = (page - 1) * limit;
+			int groupId = plugin.getDatabaseHandler().getGroupId(group);
+			if (groupId == -1)
+			{
+				return;
+			}
 			Query itemList = plugin.getDatabaseHandler().select(
 					"SELECT * FROM " + Table.ITEMS.getName()
-							+ " WHERE groups='" + group + "';");
+							+ " WHERE groups='" + groupId + "';");
 			if (itemList.getResult().next())
 			{
 				boolean done = false;
