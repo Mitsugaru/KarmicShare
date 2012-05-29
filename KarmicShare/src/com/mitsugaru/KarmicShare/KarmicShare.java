@@ -17,6 +17,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.mitsugaru.KarmicShare.commands.Commander;
 import com.mitsugaru.KarmicShare.config.Config;
 import com.mitsugaru.KarmicShare.database.DatabaseHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
@@ -220,5 +221,39 @@ public class KarmicShare extends JavaPlugin
 		string = string.replaceAll("&o", "" + ChatColor.ITALIC);
 		string = string.replaceAll("&r", "" + ChatColor.RESET);
 		return string;
+	}
+	
+	/**
+	 * Attempts to look up full name based on who's on the server Given a
+	 * partial name
+	 * 
+	 * @author Frigid, edited by Raphfrk and petteyg359
+	 */
+	public String expandName(String Name)
+	{
+		int m = 0;
+		String Result = "";
+		for (int n = 0; n < getServer().getOnlinePlayers().length; n++)
+		{
+			String str = getServer().getOnlinePlayers()[n].getName();
+			if (str.matches("(?i).*" + Name + ".*"))
+			{
+				m++;
+				Result = str;
+				if (m == 2)
+				{
+					return null;
+				}
+			}
+			if (str.equalsIgnoreCase(Name))
+				return str;
+		}
+		if (m == 1)
+			return Result;
+		if (m > 1)
+		{
+			return null;
+		}
+		return Name;
 	}
 }

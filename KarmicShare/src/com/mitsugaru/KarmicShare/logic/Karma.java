@@ -19,10 +19,13 @@ import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 public class Karma
 {
 	private static KarmicShare plugin;
+	public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
 	public static final Map<String, String> selectedGroup = new HashMap<String, String>();
 	public static final Map<GroupPageInfo, KSInventoryHolder> inventories = new HashMap<GroupPageInfo, KSInventoryHolder>();
 	public static final Map<Item, Integer> cache = new HashMap<Item, Integer>();
 	public static final Map<String, Integer> chestPage = new HashMap<String, Integer>();
+	public static final Map<String, Integer> page = new HashMap<String, Integer>(),
+			multiPage = new HashMap<String, Integer>();
 
 	public static void init(KarmicShare ks)
 	{
@@ -338,5 +341,127 @@ public class Karma
 			e.printStackTrace();
 		}
 		return group;
+	}
+	
+	/**
+	 * Quietly updates the local cache of the item pool
+	 */
+	public static void updateCache(CommandSender sender)
+	{
+		// Get list of items from database
+		Query itemlist = plugin.getDatabaseHandler().select(
+				"SELECT * FROM " + Table.ITEMS.getName()
+						+ " WHERE groups='global';");
+		try
+		{
+			if (itemlist.getResult().next())
+			{
+				// Loop that updates the hashmap cache
+				// This way I won't be querying the database
+				// every time list is called
+				do
+				{
+					// update cache with current result set
+					Item i = new Item(itemlist.getResult().getInt("itemid"),
+							itemlist.getResult().getByte("data"), itemlist
+									.getResult().getShort("durability"));
+					Karma.cache.put(i, itemlist.getResult().getInt("amount"));
+				} while (itemlist.getResult().next());
+			}
+			itemlist.closeQuery();
+		}
+		catch (SQLException e)
+		{
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL error.");
+			e.printStackTrace();
+		}
+	}
+	
+	public static void removePlayerFromGroup(CommandSender sender, String name,
+			String group)
+	{
+		try
+		{
+			String groups = "";
+			Query rs = plugin.getDatabaseHandler().select(
+					"SELECT * FROM " + Table.PLAYERS.getName()
+							+ " WHERE playername='" + name + "';");
+			if (rs.getResult().next())
+			{
+				groups = rs.getResult().getString("groups");
+				if (!rs.getResult().wasNull())
+				{
+					if (groups.contains("&"))
+					{
+						// Multigroup
+						StringBuilder sb = new StringBuilder();
+						for (String s : groups.split("&"))
+						{
+							plugin.getLogger().info(s);
+							// Add back all groups excluding specified group
+							if (!s.equals(group))
+							{
+								sb.append(s + "&");
+							}
+						}
+						// Remove trailing ampersand
+						sb.deleteCharAt(sb.length() - 1);
+						groups = sb.toString();
+					}
+					else
+					{
+						groups = "";
+					}
+				}
+			}
+			rs.closeQuery();
+			// Update their groups
+			plugin.getDatabaseHandler().standardQuery(
+					"UPDATE " + Table.PLAYERS.getName() + " SET groups='"
+							+ groups + "' WHERE playername='" + name + "';");
+		}
+		catch (SQLException e)
+		{
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
+	}
+
+	public static void addPlayerToGroup(CommandSender sender, String name,
+			String group)
+	{
+		try
+		{
+			// Insures that the player is added to the database
+			Karma.getPlayerKarma(name);
+			String groups = "";
+			Query rs = plugin.getDatabaseHandler().select(
+					"SELECT * FROM " + Table.PLAYERS.getName()
+							+ " WHERE playername='" + name + "';");
+			if (rs.getResult().next())
+			{
+				groups = rs.getResult().getString("groups");
+				if (!rs.getResult().wasNull())
+				{
+					groups += "&" + group;
+				}
+				else
+				{
+					groups = group;
+				}
+			}
+			rs.closeQuery();
+			// Update their groups
+			plugin.getDatabaseHandler().standardQuery(
+					"UPDATE " + Table.PLAYERS.getName() + " SET groups='"
+							+ groups + "' WHERE playername='" + name + "';");
+		}
+		catch (SQLException e)
+		{
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " SQL Exception");
+			e.printStackTrace();
+		}
 	}
 }
