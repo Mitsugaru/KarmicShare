@@ -96,13 +96,28 @@ public class Commander implements CommandExecutor
 				}
 				if (sender instanceof Player)
 				{
+					String current = Karma.selectedGroup.get(sender.getName());
+					if (current == null)
+					{
+						Karma.selectedGroup.put(sender.getName(), "global");
+						current = "global";
+					}
 					final StringBuilder sb = new StringBuilder();
 					for (String s : Karma.getPlayerGroups(sender,
 							sender.getName()))
 					{
-						// TODO show currently selected group as different
-						sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA
-								+ "-");
+						if (s.equalsIgnoreCase(current))
+						{
+							sb.append(ChatColor.BOLD + ""
+									+ ChatColor.LIGHT_PURPLE + s
+									+ ChatColor.RESET + ""
+									+ ChatColor.DARK_AQUA + "-");
+						}
+						else
+						{
+							sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA
+									+ "-");
+						}
 					}
 					// Remove trailing characters
 					try
@@ -784,8 +799,8 @@ public class Commander implements CommandExecutor
 						else
 						{
 							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-									+ " Group " + ChatColor.GRAY + group
-									+ ChatColor.RED + " does not exist");
+									+ " Group '" + ChatColor.GRAY + group
+									+ ChatColor.RED + "' does not exist");
 						}
 					}
 				}
@@ -802,6 +817,51 @@ public class Commander implements CommandExecutor
 						+ PermissionNode.GROUP_LEAVE.getNode());
 				return true;
 			}
+		}
+		else if (com.equals("set"))
+		{
+			if (args.length > 2)
+			{
+				String group = args[2].toLowerCase();
+				if (Karma.validGroup(sender, group))
+				{
+					boolean valid = false;
+					if (Karma.playerHasGroup(sender, sender.getName(), group))
+					{
+						valid = true;
+					}
+					else if (PermCheck.checkPermission(sender,
+							PermissionNode.IGNORE_GROUP))
+					{
+						valid = true;
+					}
+					if (valid)
+					{
+						Karma.selectedGroup.put(sender.getName(), group);
+						sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
+								+ " Set group to " + ChatColor.GRAY + group);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
+								+ ChatColor.AQUA + sender.getName()
+								+ ChatColor.YELLOW + " not in "
+								+ ChatColor.GRAY + group);
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+							+ " Group '" + ChatColor.GRAY + group
+							+ ChatColor.RED + "' does not exist");
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Must specify a group");
+			}
+			return true;
 		}
 		return false;
 	}
@@ -1977,8 +2037,8 @@ public class Commander implements CommandExecutor
 					final String query = "DELETE FROM " + Table.ITEMS.getName()
 							+ " WHERE groups='" + group + "';";
 					ks.getDatabaseHandler().standardQuery(query);
-					ks.getLogger().info("Items for group '" + group
-									+ "' cleared");
+					ks.getLogger().info(
+							"Items for group '" + group + "' cleared");
 					cache.clear();
 				}
 				return true;

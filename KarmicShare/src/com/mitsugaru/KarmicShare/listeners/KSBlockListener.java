@@ -10,35 +10,36 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
-import com.mitsugaru.KarmicShare.Karma;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.splatbang.betterchest.BetterChest;
 
-public class KSBlockListener implements Listener {
+public class KSBlockListener implements Listener
+{
 	private KarmicShare plugin;
 	private static final BlockFace[] nav = { BlockFace.NORTH, BlockFace.SOUTH,
 			BlockFace.EAST, BlockFace.WEST };
 
 	// IDEA Player karma signs
-	public KSBlockListener(KarmicShare karmicShare) {
+	public KSBlockListener(KarmicShare karmicShare)
+	{
 		plugin = karmicShare;
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onSignChange(final SignChangeEvent event) {
+	public void onSignChange(final SignChangeEvent event)
+	{
 		if (!event.isCancelled())
 		{
 			if (ChatColor.stripColor(event.getLine(1)).equalsIgnoreCase(
 					KarmicShare.TAG))
 			{
-				if (PermCheck.checkPermission(
-						event.getPlayer(), PermissionNode.SIGN))
+				if (PermCheck.checkPermission(event.getPlayer(),
+						PermissionNode.SIGN))
 				{
 					if (!ChatColor.stripColor(event.getLine(2)).equals(""))
 					{
@@ -46,51 +47,28 @@ public class KSBlockListener implements Listener {
 					}
 					else
 					{
-						String groupName = "global";
-						if(!ChatColor.stripColor(event.getLine(0)).equalsIgnoreCase(""))
-						{
-							//Group chest
-							if(Karma.validGroup(event.getPlayer(), ChatColor.stripColor(event.getLine(0)).toLowerCase()))
-							{
-								groupName = event.getLine(0);
-							}
-							else
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.TAG
-												+ " Group " + ChatColor.GRAY + event.getLine(0) + ChatColor.YELLOW + " not found");
-							}
-						}
-						//Check if its a chest
-						if (plugin.getPluginConfig().chests && plugin.useChest())
+						// Check if its a chest
+						if (plugin.getPluginConfig().chests
+								&& plugin.useChest())
 						{
 							// Thanks to Wolvereness for the following code
 							if (event.getBlock().getRelative(BlockFace.DOWN)
 									.getType().equals(Material.CHEST))
 							{
 								// Reformat sign
-								event.setLine(0, groupName);
 								event.setLine(1, ChatColor.AQUA
 										+ KarmicShare.TAG);
 								event.setLine(2, "Page:");
 								event.setLine(3, "1");
-								if(!ChatColor.stripColor(groupName).equalsIgnoreCase("global"))
-								{
-									event.getPlayer().sendMessage(
-											ChatColor.GREEN + KarmicShare.TAG
-													+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(groupName).toLowerCase());
-								}
-								else
-								{
-									event.getPlayer().sendMessage(
-											ChatColor.GREEN + KarmicShare.TAG
-													+ " Chest linked to pool.");
-								}
+								event.getPlayer()
+										.sendMessage(
+												ChatColor.GREEN
+														+ KarmicShare.TAG
+														+ " Chest linked to cloud storage.");
 							}
 							else
 							{
 								// Reformat sign
-								event.setLine(0, groupName);
 								event.setLine(1, ChatColor.DARK_RED
 										+ KarmicShare.TAG);
 								event.setLine(2, "Page:");
@@ -114,7 +92,8 @@ public class KSBlockListener implements Listener {
 				{
 					event.getPlayer().sendMessage(
 							ChatColor.RED + KarmicShare.TAG
-									+ " Lack permission: " + PermissionNode.SIGN);
+									+ " Lack permission: "
+									+ PermissionNode.SIGN);
 					// Cancel event
 					event.setCancelled(true);
 				}
@@ -123,7 +102,8 @@ public class KSBlockListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onBlockPlace(final BlockPlaceEvent event) {
+	public void onBlockPlace(final BlockPlaceEvent event)
+	{
 		if (!event.isCancelled())
 		{
 			final Material material = event.getBlock().getType();
@@ -176,7 +156,7 @@ public class KSBlockListener implements Listener {
 								KarmicShare.TAG))
 						{
 							has = true;
-							//TODO check that it isn't a player karma sign
+							// TODO check that it isn't a player karma sign
 						}
 					}
 					if (has)
@@ -186,18 +166,9 @@ public class KSBlockListener implements Listener {
 						sign.setLine(2, "Page:");
 						sign.setLine(3, "1");
 						sign.update();
-						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.GREEN + KarmicShare.TAG
-											+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
-						}
-						else
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.GREEN + KarmicShare.TAG
-											+ " Chest linked to pool.");
-						}
+						event.getPlayer().sendMessage(
+								ChatColor.GREEN + KarmicShare.TAG
+										+ " Chest linked to cloud storage.");
 					}
 				}
 				else if (chest.isDoubleChest())
@@ -224,18 +195,11 @@ public class KSBlockListener implements Listener {
 							sign.setLine(2, "Page:");
 							sign.setLine(3, "1");
 							sign.update();
-							if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.TAG
-												+ " Chest linked to " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
-							}
-							else
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.GREEN + KarmicShare.TAG
-												+ " Chest linked to pool.");
-							}
+							event.getPlayer()
+									.sendMessage(
+											ChatColor.GREEN
+													+ KarmicShare.TAG
+													+ " Chest linked to cloud storage.");
 						}
 					}
 				}
@@ -244,7 +208,8 @@ public class KSBlockListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onBlockBreak(final BlockBreakEvent event) {
+	public void onBlockBreak(final BlockBreakEvent event)
+	{
 		if (!event.isCancelled())
 		{
 			final Material material = event.getBlock().getType();
@@ -261,24 +226,14 @@ public class KSBlockListener implements Listener {
 					if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
 							KarmicShare.TAG))
 					{
-						// Empty chest as it has spawned items
-						chest.getInventory().clear();
-						chest.update();
 						// Update sign
 						sign.setLine(1, ChatColor.DARK_RED + KarmicShare.TAG);
 						sign.update();
-						if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.TAG
-											+ " Chest unlinked from " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
-						}
-						else
-						{
-							event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.TAG
-											+ " Chest unlinked from pool.");
-						}
+						event.getPlayer()
+								.sendMessage(
+										ChatColor.YELLOW
+												+ KarmicShare.TAG
+												+ " Chest unlinked from cloud storage.");
 					}
 				}
 				else if (chest.isDoubleChest())
@@ -291,9 +246,6 @@ public class KSBlockListener implements Listener {
 						if (ChatColor.stripColor(sign.getLine(1))
 								.equalsIgnoreCase(KarmicShare.TAG))
 						{
-							// Empty chest as it has spawned items
-							chest.getInventory().clear();
-							chest.update();
 							// Update sign to reset page
 							sign.setLine(3, "1");
 							sign.update();
@@ -316,69 +268,27 @@ public class KSBlockListener implements Listener {
 				}
 				if (has)
 				{
-					if (PermCheck.checkPermission(
-							event.getPlayer(), PermissionNode.SIGN))
+					if (PermCheck.checkPermission(event.getPlayer(),
+							PermissionNode.SIGN))
 					{
 						if (event.getBlock().getRelative(BlockFace.DOWN)
 								.getType().equals(Material.CHEST))
 						{
-
-							BetterChest chest = new BetterChest((Chest) sign
-									.getBlock().getRelative(BlockFace.DOWN)
-									.getState());
-							chest.getInventory().clear();
-							chest.update();
-							if(!ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("global"))
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.TAG
-												+ " Chest unlinked from " + ChatColor.GRAY + ChatColor.stripColor(sign.getLine(0)).toLowerCase());
-							}
-							else
-							{
-								event.getPlayer().sendMessage(
-										ChatColor.YELLOW + KarmicShare.TAG
-												+ " Chest unlinked from pool.");
-							}
+							event.getPlayer()
+									.sendMessage(
+											ChatColor.YELLOW
+													+ KarmicShare.TAG
+													+ " Chest unlinked from cloud storage.");
 						}
-
 					}
 					else
 					{
 						event.getPlayer().sendMessage(
 								ChatColor.RED + KarmicShare.TAG
-										+ " Lack permission: " + PermissionNode.SIGN.getNode());
+										+ " Lack permission: "
+										+ PermissionNode.SIGN.getNode());
 						event.setCancelled(true);
 					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Thanks to Ribesg for the following method
-	 * 
-	 * TODO this will no longer be necessary either
-	 */
-	@EventHandler(priority = EventPriority.NORMAL)
-	@Deprecated
-	public void onBlockPhysics(BlockPhysicsEvent event) {
-		Material material = event.getBlock().getType();
-		if (material.equals(Material.SIGN_POST)
-				|| material.equals(Material.WALL_SIGN))
-		{
-			Sign sign = (Sign) event.getBlock().getState();
-			if (ChatColor.stripColor(sign.getLine(1)).equalsIgnoreCase(
-					KarmicShare.TAG))
-			{
-				// Find chest
-				if (event.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST)
-				{
-					// Clear
-					BetterChest chest = new BetterChest((Chest) sign.getBlock()
-							.getRelative(BlockFace.DOWN).getState());
-					chest.getInventory().clear();
-					chest.update();
 				}
 			}
 		}

@@ -2,6 +2,7 @@ package com.mitsugaru.KarmicShare.listeners;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
 
@@ -51,11 +52,12 @@ public class KSPlayerListener implements Listener
 		// just to double check
 		try
 		{
-			if(event.getPlayer().getInventory().getHolder() != null)
+			if (event.getPlayer().getInventory().getHolder() != null)
 			{
-				if(event.getPlayer().getInventory().getHolder() instanceof KSInventoryHolder)
+				if (event.getPlayer().getInventory().getHolder() instanceof KSInventoryHolder)
 				{
-					((KSInventoryHolder) event.getPlayer().getInventory().getHolder()).getInfo().removeViewer();
+					((KSInventoryHolder) event.getPlayer().getInventory()
+							.getHolder()).getInfo().removeViewer();
 				}
 			}
 		}
@@ -82,7 +84,7 @@ public class KSPlayerListener implements Listener
 		final Block block = event.getClickedBlock();
 		boolean isChest = false, showInventory = false;
 		int page = 1;
-		//Determine if its a chest
+		// Determine if its a chest
 		if (block.getType().equals(Material.CHEST))
 		{
 			isChest = true;
@@ -91,7 +93,7 @@ public class KSPlayerListener implements Listener
 		final Sign sign = grabOurSign(block);
 		if (sign == null)
 		{
-			//Not ours, so don't care
+			// Not ours, so don't care
 			return;
 		}
 		// Check if chests are enabled
@@ -155,11 +157,13 @@ public class KSPlayerListener implements Listener
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK)
 			{
 				// Sign or chest
-				// TODO cycle group forward
+				// cycle group forward
+				cycleGroup(player, group, Direction.FORWARD);
 			}
 			else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
 			{
-				// TODO cycle group backward
+				// cycle group backward
+				cycleGroup(player, group, Direction.BACKWARD);
 			}
 			else
 			{
@@ -296,6 +300,45 @@ public class KSPlayerListener implements Listener
 			}
 		}
 		return null;
+	}
+
+	private void cycleGroup(Player player, String current, Direction direction)
+	{
+		String nextGroup = current;
+		final List<String> list = Karma.getPlayerGroups(player,
+				player.getName());
+		int index = list.indexOf(current);
+		switch (direction)
+		{
+			case FORWARD:
+			{
+				if (index + 1 >= list.size())
+				{
+					nextGroup = list.get(0);
+				}
+				else
+				{
+					nextGroup = list.get(index + 1);
+				}
+				break;
+			}
+			case BACKWARD:
+			{
+				if (index - 1 < 0)
+				{
+					nextGroup = list.get(list.size() - 1);
+				}
+				else
+				{
+					nextGroup = list.get(index - 1);
+				}
+				break;
+			}
+		}
+		Karma.selectedGroup.put(player.getName(), nextGroup);
+		player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
+				+ " Changed group to '" + ChatColor.GOLD + nextGroup
+				+ ChatColor.GREEN + "'");
 	}
 
 	private int grabNextPage(int current, int limit, String group,

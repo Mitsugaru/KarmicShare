@@ -265,6 +265,31 @@ public class DBHandler
 		}
 		return id;
 	}
+	
+	public String getGroupName(int id)
+	{
+		String group = "NONE";
+		try
+		{
+			final Query query = select("SELECT * FROM " + Table.GROUPS.getName() + " WHERE id='" + id +"';");
+			if(query.getResult().next())
+			{
+				group = query.getResult().getString("groupname");
+				if(query.getResult().wasNull())
+				{
+					group = "NONE";
+				}
+			}
+			query.closeQuery();
+		}
+		catch (SQLException e)
+		{
+			plugin.getLogger().warning(
+					"SQL Exception on getting group name for  id '" + id + "'");
+			e.printStackTrace();
+		}
+		return group;
+	}
 
 	public boolean checkConnection()
 	{

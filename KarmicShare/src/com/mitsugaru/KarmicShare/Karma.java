@@ -863,7 +863,8 @@ public class Karma
 								+ " (itemid,amount,data,durability,groups) VALUES ('"
 								+ item.getTypeId() + "','" + item.getAmount()
 								+ "','" + item.getData().getData() + "','"
-								+ item.getDurability() + "','" + groupId + "');";
+								+ item.getDurability() + "','" + groupId
+								+ "');";
 					}
 					rs.closeQuery();
 					plugin.getDatabaseHandler().standardQuery(query);
@@ -1101,7 +1102,7 @@ public class Karma
 		{
 			return true;
 		}
-		else if (group.equals("s_" + sender.getName()))
+		else if (group.equals("self_" + sender.getName()))
 		{
 			return true;
 		}
@@ -1133,7 +1134,7 @@ public class Karma
 		{
 			return true;
 		}
-		else if (group.equals("s_" + sender.getName()))
+		else if (group.equals("self_" + sender.getName()))
 		{
 			return true;
 		}
@@ -1187,6 +1188,7 @@ public class Karma
 	public static List<String> getPlayerGroups(CommandSender sender, String name)
 	{
 		List<String> list = new ArrayList<String>();
+		boolean wasNull = false;
 		try
 		{
 			String groups = "";
@@ -1196,13 +1198,39 @@ public class Karma
 			if (rs.getResult().next())
 			{
 				groups = rs.getResult().getString("groups");
+				wasNull = rs.getResult().wasNull();
 			}
 			rs.closeQuery();
+			if (wasNull)
+			{
+				// No groups, add in the global and self
+				plugin.getDatabaseHandler().standardQuery(
+						"INSERT INTO " + Table.GROUPS.getName()
+								+ " (groupname) VALUES ('self_" + name.toLowerCase() + "');");
+				groups = plugin.getDatabaseHandler().getGroupId("global")
+						+ "&"
+						+ plugin.getDatabaseHandler()
+								.getGroupId("self_" + name);
+				// Set groups for future reference
+				plugin.getDatabaseHandler()
+						.standardQuery(
+								"UPDATE " + Table.PLAYERS.getName()
+										+ " SET groups='" + groups
+										+ "' WHERE playername='" + name + "';");
+			}
 			String[] split = groups.split("&");
-			// TODO add in global / self groups
 			for (String s : split)
 			{
-				list.add(s);
+				try
+				{
+					list.add(plugin.getDatabaseHandler().getGroupName(
+							Integer.parseInt(s)));
+				}
+				catch (NumberFormatException n)
+				{
+					plugin.getLogger().severe("Bad group id '" + s + "'");
+					n.printStackTrace();
+				}
 			}
 		}
 		catch (SQLException e)
