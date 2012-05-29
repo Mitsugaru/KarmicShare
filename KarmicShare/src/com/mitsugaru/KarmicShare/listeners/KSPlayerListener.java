@@ -1,8 +1,5 @@
 package com.mitsugaru.KarmicShare.listeners;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,13 +12,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
-import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.logic.Karma;
+import com.mitsugaru.KarmicShare.logic.Karma.Direction;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
@@ -112,9 +107,8 @@ public class KSPlayerListener implements Listener
 		{
 			if (Karma.chestPage.containsKey(player.getName()))
 			{
-				page = grabNextPage(Karma.chestPage.get(player.getName())
-						.intValue() - 1, Karma.chestSize, group,
-						Direction.CURRENT);
+				page = Karma.grabPage(Karma.chestPage.get(player.getName())
+						.intValue() - 1, group, Direction.CURRENT);
 				Karma.chestPage.remove(player.getName());
 				sign.setLine(3, "" + page);
 				sign.update();
@@ -123,8 +117,8 @@ public class KSPlayerListener implements Listener
 			{
 				// Assures that the page number on sign does not conflict with
 				// players selected group's page limit
-				page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
-						Karma.chestSize, group, Direction.CURRENT);
+				page = Karma.grabPage(Integer.parseInt("" + sign.getLine(3)),
+						group, Direction.CURRENT);
 			}
 		}
 		catch (NumberFormatException e)
@@ -146,12 +140,12 @@ public class KSPlayerListener implements Listener
 			{
 				// Sign or chest
 				// cycle group forward
-				cycleGroup(player, group, Direction.FORWARD);
+				Karma.cycleGroup(player, group, Direction.FORWARD);
 			}
 			else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !isChest)
 			{
 				// cycle group backward
-				cycleGroup(player, group, Direction.BACKWARD);
+				Karma.cycleGroup(player, group, Direction.BACKWARD);
 			}
 			else
 			{
@@ -170,8 +164,9 @@ public class KSPlayerListener implements Listener
 				{
 					// cycle page forward
 
-					page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
-							Karma.chestSize, group, Direction.FORWARD);
+					page = Karma.grabPage(
+							Integer.parseInt("" + sign.getLine(3)), group,
+							Direction.FORWARD);
 					sign.setLine(3, "" + page);
 					sign.update();
 
@@ -180,8 +175,9 @@ public class KSPlayerListener implements Listener
 						&& !isChest)
 				{
 					// cycle page backward
-					page = grabNextPage(Integer.parseInt("" + sign.getLine(3)),
-							Karma.chestSize, group, Direction.BACKWARD);
+					page = Karma.grabPage(
+							Integer.parseInt("" + sign.getLine(3)), group,
+							Direction.BACKWARD);
 					sign.setLine(3, "" + page);
 					sign.update();
 				}
@@ -257,147 +253,5 @@ public class KSPlayerListener implements Listener
 			}
 		}
 		return null;
-	}
-
-	private void cycleGroup(Player player, String current, Direction direction)
-	{
-		String nextGroup = current;
-		final List<String> list = Karma.getPlayerGroups(player,
-				player.getName());
-		int index = list.indexOf(current);
-		switch (direction)
-		{
-			case FORWARD:
-			{
-				if (index + 1 >= list.size())
-				{
-					nextGroup = list.get(0);
-				}
-				else
-				{
-					nextGroup = list.get(index + 1);
-				}
-				break;
-			}
-			case BACKWARD:
-			{
-				if (index - 1 < 0)
-				{
-					nextGroup = list.get(list.size() - 1);
-				}
-				else
-				{
-					nextGroup = list.get(index - 1);
-				}
-				break;
-			}
-		}
-		Karma.selectedGroup.put(player.getName(), nextGroup);
-		player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
-				+ " Changed group to '" + ChatColor.GOLD + nextGroup
-				+ ChatColor.GREEN + "'");
-	}
-
-	private int grabNextPage(int current, int limit, String group,
-			Direction direction)
-	{
-		// Calculate number of slots
-		int slots = 0;
-		int groupId = Karma.getGroupId(group);
-		if (groupId == -1)
-		{
-			return 1;
-		}
-		final Query all = plugin.getDatabaseHandler().select(
-				"SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
-						+ groupId + "';");
-		try
-		{
-			if (all.getResult().next())
-			{
-				do
-				{
-					final int amount = all.getResult().getInt("amount");
-					if (!all.getResult().wasNull())
-					{
-						final ItemStack item = new ItemStack(all.getResult()
-								.getInt("itemid"), amount);
-						int maxStack = item.getType().getMaxStackSize();
-						if (maxStack <= 0)
-						{
-							maxStack = 1;
-						}
-						int stacks = amount / maxStack;
-						final double rem = (double) amount % (double) maxStack;
-						if (rem != 0)
-						{
-							stacks++;
-						}
-						slots += stacks;
-					}
-				} while (all.getResult().next());
-			}
-			all.closeQuery();
-		}
-		catch (SQLException e)
-		{
-			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.TAG + "SQL error.");
-			e.printStackTrace();
-		}
-		// if no slots, return 1
-		if (slots <= 0)
-		{
-			return 1;
-		}
-		// Calculate pages
-		int pageTotal = slots / limit;
-		final double rem = (double) slots % (double) limit;
-		if (rem != 0)
-		{
-			pageTotal++;
-		}
-		// Check against maximum
-		if (current >= Integer.MAX_VALUE)
-		{
-			// Cycle back as we're at the max value for an integer
-			return 1;
-		}
-		int page = current;
-		switch (direction)
-		{
-			case FORWARD:
-			{
-				page++;
-				break;
-			}
-			case BACKWARD:
-			{
-				page--;
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
-		if (page <= 0)
-		{
-			// Was negative or zero, loop back to max page
-			page = (pageTotal + 1);
-		}
-		// Allow for empty page
-		else if (page > (pageTotal + 1))
-		{
-			// Going to page beyond the total items, cycle back to
-			// first
-			page = 1;
-		}
-		return page;
-	}
-
-	private enum Direction
-	{
-		FORWARD, BACKWARD, CURRENT;
 	}
 }

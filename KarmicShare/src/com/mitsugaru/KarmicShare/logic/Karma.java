@@ -650,4 +650,146 @@ public class Karma
 			e.printStackTrace();
 		}
 	}
+
+	public static void cycleGroup(Player player, String current,
+			Direction direction)
+	{
+		String nextGroup = current;
+		final List<String> list = Karma.getPlayerGroups(player,
+				player.getName());
+		int index = list.indexOf(current);
+		switch (direction)
+		{
+			case FORWARD:
+			{
+				if (index + 1 >= list.size())
+				{
+					nextGroup = list.get(0);
+				}
+				else
+				{
+					nextGroup = list.get(index + 1);
+				}
+				break;
+			}
+			case BACKWARD:
+			{
+				if (index - 1 < 0)
+				{
+					nextGroup = list.get(list.size() - 1);
+				}
+				else
+				{
+					nextGroup = list.get(index - 1);
+				}
+				break;
+			}
+		}
+		Karma.selectedGroup.put(player.getName(), nextGroup);
+		player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
+				+ " Changed group to '" + ChatColor.GOLD + nextGroup
+				+ ChatColor.GREEN + "'");
+	}
+
+	public static int grabPage(int current, String group, Direction direction)
+	{
+		// Calculate number of slots
+		int slots = 0;
+		int groupId = Karma.getGroupId(group);
+		if (groupId == -1)
+		{
+			return 1;
+		}
+		final Query all = plugin.getDatabaseHandler().select(
+				"SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
+						+ groupId + "';");
+		try
+		{
+			if (all.getResult().next())
+			{
+				do
+				{
+					final int amount = all.getResult().getInt("amount");
+					if (!all.getResult().wasNull())
+					{
+						final ItemStack item = new ItemStack(all.getResult()
+								.getInt("itemid"), amount);
+						int maxStack = item.getType().getMaxStackSize();
+						if (maxStack <= 0)
+						{
+							maxStack = 1;
+						}
+						int stacks = amount / maxStack;
+						final double rem = (double) amount % (double) maxStack;
+						if (rem != 0)
+						{
+							stacks++;
+						}
+						slots += stacks;
+					}
+				} while (all.getResult().next());
+			}
+			all.closeQuery();
+		}
+		catch (SQLException e)
+		{
+			plugin.getLogger().warning(
+					ChatColor.RED + KarmicShare.TAG + "SQL error.");
+			e.printStackTrace();
+		}
+		// if no slots, return 1
+		if (slots <= 0)
+		{
+			return 1;
+		}
+		// Calculate pages
+		int pageTotal = slots / chestSize;
+		final double rem = (double) slots % (double) chestSize;
+		if (rem != 0)
+		{
+			pageTotal++;
+		}
+		// Check against maximum
+		if (current >= Integer.MAX_VALUE)
+		{
+			// Cycle back as we're at the max value for an integer
+			return 1;
+		}
+		int page = current;
+		switch (direction)
+		{
+			case FORWARD:
+			{
+				page++;
+				break;
+			}
+			case BACKWARD:
+			{
+				page--;
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		if (page <= 0)
+		{
+			// Was negative or zero, loop back to max page
+			page = (pageTotal + 1);
+		}
+		// Allow for empty page
+		else if (page > (pageTotal + 1))
+		{
+			// Going to page beyond the total items, cycle back to
+			// first
+			page = 1;
+		}
+		return page;
+	}
+
+	public enum Direction
+	{
+		FORWARD, BACKWARD, CURRENT;
+	}
 }

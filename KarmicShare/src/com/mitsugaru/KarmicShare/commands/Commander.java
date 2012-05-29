@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.config.Config;
 import com.mitsugaru.KarmicShare.logic.Karma;
+import com.mitsugaru.KarmicShare.logic.Karma.Direction;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
@@ -289,6 +290,8 @@ public class Commander implements CommandExecutor
 										page = 1;
 									}
 								}
+								//Get correct page
+								page = Karma.grabPage(page, current, Direction.CURRENT);
 								// Show inventory
 								Karma.showInventory(player, current, page);
 							}
