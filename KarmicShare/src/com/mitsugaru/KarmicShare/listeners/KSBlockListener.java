@@ -44,7 +44,7 @@ public class KSBlockListener implements Listener
 			return;
 		}
 		// Check permission
-		if (PermCheck.checkPermission(event.getPlayer(), PermissionNode.SIGN))
+		if (!PermCheck.checkPermission(event.getPlayer(), PermissionNode.SIGN))
 		{
 			event.getPlayer().sendMessage(
 					ChatColor.RED + KarmicShare.TAG + " Lack permission: "
