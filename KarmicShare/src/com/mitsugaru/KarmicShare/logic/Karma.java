@@ -385,8 +385,8 @@ public class Karma
 	// }
 	// }
 
-	public static boolean removePlayerFromGroup(CommandSender sender, String name,
-			String group)
+	public static boolean removePlayerFromGroup(CommandSender sender,
+			String name, String group)
 	{
 		try
 		{
@@ -413,11 +413,19 @@ public class Karma
 						final StringBuilder sb = new StringBuilder();
 						for (String s : groups.split("&"))
 						{
-							//plugin.getLogger().info(s);
-							// Add back all groups excluding specified group
-							if (!s.equals(groupId))
+							try
 							{
-								sb.append(s + "&");
+								int id = Integer.parseInt(s);
+								// plugin.getLogger().info(s);
+								// Add back all groups excluding specified group
+								if (id != groupId)
+								{
+									sb.append(s + "&");
+								}
+							}
+							catch (NumberFormatException n)
+							{
+
 							}
 						}
 						// Remove trailing ampersand
