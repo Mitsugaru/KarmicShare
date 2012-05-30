@@ -24,7 +24,7 @@ public class Update
 	{
 		plugin = ks;
 	}
-	
+
 	/**
 	 * Check if updates are necessary
 	 */
@@ -496,6 +496,100 @@ public class Update
 			plugin.getConfig().set("karma.lowerPercent", null);
 			plugin.saveConfig();
 			plugin.getPluginConfig().reloadConfig();
+		}
+		if (ver < 0.311)
+		{
+			/**
+			 * Rebuild player table
+			 */
+			plugin.getLogger().info("Fixing player table...");
+			// Save old players
+			List<ZeroPointTwoSixTwoPlayerObject> playerList = new ArrayList<ZeroPointTwoSixTwoPlayerObject>();
+			try
+			{
+				Query rs = plugin.getDatabaseHandler().select(
+						"SELECT * FROM " + Table.PLAYERS.getName());
+				if (rs.getResult().next())
+				{
+					do
+					{
+						final String playerGroups = rs.getResult().getString(
+								"groups");
+						playerList.add(new ZeroPointTwoSixTwoPlayerObject(rs
+								.getResult().getString("playername"), rs
+								.getResult().getInt("karma"), playerGroups));
+					} while (rs.getResult().next());
+				}
+				rs.closeQuery();
+			}
+			catch (SQLException sql)
+			{
+				plugin.getLogger().warning("SQL Exception");
+				sql.printStackTrace();
+			}
+			// Fix groups
+			final int globalId = Karma.getGroupId("global");
+			for (final ZeroPointTwoSixTwoPlayerObject player : playerList)
+			{
+				// Grab id for player specific group
+				int selfId = Karma.getGroupId("self_"
+						+ player.playername.toLowerCase());
+				if (player.groups == null || player.groups.equals("null"))
+				{
+					query = "UPDATE " + Table.PLAYERS.getName()
+							+ " SET groups='" + globalId + "&" + selfId
+							+ "' WHERE playername='" + player.playername
+							+ "';";
+				}
+				else
+				{
+					// Translate groups into ids
+					final StringBuilder sb = new StringBuilder();
+					if (player.groups.contains("&"))
+					{
+						for (String s : player.groups.split("&"))
+						{
+							int id = Karma.getGroupId(s);
+							if (id != -1)
+							{
+								sb.append(id + "&");
+							}
+							else
+							{
+								try
+								{
+									Integer.parseInt(s);
+									sb.append(s + "&");
+								}
+								catch (NumberFormatException n)
+								{
+									// IGNORE
+								}
+							}
+						}
+						// Remove extra &
+						sb.deleteCharAt(sb.length() - 1);
+					}
+					else
+					{
+						int id = Karma.getGroupId(player.groups);
+						if (id != -1)
+						{
+							sb.append(id);
+						}
+						else
+						{
+							// Remove extra &
+							sb.deleteCharAt(sb.length() - 1);
+						}
+					}
+					query = "UPDATE " + Table.PLAYERS.getName()
+							+ " SET groups='" + sb.toString()
+							+ "' WHERE playername='" + player.playername
+							+ "';";
+				}
+				plugin.getDatabaseHandler().standardQuery(query);
+			}
 		}
 		// Update version number in config.yml
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
