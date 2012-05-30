@@ -189,26 +189,30 @@ public class ItemLogic
 		{
 			if (!PermCheck.checkPermission(player, PermissionNode.IGNORE_KARMA))
 			{
-				// Check karma before anything
-				karma = plugin.getPluginConfig().playerKarmaDefault;
-				try
+				if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
+						.equalsIgnoreCase("self_" + player.getName())))
 				{
-					karma = Karma.getPlayerKarma(player.getName());
-					if (karma <= plugin.getPluginConfig().lower)
+					// Check karma before anything
+					karma = plugin.getPluginConfig().playerKarmaDefault;
+					try
 					{
-						// They are at the limit, or somehow lower for
-						// whatever reason
+						karma = Karma.getPlayerKarma(player.getName());
+						if (karma <= plugin.getPluginConfig().lower)
+						{
+							// They are at the limit, or somehow lower for
+							// whatever reason
+							player.sendMessage(ChatColor.RED + KarmicShare.TAG
+									+ "Your karma is at the limit!");
+							return -1;
+						}
+					}
+					catch (SQLException e1)
+					{
 						player.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ "Your karma is at the limit!");
+								+ " Could not retrieve player karma");
+						e1.printStackTrace();
 						return -1;
 					}
-				}
-				catch (SQLException e1)
-				{
-					player.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ " Could not retrieve player karma");
-					e1.printStackTrace();
-					return -1;
 				}
 			}
 		}
@@ -230,134 +234,139 @@ public class ItemLogic
 				if (!PermCheck.checkPermission(player,
 						PermissionNode.IGNORE_KARMA))
 				{
-					// Check karma again, before giving item, to
-					// adjust amount
-					// based on karma and karma multipliers
-					int karmaAdj = 0;
-					boolean staticKarma = false;
-					if (plugin.getPluginConfig().statickarma)
+					if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
+							.equalsIgnoreCase("self_" + player.getName())))
 					{
-						staticKarma = true;
-					}
-					else
-					{
-						// Using per-item karma
-						Item[] karmaList = plugin.getPluginConfig().karma
-								.keySet().toArray(new Item[0]);
-						// Check if requested item is in the
-						// karma list
-						for (Item k : karmaList)
-						{
-							if (k.areSame(temp))
-							{
-								// Item karma needs to be
-								// adjusted
-								hasKarma = true;
-							}
-						}
-						if (hasKarma)
-						{
-							try
-							{
-								karmaAdj = karma
-										+ (plugin.getPluginConfig().karma
-												.get(temp) * amount * -1);
-								if (karmaAdj < plugin.getPluginConfig().lower)
-								{
-									// They went beyond the
-									// lower limit
-									// adjust amount given based
-									// on karma now
-									int tempKarma = Math.abs(karmaAdj)
-											- Math.abs(plugin.getPluginConfig().lower);
-									int div = tempKarma
-											/ plugin.getPluginConfig().karma
-													.get(temp);
-									int rem = tempKarma
-											% plugin.getPluginConfig().karma
-													.get(temp);
-									if (rem != 0)
-									{
-										div++;
-									}
-									amount -= div;
-									if (amount <= 0)
-									{
-										// Cannot give any items
-										// as they'd go beyond
-										// karma limit
-										player.sendMessage(ChatColor.RED
-												+ KarmicShare.TAG
-												+ " Not enough karma to take item");
-										return -1;
-									}
-									else
-									{
-										player.sendMessage(ChatColor.YELLOW
-												+ KarmicShare.TAG
-												+ " Near/Hit karma limit!");
-									}
-								}
-							}
-							catch (NullPointerException n)
-							{
-								// Found item, but there is no
-								// config for specific data
-								// value
-								// thus adjust using regular
-								// means
-								staticKarma = true;
-								// Reset so later we use default
-								// karma change
-								hasKarma = false;
-							}
-						}
-						else
+						// Check karma again, before giving item, to
+						// adjust amount
+						// based on karma and karma multipliers
+						int karmaAdj = 0;
+						boolean staticKarma = false;
+						if (plugin.getPluginConfig().statickarma)
 						{
 							staticKarma = true;
 						}
-					}
-					if (staticKarma)
-					{
-						// Item does not have a multiplier,
-						// so use default
-						karmaAdj = karma
-								+ (plugin.getPluginConfig().karmaChange
-										* amount * -1);
-						if (karmaAdj < plugin.getPluginConfig().lower)
+						else
 						{
-							// They went beyond the lower
-							// limit
-							// adjust amount given based on
-							// karma now
-							int tempKarma = Math.abs(karmaAdj)
-									- Math.abs(plugin.getPluginConfig().lower);
-							int div = tempKarma
-									/ plugin.getPluginConfig().karmaChange;
-							int rem = tempKarma
-									% plugin.getPluginConfig().karmaChange;
-							if (rem != 0)
+							// Using per-item karma
+							Item[] karmaList = plugin.getPluginConfig().karma
+									.keySet().toArray(new Item[0]);
+							// Check if requested item is in the
+							// karma list
+							for (Item k : karmaList)
 							{
-								div++;
+								if (k.areSame(temp))
+								{
+									// Item karma needs to be
+									// adjusted
+									hasKarma = true;
+								}
 							}
-							amount -= div;
-							amount = amount
-									/ plugin.getPluginConfig().karmaChange;
-							if (amount <= 0)
+							if (hasKarma)
 							{
-								// Cannot give any items as
-								// they'd go beyond
-								// karma limit
-								player.sendMessage(ChatColor.RED
-										+ KarmicShare.TAG
-										+ " Not enough karma to take item");
-								return -1;
+								try
+								{
+									karmaAdj = karma
+											+ (plugin.getPluginConfig().karma
+													.get(temp) * amount * -1);
+									if (karmaAdj < plugin.getPluginConfig().lower)
+									{
+										// They went beyond the
+										// lower limit
+										// adjust amount given based
+										// on karma now
+										int tempKarma = Math.abs(karmaAdj)
+												- Math.abs(plugin
+														.getPluginConfig().lower);
+										int div = tempKarma
+												/ plugin.getPluginConfig().karma
+														.get(temp);
+										int rem = tempKarma
+												% plugin.getPluginConfig().karma
+														.get(temp);
+										if (rem != 0)
+										{
+											div++;
+										}
+										amount -= div;
+										if (amount <= 0)
+										{
+											// Cannot give any items
+											// as they'd go beyond
+											// karma limit
+											player.sendMessage(ChatColor.RED
+													+ KarmicShare.TAG
+													+ " Not enough karma to take item");
+											return -1;
+										}
+										else
+										{
+											player.sendMessage(ChatColor.YELLOW
+													+ KarmicShare.TAG
+													+ " Near/Hit karma limit!");
+										}
+									}
+								}
+								catch (NullPointerException n)
+								{
+									// Found item, but there is no
+									// config for specific data
+									// value
+									// thus adjust using regular
+									// means
+									staticKarma = true;
+									// Reset so later we use default
+									// karma change
+									hasKarma = false;
+								}
 							}
 							else
 							{
-								player.sendMessage(ChatColor.YELLOW
-										+ KarmicShare.TAG
-										+ " Near/Hit karma limit!");
+								staticKarma = true;
+							}
+						}
+						if (staticKarma)
+						{
+							// Item does not have a multiplier,
+							// so use default
+							karmaAdj = karma
+									+ (plugin.getPluginConfig().karmaChange
+											* amount * -1);
+							if (karmaAdj < plugin.getPluginConfig().lower)
+							{
+								// They went beyond the lower
+								// limit
+								// adjust amount given based on
+								// karma now
+								int tempKarma = Math.abs(karmaAdj)
+										- Math.abs(plugin.getPluginConfig().lower);
+								int div = tempKarma
+										/ plugin.getPluginConfig().karmaChange;
+								int rem = tempKarma
+										% plugin.getPluginConfig().karmaChange;
+								if (rem != 0)
+								{
+									div++;
+								}
+								amount -= div;
+								amount = amount
+										/ plugin.getPluginConfig().karmaChange;
+								if (amount <= 0)
+								{
+									// Cannot give any items as
+									// they'd go beyond
+									// karma limit
+									player.sendMessage(ChatColor.RED
+											+ KarmicShare.TAG
+											+ " Not enough karma to take item");
+									return -1;
+								}
+								else
+								{
+									player.sendMessage(ChatColor.YELLOW
+											+ KarmicShare.TAG
+											+ " Near/Hit karma limit!");
+								}
 							}
 						}
 					}
@@ -564,15 +573,20 @@ public class ItemLogic
 				if (!PermCheck.checkPermission(player,
 						PermissionNode.IGNORE_KARMA))
 				{
-					if (hasKarma)
+					if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
+							.equalsIgnoreCase("self_" + player.getName())))
 					{
-						Karma.updatePlayerKarma(player.getName(), amount
-								* plugin.getPluginConfig().karma.get(temp) * -1);
-					}
-					else
-					{
-						Karma.updatePlayerKarma(player.getName(), amount
-								* plugin.getPluginConfig().karmaChange * -1);
+						if (hasKarma)
+						{
+							Karma.updatePlayerKarma(player.getName(), amount
+									* plugin.getPluginConfig().karma.get(temp)
+									* -1);
+						}
+						else
+						{
+							Karma.updatePlayerKarma(player.getName(), amount
+									* plugin.getPluginConfig().karmaChange * -1);
+						}
 					}
 				}
 			}
@@ -802,53 +816,58 @@ public class ItemLogic
 				if (!PermCheck.checkPermission(player,
 						PermissionNode.IGNORE_KARMA))
 				{
-					if (plugin.getPluginConfig().statickarma)
+					if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
+							.equalsIgnoreCase("self_" + player.getName())))
 					{
-						Karma.updatePlayerKarma(player.getName(),
-								item.getAmount()
-										* plugin.getPluginConfig().karmaChange);
-					}
-					else
-					{
-						// Check if given item has a multiplier
-						Item[] karmaList = plugin.getPluginConfig().karma
-								.keySet().toArray(new Item[0]);
-						boolean hasKarma = false;
-						for (Item k : karmaList)
-						{
-							if (k.areSame(i))
-							{
-								// Item karma needs to be adjusted
-								hasKarma = true;
-							}
-						}
-						if (hasKarma)
-						{
-							try
-							{
-								Karma.updatePlayerKarma(
-										player.getName(),
-										item.getAmount()
-												* plugin.getPluginConfig().karma
-														.get(i));
-							}
-							catch (NullPointerException n)
-							{
-								// Found item, but there is no
-								// config for specific data value
-								// thus adjust using regular means
-								Karma.updatePlayerKarma(
-										player.getName(),
-										item.getAmount()
-												* plugin.getPluginConfig().karmaChange);
-							}
-						}
-						else
+						if (plugin.getPluginConfig().statickarma)
 						{
 							Karma.updatePlayerKarma(
 									player.getName(),
 									item.getAmount()
 											* plugin.getPluginConfig().karmaChange);
+						}
+						else
+						{
+							// Check if given item has a multiplier
+							Item[] karmaList = plugin.getPluginConfig().karma
+									.keySet().toArray(new Item[0]);
+							boolean hasKarma = false;
+							for (Item k : karmaList)
+							{
+								if (k.areSame(i))
+								{
+									// Item karma needs to be adjusted
+									hasKarma = true;
+								}
+							}
+							if (hasKarma)
+							{
+								try
+								{
+									Karma.updatePlayerKarma(
+											player.getName(),
+											item.getAmount()
+													* plugin.getPluginConfig().karma
+															.get(i));
+								}
+								catch (NullPointerException n)
+								{
+									// Found item, but there is no
+									// config for specific data value
+									// thus adjust using regular means
+									Karma.updatePlayerKarma(
+											player.getName(),
+											item.getAmount()
+													* plugin.getPluginConfig().karmaChange);
+								}
+							}
+							else
+							{
+								Karma.updatePlayerKarma(
+										player.getName(),
+										item.getAmount()
+												* plugin.getPluginConfig().karmaChange);
+							}
 						}
 					}
 				}

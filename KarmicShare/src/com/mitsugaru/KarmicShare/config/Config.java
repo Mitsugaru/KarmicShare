@@ -31,7 +31,7 @@ public class Config
 	public static String tablePrefix;
 	public static boolean debugDatabase;
 	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
-			chests, importSQL, economy, blacklist;
+			chests, importSQL, economy, blacklist, karmaIgnoreSelf;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -68,6 +68,7 @@ public class Config
 		defaults.put("karma.playerDefault", 0);
 		defaults.put("karma.changeDefault", 1);
 		defaults.put("karma.useEconomy", false);
+		defaults.put("karma.ignoreSelfGroup", true);
 		defaults.put("mysql.use", false);
 		defaults.put("mysql.host", "localhost");
 		defaults.put("mysql.port", 3306);

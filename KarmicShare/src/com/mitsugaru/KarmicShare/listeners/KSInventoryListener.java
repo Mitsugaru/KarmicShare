@@ -277,19 +277,14 @@ public class KSInventoryListener implements Listener
 		// Construct singular of cursor
 		// item
 		ItemStack item = handleEnchantments(event.getCurrentItem());
-		int itemAmount = event.getCurrentItem().getAmount() + 1;
-		if (itemAmount < event.getCurrentItem().getMaxStackSize())
+		if ((item.getAmount() + 1) <= event.getCurrentItem().getMaxStackSize())
 		{
 			// plugin.getLogger().info(
 			// "can add 1 to stack");
-			if (ItemLogic.giveItem(
+			item.setAmount(1);
+			if (!ItemLogic.giveItem(
 					plugin.getServer().getPlayer(
 							event.getWhoClicked().getName()), item, group))
-			{
-				item.setAmount(event.getCurrentItem().getAmount());
-				event.getWhoClicked().getInventory().clear(event.getSlot());
-			}
-			else
 			{
 				event.setCancelled(true);
 			}
