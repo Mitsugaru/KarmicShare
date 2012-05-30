@@ -321,7 +321,7 @@ public class AdminCommands
 		}
 		else if (com.equals("drain"))
 		{
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
+			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -369,7 +369,7 @@ public class AdminCommands
 		}
 		else if (com.equals("cleanup"))
 		{
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
+			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -401,7 +401,7 @@ public class AdminCommands
 		}
 		else if (com.equals("reload"))
 		{
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_RELOAD))
+			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_RELOAD))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -416,7 +416,7 @@ public class AdminCommands
 		}
 		else if (com.equals("reset"))
 		{
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_RESET))
+			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_RESET))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -539,7 +539,7 @@ public class AdminCommands
 		}
 		else if (com.equals("set"))
 		{
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET))
+			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "

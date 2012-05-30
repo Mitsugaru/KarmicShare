@@ -51,7 +51,7 @@ public class ItemCommands
 					+ " Lack permission: " + PermissionNode.TAKE.getNode());
 			return;
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.COMMANDS_TAKE))
+		if (!PermCheck.checkPermission(sender, PermissionNode.COMMANDS_TAKE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "
