@@ -385,11 +385,19 @@ public class Karma
 	// }
 	// }
 
-	public static void removePlayerFromGroup(CommandSender sender, String name,
+	public static boolean removePlayerFromGroup(CommandSender sender, String name,
 			String group)
 	{
 		try
 		{
+			int groupId = Karma.getGroupId(group);
+			if (groupId == -1)
+			{
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Invalid group '" + ChatColor.GRAY + group
+						+ ChatColor.RED + "'");
+				return false;
+			}
 			String groups = "";
 			Query rs = plugin.getDatabaseHandler().select(
 					"SELECT * FROM " + Table.PLAYERS.getName()
@@ -402,12 +410,12 @@ public class Karma
 					if (groups.contains("&"))
 					{
 						// Multigroup
-						StringBuilder sb = new StringBuilder();
+						final StringBuilder sb = new StringBuilder();
 						for (String s : groups.split("&"))
 						{
-							plugin.getLogger().info(s);
+							//plugin.getLogger().info(s);
 							// Add back all groups excluding specified group
-							if (!s.equals(group))
+							if (!s.equals(groupId))
 							{
 								sb.append(s + "&");
 							}
@@ -433,14 +441,24 @@ public class Karma
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
-	public static void addPlayerToGroup(CommandSender sender, String name,
+	public static boolean addPlayerToGroup(CommandSender sender, String name,
 			String group)
 	{
 		try
 		{
+			int groupId = Karma.getGroupId(group);
+			if (groupId == -1)
+			{
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Invalid group '" + ChatColor.GRAY + group
+						+ ChatColor.RED + "'");
+				return false;
+			}
 			// Insures that the player is added to the database
 			Karma.getPlayerKarma(name);
 			String groups = "";
@@ -470,7 +488,9 @@ public class Karma
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	public static void showInventory(Player player, String group, int page)

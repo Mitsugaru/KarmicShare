@@ -112,12 +112,24 @@ public class GroupCommands
 					if (sender instanceof Player)
 					{
 						// add player to group
-						Karma.addPlayerToGroup(sender,
-								((Player) sender).getName(), group);
-						sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
-								+ " Added " + ChatColor.GOLD
-								+ ((Player) sender).getName() + ChatColor.GREEN
-								+ " to " + ChatColor.GRAY + group);
+						if (Karma.addPlayerToGroup(sender,
+								((Player) sender).getName(), group))
+						{
+							sender.sendMessage(ChatColor.GREEN
+									+ KarmicShare.TAG + " Added "
+									+ ChatColor.GOLD
+									+ ((Player) sender).getName()
+									+ ChatColor.GREEN + " to " + ChatColor.GRAY
+									+ group);
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+									+ " Failed to add " + ChatColor.GOLD
+									+ ((Player) sender).getName()
+									+ ChatColor.RED + " to " + ChatColor.GRAY
+									+ group);
+						}
 					}
 					else
 					{
@@ -323,18 +335,20 @@ public class GroupCommands
 				{
 					if (Karma.validGroup(sender, group))
 					{
-						// remove other player to group
-						Karma.removePlayerFromGroup(sender, name, group);
-						sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
-								+ " Removed " + ChatColor.GOLD + name
-								+ ChatColor.GREEN + " from " + ChatColor.GRAY
-								+ group);
-						final Player p = plugin.getServer().getPlayer(name);
-						if (p != null)
+						// remove other player from group
+						if (Karma.removePlayerFromGroup(sender, name, group))
 						{
-							p.sendMessage(ChatColor.GREEN + KarmicShare.TAG
-									+ " You have been removed from "
-									+ ChatColor.GRAY + group);
+							sender.sendMessage(ChatColor.GREEN
+									+ KarmicShare.TAG + " Removed "
+									+ ChatColor.GOLD + name + ChatColor.GREEN
+									+ " from " + ChatColor.GRAY + group);
+							final Player p = plugin.getServer().getPlayer(name);
+							if (p != null)
+							{
+								p.sendMessage(ChatColor.GREEN + KarmicShare.TAG
+										+ " You have been removed from "
+										+ ChatColor.GRAY + group);
+							}
 						}
 					}
 					else
@@ -392,11 +406,20 @@ public class GroupCommands
 				else if (Karma.validGroup(sender, group))
 				{
 					// remove other player to group
-					Karma.removePlayerFromGroup(sender, sender.getName(), group);
-					sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
-							+ " Removed " + ChatColor.GOLD + sender.getName()
-							+ ChatColor.GREEN + " from " + ChatColor.GRAY
-							+ group);
+					if (Karma.removePlayerFromGroup(sender, sender.getName(),
+							group))
+					{
+						sender.sendMessage(ChatColor.GREEN + KarmicShare.TAG
+								+ " Removed " + ChatColor.GOLD
+								+ sender.getName() + ChatColor.GREEN + " from "
+								+ ChatColor.GRAY + group);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+								+ " Failed to leave group " + ChatColor.GRAY
+								+ group);
+					}
 				}
 				else
 				{
