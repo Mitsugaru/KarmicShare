@@ -219,7 +219,7 @@ public class Config
 		/**
 		 * Disabled worlds
 		 */
-		final List<String> worlds = config.getStringList("worlds");
+		final List<String> worlds = config.getStringList("disabledWorlds");
 		if(worlds != null && !worlds.isEmpty())
 		{
 			disabledWorlds.addAll(worlds);

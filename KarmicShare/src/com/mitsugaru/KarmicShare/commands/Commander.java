@@ -347,13 +347,14 @@ public class Commander implements CommandExecutor
 						}
 						else
 						{
-							sender.sendMessage(KarmicShare.TAG
+							sender.sendMessage(ChatColor.RED
+									+ KarmicShare.TAG
 									+ " KarmicShare access disabled for this world.");
 						}
 					}
 					else
 					{
-						sender.sendMessage(KarmicShare.TAG
+						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Something went wrong: World was null?");
 					}
 				}
@@ -366,7 +367,7 @@ public class Commander implements CommandExecutor
 			}
 			else
 			{
-				sender.sendMessage(KarmicShare.TAG
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Cannot use this command as console.");
 			}
 		}
