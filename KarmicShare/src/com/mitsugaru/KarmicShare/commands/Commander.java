@@ -253,13 +253,54 @@ public class Commander implements CommandExecutor
 			}
 			else if (com.equals("open"))
 			{
-				if (plugin.useChest())
+				openCommand(sender, args);
+			}
+			else if (com.equals("group"))
+			{
+				// Group command
+				GroupCommands.parseCommand(sender, args);
+			}
+			else if (com.equals("admin"))
+			{
+				// Admin command
+				AdminCommands.parseCommand(sender, args);
+			}
+			else if (com.equals("player"))
+			{
+				// Other player karma lookup
+				this.otherPlayerKarma(sender, args);
+			}
+			else
+			{
+				// Bad command entered
+				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+						+ " Wrong syntax. Try /ks ? for help.");
+			}
+		}
+		if (config.debugTime)
+		{
+			time = System.nanoTime() - time;
+			sender.sendMessage("[Debug]" + KarmicShare.TAG + "Process time: "
+					+ time);
+		}
+		return true;
+	}
+
+	private void openCommand(CommandSender sender, String[] args)
+	{
+		if (plugin.useChest())
+		{
+			if (sender instanceof Player)
+			{
+				final Player player = (Player) sender;
+				if (PermCheck.checkPermission(sender,
+						PermissionNode.COMMANDS_OPEN))
 				{
-					if (sender instanceof Player)
+					// Check if in valid world
+					if (player.getWorld() != null)
 					{
-						final Player player = (Player) sender;
-						if (PermCheck.checkPermission(sender,
-								PermissionNode.COMMANDS_OPEN))
+						final String world = player.getWorld().getName();
+						if (!config.disabledWorlds.contains(world))
 						{
 							// Grab current group
 							String current = Karma.selectedGroup.get(sender
@@ -306,52 +347,34 @@ public class Commander implements CommandExecutor
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-									+ " Lack permission: "
-									+ PermissionNode.COMMANDS_OPEN.getNode());
+							sender.sendMessage(KarmicShare.TAG
+									+ " KarmicShare access disabled for this world.");
 						}
 					}
 					else
 					{
 						sender.sendMessage(KarmicShare.TAG
-								+ " Cannot use this command as console.");
+								+ " Something went wrong: World was null?");
 					}
 				}
 				else
 				{
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ " Chests are disabled.");
+							+ " Lack permission: "
+							+ PermissionNode.COMMANDS_OPEN.getNode());
 				}
-			}
-			else if (com.equals("group"))
-			{
-				// Group command
-				GroupCommands.parseCommand(sender, args);
-			}
-			else if (com.equals("admin"))
-			{
-				// Admin command
-				AdminCommands.parseCommand(sender, args);
-			}
-			else if (com.equals("player"))
-			{
-				// Other player karma lookup
-				this.otherPlayerKarma(sender, args);
 			}
 			else
 			{
-				// Bad command entered
-				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " Wrong syntax. Try /ks ? for help.");
+				sender.sendMessage(KarmicShare.TAG
+						+ " Cannot use this command as console.");
 			}
 		}
-		if (config.debugTime)
+		else
 		{
-			time = System.nanoTime() - time;
-			sender.sendMessage("[Debug]" + KarmicShare.TAG + "Process time: "
-					+ time);
+			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+					+ " Chests are disabled.");
 		}
-		return true;
 	}
 
 	private void otherPlayerKarma(CommandSender sender, String[] args)

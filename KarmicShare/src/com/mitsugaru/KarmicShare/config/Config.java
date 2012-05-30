@@ -8,10 +8,14 @@ package com.mitsugaru.KarmicShare.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,6 +35,7 @@ public class Config
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
+	public final Set<String> disabledWorlds = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
 	// TODO ability to change config in-game
 
@@ -51,6 +56,7 @@ public class Config
 		// Hashmap of defaults
 		final Map<String, Object> defaults = new LinkedHashMap<String, Object>();
 		defaults.put("chests", true);
+		defaults.put("disabledWorlds", new ArrayList<String>());
 		defaults.put("effects", true);
 		defaults.put("listlimit", 10);
 		defaults.put("karma.static", false);
@@ -84,7 +90,9 @@ public class Config
 		}
 		// Save config
 		ks.saveConfig();
-		// Load variables from config
+		/**
+		 * Database info
+		 */
 		useMySQL = config.getBoolean("mysql.use", false);
 		host = config.getString("mysql.host", "localhost");
 		port = config.getString("mysql.port", "3306");
@@ -94,31 +102,8 @@ public class Config
 		tablePrefix = config.getString("mysql.prefix", "ks_");
 		importSQL = config.getBoolean("mysql.import", false);
 		statickarma = config.getBoolean("karma.static", false);
-		upper = config.getInt("karma.upper.limit", 200);
-		lower = config.getInt("karma.lower.limit", -200);
-		upperPercent = config.getDouble("karma.upper.percent", 0.85);
-		lowerPercent = config.getDouble("karma.lower.percent", 0.15);
-		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
-		karmaChange = config.getInt("karma.changeDefault", 1);
-		effects = config.getBoolean("effects", true);
-		chests = config.getBoolean("chests", true);
-		listlimit = config.getInt("listlimit", 10);
-		debugTime = config.getBoolean("debug.time", false);
-		debugDatabase = config.getBoolean("debug.database", false);
-		karmaDisabled = config.getBoolean("karma.disabled", false);
-		economy = config.getBoolean("karma.useEconomy", false);
-		// TODO blacklist = config.getBoolean("blacklist", false);
-		// Load config for item specific karma if not using static karma
-		if (!statickarma && !karmaDisabled)
-		{
-			this.loadKarmaMap();
-		}
-		if (blacklist)
-		{
-			this.loadBlacklist();
-		}
-
-		// Finally, do a bounds check on parameters to make sure they are legal
+		//reload to load other settings
+		reloadConfig();
 	}
 
 	public void set(String path, Object o)
@@ -191,26 +176,6 @@ public class Config
 	}
 
 	/**
-	 * Check if updates are necessary
-	 */
-	public void checkUpdate()
-	{
-		// Check if need to update
-		ConfigurationSection config = plugin.getConfig();
-		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
-				.parseDouble(config.getString("version")))
-		{
-			// Update to latest version
-			plugin.getLogger().info(
-					"Updating to v" + plugin.getDescription().getVersion());
-			Update.init(plugin);
-			Update.update();
-		}
-	}
-
-	
-
-	/**
 	 * Reloads info from yaml file(s)
 	 */
 	public void reloadConfig()
@@ -218,21 +183,7 @@ public class Config
 		// Initial relaod
 		plugin.reloadConfig();
 		// Grab config
-		ConfigurationSection config = plugin.getConfig();
-		upper = config.getInt("karma.upper.limit", 200);
-		lower = config.getInt("karma.lower.limit", -200);
-		upperPercent = config.getDouble("karma.upper.percent", 0.85);
-		lowerPercent = config.getDouble("karma.lower.percent", 0.15);
-		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
-		karmaChange = config.getInt("karma.changeDefault", 1);
-		effects = config.getBoolean("effects", true);
-		chests = config.getBoolean("chests", false);
-		listlimit = config.getInt("listlimit", 10);
-		debugTime = config.getBoolean("debug.time", false);
-		debugDatabase = config.getBoolean("debug.database", false);
-		karmaDisabled = config.getBoolean("karma.disabled", false);
-		economy = config.getBoolean("karma.useEconomy", false);
-		blacklist = config.getBoolean("blacklist", false);
+		loadSettings(plugin.getConfig());
 		// Load config for item specific karma if not using static karma
 		if (!statickarma && !karmaDisabled)
 		{
@@ -247,7 +198,32 @@ public class Config
 		}
 		// Check bounds
 		this.boundsCheck();
-		plugin.getLogger().info("Config reloaded");
+	}
+	
+	private void loadSettings(ConfigurationSection config)
+	{
+		upper = config.getInt("karma.upper.limit", 200);
+		lower = config.getInt("karma.lower.limit", -200);
+		upperPercent = config.getDouble("karma.upper.percent", 0.85);
+		lowerPercent = config.getDouble("karma.lower.percent", 0.15);
+		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
+		karmaChange = config.getInt("karma.changeDefault", 1);
+		effects = config.getBoolean("effects", true);
+		chests = config.getBoolean("chests", false);
+		listlimit = config.getInt("listlimit", 10);
+		debugTime = config.getBoolean("debug.time", false);
+		debugDatabase = config.getBoolean("debug.database", false);
+		karmaDisabled = config.getBoolean("karma.disabled", false);
+		economy = config.getBoolean("karma.useEconomy", false);
+		blacklist = config.getBoolean("blacklist", false);
+		/**
+		 * Disabled worlds
+		 */
+		final List<String> worlds = config.getStringList("worlds");
+		if(worlds != null && !worlds.isEmpty())
+		{
+			disabledWorlds.addAll(worlds);
+		}
 	}
 
 	/**

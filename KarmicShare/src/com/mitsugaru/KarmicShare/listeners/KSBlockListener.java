@@ -37,62 +37,68 @@ public class KSBlockListener implements Listener
 		{
 			return;
 		}
-		if (ChatColor.stripColor(event.getLine(1)).equalsIgnoreCase(
-				KarmicShare.TAG))
+		if (!(ChatColor.stripColor(event.getLine(1))
+				.equalsIgnoreCase(KarmicShare.TAG)))
 		{
-			if (PermCheck.checkPermission(event.getPlayer(),
-					PermissionNode.SIGN))
+			// Not ours
+			return;
+		}
+		// Check permission
+		if (PermCheck.checkPermission(event.getPlayer(), PermissionNode.SIGN))
+		{
+			event.getPlayer().sendMessage(
+					ChatColor.RED + KarmicShare.TAG + " Lack permission: "
+							+ PermissionNode.SIGN);
+			// Cancel event
+			event.setCancelled(true);
+			return;
+		}
+		//Check world
+		final String world = event.getBlock().getWorld().getName();
+		if(plugin.getPluginConfig().disabledWorlds.contains(world))
+		{
+			event.getPlayer().sendMessage(
+					ChatColor.RED + KarmicShare.TAG + " KarmicShare access disabled for this world.");
+			event.setCancelled(true);
+			return;
+		}
+		if (!ChatColor.stripColor(event.getLine(2)).equals(""))
+		{
+			// TODO Player sign
+		}
+		else
+		{
+			// Check if its a chest
+			if (plugin.getPluginConfig().chests && plugin.useChest())
 			{
-				if (!ChatColor.stripColor(event.getLine(2)).equals(""))
+				// Thanks to Wolvereness for the following code
+				if (event.getBlock().getRelative(BlockFace.DOWN).getType()
+						.equals(Material.CHEST))
 				{
-					// Player sign
+					// Reformat sign
+					event.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
+					event.setLine(2, "Page:");
+					event.setLine(3, "1");
+					event.getPlayer().sendMessage(
+							ChatColor.GREEN + KarmicShare.TAG
+									+ " Chest linked to cloud storage.");
 				}
 				else
 				{
-					// Check if its a chest
-					if (plugin.getPluginConfig().chests && plugin.useChest())
-					{
-						// Thanks to Wolvereness for the following code
-						if (event.getBlock().getRelative(BlockFace.DOWN)
-								.getType().equals(Material.CHEST))
-						{
-							// Reformat sign
-							event.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
-							event.setLine(2, "Page:");
-							event.setLine(3, "1");
-							event.getPlayer()
-									.sendMessage(
-											ChatColor.GREEN
-													+ KarmicShare.TAG
-													+ " Chest linked to cloud storage.");
-						}
-						else
-						{
-							// Reformat sign
-							event.setLine(1, ChatColor.DARK_RED
-									+ KarmicShare.TAG);
-							event.setLine(2, "Page:");
-							event.setLine(3, "1");
-							event.getPlayer().sendMessage(
-									ChatColor.YELLOW + KarmicShare.TAG
-											+ " No chest found!");
-						}
-					}
-					else
-					{
-						event.getPlayer().sendMessage(
-								ChatColor.RED + KarmicShare.TAG
-										+ " Chests access disabled");
-						// Cancel event
-						event.setCancelled(true);
-					}
+					// Reformat sign
+					event.setLine(1, ChatColor.DARK_RED + KarmicShare.TAG);
+					event.setLine(2, "Page:");
+					event.setLine(3, "1");
+					event.getPlayer().sendMessage(
+							ChatColor.YELLOW + KarmicShare.TAG
+									+ " No chest found!");
 				}
 			}
 			else
 			{
 				event.getPlayer().sendMessage(
-						ChatColor.RED + KarmicShare.TAG + " Lack permission: "
-								+ PermissionNode.SIGN);
+						ChatColor.RED + KarmicShare.TAG
+								+ " Chests access disabled");
 				// Cancel event
 				event.setCancelled(true);
 			}
@@ -141,11 +147,11 @@ public class KSBlockListener implements Listener
 		{
 			final Block block = event.getBlock();
 			final BetterChest chest = new BetterChest((Chest) block.getState());
-
+			Sign sign = null;
+			boolean has = false;
 			if (block.getRelative(BlockFace.UP).getType() == Material.WALL_SIGN)
 			{
-				boolean has = false;
-				Sign sign = (Sign) block.getRelative(BlockFace.UP).getState();
+				sign = (Sign) block.getRelative(BlockFace.UP).getState();
 				for (String s : sign.getLines())
 				{
 					if (ChatColor.stripColor(s).equalsIgnoreCase(
@@ -155,25 +161,13 @@ public class KSBlockListener implements Listener
 						// TODO check that it isn't a player karma sign
 					}
 				}
-				if (has)
-				{
-					// Reformat sign
-					sign.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
-					sign.setLine(2, "Page:");
-					sign.setLine(3, "1");
-					sign.update();
-					event.getPlayer().sendMessage(
-							ChatColor.GREEN + KarmicShare.TAG
-									+ " Chest linked to cloud storage.");
-				}
 			}
 			else if (chest.isDoubleChest())
 			{
 				if (chest.attachedBlock().getRelative(BlockFace.UP).getType()
 						.equals(Material.WALL_SIGN))
 				{
-					boolean exists = false;
-					final Sign sign = (Sign) chest.attachedBlock()
+					sign = (Sign) chest.attachedBlock()
 							.getRelative(BlockFace.UP).getState();
 					for (String s : sign.getLines())
 					{
@@ -181,21 +175,30 @@ public class KSBlockListener implements Listener
 								KarmicShare.TAG))
 						{
 							// Sign already exists
-							exists = true;
+							has = true;
 						}
 					}
-					if (exists)
-					{
-						// Reformat sign
-						sign.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
-						sign.setLine(2, "Page:");
-						sign.setLine(3, "1");
-						sign.update();
-						event.getPlayer().sendMessage(
-								ChatColor.GREEN + KarmicShare.TAG
-										+ " Chest linked to cloud storage.");
-					}
 				}
+			}
+			if(has)
+			{
+				//Check world
+				final String world = block.getWorld().getName();
+				if(plugin.getPluginConfig().disabledWorlds.contains(world))
+				{
+					event.getPlayer().sendMessage(
+							ChatColor.RED + KarmicShare.TAG + " KarmicShare access disabled for this world.");
+					event.setCancelled(true);
+					return;
+				}
+				// Reformat sign
+				sign.setLine(1, ChatColor.AQUA + KarmicShare.TAG);
+				sign.setLine(2, "Page:");
+				sign.setLine(3, "1");
+				sign.update();
+				event.getPlayer().sendMessage(
+						ChatColor.GREEN + KarmicShare.TAG
+								+ " Chest linked to cloud storage.");
 			}
 		}
 	}

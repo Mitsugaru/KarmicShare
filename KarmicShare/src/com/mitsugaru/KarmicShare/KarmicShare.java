@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.commands.Commander;
 import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.Update;
 import com.mitsugaru.KarmicShare.database.DatabaseHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
@@ -83,8 +84,9 @@ public class KarmicShare extends JavaPlugin
 		Karma.init(this);
 		// Initialize ItemLogic handler
 		ItemLogic.init(this);
-		// Config update
-		config.checkUpdate();
+		// Updater
+		Update.init(this);
+		Update.checkUpdate();
 		// Grab Commander to handle commands
 		getCommand("ks").setExecutor(new Commander(this));
 		// Setup economy

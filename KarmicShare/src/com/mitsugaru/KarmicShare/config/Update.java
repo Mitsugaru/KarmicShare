@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.EnchantmentWrapper;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
@@ -22,6 +23,23 @@ public class Update
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
+	}
+	
+	/**
+	 * Check if updates are necessary
+	 */
+	public static void checkUpdate()
+	{
+		// Check if need to update
+		ConfigurationSection config = plugin.getConfig();
+		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
+				.parseDouble(config.getString("version")))
+		{
+			// Update to latest version
+			plugin.getLogger().info(
+					"Updating to v" + plugin.getDescription().getVersion());
+			update();
+		}
 	}
 
 	/**

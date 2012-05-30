@@ -95,6 +95,15 @@ public class KSPlayerListener implements Listener
 			event.setCancelled(true);
 			return;
 		}
+		//Check world
+		final String world = block.getWorld().getName();
+		if(plugin.getPluginConfig().disabledWorlds.contains(world))
+		{
+			event.getPlayer().sendMessage(
+					ChatColor.RED + KarmicShare.TAG + " KarmicShare access disabled for this world.");
+			event.setCancelled(true);
+			return;
+		}
 		// Grab selected group for player
 		String group = Karma.selectedGroup.get(player.getName());
 		if (group == null)
