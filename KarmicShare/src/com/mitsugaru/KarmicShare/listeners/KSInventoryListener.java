@@ -214,7 +214,7 @@ public class KSInventoryListener implements Listener
 										event.getWhoClicked().getName()),
 								event.getCursor(), group))
 						{
-							event.setResult(Event.Result.DENY);
+							//event.setResult(Event.Result.DENY);
 							event.setCancelled(true);
 						}
 					}
@@ -223,7 +223,7 @@ public class KSInventoryListener implements Listener
 						// plugin.getLogger().info("left click give one");
 						// Clone
 						ItemStack item = handleEnchantments(event
-								.getCurrentItem());
+								.getCursor());
 						// Only giving one
 						item.setAmount(1);
 						if (!ItemLogic.giveItem(
@@ -231,7 +231,7 @@ public class KSInventoryListener implements Listener
 										event.getWhoClicked().getName()), item,
 								group))
 						{
-							event.setResult(Event.Result.DENY);
+							//event.setResult(Event.Result.DENY);
 							event.setCancelled(true);
 						}
 					}

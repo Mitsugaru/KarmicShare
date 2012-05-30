@@ -470,11 +470,11 @@ public class Karma
 				groups = rs.getResult().getString("groups");
 				if (!rs.getResult().wasNull())
 				{
-					groups += "&" + group;
+					groups += "&" + groupId;
 				}
 				else
 				{
-					groups = group;
+					groups = "" + groupId;
 				}
 			}
 			rs.closeQuery();
