@@ -245,7 +245,7 @@ public class Karma
 	public static List<String> getPlayerGroups(CommandSender sender, String name)
 	{
 		List<String> list = new ArrayList<String>();
-		boolean wasNull = false;
+		boolean wasNull = false, initial = false;
 		try
 		{
 			String groups = "";
@@ -259,6 +259,14 @@ public class Karma
 			}
 			rs.closeQuery();
 			if (wasNull)
+			{
+				initial = true;
+			}
+			else if(groups.equals(""))
+			{
+				initial = true;
+			}
+			if(initial)
 			{
 				// No groups, add in the global and self
 				plugin.getDatabaseHandler().standardQuery(
@@ -279,7 +287,10 @@ public class Karma
 			{
 				try
 				{
-					list.add(getGroupName(Integer.parseInt(s)));
+					if (s != null && !s.equals(""))
+					{
+						list.add(getGroupName(Integer.parseInt(s)));
+					}
 				}
 				catch (NumberFormatException n)
 				{
