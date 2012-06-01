@@ -268,6 +268,7 @@ public class Karma
 			}
 			if(initial)
 			{
+				plugin.getLogger().info("created initial");
 				// No groups, add in the global and self
 				plugin.getDatabaseHandler().standardQuery(
 						"INSERT INTO " + Table.GROUPS.getName()
@@ -470,6 +471,8 @@ public class Karma
 	{
 		try
 		{
+			//Ensure that the player's default groups get added in
+			getPlayerGroups(sender, name);
 			int groupId = Karma.getGroupId(group);
 			if (groupId == -1)
 			{
@@ -478,6 +481,10 @@ public class Karma
 						+ ChatColor.RED + "'");
 				return false;
 			}
+			final int selfGroup = Karma.getGroupId("self_" + name);
+			final int global = Karma.getGroupId("global");
+			//plugin.getLogger().info("self: " + selfGroup);
+			//plugin.getLogger().info("global: " + global);
 			// Insures that the player is added to the database
 			Karma.getPlayerKarma(name);
 			String groups = "";
@@ -493,11 +500,25 @@ public class Karma
 				}
 				else
 				{
-					groups = "" + groupId;
+					//Clear
+					groups = "";
+					//plugin.getLogger().info("null groups");
+					if(global != -1)
+					{
+						//plugin.getLogger().info("added global");
+						groups += global + "&";
+					}
+					if(selfGroup != -1)
+					{
+						//plugin.getLogger().info("added self");
+						groups += selfGroup + "&";
+					}
+					groups += "" + groupId;
 				}
 			}
 			rs.closeQuery();
 			// Update their groups
+			//plugin.getLogger().info("groups: " + groups);
 			plugin.getDatabaseHandler().standardQuery(
 					"UPDATE " + Table.PLAYERS.getName() + " SET groups='"
 							+ groups + "' WHERE playername='" + name + "';");
