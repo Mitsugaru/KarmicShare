@@ -486,7 +486,7 @@ public class Karma
 			//plugin.getLogger().info("self: " + selfGroup);
 			//plugin.getLogger().info("global: " + global);
 			// Insures that the player is added to the database
-			Karma.getPlayerKarma(name);
+			getPlayerKarma(name);
 			String groups = "";
 			Query rs = plugin.getDatabaseHandler().select(
 					"SELECT * FROM " + Table.PLAYERS.getName()
