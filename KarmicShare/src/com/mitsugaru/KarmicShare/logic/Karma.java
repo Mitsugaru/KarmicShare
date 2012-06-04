@@ -86,6 +86,12 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on updatePlayerKarma(" + name + "," + k
+								+ ")");
+			}
 			throw e;
 		}
 	}
@@ -120,6 +126,12 @@ public class Karma
 			rs.closeQuery();
 			if (!has)
 			{
+				if (plugin.getPluginConfig().debugKarma)
+				{
+					plugin.getLogger().info(
+							"getPlayerKarma(" + name
+									+ ") not in database, adding");
+				}
 				// Player not in database, therefore add them
 				query = "INSERT INTO " + Table.PLAYERS.getName()
 						+ " (playername,karma) VALUES ('" + name + "','"
@@ -129,6 +141,11 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on getPlayerKarma(" + name + ")");
+			}
 			throw e;
 		}
 		return karma;
@@ -138,10 +155,20 @@ public class Karma
 	{
 		if (group.equals("global"))
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().info(
+						"global group valid for " + sender.getName());
+			}
 			return true;
 		}
 		else if (group.equals("self_" + sender.getName().toLowerCase()))
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().info(
+						"self group valid for " + sender.getName());
+			}
 			return true;
 		}
 		boolean valid = false;
@@ -152,12 +179,23 @@ public class Karma
 							+ " WHERE groupname='" + group + "';");
 			if (rs.getResult().next())
 			{
+				if (plugin.getPluginConfig().debugKarma)
+				{
+					plugin.getLogger().info(
+							group + " group valid for " + sender.getName());
+				}
 				valid = true;
 			}
 			rs.closeQuery();
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on validGroup(" + sender.getName() + ","
+								+ group + ")");
+			}
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
@@ -170,9 +208,13 @@ public class Karma
 	{
 		if (group.equals("global"))
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().info(name + " has group " + group);
+			}
 			return true;
 		}
-		else if (group.equals("self_" + sender.getName().toLowerCase()))
+		else if (group.equals("self_" + name.toLowerCase()))
 		{
 			return true;
 		}
@@ -209,6 +251,13 @@ public class Karma
 							catch (NumberFormatException n)
 							{
 								// bad group id
+								if (plugin.getPluginConfig().debugKarma)
+								{
+									plugin.getLogger().warning(
+											"NumberFormatException for playerHasGroup("
+													+ sender.getName() + ","
+													+ name + "," + group + ")");
+								}
 							}
 						}
 					}
@@ -227,6 +276,13 @@ public class Karma
 						catch (NumberFormatException n)
 						{
 							// bad group id
+							if (plugin.getPluginConfig().debugKarma)
+							{
+								plugin.getLogger().warning(
+										"NumberFormatException for playerHasGroup("
+												+ sender.getName() + "," + name
+												+ "," + group + ")");
+							}
 						}
 					}
 				}
@@ -238,6 +294,11 @@ public class Karma
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
+		}
+		if (plugin.getPluginConfig().debugKarma)
+		{
+			plugin.getLogger().info(
+					"Player " + name + " has group " + group + " : " + has);
 		}
 		return has;
 	}
@@ -262,13 +323,16 @@ public class Karma
 			{
 				initial = true;
 			}
-			else if(groups.equals(""))
+			else if (groups.equals(""))
 			{
 				initial = true;
 			}
-			if(initial)
+			if (initial)
 			{
-				plugin.getLogger().info("created initial");
+				if (plugin.getPluginConfig().debugKarma)
+				{
+					plugin.getLogger().info("Initial groups for " + name);
+				}
 				// No groups, add in the global and self
 				plugin.getDatabaseHandler().standardQuery(
 						"INSERT INTO " + Table.GROUPS.getName()
@@ -295,13 +359,22 @@ public class Karma
 				}
 				catch (NumberFormatException n)
 				{
-					plugin.getLogger().severe("Bad group id '" + s + "'");
+					if (plugin.getPluginConfig().debugKarma)
+					{
+						plugin.getLogger().warning("Bad group id '" + s + "'");
+					}
 					n.printStackTrace();
 				}
 			}
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on getPlayerGroups(" + sender.getName()
+								+ "," + name + ")");
+			}
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
@@ -329,9 +402,18 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on getGroupId(" + group + ")");
+			}
 			plugin.getLogger().warning(
 					"SQL Exception on getting group '" + group + "' id");
 			e.printStackTrace();
+		}
+		if (plugin.getPluginConfig().debugKarma)
+		{
+			plugin.getLogger().info("getGroupId(" + group + ") == " + id);
 		}
 		return id;
 	}
@@ -356,9 +438,17 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
-			plugin.getLogger().warning(
-					"SQL Exception on getting group name for  id '" + id + "'");
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQL Exception on getting group name for  id '" + id
+								+ "'");
+			}
 			e.printStackTrace();
+		}
+		if (plugin.getPluginConfig().debugKarma)
+		{
+			plugin.getLogger().info("getGroupName(" + id + ") == " + group);
 		}
 		return group;
 	}
@@ -458,10 +548,23 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on removePlayerFromGroup("
+								+ sender.getName() + "," + name + "," + group
+								+ ")");
+			}
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 			return false;
+		}
+		if (plugin.getPluginConfig().debugKarma)
+		{
+			plugin.getLogger().info(
+					"removePlayerFromGroup(" + sender.getName() + "," + name
+							+ "," + group + ")");
 		}
 		return true;
 	}
@@ -471,11 +574,16 @@ public class Karma
 	{
 		try
 		{
-			//Ensure that the player's default groups get added in
+			// Ensure that the player's default groups get added in
 			getPlayerGroups(sender, name);
 			int groupId = Karma.getGroupId(group);
 			if (groupId == -1)
 			{
+				if (plugin.getPluginConfig().debugKarma)
+				{
+					plugin.getLogger().info(
+							"Invalid group " + group + " for addPlayerToGroup");
+				}
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Invalid group '" + ChatColor.GRAY + group
 						+ ChatColor.RED + "'");
@@ -483,8 +591,8 @@ public class Karma
 			}
 			final int selfGroup = Karma.getGroupId("self_" + name);
 			final int global = Karma.getGroupId("global");
-			//plugin.getLogger().info("self: " + selfGroup);
-			//plugin.getLogger().info("global: " + global);
+			// plugin.getLogger().info("self: " + selfGroup);
+			// plugin.getLogger().info("global: " + global);
 			// Insures that the player is added to the database
 			getPlayerKarma(name);
 			String groups = "";
@@ -500,17 +608,17 @@ public class Karma
 				}
 				else
 				{
-					//Clear
+					// Clear
 					groups = "";
-					//plugin.getLogger().info("null groups");
-					if(global != -1)
+					// plugin.getLogger().info("null groups");
+					if (global != -1)
 					{
-						//plugin.getLogger().info("added global");
+						// plugin.getLogger().info("added global");
 						groups += global + "&";
 					}
-					if(selfGroup != -1)
+					if (selfGroup != -1)
 					{
-						//plugin.getLogger().info("added self");
+						// plugin.getLogger().info("added self");
 						groups += selfGroup + "&";
 					}
 					groups += "" + groupId;
@@ -518,17 +626,29 @@ public class Karma
 			}
 			rs.closeQuery();
 			// Update their groups
-			//plugin.getLogger().info("groups: " + groups);
+			// plugin.getLogger().info("groups: " + groups);
 			plugin.getDatabaseHandler().standardQuery(
 					"UPDATE " + Table.PLAYERS.getName() + " SET groups='"
 							+ groups + "' WHERE playername='" + name + "';");
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugKarma)
+			{
+				plugin.getLogger().warning(
+						"SQLException on addPlayerToGroup(" + sender.getName()
+								+ "," + name + "," + group + ")");
+			}
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " SQL Exception");
 			e.printStackTrace();
 			return false;
+		}
+		if (plugin.getPluginConfig().debugKarma)
+		{
+			plugin.getLogger().info(
+					"addPlayerToGroup(" + sender.getName() + "," + name + ","
+							+ group + ")");
 		}
 		return true;
 	}
@@ -540,19 +660,25 @@ public class Karma
 		Inventory inventory = null;
 		if (Karma.inventories.containsKey(info))
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("inventory already open");
+			}
 			// Grab already open inventory
 			inventory = Karma.inventories.get(info).getInventory();
-			// plugin.getLogger().info("inventory already open");
 		}
 		else
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("inventory first open");
+			}
 			final KSInventoryHolder holder = new KSInventoryHolder(info);
 			inventory = plugin.getServer().createInventory(holder, chestSize,
 					group + " : " + page);
 			populateInventory(inventory, page, group);
 			holder.setInventory(inventory);
 			Karma.inventories.put(info, holder);
-			// plugin.getLogger().info("inventory first open");
 		}
 		// Set task
 		final int id = plugin
@@ -562,10 +688,12 @@ public class Karma
 						new ShowKSInventoryTask(plugin, player, inventory), 3);
 		if (id == -1)
 		{
-			plugin.getLogger()
-					.warning(
-							"Could not schedule open inventory for "
-									+ player.getName());
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().warning(
+						"Could not schedule open inventory for "
+								+ player.getName());
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Could not schedule open inventory!");
 		}
@@ -581,6 +709,12 @@ public class Karma
 			int groupId = Karma.getGroupId(group);
 			if (groupId == -1)
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().warning(
+							"Tried to populateInventory for invalid group: "
+									+ group);
+				}
 				return;
 			}
 			Query itemList = plugin.getDatabaseHandler().select(
@@ -707,8 +841,13 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
-			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.TAG + "SQL error.");
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().warning(
+						"SQLException on populateInventory("
+								+ inventory.getName() + "," + page + ","
+								+ group + ")");
+			}
 			e.printStackTrace();
 		}
 	}
@@ -751,6 +890,12 @@ public class Karma
 		player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
 				+ " Changed group to '" + ChatColor.GOLD + nextGroup
 				+ ChatColor.GREEN + "'");
+		if (plugin.getPluginConfig().debugInventory)
+		{
+			plugin.getLogger().info(
+					"cycleGroup(" + player.getName() + "," + current + ","
+							+ direction.toString() + ") : " + nextGroup);
+		}
 	}
 
 	public static int grabPage(int current, String group, Direction direction)
@@ -760,6 +905,11 @@ public class Karma
 		int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().warning(
+						"Tried to grabPage for invalid group: " + group);
+			}
 			return 1;
 		}
 		final Query all = plugin.getDatabaseHandler().select(
@@ -795,8 +945,12 @@ public class Karma
 		}
 		catch (SQLException e)
 		{
-			plugin.getLogger().warning(
-					ChatColor.RED + KarmicShare.TAG + "SQL error.");
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().warning(
+						"SQLException on grabPage(" + current + "," + group
+								+ "," + direction.toString() + ")");
+			}
 			e.printStackTrace();
 		}
 		// if no slots, return 1
@@ -846,6 +1000,12 @@ public class Karma
 			// Going to page beyond the total items, cycle back to
 			// first
 			page = 1;
+		}
+		if (plugin.getPluginConfig().debugInventory)
+		{
+			plugin.getLogger().info(
+					"grabPage(" + current + "," + group + ","
+							+ direction.toString() + ") : " + page);
 		}
 		return page;
 	}

@@ -31,7 +31,7 @@ public class Config
 	public static String tablePrefix;
 	public static boolean debugDatabase;
 	public boolean useMySQL, statickarma, effects, debugTime, karmaDisabled,
-			chests, importSQL, economy, blacklist, karmaIgnoreSelf;
+			chests, importSQL, economy, blacklist, karmaIgnoreSelf, debugInventory, debugKarma, debugItem;
 	public int upper, lower, listlimit, playerKarmaDefault, karmaChange;
 	public double upperPercent, lowerPercent;
 	public final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -79,6 +79,9 @@ public class Config
 		defaults.put("mysql.import", false);
 		defaults.put("debug.time", false);
 		defaults.put("debug.database", false);
+		defaults.put("debug.inventory", false);
+		defaults.put("debug.karma", false);
+		defaults.put("debug.item", false);
 		defaults.put("version", ks.getDescription().getVersion());
 		// TODO defaults.put("blacklist", false);
 		// Insert defaults into config file if they're not present
@@ -214,6 +217,9 @@ public class Config
 		listlimit = config.getInt("listlimit", 10);
 		debugTime = config.getBoolean("debug.time", false);
 		debugDatabase = config.getBoolean("debug.database", false);
+		debugInventory = config.getBoolean("debug.inventory", false);
+		debugKarma = config.getBoolean("debug.karma", false);
+		debugItem = config.getBoolean("debug.item", false);
 		karmaDisabled = config.getBoolean("karma.disabled", false);
 		economy = config.getBoolean("karma.useEconomy", false);
 		blacklist = config.getBoolean("blacklist", false);

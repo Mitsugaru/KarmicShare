@@ -37,6 +37,10 @@ public class ItemLogic
 		final int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().warning("Unknown group: " + group);
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Unknown group '" + ChatColor.GOLD + group
 					+ ChatColor.RED + "'");
@@ -49,6 +53,10 @@ public class ItemLogic
 		int poolAmount = 0;
 		if (temp.isTool())
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info("Tool item");
+			}
 			// Handle tools
 			// Grab all entries of the same tool id
 			String toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
@@ -78,15 +86,24 @@ public class ItemLogic
 			}
 			catch (SQLException e)
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().warning(
+							"SQLException on hasItem(" + player.getName() + ","
+									+ item.toString() + "," + group + ")");
+				}
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
 				return false;
 			}
 		}
-
 		else if (temp.isPotion())
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info("Potion item");
+			}
 			// Separate check to see if its a potion and handle it
 			// via the durability info
 			query = "SELECT * FROM " + Table.ITEMS.getName()
@@ -119,6 +136,12 @@ public class ItemLogic
 			}
 			catch (SQLException e)
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().warning(
+							"SQLException on hasItem(" + player.getName() + ","
+									+ item.toString() + "," + group + ")");
+				}
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
@@ -127,6 +150,10 @@ public class ItemLogic
 		}
 		else
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info("Normal item");
+			}
 			// Not a tool or potion
 			query = "SELECT * FROM " + Table.ITEMS.getName()
 					+ " WHERE itemid='" + item.getTypeId() + "' AND data='"
@@ -158,11 +185,22 @@ public class ItemLogic
 			}
 			catch (SQLException e)
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().warning(
+							"SQLException on hasItem(" + player.getName() + ","
+									+ item.toString() + "," + group + ")");
+				}
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not retrieve item in pool!");
 				e.printStackTrace();
 				return false;
 			}
+		}
+		if (plugin.getPluginConfig().debugItem)
+		{
+			plugin.getLogger()
+					.info("Has item " + item.toString() + " : " + has);
 		}
 		return has;
 	}
@@ -172,6 +210,11 @@ public class ItemLogic
 		// Check if they have "take" permission
 		if (!PermCheck.checkPermission(player, PermissionNode.TAKE))
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info(
+						player.getName() + " lacks take permission");
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: KarmicShare.take");
 			return -1;
@@ -179,6 +222,10 @@ public class ItemLogic
 		final int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().warning("Unknown group: " + group);
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Unknown group '" + ChatColor.GOLD + group
 					+ ChatColor.RED + "'");
@@ -199,8 +246,13 @@ public class ItemLogic
 						karma = Karma.getPlayerKarma(player.getName());
 						if (karma <= plugin.getPluginConfig().lower)
 						{
-							// They are at the limit, or somehow lower for
+							// They are at the limit, or somehow past that for
 							// whatever reason
+							if (plugin.getPluginConfig().debugItem)
+							{
+								plugin.getLogger().info(
+										"Karma at limit: " + player.getName());
+							}
 							player.sendMessage(ChatColor.RED + KarmicShare.TAG
 									+ "Your karma is at the limit!");
 							return -1;
@@ -208,6 +260,12 @@ public class ItemLogic
 					}
 					catch (SQLException e1)
 					{
+						if (plugin.getPluginConfig().debugItem)
+						{
+							plugin.getLogger().warning(
+									"Could not retrieve karma: "
+											+ player.getName());
+						}
 						player.sendMessage(ChatColor.RED + KarmicShare.TAG
 								+ " Could not retrieve player karma");
 						e1.printStackTrace();
@@ -224,6 +282,10 @@ public class ItemLogic
 		{
 			if (!has)
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().info("Item not available");
+				}
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Item is no longer available.");
 				return -1;
@@ -294,6 +356,12 @@ public class ItemLogic
 											// Cannot give any items
 											// as they'd go beyond
 											// karma limit
+											if (plugin.getPluginConfig().debugItem)
+											{
+												plugin.getLogger()
+														.info("Not enough karma to take item: "
+																+ player.getName());
+											}
 											player.sendMessage(ChatColor.RED
 													+ KarmicShare.TAG
 													+ " Not enough karma to take item");
@@ -356,6 +424,12 @@ public class ItemLogic
 									// Cannot give any items as
 									// they'd go beyond
 									// karma limit
+									if (plugin.getPluginConfig().debugItem)
+									{
+										plugin.getLogger().info(
+												"Not enough karma to take item: "
+														+ player.getName());
+									}
 									player.sendMessage(ChatColor.RED
 											+ KarmicShare.TAG
 											+ " Not enough karma to take item");
@@ -407,9 +481,10 @@ public class ItemLogic
 								+ "' AND groups='" + groupId + "';";
 						Query toolRS = plugin.getDatabaseHandler().select(
 								toolQuery);
-						// plugin.getLogger().info("enchanted tool taken");
-						// plugin.getLogger().info(
-						// "enchant string: " + sb.toString());
+						if (plugin.getPluginConfig().debugItem)
+						{
+							plugin.getLogger().info("Encahnted tool taken");
+						}
 						if (toolRS.getResult().next())
 						{
 							if ((toolRS.getResult().getInt("amount") - amount) <= 0)
@@ -419,7 +494,11 @@ public class ItemLogic
 										+ Table.ITEMS.getName() + " WHERE id='"
 										+ toolRS.getResult().getInt("id")
 										+ "';";
-								// plugin.getLogger().info("enchanted tool drop");
+								if (plugin.getPluginConfig().debugItem)
+								{
+									plugin.getLogger().info(
+											"Encahnted tool drop");
+								}
 							}
 							else
 							{
@@ -431,13 +510,21 @@ public class ItemLogic
 										+ "' WHERE id='"
 										+ toolRS.getResult().getInt("id")
 										+ "';";
-								// plugin.getLogger().info("enchanted tool update");
+								if (plugin.getPluginConfig().debugItem)
+								{
+									plugin.getLogger().info(
+											"Encahnted tool update");
+								}
 							}
 						}
 						toolRS.closeQuery();
 					}
 					else
 					{
+						if (plugin.getPluginConfig().debugItem)
+						{
+							plugin.getLogger().info("Non-enchanted tool");
+						}
 						// Non-enchanted tool
 						toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
 								+ " WHERE itemid='" + item.getTypeId()
@@ -475,6 +562,13 @@ public class ItemLogic
 				}
 				catch (SQLException e)
 				{
+					if (plugin.getPluginConfig().debugItem)
+					{
+						plugin.getLogger().warning(
+								"SQLException for takeItem(" + player.getName()
+										+ "," + item.toString() + "," + group
+										+ ")");
+					}
 					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not retrieve item in pool!");
 					e.printStackTrace();
@@ -483,6 +577,10 @@ public class ItemLogic
 			}
 			else if (temp.isPotion())
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().info("Take potion");
+				}
 				query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + item.getTypeId()
 						+ "' AND durability='" + item.getDurability()
@@ -518,6 +616,13 @@ public class ItemLogic
 				}
 				catch (SQLException e)
 				{
+					if (plugin.getPluginConfig().debugItem)
+					{
+						plugin.getLogger().warning(
+								"SQLException for takeItem(" + player.getName()
+										+ "," + item.toString() + "," + group
+										+ ")");
+					}
 					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not retrieve item in pool!");
 					e.printStackTrace();
@@ -526,6 +631,10 @@ public class ItemLogic
 			}
 			else
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().info("normal item");
+				}
 				query = "SELECT * FROM " + Table.ITEMS.getName()
 						+ " WHERE itemid='" + item.getTypeId() + "' AND data='"
 						+ item.getData().getData() + "' AND groups='" + groupId
@@ -559,6 +668,13 @@ public class ItemLogic
 				}
 				catch (SQLException e)
 				{
+					if (plugin.getPluginConfig().debugItem)
+					{
+						plugin.getLogger().warning(
+								"SQLException for takeItem(" + player.getName()
+										+ "," + item.toString() + "," + group
+										+ ")");
+					}
 					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not retrieve item in pool!");
 					e.printStackTrace();
@@ -593,6 +709,12 @@ public class ItemLogic
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().warning(
+						"SQLException for takeItem(" + player.getName() + ","
+								+ item.toString() + "," + group + ")");
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ "Could not retrieve item in pool!");
 			e.printStackTrace();
@@ -605,6 +727,11 @@ public class ItemLogic
 	{
 		if (!PermCheck.checkPermission(player, PermissionNode.GIVE))
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info(
+						player.getName() + " lacks give permission");
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: KarmicShare.give");
 			return false;
@@ -612,6 +739,10 @@ public class ItemLogic
 		int groupId = Karma.getGroupId(group);
 		if (groupId == -1)
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().warning("Unknown group " + group);
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Unknown group '" + ChatColor.GOLD + group
 					+ ChatColor.RED + "'");
@@ -626,6 +757,10 @@ public class ItemLogic
 			Map<Enchantment, Integer> enchantments = item.getEnchantments();
 			if (!enchantments.isEmpty())
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().info("enchanted tool");
+				}
 				// Tool has enchantments
 				StringBuilder sb = new StringBuilder();
 				final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
@@ -658,6 +793,10 @@ public class ItemLogic
 			}
 			else
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger().info("non-enchanted tool");
+				}
 				// Normal tool
 				// Create SQL query to see if item is already in
 				// database
@@ -702,6 +841,13 @@ public class ItemLogic
 				}
 				catch (SQLException e)
 				{
+					if (plugin.getPluginConfig().debugItem)
+					{
+						plugin.getLogger().warning(
+								"SQLException for giveItem(" + player.getName()
+										+ "," + item.toString() + "," + group
+										+ ")");
+					}
 					player.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ "Could not query item pool!");
 					e.printStackTrace();
@@ -711,6 +857,10 @@ public class ItemLogic
 		}
 		else if (i.isPotion())
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info("Potion item");
+			}
 			// Handle potion case
 			// Potion item
 			// Create SQL query to see if item is already in
@@ -751,6 +901,15 @@ public class ItemLogic
 			}
 			catch (SQLException e)
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger()
+							.warning(
+									"SQLException for giveItem("
+											+ player.getName() + ","
+											+ item.toString() + "," + group
+											+ ")");
+				}
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not query item pool!");
 				e.printStackTrace();
@@ -759,6 +918,10 @@ public class ItemLogic
 		}
 		else
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().info("Normal item");
+			}
 			// Normal item
 			// Create SQL query to see if item is already in
 			// database
@@ -802,6 +965,15 @@ public class ItemLogic
 			}
 			catch (SQLException e)
 			{
+				if (plugin.getPluginConfig().debugItem)
+				{
+					plugin.getLogger()
+							.warning(
+									"SQLException for giveItem("
+											+ player.getName() + ","
+											+ item.toString() + "," + group
+											+ ")");
+				}
 				player.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ "Could not query item pool!");
 				e.printStackTrace();
@@ -875,8 +1047,14 @@ public class ItemLogic
 		}
 		catch (SQLException e)
 		{
+			if (plugin.getPluginConfig().debugItem)
+			{
+				plugin.getLogger().warning(
+						"SQLException for giveItem(" + player.getName() + ","
+								+ item.toString() + "," + group + ")");
+			}
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
-					+ "Could not adjust karma to pool!");
+					+ "Could not adjust karma!");
 			e.printStackTrace();
 			return false;
 		}

@@ -40,6 +40,12 @@ public class KSInventoryListener implements Listener
 			if (holder != null)
 			{
 				holder.getInfo().addViewer();
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().info(
+							"added viewer to " + holder.getInfo().getGroup()
+									+ ":" + holder.getInfo().getPage());
+				}
 			}
 		}
 	}
@@ -51,6 +57,12 @@ public class KSInventoryListener implements Listener
 		if (holder != null)
 		{
 			holder.getInfo().removeViewer();
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						"removed viewer from " + holder.getInfo().getGroup()
+								+ ":" + holder.getInfo().getPage());
+			}
 		}
 	}
 
@@ -60,6 +72,11 @@ public class KSInventoryListener implements Listener
 		// Valid slot numbers are not negative
 		if (event.getSlot() < 0)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						"Inventory slot negative, ignore action");
+			}
 			return;
 		}
 		// Verify our inventory holder
@@ -67,6 +84,10 @@ public class KSInventoryListener implements Listener
 		if (holder == null)
 		{
 			// Not ours, we don't care
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("Not a KS inventory, ignore action");
+			}
 			return;
 		}
 		boolean fromChest = false;
@@ -77,9 +98,19 @@ public class KSInventoryListener implements Listener
 		{
 			fromChest = true;
 		}
+		if (plugin.getPluginConfig().debugInventory)
+		{
+			plugin.getLogger().info(
+					event.getWhoClicked().getName() + " action from chest: "
+							+ fromChest);
+		}
 		String group = holder.getInfo().getGroup();
 		if (!plugin.useChest())
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("Plugin chests are disabled");
+			}
 			event.setCancelled(true);
 			return;
 		}
@@ -90,48 +121,94 @@ public class KSInventoryListener implements Listener
 			{
 				if (event.isShiftClick())
 				{
+					if (plugin.getPluginConfig().debugInventory)
+					{
+						plugin.getLogger().info(
+								event.getWhoClicked().getName()
+										+ ": Shift click");
+					}
 					if (event.getCurrentItem().getType().equals(Material.AIR))
 					{
 						// We don't care about air if its not inside the chest
 						// inventory
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": AIR, ignore");
+						}
 						return;
 					}
 					else if (event.isLeftClick())
 					{
 						// plugin.getLogger().info("shift left click from chest");
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": left click");
+						}
 						shiftTakeItem(event, group);
 					}
 					else if (event.isRightClick())
 					{
 						// plugin.getLogger().info("shift left click from chest");
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": Right click");
+						}
 						shiftTakeItem(event, group);
 					}
 				}
 				else if (!event.getCurrentItem().getType().equals(Material.AIR)
 						&& !event.getCursor().getType().equals(Material.AIR))
 				{
-					// plugin.getLogger().info("not both air");
 					if (event.getCurrentItem() != null
 							&& event.getCursor() != null)
 					{
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": Not both air");
+						}
 						final Item a = new Item(event.getCurrentItem());
 						final Item b = new Item(event.getCursor());
 						if (a.areSame(b) && event.isLeftClick())
 						{
-							// plugin.getLogger().info("left click same type");
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger().info(
+										event.getWhoClicked().getName()
+												+ ": Left click, same type");
+							}
 							int cursorAmount = event.getCursor().getAmount();
 							int itemAmount = event.getCurrentItem().getAmount();
 							int totalAmount = cursorAmount + itemAmount;
 							if (itemAmount < event.getCurrentItem()
 									.getMaxStackSize())
 							{
-								// plugin.getLogger().info(
-								// "item stack not at max stack");
+								if (plugin.getPluginConfig().debugInventory)
+								{
+									plugin.getLogger()
+											.info(event.getWhoClicked()
+													.getName()
+													+ ": Item not at max stack");
+								}
 								ItemStack item = handleEnchantments(event
 										.getCursor());
 								if (totalAmount > event.getCurrentItem()
 										.getMaxStackSize())
 								{
+									if (plugin.getPluginConfig().debugInventory)
+									{
+										plugin.getLogger()
+												.info(event.getWhoClicked()
+														.getName()
+														+ ": Adjusting amount to not exceed max stack");
+									}
 									item.setAmount(event.getCurrentItem()
 											.getMaxStackSize() - itemAmount);
 								}
@@ -145,24 +222,45 @@ public class KSInventoryListener implements Listener
 																.getName()),
 										item, group))
 								{
+									if (plugin.getPluginConfig().debugInventory)
+									{
+										plugin.getLogger()
+												.info(event.getWhoClicked()
+														.getName()
+														+ ": Did not give item, deny");
+									}
 									event.setCancelled(true);
 								}
 							}
 							else
 							{
-								// TODO fix logic to give the partial amount
-								// that would be added
+								if (plugin.getPluginConfig().debugInventory)
+								{
+									plugin.getLogger().info(
+											event.getWhoClicked().getName()
+													+ ": Denied");
+								}
 								event.setCancelled(true);
 							}
 						}
 						else if (a.areSame(b) && event.isRightClick())
 						{
-							// plugin.getLogger().info("right click same type");
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger()
+										.info(event.getWhoClicked().getName()
+												+ ": Right click, same type, give single");
+							}
 							giveSingle(event, group);
 						}
 						else
 						{
-							// plugin.getLogger().info("switch");
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger().info(
+										event.getWhoClicked().getName()
+												+ ": Not same type, switch");
+							}
 							switchingItems(event, group);
 						}
 					}
@@ -171,10 +269,15 @@ public class KSInventoryListener implements Listener
 				{
 					if (event.isLeftClick())
 					{
-						// plugin.getLogger().info("left click take");
 						/*
 						 * Attempting to take item
 						 */
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": left click, take");
+						}
 						final int amount = ItemLogic.takeItem(
 								plugin.getServer().getPlayer(
 										event.getWhoClicked().getName()),
@@ -183,6 +286,12 @@ public class KSInventoryListener implements Listener
 						if (amount == event.getCurrentItem().getAmount())
 						{
 							// IGNORE
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger().info(
+										event.getWhoClicked().getName()
+												+ ": success, take all");
+							}
 						}
 						else if (amount < event.getCurrentItem().getAmount()
 								&& amount > 0)
@@ -191,39 +300,74 @@ public class KSInventoryListener implements Listener
 							final ItemStack bak = event.getCurrentItem()
 									.clone();
 							bak.setAmount(original - amount);
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger().info(
+										event.getWhoClicked().getName()
+												+ ": success, take some");
+							}
 						}
 						else
 						{
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger().info(
+										event.getWhoClicked().getName()
+												+ ": denied");
+							}
 							event.setCancelled(true);
 						}
 					}
 					else if (event.isRightClick())
 					{
-						// plugin.getLogger().info("right click half stack");
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": right click, half stack");
+						}
 						halfStack(event, group);
 					}
 				}
 				else if (!event.getCursor().getType().equals(Material.AIR))
 				{
+					if (plugin.getPluginConfig().debugInventory)
+					{
+						plugin.getLogger().info("Cursor not AIR");
+					}
 					if (event.isLeftClick())
 					{
-						// plugin.getLogger().info("left click empty slot");
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger().info(
+									event.getWhoClicked().getName()
+											+ ": left click, empty slot");
+						}
 						// Putting item into empty slot in chest
 						if (!ItemLogic.giveItem(
 								plugin.getServer().getPlayer(
 										event.getWhoClicked().getName()),
 								event.getCursor(), group))
 						{
-							//event.setResult(Event.Result.DENY);
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger().info(
+										event.getWhoClicked().getName()
+												+ ": Did not give item, deny");
+							}
 							event.setCancelled(true);
 						}
 					}
 					else if (event.isRightClick())
 					{
-						// plugin.getLogger().info("left click give one");
+						if (plugin.getPluginConfig().debugInventory)
+						{
+							plugin.getLogger()
+									.info(event.getWhoClicked().getName()
+											+ ": right click, empty slot, give one");
+						}
 						// Clone
-						ItemStack item = handleEnchantments(event
-								.getCursor());
+						ItemStack item = handleEnchantments(event.getCursor());
 						// Only giving one
 						item.setAmount(1);
 						if (!ItemLogic.giveItem(
@@ -231,7 +375,12 @@ public class KSInventoryListener implements Listener
 										event.getWhoClicked().getName()), item,
 								group))
 						{
-							//event.setResult(Event.Result.DENY);
+							if (plugin.getPluginConfig().debugInventory)
+							{
+								plugin.getLogger()
+										.info(event.getWhoClicked().getName()
+												+ ": Did not give one of item, deny");
+							}
 							event.setCancelled(true);
 						}
 					}
@@ -243,35 +392,66 @@ public class KSInventoryListener implements Listener
 				{
 					// We don't care about air if its not inside the chest
 					// inventory
+					if (plugin.getPluginConfig().debugInventory)
+					{
+						plugin.getLogger().info(
+								event.getWhoClicked().getName()
+										+ ": AIR, not inside chest");
+					}
 					return;
 				}
 				else if (!event.isShiftClick())
 				{
 					// Only care about shift click here
+					if (plugin.getPluginConfig().debugInventory)
+					{
+						plugin.getLogger().info(
+								event.getWhoClicked().getName()
+										+ ": Not shift click, ignore");
+					}
 					return;
 				}
 				else if (event.isLeftClick())
 				{
-					// plugin.getLogger().info("shift left click from player");
+					if (plugin.getPluginConfig().debugInventory)
+					{
+						plugin.getLogger().info(
+								event.getWhoClicked().getName()
+										+ ": Shift left click from player");
+					}
 					shiftGiveItem(event, group);
 				}
 				else if (event.isRightClick())
 				{
-					// plugin.getLogger().info("shift right click from player");
+					if (plugin.getPluginConfig().debugInventory)
+					{
+						plugin.getLogger().info(
+								event.getWhoClicked().getName()
+										+ ": Shift right click from player");
+					}
 					shiftGiveItem(event, group);
 				}
 			}
 		}
 		catch (NullPointerException e)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						event.getWhoClicked().getName() + ": NPE exception");
+			}
 			e.printStackTrace();
 		}
 	}
 
 	private void giveSingle(InventoryClickEvent event, String group)
 	{
-		// plugin.getLogger().info(
-		// "same item, give one");
+		if (plugin.getPluginConfig().debugInventory)
+		{
+			plugin.getLogger().info(
+					event.getWhoClicked().getName() + ": giveSingle(event,"
+							+ group + ")");
+		}
 		// Same item, so give only one from cursor
 		// to item
 		// Construct singular of cursor
@@ -286,18 +466,34 @@ public class KSInventoryListener implements Listener
 					plugin.getServer().getPlayer(
 							event.getWhoClicked().getName()), item, group))
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().info(
+							event.getWhoClicked().getName()
+									+ ": did not give item, deny");
+				}
 				event.setCancelled(true);
 			}
 		}
 		else
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						event.getWhoClicked().getName()
+								+ ": would have gone over max stack");
+			}
 			event.setCancelled(true);
 		}
 	}
 
 	private void halfStack(InventoryClickEvent event, String group)
 	{
-		// plugin.getLogger().info("take half the stack");
+		if (plugin.getPluginConfig().debugInventory)
+		{
+			plugin.getLogger().info(
+					event.getWhoClicked().getName() + ": take half stack");
+		}
 		// If cursor is air and item is not air they are
 		// taking half of the stack, with the larger half
 		// given to cursor
@@ -317,10 +513,22 @@ public class KSInventoryListener implements Listener
 				item, group);
 		if (amount == half)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						event.getWhoClicked().getName()
+								+ ": success, took half");
+			}
 			// IGNORE
 		}
 		else if (amount < event.getCurrentItem().getAmount() && amount > 0)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						event.getWhoClicked().getName()
+								+ ": success, took some");
+			}
 			final ItemStack bak = event.getCurrentItem().clone();
 			bak.setAmount(event.getCurrentItem().getAmount() - amount);
 			Repopulate task = new Repopulate(event.getInventory(), bak,
@@ -329,6 +537,12 @@ public class KSInventoryListener implements Listener
 					.scheduleSyncDelayedTask(plugin, task, 1);
 			if (id == -1)
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().warning(
+							event.getWhoClicked().getName()
+									+ ": could not repopulate slot");
+				}
 				plugin.getServer()
 						.getPlayer(event.getWhoClicked().getName())
 						.sendMessage(
@@ -343,6 +557,12 @@ public class KSInventoryListener implements Listener
 					.scheduleSyncDelayedTask(plugin, task, 1);
 			if (id == -1)
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().warning(
+							event.getWhoClicked().getName()
+									+ ": could not repopulate slot");
+				}
 				plugin.getServer()
 						.getPlayer(event.getWhoClicked().getName())
 						.sendMessage(
@@ -353,7 +573,12 @@ public class KSInventoryListener implements Listener
 		}
 		else
 		{
-			event.setResult(Event.Result.DENY);
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						event.getWhoClicked().getName()
+								+ ": deny");
+			}
 			event.setCancelled(true);
 		}
 	}
@@ -394,21 +619,45 @@ public class KSInventoryListener implements Listener
 			if (amount == event.getCurrentItem().getAmount())
 			{
 				// IGNORE
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().info(
+							event.getWhoClicked().getName()
+									+ ": success, take all");
+				}
 			}
 			else if (amount < event.getCurrentItem().getAmount() && amount > 0)
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().info(
+							event.getWhoClicked().getName()
+									+ ": success, take some");
+				}
 				event.getCurrentItem().setAmount(amount);
 				final ItemStack bak = event.getCurrentItem().clone();
 				bak.setAmount(original - amount);
 			}
 			else
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().info(
+							event.getWhoClicked().getName()
+									+ ": deny take");
+				}
 				event.setCancelled(true);
 				// TODO clear cursor as the item was at least given
 			}
 		}
 		else
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info(
+						event.getWhoClicked().getName()
+								+ ": deny give");
+			}
 			event.setCancelled(true);
 		}
 	}
@@ -418,19 +667,30 @@ public class KSInventoryListener implements Listener
 		// plugin.getLogger().info("from player");
 		if (event.getInventory().firstEmpty() < 0)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("No empty slot available");
+			}
 			event.setCancelled(true);
 		}
 		if (ItemLogic.giveItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				event.getCurrentItem(), group))
 		{
-			// plugin.getLogger().info("gave item");
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("gave item");
+			}
 			ItemStack item = handleEnchantments(event.getCurrentItem());
 			final Repopulate task = new Repopulate(event.getInventory(), item);
 			int id = plugin.getServer().getScheduler()
 					.scheduleSyncDelayedTask(plugin, task, 1);
 			if (id == -1)
 			{
+				if (plugin.getPluginConfig().debugInventory)
+				{
+					plugin.getLogger().warning("Could not repopulate slot");
+				}
 				plugin.getServer()
 						.getPlayer(event.getWhoClicked().getName())
 						.sendMessage(
@@ -441,6 +701,10 @@ public class KSInventoryListener implements Listener
 		}
 		else
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("Did not give item");
+			}
 			event.setCancelled(true);
 		}
 	}
@@ -449,6 +713,10 @@ public class KSInventoryListener implements Listener
 	{
 		if (event.getWhoClicked().getInventory().firstEmpty() < 0)
 		{
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("No empty slot available");
+			}
 			event.setCancelled(true);
 		}
 		final int amount = ItemLogic.takeItem(
@@ -457,7 +725,10 @@ public class KSInventoryListener implements Listener
 		final int original = event.getCurrentItem().getAmount();
 		if (amount < event.getCurrentItem().getAmount() && amount > 0)
 		{
-			// plugin.getLogger().info("take some");
+			if (plugin.getPluginConfig().debugInventory)
+			{
+				plugin.getLogger().info("take some");
+			}
 			final ItemStack bak = event.getCurrentItem().clone();
 			bak.setAmount(original - amount);
 			Repopulate task = new Repopulate(event.getInventory(), bak,
