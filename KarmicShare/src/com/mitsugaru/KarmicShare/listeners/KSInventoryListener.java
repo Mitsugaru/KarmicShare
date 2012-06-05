@@ -141,7 +141,6 @@ public class KSInventoryListener implements Listener
 					}
 					else if (event.isLeftClick())
 					{
-						// plugin.getLogger().info("shift left click from chest");
 						if (plugin.getPluginConfig().debugInventory)
 						{
 							plugin.getLogger().info(
@@ -152,7 +151,6 @@ public class KSInventoryListener implements Listener
 					}
 					else if (event.isRightClick())
 					{
-						// plugin.getLogger().info("shift left click from chest");
 						if (plugin.getPluginConfig().debugInventory)
 						{
 							plugin.getLogger().info(
@@ -576,8 +574,7 @@ public class KSInventoryListener implements Listener
 			if (plugin.getPluginConfig().debugInventory)
 			{
 				plugin.getLogger().info(
-						event.getWhoClicked().getName()
-								+ ": deny");
+						event.getWhoClicked().getName() + ": deny");
 			}
 			event.setCancelled(true);
 		}
@@ -643,8 +640,7 @@ public class KSInventoryListener implements Listener
 				if (plugin.getPluginConfig().debugInventory)
 				{
 					plugin.getLogger().info(
-							event.getWhoClicked().getName()
-									+ ": deny take");
+							event.getWhoClicked().getName() + ": deny take");
 				}
 				event.setCancelled(true);
 				// TODO clear cursor as the item was at least given
@@ -655,8 +651,7 @@ public class KSInventoryListener implements Listener
 			if (plugin.getPluginConfig().debugInventory)
 			{
 				plugin.getLogger().info(
-						event.getWhoClicked().getName()
-								+ ": deny give");
+						event.getWhoClicked().getName() + ": deny give");
 			}
 			event.setCancelled(true);
 		}
@@ -681,23 +676,24 @@ public class KSInventoryListener implements Listener
 			{
 				plugin.getLogger().info("gave item");
 			}
-			ItemStack item = handleEnchantments(event.getCurrentItem());
-			final Repopulate task = new Repopulate(event.getInventory(), item);
-			int id = plugin.getServer().getScheduler()
-					.scheduleSyncDelayedTask(plugin, task, 1);
-			if (id == -1)
-			{
-				if (plugin.getPluginConfig().debugInventory)
-				{
-					plugin.getLogger().warning("Could not repopulate slot");
-				}
-				plugin.getServer()
-						.getPlayer(event.getWhoClicked().getName())
-						.sendMessage(
-								ChatColor.YELLOW + KarmicShare.TAG
-										+ " Could not repopulate slot.");
-			}
-			event.getWhoClicked().getInventory().clear(event.getSlot());
+			// ItemStack item = handleEnchantments(event.getCurrentItem());
+			// final Repopulate task = new Repopulate(event.getInventory(),
+			// item);
+			// int id = plugin.getServer().getScheduler()
+			// .scheduleSyncDelayedTask(plugin, task, 1);
+			// if (id == -1)
+			// {
+			// if (plugin.getPluginConfig().debugInventory)
+			// {
+			// plugin.getLogger().warning("Could not repopulate slot");
+			// }
+			// plugin.getServer()
+			// .getPlayer(event.getWhoClicked().getName())
+			// .sendMessage(
+			// ChatColor.YELLOW + KarmicShare.TAG
+			// + " Could not repopulate slot.");
+			// }
+			// event.getWhoClicked().getInventory().clear(event.getSlot());
 		}
 		else
 		{
