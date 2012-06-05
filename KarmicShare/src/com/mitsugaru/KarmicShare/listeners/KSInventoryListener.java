@@ -659,7 +659,6 @@ public class KSInventoryListener implements Listener
 
 	private void shiftGiveItem(InventoryClickEvent event, String group)
 	{
-		// plugin.getLogger().info("from player");
 		if (event.getInventory().firstEmpty() < 0)
 		{
 			if (plugin.getPluginConfig().debugInventory)
@@ -667,6 +666,7 @@ public class KSInventoryListener implements Listener
 				plugin.getLogger().info("No empty slot available");
 			}
 			event.setCancelled(true);
+			return;
 		}
 		if (ItemLogic.giveItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
@@ -676,24 +676,6 @@ public class KSInventoryListener implements Listener
 			{
 				plugin.getLogger().info("gave item");
 			}
-			// ItemStack item = handleEnchantments(event.getCurrentItem());
-			// final Repopulate task = new Repopulate(event.getInventory(),
-			// item);
-			// int id = plugin.getServer().getScheduler()
-			// .scheduleSyncDelayedTask(plugin, task, 1);
-			// if (id == -1)
-			// {
-			// if (plugin.getPluginConfig().debugInventory)
-			// {
-			// plugin.getLogger().warning("Could not repopulate slot");
-			// }
-			// plugin.getServer()
-			// .getPlayer(event.getWhoClicked().getName())
-			// .sendMessage(
-			// ChatColor.YELLOW + KarmicShare.TAG
-			// + " Could not repopulate slot.");
-			// }
-			// event.getWhoClicked().getInventory().clear(event.getSlot());
 		}
 		else
 		{
@@ -714,6 +696,7 @@ public class KSInventoryListener implements Listener
 				plugin.getLogger().info("No empty slot available");
 			}
 			event.setCancelled(true);
+			return;
 		}
 		final int amount = ItemLogic.takeItem(
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
