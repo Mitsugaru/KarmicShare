@@ -1,4 +1,4 @@
-package com.mitsugaru.KarmicShare.config;
+package com.mitsugaru.KarmicShare.update;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,10 +11,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.EnchantmentWrapper;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.database.Table;
+import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
 import com.mitsugaru.KarmicShare.logic.Karma;
+import com.mitsugaru.KarmicShare.update.holders.ZeroPointFourteenItemObject;
+import com.mitsugaru.KarmicShare.update.holders.ZeroPointTwoSixTwoItemObject;
+import com.mitsugaru.KarmicShare.update.holders.ZeroPointTwoSixTwoPlayerObject;
 
 public class Update
 {
@@ -595,50 +598,5 @@ public class Update
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
 		plugin.getLogger().info("Upgrade complete");
-	}
-
-	static class ZeroPointFourteenItemObject
-	{
-		public int itemid, amount;
-		public byte data;
-		public short durability;
-		public String enchantments;
-
-		public ZeroPointFourteenItemObject(int id, int quantity, byte dv,
-				short dur, String en)
-		{
-			this.itemid = id;
-			this.amount = quantity;
-			this.data = dv;
-			this.durability = dur;
-			this.enchantments = en;
-		}
-	}
-
-	static class ZeroPointTwoSixTwoPlayerObject
-	{
-		public String playername, groups;
-		public int karma;
-
-		public ZeroPointTwoSixTwoPlayerObject(String playername, int karma,
-				String groups)
-		{
-			this.playername = playername;
-			this.karma = karma;
-			this.groups = groups;
-		}
-	}
-
-	static class ZeroPointTwoSixTwoItemObject extends
-			ZeroPointFourteenItemObject
-	{
-		public String groups;
-
-		public ZeroPointTwoSixTwoItemObject(int id, int quantity, byte dv,
-				short dur, String en, String groups)
-		{
-			super(id, quantity, dv, dur, en);
-			this.groups = groups;
-		}
 	}
 }

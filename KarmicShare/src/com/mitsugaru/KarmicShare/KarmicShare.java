@@ -16,7 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.commands.Commander;
 import com.mitsugaru.KarmicShare.config.Config;
-import com.mitsugaru.KarmicShare.config.Update;
 import com.mitsugaru.KarmicShare.database.DatabaseHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
@@ -24,6 +23,7 @@ import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
 import com.mitsugaru.KarmicShare.logic.ItemLogic;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.update.Update;
 
 public class KarmicShare extends JavaPlugin
 {

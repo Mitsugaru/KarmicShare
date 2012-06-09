@@ -8,7 +8,7 @@
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  */
-package com.mitsugaru.KarmicShare.SQLibrary;
+package com.mitsugaru.KarmicShare.database.SQLibrary;
 
 /*
  * SQLite

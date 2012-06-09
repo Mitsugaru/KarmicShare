@@ -5,7 +5,7 @@
  * 
  * @author PatPeter
  */
-package com.mitsugaru.KarmicShare.SQLibrary;
+package com.mitsugaru.KarmicShare.database.SQLibrary;
 
 /*
  * MySQL
