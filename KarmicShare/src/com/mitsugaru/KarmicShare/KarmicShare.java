@@ -7,12 +7,9 @@
  */
 package com.mitsugaru.KarmicShare;
 
-import java.util.Vector;
-
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,9 +24,6 @@ import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
 import com.mitsugaru.KarmicShare.logic.ItemLogic;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
-import com.mitsugaru.KarmicShare.questioner.KSQuestion;
-import com.mitsugaru.KarmicShare.questioner.KSQuestionsReaper;
-import com.mitsugaru.KarmicShare.questioner.KarmicShareQuestionerPlayerListener;
 
 public class KarmicShare extends JavaPlugin
 {
@@ -38,7 +32,6 @@ public class KarmicShare extends JavaPlugin
 	public static final String TAG = "[KarmicShare]";
 	private Config config;
 	private int cleantask;
-	public final Vector<KSQuestion> questions = new Vector<KSQuestion>();
 	private boolean chest, economyFound;
 	private Economy eco;
 
@@ -104,13 +97,6 @@ public class KarmicShare extends JavaPlugin
 		}
 		// Grab plugin manager
 		final PluginManager pm = this.getServer().getPluginManager();
-		// Use bundled package of logblockquestioner.
-		pm.registerEvents(new KarmicShareQuestionerPlayerListener(questions),
-				this);
-		this.getServer()
-				.getScheduler()
-				.scheduleSyncRepeatingTask(this,
-						new KSQuestionsReaper(questions), 15000, 15000);
 		// Register listeners
 		pm.registerEvents(new KSBlockListener(this), this);
 		pm.registerEvents(new KSPlayerListener(this), this);
@@ -143,15 +129,6 @@ public class KarmicShare extends JavaPlugin
 	public Config getPluginConfig()
 	{
 		return config;
-	}
-
-	public String ask(Player respondent, String questionMessage,
-			String... answers)
-	{
-		final KSQuestion question = new KSQuestion(respondent, questionMessage,
-				answers);
-		questions.add(question);
-		return question.ask();
 	}
 
 	private void setupEconomy()

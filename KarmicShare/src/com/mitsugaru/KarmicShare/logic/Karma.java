@@ -96,6 +96,33 @@ public class Karma
 		}
 	}
 
+	public static void setPlayerKarma(String name, int karma)
+	{
+		String query;
+		// Check updated karma value to limits in config
+		if (karma <= plugin.getPluginConfig().lower)
+		{
+			// Updated karma value is beyond lower limit, so set to min
+			query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
+					+ plugin.getPluginConfig().lower + "' WHERE playername='"
+					+ name + "';";
+		}
+		else if (karma >= plugin.getPluginConfig().upper)
+		{
+			// Updated karma value is beyond upper limit, so set to max
+			query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
+					+ plugin.getPluginConfig().upper + "' WHERE playername='"
+					+ name + "';";
+		}
+		else
+		{
+			// Updated karma value is within acceptable range
+			query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
+					+ karma + "' WHERE playername='" + name + "';";
+		}
+		plugin.getDatabaseHandler().standardQuery(query);
+	}
+
 	/**
 	 * Retrieves karma value of a player from the database. Forces player to be
 	 * added to database if they don't exist

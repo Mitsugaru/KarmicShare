@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.ChatPaginator;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.config.Config;
@@ -92,21 +93,24 @@ public class Commander implements CommandExecutor
 						{
 							sb.append(ChatColor.BOLD + ""
 									+ ChatColor.LIGHT_PURPLE + s
-									+ ChatColor.RESET + ""
-									+ ChatColor.DARK_AQUA + "-");
+									+ ChatColor.RESET + " ");
 						}
 						else
 						{
-							sb.append(ChatColor.GRAY + s + ChatColor.DARK_AQUA
-									+ "-");
+							sb.append(ChatColor.GRAY + s
+									+ " ");
 						}
 					}
 					// Remove trailing characters
 					try
 					{
 						sb.deleteCharAt(sb.length() - 1);
-						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-								+ " Groups: " + sb.toString());
+						final String[] out = ChatPaginator.wordWrap(ChatColor.YELLOW + KarmicShare.TAG
+								+ " Groups: " + sb.toString(), ChatPaginator.AVERAGE_CHAT_PAGE_WIDTH - 1);
+						for(String line : out)
+						{
+							sender.sendMessage(line);
+						}
 					}
 					catch (StringIndexOutOfBoundsException e)
 					{

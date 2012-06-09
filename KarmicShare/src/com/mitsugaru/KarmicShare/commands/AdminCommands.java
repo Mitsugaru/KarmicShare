@@ -1,10 +1,13 @@
 package com.mitsugaru.KarmicShare.commands;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
@@ -15,21 +18,23 @@ import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermCheck;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
-import com.mitsugaru.KarmicShare.tasks.ConfirmCleanup;
-import com.mitsugaru.KarmicShare.tasks.ConfirmDrain;
-import com.mitsugaru.KarmicShare.tasks.ConfirmPlayerKarmaReset;
-import com.mitsugaru.KarmicShare.tasks.ConfirmRemoveGroup;
+import com.mitsugaru.KarmicShare.prompts.CleanupQuestion;
+import com.mitsugaru.KarmicShare.prompts.DrainQuestion;
+import com.mitsugaru.KarmicShare.prompts.PlayerKarmaResetQuestion;
+import com.mitsugaru.KarmicShare.prompts.RemoveGroupQuestion;
 import com.mitsugaru.KarmicShare.tasks.RemoveGroupTask;
 
 public class AdminCommands
 {
 	private static KarmicShare plugin;
 	private static Config config;
+	private static ConversationFactory factory;
 
 	public static void init(KarmicShare ks)
 	{
 		plugin = ks;
 		config = ks.getPluginConfig();
+		factory = new ConversationFactory(ks);
 	}
 
 	public static void parseCommand(CommandSender sender, String[] args)
@@ -69,7 +74,7 @@ public class AdminCommands
 			}
 			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
 			{
-				sender.sendMessage(ChatColor.GREEN + "/ks admin drain"
+				sender.sendMessage(ChatColor.GREEN + "/ks admin drain [group]"
 						+ ChatColor.YELLOW + " : Empty item pool");
 			}
 			if (PermCheck.checkPermission(sender,
@@ -99,6 +104,11 @@ public class AdminCommands
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group remove  <group> <player> [player2] ..."
 						+ ChatColor.YELLOW + " : Force remove player to group");
+			}
+			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
+			{
+				sender.sendMessage(ChatColor.GREEN + "/ks admin cleanup"
+						+ ChatColor.YELLOW + " : Run cleanup task");
 			}
 			if (PermCheck.checkPermission(sender, "KarmicShare.admin.reload"))
 			{
@@ -343,33 +353,41 @@ public class AdminCommands
 			}
 			if (sender instanceof Player)
 			{
-				int id = plugin
-						.getServer()
-						.getScheduler()
-						.scheduleAsyncDelayedTask(
-								plugin,
-								new ConfirmDrain(plugin, (Player) sender, group));
-				if (id == -1)
-				{
-					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-							+ " Could not schedule confirmation.");
-				}
+				final Map<Object, Object> map = new HashMap<Object, Object>();
+				map.put("question", ChatColor.YELLOW + KarmicShare.TAG
+						+ ChatColor.DARK_AQUA + " Delete ALL items in "
+						+ ChatColor.GOLD + group + ChatColor.DARK_AQUA
+						+ " pool? No recovery...");
+				map.put("plugin", plugin);
+				map.put("group", group);
+				factory.withFirstPrompt(new DrainQuestion())
+						.withInitialSessionData(map).withLocalEcho(false)
+						.buildConversation((Player) sender).begin();
 			}
 			else
 			{
 				// Sent from console
 				// Wipe table
-				final String query = "DELETE FROM " + Table.ITEMS.getName()
-						+ " WHERE groups='" + group + "';";
-				plugin.getDatabaseHandler().standardQuery(query);
-				plugin.getLogger().info(
-						"Items for group '" + group + "' cleared");
+				final int id = Karma.getGroupId(group);
+				if (id != -1)
+				{
+					final String query = "DELETE FROM " + Table.ITEMS.getName()
+							+ " WHERE groups='" + id + "';";
+					plugin.getDatabaseHandler().standardQuery(query);
+					plugin.getLogger().info(
+							"Items for group '" + group + "' cleared");
+				}
+				else
+				{
+					sender.sendMessage(group + " id not found.");
+				}
 			}
 			return true;
 		}
 		else if (com.equals("cleanup"))
 		{
-			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
+			if (!PermCheck
+					.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -378,16 +396,13 @@ public class AdminCommands
 			}
 			if (sender instanceof Player)
 			{
-				int id = plugin
-						.getServer()
-						.getScheduler()
-						.scheduleAsyncDelayedTask(plugin,
-								new ConfirmCleanup(plugin, (Player) sender));
-				if (id == -1)
-				{
-					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-							+ " Could not schedule confirmation.");
-				}
+				final Map<Object, Object> map = new HashMap<Object, Object>();
+				map.put("question", ChatColor.YELLOW + KarmicShare.TAG
+						+ ChatColor.DARK_AQUA + " Run cleanup task?");
+				map.put("plugin", plugin);
+				factory.withFirstPrompt(new CleanupQuestion())
+						.withInitialSessionData(map).withLocalEcho(false)
+						.buildConversation((Player) sender).begin();
 			}
 			else
 			{
@@ -431,7 +446,7 @@ public class AdminCommands
 				return true;
 			}
 			// Check if name was given
-			if (args.length > 2)
+			if (args.length <= 2)
 			{
 				// did not give a player name, therefore error
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -495,18 +510,15 @@ public class AdminCommands
 			{
 				if (sender instanceof Player)
 				{
-					int i = plugin
-							.getServer()
-							.getScheduler()
-							.scheduleAsyncDelayedTask(
-									plugin,
-									new ConfirmPlayerKarmaReset(plugin,
-											(Player) sender, name));
-					if (i == -1)
-					{
-						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-								+ " Could not schedule task.");
-					}
+					final Map<Object, Object> map = new HashMap<Object, Object>();
+					map.put("question", ChatColor.YELLOW + KarmicShare.TAG
+							+ ChatColor.DARK_AQUA + " Reset " + ChatColor.GOLD
+							+ name + ChatColor.DARK_AQUA + "'s karma?");
+					map.put("plugin", plugin);
+					map.put("name", name);
+					factory.withFirstPrompt(new PlayerKarmaResetQuestion())
+							.withInitialSessionData(map).withLocalEcho(false)
+							.buildConversation((Player) sender).begin();
 				}
 				else
 				{
@@ -638,29 +650,9 @@ public class AdminCommands
 			}
 			if (has)
 			{
-				int playerKarma = config.playerKarmaDefault;
-				try
-				{
-					// Set to given amount by using the
-					// difference
-					// between the two
-					playerKarma = amount - Karma.getPlayerKarma(name);
-					Karma.updatePlayerKarma(name, playerKarma);
-					if (config.playerKarmaDefault != 0)
-					{
-						// Default was non-zero, so re-update to
-						// config's default
-						Karma.updatePlayerKarma(name, config.playerKarmaDefault);
-					}
-					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG + " "
-							+ name + "'s karma set");
-				}
-				catch (SQLException e)
-				{
-					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ "Could not set " + name + "'s karma");
-					e.printStackTrace();
-				}
+				Karma.setPlayerKarma(name, amount);
+				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG + " "
+						+ name + "'s karma set");
 			}
 			return true;
 		}
@@ -686,7 +678,7 @@ public class AdminCommands
 							+ PermissionNode.ADMIN_GROUP_DELETE.getNode());
 					return true;
 				}
-				if (args.length > 3)
+				if (args.length <= 3)
 				{
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 							+ " Missing group name.");
@@ -714,18 +706,16 @@ public class AdminCommands
 				}
 				if (sender instanceof Player)
 				{
-					int i = plugin
-							.getServer()
-							.getScheduler()
-							.scheduleAsyncDelayedTask(
-									plugin,
-									new ConfirmRemoveGroup(plugin,
-											(Player) sender, group));
-					if (i == -1)
-					{
-						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-								+ " Could not schedule task.");
-					}
+					final Map<Object, Object> map = new HashMap<Object, Object>();
+					map.put("question", ChatColor.YELLOW + KarmicShare.TAG
+							+ ChatColor.DARK_AQUA + " Remove group "
+							+ ChatColor.GOLD + group + ChatColor.DARK_AQUA
+							+ "? ");
+					map.put("plugin", plugin);
+					map.put("group", group);
+					factory.withFirstPrompt(new RemoveGroupQuestion())
+							.withInitialSessionData(map).withLocalEcho(false)
+							.buildConversation((Player) sender).begin();
 				}
 				else
 				{
