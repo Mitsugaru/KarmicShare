@@ -209,9 +209,9 @@ public class KSPlayerListener implements Listener
 		if (showInventory)
 		{
 			// Cancel event to stop chest inventory from interferring
-			event.setCancelled(true);
 			Karma.showInventory(player, group, page);
 		}
+		event.setCancelled(true);
 	}
 
 	private Sign grabOurSign(final Block block)
