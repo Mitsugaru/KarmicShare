@@ -441,6 +441,8 @@ public class Commander implements CommandExecutor
 		sender.sendMessage(ChatColor.GREEN + "KarmicShare v"
 				+ plugin.getDescription().getVersion());
 		sender.sendMessage(ChatColor.GREEN + "Coded by Mitsugaru");
+		sender.sendMessage(ChatColor.WHITE
+				+ "Shout outs: " + ChatColor.GOLD + "@khanjal");
 		sender.sendMessage(ChatColor.BLUE + "===========" + ChatColor.GRAY
 				+ "Config" + ChatColor.BLUE + "===========");
 		sender.sendMessage(ChatColor.GRAY + "Effects: " + config.effects);
