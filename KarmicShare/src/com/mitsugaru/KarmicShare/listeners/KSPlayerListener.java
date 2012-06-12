@@ -17,7 +17,7 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.logic.Karma.Direction;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 public class KSPlayerListener implements Listener
@@ -87,7 +87,7 @@ public class KSPlayerListener implements Listener
 			return;
 		}
 		// Check permission
-		if (!PermCheck.checkPermission(event.getPlayer(), PermissionNode.CHEST))
+		if (!PermissionHandler.has(event.getPlayer(), PermissionNode.CHEST))
 		{
 			event.getPlayer().sendMessage(
 					ChatColor.RED + KarmicShare.TAG + " Lack permission: "

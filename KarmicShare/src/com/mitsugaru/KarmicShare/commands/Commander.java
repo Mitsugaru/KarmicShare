@@ -18,7 +18,7 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.config.Config;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.logic.Karma.Direction;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 public class Commander implements CommandExecutor
@@ -62,7 +62,7 @@ public class Commander implements CommandExecutor
 		if (args.length == 0)
 		{
 			// Check if they have "karma" permission
-			if (PermCheck.checkPermission(sender, PermissionNode.KARMA))
+			if (PermissionHandler.has(sender, PermissionNode.KARMA))
 			{
 				if (!config.karmaDisabled)
 				{
@@ -158,7 +158,7 @@ public class Commander implements CommandExecutor
 			else if (com.equals("prev"))
 			{
 				// Previous page of item pool
-				if (PermCheck.checkPermission(sender,
+				if (PermissionHandler.has(sender,
 						PermissionNode.COMMANDS_LIST))
 				{
 					// List, with previous page
@@ -174,7 +174,7 @@ public class Commander implements CommandExecutor
 			else if (com.equals("next"))
 			{
 				// Next page of item pool
-				if (PermCheck.checkPermission(sender,
+				if (PermissionHandler.has(sender,
 						PermissionNode.COMMANDS_LIST))
 				{
 					// List with next page
@@ -190,7 +190,7 @@ public class Commander implements CommandExecutor
 			else if (com.equals("list"))
 			{
 				// List items in pool
-				if (PermCheck.checkPermission(sender,
+				if (PermissionHandler.has(sender,
 						PermissionNode.COMMANDS_LIST))
 				{
 					ListCommands.listCommand(sender, args);
@@ -205,7 +205,7 @@ public class Commander implements CommandExecutor
 			else if (com.equals("value"))
 			{
 				// Ask for karma multipliers / page through muliplier list
-				if (PermCheck.checkPermission(sender,
+				if (PermissionHandler.has(sender,
 						PermissionNode.COMMANDS_VALUE))
 				{
 					ListCommands.valueCommand(sender, args);
@@ -221,7 +221,7 @@ public class Commander implements CommandExecutor
 			{
 				if (plugin.useChest())
 				{
-					if (PermCheck.checkPermission(sender, PermissionNode.CHEST))
+					if (PermissionHandler.has(sender, PermissionNode.CHEST))
 					{
 						if (args.length > 1)
 						{
@@ -297,7 +297,7 @@ public class Commander implements CommandExecutor
 			if (sender instanceof Player)
 			{
 				final Player player = (Player) sender;
-				if (PermCheck.checkPermission(sender,
+				if (PermissionHandler.has(sender,
 						PermissionNode.COMMANDS_OPEN))
 				{
 					// Check if in valid world
@@ -391,8 +391,8 @@ public class Commander implements CommandExecutor
 			if (args.length > 1)
 			{
 				// Check if they have the permission node
-				if (PermCheck.checkPermission(sender, "KarmicShare.admin")
-						|| PermCheck.checkPermission(sender,
+				if (PermissionHandler.has(sender, "KarmicShare.admin")
+						|| PermissionHandler.has(sender,
 								"KarmicShare.karma.other"))
 				{
 					// attempt to parse name
@@ -496,12 +496,12 @@ public class Commander implements CommandExecutor
 				+ "KarmicShare" + ChatColor.BLUE + "=====");
 		sender.sendMessage(ChatColor.GREEN + "/ks" + ChatColor.YELLOW
 				+ " : Show karma");
-		if (PermCheck.checkPermission(sender, PermissionNode.GIVE))
+		if (PermissionHandler.has(sender, PermissionNode.GIVE))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks give" + ChatColor.YELLOW
 					+ " : Give item stack in current hand");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.TAKE))
+		if (PermissionHandler.has(sender, PermissionNode.TAKE))
 		{
 			sender.sendMessage(ChatColor.GREEN
 					+ "/ks take <item>[:data] [amount]" + ChatColor.YELLOW
@@ -510,61 +510,61 @@ public class Commander implements CommandExecutor
 					+ "/ks take <item name> [amount]" + ChatColor.YELLOW
 					+ " : Take item(s) from pool");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.COMMANDS_LIST))
+		if (PermissionHandler.has(sender, PermissionNode.COMMANDS_LIST))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks list [page]"
 					+ ChatColor.YELLOW + " : List items in pool");
 			sender.sendMessage(ChatColor.GREEN + "/ks <prev | next>"
 					+ ChatColor.YELLOW + " : Show previous/next page of list");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.COMMANDS_VALUE))
+		if (PermissionHandler.has(sender, PermissionNode.COMMANDS_VALUE))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks value [prev|next|page#]"
 					+ ChatColor.YELLOW + " : List karma multiplier values");
 		}
 		if (plugin.useChest()
-				&& PermCheck.checkPermission(sender, PermissionNode.CHEST))
+				&& PermissionHandler.has(sender, PermissionNode.CHEST))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks page <num>"
 					+ ChatColor.YELLOW + " : Jump page numbers for chests");
 			sender.sendMessage(ChatColor.GREEN + "/ks open [page]"
 					+ ChatColor.YELLOW + " : Open inventory view");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.GROUP_CREATE)
-				|| PermCheck.checkPermission(sender, PermissionNode.GROUP_ADD)
-				|| PermCheck.checkPermission(sender,
+		if (PermissionHandler.has(sender, PermissionNode.GROUP_CREATE)
+				|| PermissionHandler.has(sender, PermissionNode.GROUP_ADD)
+				|| PermissionHandler.has(sender,
 						PermissionNode.GROUP_REMOVE)
-				|| PermCheck
-						.checkPermission(sender, PermissionNode.GROUP_LEAVE))
+				|| PermissionHandler
+						.has(sender, PermissionNode.GROUP_LEAVE))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks group" + ChatColor.YELLOW
 					+ " : List group commands");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.INFO))
+		if (PermissionHandler.has(sender, PermissionNode.INFO))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks info" + ChatColor.YELLOW
 					+ " : Inspect currently held item");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.KARMA_OTHER))
+		if (PermissionHandler.has(sender, PermissionNode.KARMA_OTHER))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks player <name>"
 					+ ChatColor.YELLOW + " : Show karma for given player name");
 		}
-		if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_ADD)
-				|| PermCheck
-						.checkPermission(sender, PermissionNode.ADMIN_RESET)
-				|| PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET)
-				|| PermCheck
-						.checkPermission(sender, PermissionNode.ADMIN_DRAIN)
-				|| PermCheck.checkPermission(sender,
+		if (PermissionHandler.has(sender, PermissionNode.ADMIN_ADD)
+				|| PermissionHandler
+						.has(sender, PermissionNode.ADMIN_RESET)
+				|| PermissionHandler.has(sender, PermissionNode.ADMIN_SET)
+				|| PermissionHandler
+						.has(sender, PermissionNode.ADMIN_DRAIN)
+				|| PermissionHandler.has(sender,
 						PermissionNode.ADMIN_RELOAD)
-				|| PermCheck.checkPermission(sender,
+				|| PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_ADD)
-				|| PermCheck.checkPermission(sender,
+				|| PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_CREATE)
-				|| PermCheck.checkPermission(sender,
+				|| PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_DELETE)
-				|| PermCheck.checkPermission(sender,
+				|| PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_REMOVE))
 		{
 			sender.sendMessage(ChatColor.GREEN + "/ks admin" + ChatColor.YELLOW

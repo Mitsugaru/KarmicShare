@@ -19,7 +19,7 @@ import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.logic.ItemLogic;
 import com.mitsugaru.KarmicShare.logic.Karma;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 public class ItemCommands
@@ -45,13 +45,13 @@ public class ItemCommands
 		}
 		Player player = (Player) sender;
 		// Check if they have "take" permission
-		if (!PermCheck.checkPermission(sender, PermissionNode.TAKE))
+		if (!PermissionHandler.has(sender, PermissionNode.TAKE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: " + PermissionNode.TAKE.getNode());
 			return;
 		}
-		if (!PermCheck.checkPermission(sender, PermissionNode.COMMANDS_TAKE))
+		if (!PermissionHandler.has(sender, PermissionNode.COMMANDS_TAKE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "
@@ -378,13 +378,13 @@ public class ItemCommands
 		}
 		Player player = (Player) sender;
 		// Check if they have "give" permission
-		if (!PermCheck.checkPermission(sender, PermissionNode.GIVE))
+		if (!PermissionHandler.has(sender, PermissionNode.GIVE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: " + PermissionNode.GIVE.getNode());
 			return;
 		}
-		if (!PermCheck.checkPermission(sender, PermissionNode.COMMANDS_GIVE))
+		if (!PermissionHandler.has(sender, PermissionNode.COMMANDS_GIVE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "
@@ -438,7 +438,7 @@ public class ItemCommands
 			return;
 		}
 		// Permission check
-		if (!PermCheck.checkPermission(sender, PermissionNode.INFO))
+		if (!PermissionHandler.has(sender, PermissionNode.INFO))
 		{
 			// Lack permission
 			sender.sendMessage(KarmicShare.TAG + " Lack permission: "

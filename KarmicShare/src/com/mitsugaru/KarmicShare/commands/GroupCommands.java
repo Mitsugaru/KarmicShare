@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.logic.Karma;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 public class GroupCommands
@@ -38,24 +38,24 @@ public class GroupCommands
 			// Show group commands help menu
 			sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.LIGHT_PURPLE
 					+ "KarmicShare Group" + ChatColor.BLUE + "===");
-			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_CREATE))
+			if (PermissionHandler.has(sender, PermissionNode.GROUP_CREATE))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks group create <name>"
 						+ ChatColor.YELLOW + " : Creates a new group");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_ADD))
+			if (PermissionHandler.has(sender, PermissionNode.GROUP_ADD))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks group add <group> <player> [player2] ..."
 						+ ChatColor.YELLOW + " : Adds a player to the group");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_REMOVE))
+			if (PermissionHandler.has(sender, PermissionNode.GROUP_REMOVE))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks group remove <group> <player> [player2] ..."
 						+ ChatColor.YELLOW + " : Removes player from the group");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.GROUP_LEAVE))
+			if (PermissionHandler.has(sender, PermissionNode.GROUP_LEAVE))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks group leave <group> [group2] ..."
@@ -99,7 +99,7 @@ public class GroupCommands
 
 	private static boolean leaveGroup(CommandSender sender, String[] args)
 	{
-		if (!PermCheck.checkPermission(sender, PermissionNode.GROUP_LEAVE))
+		if (!PermissionHandler.has(sender, PermissionNode.GROUP_LEAVE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "
@@ -184,7 +184,7 @@ public class GroupCommands
 				{
 					valid = true;
 				}
-				else if (PermCheck.checkPermission(sender,
+				else if (PermissionHandler.has(sender,
 						PermissionNode.IGNORE_GROUP))
 				{
 					valid = true;
@@ -220,7 +220,7 @@ public class GroupCommands
 
 	private static boolean removeFromGroup(CommandSender sender, String[] args)
 	{
-		if (!PermCheck.checkPermission(sender, PermissionNode.GROUP_REMOVE))
+		if (!PermissionHandler.has(sender, PermissionNode.GROUP_REMOVE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "
@@ -321,7 +321,7 @@ public class GroupCommands
 
 	private static boolean addToGroup(CommandSender sender, String[] args)
 	{
-		if (!PermCheck.checkPermission(sender, PermissionNode.GROUP_ADD))
+		if (!PermissionHandler.has(sender, PermissionNode.GROUP_ADD))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "
@@ -431,7 +431,7 @@ public class GroupCommands
 
 	private static boolean createGroup(CommandSender sender, String[] args)
 	{
-		if (!PermCheck.checkPermission(sender, PermissionNode.GROUP_CREATE))
+		if (!PermissionHandler.has(sender, PermissionNode.GROUP_CREATE))
 		{
 			sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Lack permission: "

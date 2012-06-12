@@ -18,7 +18,7 @@ import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
 import com.mitsugaru.KarmicShare.inventory.Item;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
 public class ItemLogic
@@ -208,7 +208,7 @@ public class ItemLogic
 	public static int takeItem(Player player, ItemStack item, String group)
 	{
 		// Check if they have "take" permission
-		if (!PermCheck.checkPermission(player, PermissionNode.TAKE))
+		if (!PermissionHandler.has(player, PermissionNode.TAKE))
 		{
 			if (plugin.getPluginConfig().debugItem)
 			{
@@ -234,7 +234,7 @@ public class ItemLogic
 		int karma = 0;
 		if (!plugin.getPluginConfig().karmaDisabled)
 		{
-			if (!PermCheck.checkPermission(player, PermissionNode.IGNORE_KARMA))
+			if (!PermissionHandler.has(player, PermissionNode.IGNORE_KARMA))
 			{
 				if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
 						.equalsIgnoreCase("self_" + player.getName())))
@@ -293,7 +293,7 @@ public class ItemLogic
 			boolean hasKarma = false;
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
-				if (!PermCheck.checkPermission(player,
+				if (!PermissionHandler.has(player,
 						PermissionNode.IGNORE_KARMA))
 				{
 					if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
@@ -686,7 +686,7 @@ public class ItemLogic
 			// Update karma
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
-				if (!PermCheck.checkPermission(player,
+				if (!PermissionHandler.has(player,
 						PermissionNode.IGNORE_KARMA))
 				{
 					if (!(plugin.getPluginConfig().karmaIgnoreSelf && group
@@ -725,7 +725,7 @@ public class ItemLogic
 
 	public static boolean giveItem(Player player, ItemStack item, String group)
 	{
-		if (!PermCheck.checkPermission(player, PermissionNode.GIVE))
+		if (!PermissionHandler.has(player, PermissionNode.GIVE))
 		{
 			if (plugin.getPluginConfig().debugItem)
 			{
@@ -985,7 +985,7 @@ public class ItemLogic
 			// Update karma
 			if (!plugin.getPluginConfig().karmaDisabled)
 			{
-				if (!PermCheck.checkPermission(player,
+				if (!PermissionHandler.has(player,
 						PermissionNode.IGNORE_KARMA))
 				{
 					if (!(plugin.getPluginConfig().karmaIgnoreSelf && group

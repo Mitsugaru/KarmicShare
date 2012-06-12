@@ -14,7 +14,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.splatbang.betterchest.BetterChest;
 
@@ -44,7 +44,7 @@ public class KSBlockListener implements Listener
 			return;
 		}
 		// Check permission
-		if (!PermCheck.checkPermission(event.getPlayer(), PermissionNode.SIGN))
+		if (!PermissionHandler.has(event.getPlayer(), PermissionNode.SIGN))
 		{
 			event.getPlayer().sendMessage(
 					ChatColor.RED + KarmicShare.TAG + " Lack permission: "
@@ -261,7 +261,7 @@ public class KSBlockListener implements Listener
 			}
 			if (has)
 			{
-				if (PermCheck.checkPermission(event.getPlayer(),
+				if (PermissionHandler.has(event.getPlayer(),
 						PermissionNode.SIGN))
 				{
 					if (event.getBlock().getRelative(BlockFace.DOWN).getType()

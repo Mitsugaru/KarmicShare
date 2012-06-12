@@ -16,7 +16,7 @@ import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.logic.Karma;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.mitsugaru.KarmicShare.prompts.CleanupQuestion;
 import com.mitsugaru.KarmicShare.prompts.DrainQuestion;
@@ -55,62 +55,62 @@ public class AdminCommands
 			// Show admin commands help menu
 			sender.sendMessage(ChatColor.BLUE + "===" + ChatColor.RED
 					+ "KarmicShare Admin" + ChatColor.BLUE + "===");
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_ADD))
+			if (PermissionHandler.has(sender, PermissionNode.ADMIN_ADD))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin add <item>[:data] [amount]"
 						+ ChatColor.YELLOW + " : Add item(s) to pool");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_RESET))
+			if (PermissionHandler.has(sender, PermissionNode.ADMIN_RESET))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks admin reset <player>"
 						+ ChatColor.YELLOW + " : Resets player's karma");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET))
+			if (PermissionHandler.has(sender, PermissionNode.ADMIN_SET))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin set <player> <karma>" + ChatColor.YELLOW
 						+ " : Sets player's karma to value");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
+			if (PermissionHandler.has(sender, PermissionNode.ADMIN_DRAIN))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks admin drain [group]"
 						+ ChatColor.YELLOW + " : Empty item pool");
 			}
-			if (PermCheck.checkPermission(sender,
+			if (PermissionHandler.has(sender,
 					PermissionNode.ADMIN_GROUP_CREATE))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group create <group>" + ChatColor.YELLOW
 						+ " : Create group in database");
 			}
-			if (PermCheck.checkPermission(sender,
+			if (PermissionHandler.has(sender,
 					PermissionNode.ADMIN_GROUP_DELETE))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group delete <group>" + ChatColor.YELLOW
 						+ " : Remove group from database");
 			}
-			if (PermCheck.checkPermission(sender,
+			if (PermissionHandler.has(sender,
 					PermissionNode.ADMIN_GROUP_ADD))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group add  <group> <player> [player2] ..."
 						+ ChatColor.YELLOW + " : Force add player to group");
 			}
-			if (PermCheck.checkPermission(sender,
+			if (PermissionHandler.has(sender,
 					PermissionNode.ADMIN_GROUP_REMOVE))
 			{
 				sender.sendMessage(ChatColor.GREEN
 						+ "/ks admin group remove  <group> <player> [player2] ..."
 						+ ChatColor.YELLOW + " : Force remove player to group");
 			}
-			if (PermCheck.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
+			if (PermissionHandler.has(sender, PermissionNode.ADMIN_CLEANUP))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks admin cleanup"
 						+ ChatColor.YELLOW + " : Run cleanup task");
 			}
-			if (PermCheck.checkPermission(sender, "KarmicShare.admin.reload"))
+			if (PermissionHandler.has(sender, "KarmicShare.admin.reload"))
 			{
 				sender.sendMessage(ChatColor.GREEN + "/ks admin reload"
 						+ ChatColor.YELLOW + " : Reload configuration");
@@ -124,7 +124,7 @@ public class AdminCommands
 		// Add generated items to pool
 		if (com.equals("add"))
 		{
-			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_ADD))
+			if (!PermissionHandler.has(sender, PermissionNode.ADMIN_ADD))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -331,7 +331,7 @@ public class AdminCommands
 		}
 		else if (com.equals("drain"))
 		{
-			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_DRAIN))
+			if (!PermissionHandler.has(sender, PermissionNode.ADMIN_DRAIN))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -386,8 +386,8 @@ public class AdminCommands
 		}
 		else if (com.equals("cleanup"))
 		{
-			if (!PermCheck
-					.checkPermission(sender, PermissionNode.ADMIN_CLEANUP))
+			if (!PermissionHandler
+					.has(sender, PermissionNode.ADMIN_CLEANUP))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -416,7 +416,7 @@ public class AdminCommands
 		}
 		else if (com.equals("reload"))
 		{
-			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_RELOAD))
+			if (!PermissionHandler.has(sender, PermissionNode.ADMIN_RELOAD))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -431,7 +431,7 @@ public class AdminCommands
 		}
 		else if (com.equals("reset"))
 		{
-			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_RESET))
+			if (!PermissionHandler.has(sender, PermissionNode.ADMIN_RESET))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -551,7 +551,7 @@ public class AdminCommands
 		}
 		else if (com.equals("set"))
 		{
-			if (!PermCheck.checkPermission(sender, PermissionNode.ADMIN_SET))
+			if (!PermissionHandler.has(sender, PermissionNode.ADMIN_SET))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
 						+ " Lack permission: "
@@ -670,7 +670,7 @@ public class AdminCommands
 			final String groupCom = args[2];
 			if (groupCom.equals("delete"))
 			{
-				if (!PermCheck.checkPermission(sender,
+				if (!PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_DELETE))
 				{
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -740,7 +740,7 @@ public class AdminCommands
 			}
 			else if (groupCom.equals("create"))
 			{
-				if (!PermCheck.checkPermission(sender,
+				if (!PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_CREATE))
 				{
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -775,7 +775,7 @@ public class AdminCommands
 			}
 			else if (groupCom.equals("add"))
 			{
-				if (!PermCheck.checkPermission(sender,
+				if (!PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_ADD))
 				{
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -869,7 +869,7 @@ public class AdminCommands
 			}
 			else if (com.equals("remove"))
 			{
-				if (!PermCheck.checkPermission(sender,
+				if (!PermissionHandler.has(sender,
 						PermissionNode.ADMIN_GROUP_REMOVE))
 				{
 					sender.sendMessage(ChatColor.RED + KarmicShare.TAG

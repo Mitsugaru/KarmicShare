@@ -22,7 +22,7 @@ import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
 import com.mitsugaru.KarmicShare.listeners.KSPlayerListener;
 import com.mitsugaru.KarmicShare.logic.ItemLogic;
 import com.mitsugaru.KarmicShare.logic.Karma;
-import com.mitsugaru.KarmicShare.permissions.PermCheck;
+import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.update.Update;
 
 public class KarmicShare extends JavaPlugin
@@ -72,7 +72,7 @@ public class KarmicShare extends JavaPlugin
 		// Database handler
 		database = new DatabaseHandler(this, config);
 		// Initialize permission handler
-		PermCheck.init(this);
+		PermissionHandler.init(this);
 		// Initialize Karma logic handler
 		Karma.init(this);
 		// Initialize ItemLogic handler
