@@ -10,16 +10,16 @@ import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 
-public class GroupCommands
+class GroupCommands
 {
 	private static KarmicShare plugin;
 
-	public static void init(KarmicShare ks)
+	static void init(KarmicShare ks)
 	{
 		plugin = ks;
 	}
 
-	public static void parseCommand(CommandSender sender, String[] args)
+	static void parseCommand(CommandSender sender, String[] args)
 	{
 		if (args.length > 1)
 		{
@@ -69,7 +69,7 @@ public class GroupCommands
 	// TODO need to also check against if they are creator/manager of group
 	// TODO group settings
 	// TODO list groups, highlight public versus private groups
-	public static boolean groupCommand(CommandSender sender, String[] args)
+	static boolean groupCommand(CommandSender sender, String[] args)
 	{
 		// Show group commands help menu
 		final String com = args[1];

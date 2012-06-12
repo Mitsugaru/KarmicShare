@@ -24,20 +24,20 @@ import com.mitsugaru.KarmicShare.prompts.PlayerKarmaResetQuestion;
 import com.mitsugaru.KarmicShare.prompts.RemoveGroupQuestion;
 import com.mitsugaru.KarmicShare.tasks.RemoveGroupTask;
 
-public class AdminCommands
+class AdminCommands
 {
 	private static KarmicShare plugin;
 	private static Config config;
 	private static ConversationFactory factory;
 
-	public static void init(KarmicShare ks)
+	static void init(KarmicShare ks)
 	{
 		plugin = ks;
 		config = ks.getPluginConfig();
 		factory = new ConversationFactory(ks);
 	}
 
-	public static void parseCommand(CommandSender sender, String[] args)
+	static void parseCommand(CommandSender sender, String[] args)
 	{
 		if (args.length > 1)
 		{

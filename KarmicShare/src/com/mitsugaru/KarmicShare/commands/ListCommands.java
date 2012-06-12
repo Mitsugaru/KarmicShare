@@ -14,18 +14,18 @@ import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.logic.Karma;
 
-public class ListCommands
+class ListCommands
 {
 	private static KarmicShare plugin;
 	private static Config config;
 
-	public static void init(KarmicShare ks)
+	static void init(KarmicShare ks)
 	{
 		plugin = ks;
 		config = ks.getPluginConfig();
 	}
 
-	public static void valueCommand(CommandSender sender, String[] args)
+	static void valueCommand(CommandSender sender, String[] args)
 	{
 		if (!config.karmaDisabled)
 		{
@@ -76,7 +76,7 @@ public class ListCommands
 		}
 	}
 
-	public static void listCommand(CommandSender sender, String[] args)
+	static void listCommand(CommandSender sender, String[] args)
 	{
 		// TODO allow people to "find" items
 		// i.e. limit list entries to what they want
@@ -239,7 +239,7 @@ public class ListCommands
 	 *            of the page to change to, if needed. Zero shows current page.
 	 */
 	@SuppressWarnings("unchecked")
-	public static void listPool(CommandSender sender, int pageAdjust)
+	static void listPool(CommandSender sender, int pageAdjust)
 	{
 		String current = Karma.selectedGroup.get(sender.getName());
 		if (current == null)

@@ -27,13 +27,13 @@ public class ItemCommands
 	private static KarmicShare plugin;
 	private static Config config;
 
-	public static void init(KarmicShare ks)
+	static void init(KarmicShare ks)
 	{
 		plugin = ks;
 		config = ks.getPluginConfig();
 	}
 
-	public static void takeItem(CommandSender sender, String[] args)
+	static void takeItem(CommandSender sender, String[] args)
 	{
 		// Take item from pool
 		// Check if player sent command
@@ -365,7 +365,7 @@ public class ItemCommands
 		}
 	}
 
-	public static void giveItem(CommandSender sender, String[] args)
+	static void giveItem(CommandSender sender, String[] args)
 	{
 		// TODO allow for player to specify item and amount
 		// parse more parameters to allow spaces for item names
@@ -427,7 +427,7 @@ public class ItemCommands
 				+ ChatColor.AQUA + i.name + ChatColor.GREEN + " to pool.");
 	}
 
-	public static void inspectItem(CommandSender sender, String[] args)
+	static void inspectItem(CommandSender sender, String[] args)
 	{
 		// Inspect item in hand
 		if (!(sender instanceof Player))
