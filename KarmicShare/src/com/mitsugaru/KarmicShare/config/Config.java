@@ -105,7 +105,6 @@ public class Config
 		password = config.getString("mysql.password", "password");
 		tablePrefix = config.getString("mysql.prefix", "ks_");
 		importSQL = config.getBoolean("mysql.import", false);
-		statickarma = config.getBoolean("karma.static", false);
 		//reload to load other settings
 		reloadConfig();
 	}
@@ -212,6 +211,7 @@ public class Config
 		lowerPercent = config.getDouble("karma.lower.percent", 0.15);
 		playerKarmaDefault = config.getInt("karma.playerDefault", 0);
 		karmaChange = config.getInt("karma.changeDefault", 1);
+		statickarma = config.getBoolean("karma.static", false);
 		effects = config.getBoolean("effects", true);
 		chests = config.getBoolean("chests", false);
 		listlimit = config.getInt("listlimit", 10);
