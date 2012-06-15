@@ -685,14 +685,14 @@ public class Karma
 		// Show inventory
 		final GroupPageInfo info = new GroupPageInfo(group, page);
 		Inventory inventory = null;
-		if (Karma.inventories.containsKey(info))
+		if (inventories.containsKey(info))
 		{
 			if (plugin.getPluginConfig().debugInventory)
 			{
 				plugin.getLogger().info("inventory already open");
 			}
 			// Grab already open inventory
-			inventory = Karma.inventories.get(info).getInventory();
+			inventory = inventories.get(info).getInventory();
 		}
 		else
 		{
@@ -705,7 +705,7 @@ public class Karma
 					group + " : " + page);
 			populateInventory(inventory, page, group);
 			holder.setInventory(inventory);
-			Karma.inventories.put(info, holder);
+			inventories.put(info, holder);
 		}
 		// Set task
 		final int id = plugin
