@@ -459,54 +459,7 @@ class AdminCommands
 			{
 				name = args[2];
 			}
-			// SQL query to get player count for specified name
-			String query = "SELECT COUNT(*) FROM " + Table.PLAYERS.getName()
-					+ " WHERE playername='" + name + "';";
-			Query rs = plugin.getDatabaseHandler().select(query);
-			// Check ResultSet
-			boolean has = false;
-			try
-			{
-				if (rs.getResult().next())
-				{
-					// Check if only received 1 entry
-					if (rs.getResult().getInt(1) == 1)
-					{
-						// we have a single name
-						has = true;
-					}
-					else if (rs.getResult().getInt(1) > 1)
-					{
-						sender.sendMessage(ChatColor.RED
-								+ KarmicShare.TAG
-								+ " Got more than one result. Possibly incomplete name?");
-					}
-					else
-					{
-						// Player not in database, therefore error
-						// on player part
-						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ " Player " + ChatColor.WHITE + name
-								+ ChatColor.RED + " not in database.");
-						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ " Player names are case sensitive.");
-					}
-				}
-				else
-				{
-					// Error in query...
-					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ " SQL query error");
-				}
-				rs.getResult().close();
-			}
-			catch (SQLException e)
-			{
-				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ "Could not reset " + name + "'s karma");
-				e.printStackTrace();
-			}
-			if (has)
+			if (Karma.hasPlayerFromPartialName(sender, name))
 			{
 				if (sender instanceof Player)
 				{
@@ -600,55 +553,7 @@ class AdminCommands
 						+ " is not a valid integer");
 				return false;
 			}
-			// SQL query to get player count for specified name
-			String query = "SELECT COUNT(*) FROM " + Table.PLAYERS.getName()
-					+ " WHERE playername='" + name + "';";
-			Query rs = plugin.getDatabaseHandler().select(query);
-			// Check ResultSet
-			boolean has = false;
-			try
-			{
-				if (rs.getResult().next())
-				{
-					// Check if only received 1 entry
-					if (rs.getResult().getInt(1) == 1)
-					{
-						// we have a single name
-						has = true;
-					}
-					else if (rs.getResult().getInt(1) > 1)
-					{
-						sender.sendMessage(ChatColor.RED
-								+ KarmicShare.TAG
-								+ " Got more than one result. Possibly incomplete name?");
-					}
-					else
-					{
-						// Player not in database, therefore
-						// error
-						// on player part
-						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ " Player " + ChatColor.WHITE + name
-								+ ChatColor.RED + " not in database.");
-						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ " Player names are case sensitive.");
-					}
-				}
-				else
-				{
-					// Error in query...
-					sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-							+ " SQL query error");
-				}
-				rs.closeQuery();
-			}
-			catch (SQLException e)
-			{
-				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " Could not set " + name + "'s karma");
-				e.printStackTrace();
-			}
-			if (has)
+			if (Karma.hasPlayerFromPartialName(sender, name))
 			{
 				Karma.setPlayerKarma(name, amount);
 				sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG + " "

@@ -256,29 +256,7 @@ public class Update
 			 */
 			plugin.getLogger().info("Rebuilding player table...");
 			// Save old players
-			List<ZeroPointTwoSixTwoPlayerObject> playerList = new ArrayList<ZeroPointTwoSixTwoPlayerObject>();
-			try
-			{
-				Query rs = plugin.getDatabaseHandler().select(
-						"SELECT * FROM " + Table.PLAYERS.getName());
-				if (rs.getResult().next())
-				{
-					do
-					{
-						final String playerGroups = rs.getResult().getString(
-								"groups");
-						playerList.add(new ZeroPointTwoSixTwoPlayerObject(rs
-								.getResult().getString("playername"), rs
-								.getResult().getInt("karma"), playerGroups));
-					} while (rs.getResult().next());
-				}
-				rs.closeQuery();
-			}
-			catch (SQLException sql)
-			{
-				plugin.getLogger().warning("SQL Exception");
-				sql.printStackTrace();
-			}
+			List<ZeroPointTwoSixTwoPlayerObject> playerList = getTwoSixTwoPlayerList();
 			// Drop previous table
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.PLAYERS.getName() + ";");
@@ -507,29 +485,7 @@ public class Update
 			 */
 			plugin.getLogger().info("Fixing player table...");
 			// Save old players
-			List<ZeroPointTwoSixTwoPlayerObject> playerList = new ArrayList<ZeroPointTwoSixTwoPlayerObject>();
-			try
-			{
-				Query rs = plugin.getDatabaseHandler().select(
-						"SELECT * FROM " + Table.PLAYERS.getName());
-				if (rs.getResult().next())
-				{
-					do
-					{
-						final String playerGroups = rs.getResult().getString(
-								"groups");
-						playerList.add(new ZeroPointTwoSixTwoPlayerObject(rs
-								.getResult().getString("playername"), rs
-								.getResult().getInt("karma"), playerGroups));
-					} while (rs.getResult().next());
-				}
-				rs.closeQuery();
-			}
-			catch (SQLException sql)
-			{
-				plugin.getLogger().warning("SQL Exception");
-				sql.printStackTrace();
-			}
+			List<ZeroPointTwoSixTwoPlayerObject> playerList = getTwoSixTwoPlayerList();
 			// Fix groups
 			final int globalId = Karma.getGroupId("global");
 			for (final ZeroPointTwoSixTwoPlayerObject player : playerList)
@@ -598,5 +554,33 @@ public class Update
 		plugin.getConfig().set("version", plugin.getDescription().getVersion());
 		plugin.saveConfig();
 		plugin.getLogger().info("Upgrade complete");
+	}
+	
+	private static List<ZeroPointTwoSixTwoPlayerObject> getTwoSixTwoPlayerList()
+	{
+	    List<ZeroPointTwoSixTwoPlayerObject> playerList = new ArrayList<ZeroPointTwoSixTwoPlayerObject>();
+        try
+        {
+            Query rs = plugin.getDatabaseHandler().select(
+                    "SELECT * FROM " + Table.PLAYERS.getName());
+            if (rs.getResult().next())
+            {
+                do
+                {
+                    final String playerGroups = rs.getResult().getString(
+                            "groups");
+                    playerList.add(new ZeroPointTwoSixTwoPlayerObject(rs
+                            .getResult().getString("playername"), rs
+                            .getResult().getInt("karma"), playerGroups));
+                } while (rs.getResult().next());
+            }
+            rs.closeQuery();
+        }
+        catch (SQLException sql)
+        {
+            plugin.getLogger().warning("SQL Exception");
+            sql.printStackTrace();
+        }
+        return playerList;
 	}
 }
