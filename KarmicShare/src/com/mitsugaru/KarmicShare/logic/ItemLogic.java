@@ -455,29 +455,10 @@ public class ItemLogic
 					if (!item.getEnchantments().isEmpty())
 					{
 						// Enchanted
-						StringBuilder sb = new StringBuilder();
-						final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
-						for (Map.Entry<Enchantment, Integer> entry : item
-								.getEnchantments().entrySet())
-						{
-							map.put(new ComparableEnchantment(entry.getKey()),
-									entry.getValue());
-						}
-						TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
-								map.keySet());
-						for (ComparableEnchantment key : keys)
-						{
-							sb.append(key.getId()
-									+ "v"
-									+ item.getEnchantments()
-											.get(key.getEnchantment())
-											.intValue() + "i");
-						}
-						// Remove trailing comma
-						sb.deleteCharAt(sb.length() - 1);
+					    final String enchantString = parseItemEnchantments(item);
 						toolQuery = "SELECT * FROM " + Table.ITEMS.getName()
 								+ " WHERE itemid='" + item.getTypeId()
-								+ "' AND enchantments='" + sb.toString()
+								+ "' AND enchantments='" + enchantString
 								+ "' AND groups='" + groupId + "';";
 						Query toolRS = plugin.getDatabaseHandler().select(
 								toolQuery);
@@ -762,32 +743,14 @@ public class ItemLogic
 					plugin.getLogger().info("enchanted tool");
 				}
 				// Tool has enchantments
-				StringBuilder sb = new StringBuilder();
-				final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
-				for (Map.Entry<Enchantment, Integer> entry : item
-						.getEnchantments().entrySet())
-				{
-					map.put(new ComparableEnchantment(entry.getKey()),
-							entry.getValue());
-				}
-				TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
-						map.keySet());
-				for (ComparableEnchantment key : keys)
-				{
-					sb.append(key.getId()
-							+ "v"
-							+ item.getEnchantments().get(key.getEnchantment())
-									.intValue() + "i");
-				}
-				// Remove trailing comma
-				sb.deleteCharAt(sb.length() - 1);
+				final String enchantString = parseItemEnchantments(item);
 				// Add new instance of item to database
 				query = "INSERT INTO "
 						+ Table.ITEMS.getName()
 						+ " (itemid,amount,data,durability,enchantments,groups) VALUES ('"
 						+ item.getTypeId() + "','" + item.getAmount() + "','"
 						+ item.getData().getData() + "','"
-						+ item.getDurability() + "','" + sb.toString() + "','"
+						+ item.getDurability() + "','" + enchantString + "','"
 						+ groupId + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}
@@ -1061,6 +1024,30 @@ public class ItemLogic
 		// Smoke effect
 		smokePlayer(player);
 		return true;
+	}
+	
+	private static String parseItemEnchantments(ItemStack item)
+	{
+	    final StringBuilder sb = new StringBuilder();
+        final Map<ComparableEnchantment, Integer> map = new HashMap<ComparableEnchantment, Integer>();
+        for (Map.Entry<Enchantment, Integer> entry : item
+                .getEnchantments().entrySet())
+        {
+            map.put(new ComparableEnchantment(entry.getKey()),
+                    entry.getValue());
+        }
+        TreeSet<ComparableEnchantment> keys = new TreeSet<ComparableEnchantment>(
+                map.keySet());
+        for (ComparableEnchantment key : keys)
+        {
+            sb.append(key.getId()
+                    + "v"
+                    + item.getEnchantments().get(key.getEnchantment())
+                            .intValue() + "i");
+        }
+        // Remove trailing comma
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
 	}
 
 	/**
