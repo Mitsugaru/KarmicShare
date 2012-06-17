@@ -100,6 +100,11 @@ public class Commander implements CommandExecutor {
                     }
 
                 }
+                else
+                {
+                    //Show help to console
+                    displayHelp(sender);
+                }
             } else {
                 sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                         + " Lack permission: " + PermissionNode.KARMA.getNode());
