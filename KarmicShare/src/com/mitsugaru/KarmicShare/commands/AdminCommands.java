@@ -11,7 +11,7 @@ import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
@@ -28,13 +28,11 @@ import com.mitsugaru.KarmicShare.tasks.RemoveGroupTask;
 class AdminCommands
 {
 	private static KarmicShare plugin;
-	private static Config config;
 	private static ConversationFactory factory;
 
 	static void init(KarmicShare ks)
 	{
 		plugin = ks;
-		config = ks.getPluginConfig();
 		factory = new ConversationFactory(ks);
 	}
 
@@ -424,7 +422,7 @@ class AdminCommands
 						+ PermissionNode.ADMIN_RELOAD.getNode());
 				return true;
 			}
-			config.reloadConfig();
+			RootConfig.reload();
 			sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 					+ " Config reloaded");
 			Karma.multiPage.clear();
@@ -439,7 +437,7 @@ class AdminCommands
 						+ PermissionNode.ADMIN_RESET.getNode());
 				return true;
 			}
-			if (Config.getBoolean(ConfigNode.KARMA_DISABLED))
+			if (RootConfig.getBoolean(ConfigNode.KARMA_DISABLED))
 			{
 				// Karma system disabled
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -475,7 +473,7 @@ class AdminCommands
 				}
 				else
 				{
-					Karma.setPlayerKarma(name, Config.getInt(ConfigNode.KARMA_PLAYER_DEFAULT));
+					Karma.setPlayerKarma(name, RootConfig.getInt(ConfigNode.KARMA_PLAYER_DEFAULT));
 					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " " + name + "'s karma reset");
 				}
@@ -491,7 +489,7 @@ class AdminCommands
 						+ PermissionNode.ADMIN_SET.getNode());
 				return true;
 			}
-			if (Config.getBoolean(ConfigNode.KARMA_DISABLED))
+			if (RootConfig.getBoolean(ConfigNode.KARMA_DISABLED))
 			{
 				// Karma disabled
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG

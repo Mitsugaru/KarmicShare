@@ -20,7 +20,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.inventory.Item;
 
-public class Config {
+public class RootConfig {
     // Class variables
     private static KarmicShare plugin;
     public static final Map<Item, Integer> karma = new HashMap<Item, Integer>();
@@ -38,7 +38,7 @@ public class Config {
      * @param KarmicShare
      *            plugin
      */
-    public Config(KarmicShare ks) {
+    public static void init(KarmicShare ks) {
         plugin = ks;
         // Grab config
         final ConfigurationSection config = ks.getConfig();
@@ -62,11 +62,11 @@ public class Config {
         updateOption(ConfigNode.MYSQL_TABLE_PREFIX);
         updateOption(ConfigNode.MYSQL_IMPORT);
         // reload to load other settings
-        reloadConfig();
+        reload();
     }
 
     @SuppressWarnings("unchecked")
-    public void updateOption(ConfigNode node) {
+    public static void updateOption(ConfigNode node) {
         final ConfigurationSection config = plugin.getConfig();
         switch (node.getType()) {
             case LIST: {
@@ -112,11 +112,11 @@ public class Config {
         }
     }
 
-    public void set(ConfigNode node, Object o) {
+    public static void set(ConfigNode node, Object o) {
         set(node.getPath(), o);
     }
 
-    public void set(String path, Object o) {
+    public static void set(String path, Object o) {
         final ConfigurationSection config = plugin.getConfig();
         config.set(path, o);
         plugin.saveConfig();
@@ -204,9 +204,9 @@ public class Config {
     /**
      * Loads the per-item karma values into a hashmap for later usage
      */
-    private void loadKarmaMap() {
+    private static void loadKarmaMap() {
         // Load karma file
-        final YamlConfiguration karmaFile = this.karmaFile();
+        final YamlConfiguration karmaFile = karmaFile();
         // Load custom karma file into map
         for (final String entry : karmaFile.getKeys(false)) {
             try {
@@ -243,7 +243,7 @@ public class Config {
     }
 
     @SuppressWarnings("unused")
-    private void loadBlacklist() {
+    private static void loadBlacklist() {
         // final YamlConfiguration blacklistFile = blacklistFile();
         // Load info into set
         // TODO test
@@ -254,7 +254,7 @@ public class Config {
     /**
      * Reloads info from yaml file(s)
      */
-    public void reloadConfig() {
+    public static void reload() {
         // Initial relaod
         plugin.reloadConfig();
         // Grab config
@@ -265,17 +265,17 @@ public class Config {
             // Clear old mappings
             karma.clear();
             // Reload karma mappings
-            this.loadKarmaMap();
+            loadKarmaMap();
         }
         // TODO
         // if (blacklist) {
         // this.loadBlacklist();
         // }
         // Check bounds
-        this.boundsCheck();
+        boundsCheck();
     }
 
-    private void loadSettings(ConfigurationSection config) {
+    private static void loadSettings(ConfigurationSection config) {
 
         updateOption(ConfigNode.CHESTS);
         updateOption(ConfigNode.DISABLED_WORLDS);
@@ -302,7 +302,7 @@ public class Config {
      * Check the bounds on the parameters to make sure that all config variables
      * are legal and usable by the plugin
      */
-    private void boundsCheck() {
+    private static void boundsCheck() {
         // Check upper and lower limits
         if (getInt(ConfigNode.KARMA_UPPER_LIMIT) < getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
             OPTIONS.put(ConfigNode.KARMA_UPPER_LIMIT,
@@ -379,7 +379,7 @@ public class Config {
      * 
      * @return YamlConfiguration file
      */
-    private YamlConfiguration karmaFile() {
+    private static YamlConfiguration karmaFile() {
         final File file = new File(plugin.getDataFolder().getAbsolutePath()
                 + "/karma.yml");
         final YamlConfiguration karmaFile = YamlConfiguration
@@ -438,7 +438,7 @@ public class Config {
     }
 
     @SuppressWarnings("unused")
-    private YamlConfiguration blacklistFile() {
+    private static YamlConfiguration blacklistFile() {
         final File file = new File(plugin.getDataFolder().getAbsolutePath()
                 + "/blacklist.yml");
         final YamlConfiguration blacklistFile = YamlConfiguration

@@ -15,7 +15,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.commands.Commander;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.DatabaseHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
@@ -32,7 +32,6 @@ public class KarmicShare extends JavaPlugin
     protected static KarmicShare instance;
 	private DatabaseHandler database;
 	public static final String TAG = "[KarmicShare]";
-	private Config config;
 	private int cleantask;
 	private boolean chest, economyFound;
 	private Economy eco;
@@ -71,9 +70,9 @@ public class KarmicShare extends JavaPlugin
 	{
 	    instance = this;
 		// Config
-		config = new Config(this);
+		RootConfig.init(this);
 		// Database handler
-		database = new DatabaseHandler(this, config);
+		database = new DatabaseHandler(this);
 		// Initialize permission handler
 		PermissionHandler.init(this);
 		// Initialize Karma logic handler
@@ -86,7 +85,7 @@ public class KarmicShare extends JavaPlugin
 		// Grab Commander to handle commands
 		getCommand("ks").setExecutor(new Commander(this));
 		// Setup economy
-		if (Config.getBoolean(ConfigNode.KARMA_USE_ECONOMY))
+		if (RootConfig.getBoolean(ConfigNode.KARMA_USE_ECONOMY))
 		{
 			setupEconomy();
 			if (!economyFound)
@@ -94,8 +93,8 @@ public class KarmicShare extends JavaPlugin
 				getLogger()
 						.warning(
 								"Economy not setup, but is enabled in config.yml. Reverting to built-in karma system.");
-				config.set("karma.useEconomy", false);
-				config.reloadConfig();
+				RootConfig.set("karma.useEconomy", false);
+				RootConfig.reload();
 			}
 		}
 		// Grab plugin manager
@@ -103,7 +102,7 @@ public class KarmicShare extends JavaPlugin
 		// Register listeners
 		pm.registerEvents(new KSBlockListener(this), this);
 		pm.registerEvents(new KSPlayerListener(this), this);
-		if (Config.getBoolean(ConfigNode.CHESTS))
+		if (RootConfig.getBoolean(ConfigNode.CHESTS))
 		{
 			pm.registerEvents(new KSInventoryListener(this), this);
 			chest = true;
@@ -122,16 +121,6 @@ public class KarmicShare extends JavaPlugin
 	public DatabaseHandler getDatabaseHandler()
 	{
 		return database;
-	}
-
-	/**
-	 * Returns Config object
-	 * 
-	 * @return Config object
-	 */
-	public Config getPluginConfig()
-	{
-		return config;
 	}
 
 	private void setupEconomy()

@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
@@ -35,7 +35,7 @@ public class ItemLogic {
         boolean has = false;
         final int groupId = Karma.getGroupId(group);
         if (groupId == -1) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().warning("Unknown group: " + group);
             }
             player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -49,7 +49,7 @@ public class ItemLogic {
         String query = "";
         int poolAmount = 0;
         if (temp.isTool()) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info("Tool item");
             }
             // Handle tools
@@ -73,7 +73,7 @@ public class ItemLogic {
                 }
                 toolRS.closeQuery();
             } catch (SQLException e) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().warning(
                             "SQLException on hasItem(" + player.getName() + ","
                                     + item.toString() + "," + group + ")");
@@ -84,7 +84,7 @@ public class ItemLogic {
                 return false;
             }
         } else if (temp.isPotion()) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info("Potion item");
             }
             // Separate check to see if its a potion and handle it
@@ -112,7 +112,7 @@ public class ItemLogic {
                 }
                 rs.closeQuery();
             } catch (SQLException e) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().warning(
                             "SQLException on hasItem(" + player.getName() + ","
                                     + item.toString() + "," + group + ")");
@@ -123,7 +123,7 @@ public class ItemLogic {
                 return false;
             }
         } else {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info("Normal item");
             }
             // Not a tool or potion
@@ -150,7 +150,7 @@ public class ItemLogic {
                 }
                 rs.closeQuery();
             } catch (SQLException e) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().warning(
                             "SQLException on hasItem(" + player.getName() + ","
                                     + item.toString() + "," + group + ")");
@@ -161,7 +161,7 @@ public class ItemLogic {
                 return false;
             }
         }
-        if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+        if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
             plugin.getLogger()
                     .info("Has item " + item.toString() + " : " + has);
         }
@@ -171,7 +171,7 @@ public class ItemLogic {
     public static int takeItem(Player player, ItemStack item, String group) {
         // Check if they have "take" permission
         if (!PermissionHandler.has(player, PermissionNode.TAKE)) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info(
                         player.getName() + " lacks take permission");
             }
@@ -181,7 +181,7 @@ public class ItemLogic {
         }
         final int groupId = Karma.getGroupId(group);
         if (groupId == -1) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().warning("Unknown group: " + group);
             }
             player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -190,19 +190,19 @@ public class ItemLogic {
             return -1;
         }
         int karma = 0;
-        if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+        if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
             if (!PermissionHandler.has(player, PermissionNode.IGNORE_KARMA)) {
-                if (!(Config.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
+                if (!(RootConfig.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
                         .equalsIgnoreCase("self_" + player.getName()))) {
                     // Check karma before anything
-                    karma = Config.getInt(ConfigNode.KARMA_PLAYER_DEFAULT);
+                    karma = RootConfig.getInt(ConfigNode.KARMA_PLAYER_DEFAULT);
                     try {
                         karma = Karma.getPlayerKarma(player.getName());
-                        if (karma <= Config
+                        if (karma <= RootConfig
                                 .getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
                             // They are at the limit, or somehow past that for
                             // whatever reason
-                            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                                 plugin.getLogger().info(
                                         "Karma at limit: " + player.getName());
                             }
@@ -211,7 +211,7 @@ public class ItemLogic {
                             return -1;
                         }
                     } catch (SQLException e1) {
-                        if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                        if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                             plugin.getLogger().warning(
                                     "Could not retrieve karma: "
                                             + player.getName());
@@ -230,7 +230,7 @@ public class ItemLogic {
         Item temp = new Item(item);
         try {
             if (!has) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().info("Item not available");
                 }
                 player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -238,20 +238,20 @@ public class ItemLogic {
                 return -1;
             }
             boolean hasKarma = false;
-            if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+            if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
                 if (!PermissionHandler.has(player, PermissionNode.IGNORE_KARMA)) {
-                    if (!(Config.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
+                    if (!(RootConfig.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
                             .equalsIgnoreCase("self_" + player.getName()))) {
                         // Check karma again, before giving item, to
                         // adjust amount
                         // based on karma and karma multipliers
                         int karmaAdj = 0;
                         boolean staticKarma = false;
-                        if (Config.getBoolean(ConfigNode.KARMA_STATIC)) {
+                        if (RootConfig.getBoolean(ConfigNode.KARMA_STATIC)) {
                             staticKarma = true;
                         } else {
                             // Using per-item karma
-                            Item[] karmaList = Config.karma
+                            Item[] karmaList = RootConfig.karma
                                     .keySet().toArray(new Item[0]);
                             // Check if requested item is in the
                             // karma list
@@ -265,22 +265,22 @@ public class ItemLogic {
                             if (hasKarma) {
                                 try {
                                     karmaAdj = karma
-                                            + (Config.karma
+                                            + (RootConfig.karma
                                                     .get(temp) * amount * -1);
-                                    if (karmaAdj < Config
+                                    if (karmaAdj < RootConfig
                                             .getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
                                         // They went beyond the
                                         // lower limit
                                         // adjust amount given based
                                         // on karma now
                                         int tempKarma = Math.abs(karmaAdj)
-                                                - Math.abs(Config
+                                                - Math.abs(RootConfig
                                                         .getInt(ConfigNode.KARMA_LOWER_LIMIT));
                                         int div = tempKarma
-                                                / Config.karma
+                                                / RootConfig.karma
                                                         .get(temp);
                                         int rem = tempKarma
-                                                % Config.karma
+                                                % RootConfig.karma
                                                         .get(temp);
                                         if (rem != 0) {
                                             div++;
@@ -290,7 +290,7 @@ public class ItemLogic {
                                             // Cannot give any items
                                             // as they'd go beyond
                                             // karma limit
-                                            if (Config
+                                            if (RootConfig
                                                     .getBoolean(ConfigNode.DEBUG_ITEM)) {
                                                 plugin.getLogger()
                                                         .info("Not enough karma to take item: "
@@ -325,33 +325,33 @@ public class ItemLogic {
                             // Item does not have a multiplier,
                             // so use default
                             karmaAdj = karma
-                                    + (Config
+                                    + (RootConfig
                                             .getInt(ConfigNode.KARMA_CHANGE_DEFAULT)
                                             * amount * -1);
-                            if (karmaAdj < Config
+                            if (karmaAdj < RootConfig
                                     .getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
                                 // They went beyond the lower
                                 // limit
                                 // adjust amount given based on
                                 // karma now
                                 int tempKarma = Math.abs(karmaAdj)
-                                        - Math.abs(Config
+                                        - Math.abs(RootConfig
                                                 .getInt(ConfigNode.KARMA_LOWER_LIMIT));
                                 int div = tempKarma
-                                        / Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
+                                        / RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
                                 int rem = tempKarma
-                                        % Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
+                                        % RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
                                 if (rem != 0) {
                                     div++;
                                 }
                                 amount -= div;
                                 amount = amount
-                                        / Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
+                                        / RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
                                 if (amount <= 0) {
                                     // Cannot give any items as
                                     // they'd go beyond
                                     // karma limit
-                                    if (Config
+                                    if (RootConfig
                                             .getBoolean(ConfigNode.DEBUG_ITEM)) {
                                         plugin.getLogger().info(
                                                 "Not enough karma to take item: "
@@ -384,7 +384,7 @@ public class ItemLogic {
                                 + "' AND groups='" + groupId + "';";
                         Query toolRS = plugin.getDatabaseHandler().select(
                                 toolQuery);
-                        if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                        if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                             plugin.getLogger().info("Encahnted tool taken");
                         }
                         if (toolRS.getResult().next()) {
@@ -394,7 +394,7 @@ public class ItemLogic {
                                         + Table.ITEMS.getName() + " WHERE id='"
                                         + toolRS.getResult().getInt("id")
                                         + "';";
-                                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                                     plugin.getLogger().info(
                                             "Encahnted tool drop");
                                 }
@@ -407,7 +407,7 @@ public class ItemLogic {
                                         + "' WHERE id='"
                                         + toolRS.getResult().getInt("id")
                                         + "';";
-                                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                                     plugin.getLogger().info(
                                             "Encahnted tool update");
                                 }
@@ -415,7 +415,7 @@ public class ItemLogic {
                         }
                         toolRS.closeQuery();
                     } else {
-                        if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                        if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                             plugin.getLogger().info("Non-enchanted tool");
                         }
                         // Non-enchanted tool
@@ -448,7 +448,7 @@ public class ItemLogic {
                         plugin.getDatabaseHandler().standardQuery(toolQuery);
                     }
                 } catch (SQLException e) {
-                    if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                    if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                         plugin.getLogger().warning(
                                 "SQLException for takeItem(" + player.getName()
                                         + "," + item.toString() + "," + group
@@ -460,7 +460,7 @@ public class ItemLogic {
                     return -1;
                 }
             } else if (temp.isPotion()) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().info("Take potion");
                 }
                 query = "SELECT * FROM " + Table.ITEMS.getName()
@@ -491,7 +491,7 @@ public class ItemLogic {
                     rs.closeQuery();
                     plugin.getDatabaseHandler().standardQuery(query);
                 } catch (SQLException e) {
-                    if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                    if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                         plugin.getLogger().warning(
                                 "SQLException for takeItem(" + player.getName()
                                         + "," + item.toString() + "," + group
@@ -503,7 +503,7 @@ public class ItemLogic {
                     return -1;
                 }
             } else {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().info("normal item");
                 }
                 query = "SELECT * FROM " + Table.ITEMS.getName()
@@ -532,7 +532,7 @@ public class ItemLogic {
                     rs.closeQuery();
                     plugin.getDatabaseHandler().standardQuery(query);
                 } catch (SQLException e) {
-                    if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                    if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                         plugin.getLogger().warning(
                                 "SQLException for takeItem(" + player.getName()
                                         + "," + item.toString() + "," + group
@@ -547,26 +547,26 @@ public class ItemLogic {
             // Smoke effect
             smokePlayer(player);
             // Update karma
-            if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+            if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
                 if (!PermissionHandler.has(player, PermissionNode.IGNORE_KARMA)) {
-                    if (!(Config.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
+                    if (!(RootConfig.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
                             .equalsIgnoreCase("self_" + player.getName()))) {
                         if (hasKarma) {
                             Karma.updatePlayerKarma(player.getName(), amount
-                                    * Config.karma.get(temp)
+                                    * RootConfig.karma.get(temp)
                                     * -1);
                         } else {
                             Karma.updatePlayerKarma(
                                     player.getName(),
                                     amount
-                                            * Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT)
+                                            * RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT)
                                             * -1);
                         }
                     }
                 }
             }
         } catch (SQLException e) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().warning(
                         "SQLException for takeItem(" + player.getName() + ","
                                 + item.toString() + "," + group + ")");
@@ -581,7 +581,7 @@ public class ItemLogic {
 
     public static boolean giveItem(Player player, ItemStack item, String group) {
         if (!PermissionHandler.has(player, PermissionNode.GIVE)) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info(
                         player.getName() + " lacks give permission");
             }
@@ -591,7 +591,7 @@ public class ItemLogic {
         }
         int groupId = Karma.getGroupId(group);
         if (groupId == -1) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().warning("Unknown group " + group);
             }
             player.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -606,7 +606,7 @@ public class ItemLogic {
             // Check if enchanted
             Map<Enchantment, Integer> enchantments = item.getEnchantments();
             if (!enchantments.isEmpty()) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().info("enchanted tool");
                 }
                 // Tool has enchantments
@@ -621,7 +621,7 @@ public class ItemLogic {
                         + groupId + "');";
                 plugin.getDatabaseHandler().standardQuery(query);
             } else {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger().info("non-enchanted tool");
                 }
                 // Normal tool
@@ -661,7 +661,7 @@ public class ItemLogic {
                     rs.closeQuery();
                     plugin.getDatabaseHandler().standardQuery(query);
                 } catch (SQLException e) {
-                    if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                    if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                         plugin.getLogger().warning(
                                 "SQLException for giveItem(" + player.getName()
                                         + "," + item.toString() + "," + group
@@ -674,7 +674,7 @@ public class ItemLogic {
                 }
             }
         } else if (i.isPotion()) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info("Potion item");
             }
             // Handle potion case
@@ -711,7 +711,7 @@ public class ItemLogic {
                 rs.closeQuery();
                 plugin.getDatabaseHandler().standardQuery(query);
             } catch (SQLException e) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger()
                             .warning(
                                     "SQLException for giveItem("
@@ -725,7 +725,7 @@ public class ItemLogic {
                 return false;
             }
         } else {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().info("Normal item");
             }
             // Normal item
@@ -764,7 +764,7 @@ public class ItemLogic {
                 rs.closeQuery();
                 plugin.getDatabaseHandler().standardQuery(query);
             } catch (SQLException e) {
-                if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+                if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                     plugin.getLogger()
                             .warning(
                                     "SQLException for giveItem("
@@ -780,18 +780,18 @@ public class ItemLogic {
         }
         try {
             // Update karma
-            if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+            if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
                 if (!PermissionHandler.has(player, PermissionNode.IGNORE_KARMA)) {
-                    if (!(Config.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
+                    if (!(RootConfig.getBoolean(ConfigNode.KARMA_IGNORE_SELF_GROUP) && group
                             .equalsIgnoreCase("self_" + player.getName()))) {
-                        if (Config.getBoolean(ConfigNode.KARMA_STATIC)) {
+                        if (RootConfig.getBoolean(ConfigNode.KARMA_STATIC)) {
                             Karma.updatePlayerKarma(
                                     player.getName(),
                                     item.getAmount()
-                                            * Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                                            * RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
                         } else {
                             // Check if given item has a multiplier
-                            Item[] karmaList = Config.karma
+                            Item[] karmaList = RootConfig.karma
                                     .keySet().toArray(new Item[0]);
                             boolean hasKarma = false;
                             for (Item k : karmaList) {
@@ -805,7 +805,7 @@ public class ItemLogic {
                                     Karma.updatePlayerKarma(
                                             player.getName(),
                                             item.getAmount()
-                                                    * Config.karma
+                                                    * RootConfig.karma
                                                             .get(i));
                                 } catch (NullPointerException n) {
                                     // Found item, but there is no
@@ -814,20 +814,20 @@ public class ItemLogic {
                                     Karma.updatePlayerKarma(
                                             player.getName(),
                                             item.getAmount()
-                                                    * Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                                                    * RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
                                 }
                             } else {
                                 Karma.updatePlayerKarma(
                                         player.getName(),
                                         item.getAmount()
-                                                * Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                                                * RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
                             }
                         }
                     }
                 }
             }
         } catch (SQLException e) {
-            if (Config.getBoolean(ConfigNode.DEBUG_ITEM)) {
+            if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM)) {
                 plugin.getLogger().warning(
                         "SQLException for giveItem(" + player.getName() + ","
                                 + item.toString() + "," + group + ")");
@@ -874,7 +874,7 @@ public class ItemLogic {
      */
     private static void smokePlayer(Player player) {
         // Check if enabled in config
-        if (!Config.getBoolean(ConfigNode.EFFECTS)) {
+        if (!RootConfig.getBoolean(ConfigNode.EFFECTS)) {
             return;
         }
         // Effect

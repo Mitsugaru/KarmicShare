@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.ChatPaginator;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.logic.Karma.Direction;
@@ -50,14 +50,14 @@ public class Commander implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd,
             String commandLabel, String[] args) {
-        if (Config.getBoolean(ConfigNode.DEBUG_TIME)) {
+        if (RootConfig.getBoolean(ConfigNode.DEBUG_TIME)) {
             time = System.nanoTime();
         }
         // See if any arguments were given
         if (args.length == 0) {
             // Check if they have "karma" permission
             if (PermissionHandler.has(sender, PermissionNode.KARMA)) {
-                if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+                if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
                     // Show player karma
                     this.showPlayerKarma(sender, args);
 
@@ -204,7 +204,7 @@ public class Commander implements CommandExecutor {
                         + " Wrong syntax. Try /ks ? for help.");
             }
         }
-        if (Config.getBoolean(ConfigNode.DEBUG_TIME)) {
+        if (RootConfig.getBoolean(ConfigNode.DEBUG_TIME)) {
             time = System.nanoTime() - time;
             sender.sendMessage("[Debug]" + KarmicShare.TAG + "Process time: "
                     + time);
@@ -236,7 +236,7 @@ public class Commander implements CommandExecutor {
             return;
         }
         final String world = player.getWorld().getName();
-        if (Config.getStringList(ConfigNode.DISABLED_WORLDS).contains(world)) {
+        if (RootConfig.getStringList(ConfigNode.DISABLED_WORLDS).contains(world)) {
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                     + " KarmicShare access disabled for this world.");
             return;
@@ -273,7 +273,7 @@ public class Commander implements CommandExecutor {
 
     private void otherPlayerKarma(CommandSender sender, String[] args) {
         // Check if karma is enabled
-        if (Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+        if (RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
             // karma system disabled
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                     + " Karma disabled");
@@ -319,24 +319,24 @@ public class Commander implements CommandExecutor {
         sender.sendMessage(ChatColor.BLUE + "===========" + ChatColor.GRAY
                 + "Config" + ChatColor.BLUE + "===========");
         sender.sendMessage(ChatColor.GRAY + "Effects: "
-                + Config.getBoolean(ConfigNode.EFFECTS));
+                + RootConfig.getBoolean(ConfigNode.EFFECTS));
         sender.sendMessage(ChatColor.GRAY + "Chests: "
-                + Config.getBoolean(ConfigNode.CHESTS));
+                + RootConfig.getBoolean(ConfigNode.CHESTS));
         sender.sendMessage(ChatColor.GRAY + "Karma enabled: "
-                + !Config.getBoolean(ConfigNode.KARMA_DISABLED));
+                + !RootConfig.getBoolean(ConfigNode.KARMA_DISABLED));
         sender.sendMessage(ChatColor.GRAY + "Static karma: "
-                + Config.getBoolean(ConfigNode.KARMA_STATIC));
+                + RootConfig.getBoolean(ConfigNode.KARMA_STATIC));
         sender.sendMessage(ChatColor.GRAY + "Karma lower-upper limit: "
-                + Config.getInt(ConfigNode.KARMA_LOWER_LIMIT) + " :: "
-                + Config.getInt(ConfigNode.KARMA_UPPER_LIMIT));
+                + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT) + " :: "
+                + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT));
         sender.sendMessage(ChatColor.GRAY + "Karma lower/upper %: "
-                + Config.getDouble(ConfigNode.KARMA_LOWER_PERCENT) * 100
-                + "% / " + Config.getDouble(ConfigNode.KARMA_UPPER_PERCENT)
+                + RootConfig.getDouble(ConfigNode.KARMA_LOWER_PERCENT) * 100
+                + "% / " + RootConfig.getDouble(ConfigNode.KARMA_UPPER_PERCENT)
                 * 100 + "%");
         sender.sendMessage(ChatColor.GRAY + "Default karma: "
-                + Config.getInt(ConfigNode.KARMA_PLAYER_DEFAULT));
+                + RootConfig.getInt(ConfigNode.KARMA_PLAYER_DEFAULT));
         sender.sendMessage(ChatColor.GRAY + "Default karma rate: "
-                + Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
     }
 
     private void showPlayerKarma(CommandSender sender, String[] args) {
@@ -442,14 +442,14 @@ public class Commander implements CommandExecutor {
      */
     private String colorizeKarma(int karma) {
         // Colorize based on how high/low karma is
-        if (Math.abs(karma + Config.getInt(ConfigNode.KARMA_LOWER_LIMIT)) <= Math
-                .abs(karma + Config.getInt(ConfigNode.KARMA_UPPER_LIMIT))) {
+        if (Math.abs(karma + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)) <= Math
+                .abs(karma + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT))) {
             // Positive karma
-            if (((double) karma + Math.abs(Config
+            if (((double) karma + Math.abs(RootConfig
                     .getInt(ConfigNode.KARMA_LOWER_LIMIT)))
-                    / ((double) Math.abs(Config
+                    / ((double) Math.abs(RootConfig
                             .getInt(ConfigNode.KARMA_UPPER_LIMIT)) + Math
-                            .abs(Config.getInt(ConfigNode.KARMA_LOWER_LIMIT))) >= Config
+                            .abs(RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT))) >= RootConfig
                         .getDouble(ConfigNode.KARMA_UPPER_PERCENT)) {
                 return (ChatColor.YELLOW + KarmicShare.TAG + ChatColor.GREEN
                         + " Karma: " + karma);
@@ -459,11 +459,11 @@ public class Commander implements CommandExecutor {
             }
         } else {
             // Negative karma
-            if (((double) karma + Math.abs(Config
+            if (((double) karma + Math.abs(RootConfig
                     .getInt(ConfigNode.KARMA_LOWER_LIMIT)))
-                    / ((double) Math.abs(Config
+                    / ((double) Math.abs(RootConfig
                             .getInt(ConfigNode.KARMA_UPPER_LIMIT)) + Math
-                            .abs(Config.getInt(ConfigNode.KARMA_LOWER_LIMIT))) <= Config
+                            .abs(RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT))) <= RootConfig
                         .getDouble(ConfigNode.KARMA_LOWER_PERCENT)) {
                 return (ChatColor.YELLOW + KarmicShare.TAG + ChatColor.RED
                         + " Karma: " + karma);

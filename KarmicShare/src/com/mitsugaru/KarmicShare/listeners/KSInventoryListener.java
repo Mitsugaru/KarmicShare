@@ -16,7 +16,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
@@ -42,7 +42,7 @@ public class KSInventoryListener implements Listener
 			if (holder != null)
 			{
 				holder.getInfo().addViewer();
-				if (Config.getBoolean(ConfigNode.DEBUG_ITEM))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_ITEM))
 				{
 					plugin.getLogger().info(
 							"added viewer to " + holder.getInfo().getGroup()
@@ -59,7 +59,7 @@ public class KSInventoryListener implements Listener
 		if (holder != null)
 		{
 			holder.getInfo().removeViewer();
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						"removed viewer from " + holder.getInfo().getGroup()
@@ -74,7 +74,7 @@ public class KSInventoryListener implements Listener
 		// Valid slot numbers are not negative
 		if (event.getSlot() < 0)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						"Inventory slot negative, ignore action");
@@ -86,7 +86,7 @@ public class KSInventoryListener implements Listener
 		if (holder == null)
 		{
 			// Not ours, we don't care
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("Not a KS inventory, ignore action");
 			}
@@ -100,7 +100,7 @@ public class KSInventoryListener implements Listener
 		{
 			fromChest = true;
 		}
-		if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+		if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 		{
 			plugin.getLogger().info(
 					event.getWhoClicked().getName() + " action from chest: "
@@ -109,7 +109,7 @@ public class KSInventoryListener implements Listener
 		String group = holder.getInfo().getGroup();
 		if (!plugin.useChest())
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("Plugin chests are disabled");
 			}
@@ -123,7 +123,7 @@ public class KSInventoryListener implements Listener
 			{
 				if (event.isShiftClick())
 				{
-					if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+					if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 					{
 						plugin.getLogger().info(
 								event.getWhoClicked().getName()
@@ -133,7 +133,7 @@ public class KSInventoryListener implements Listener
 					{
 						// We don't care about air if its not inside the chest
 						// inventory
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -143,7 +143,7 @@ public class KSInventoryListener implements Listener
 					}
 					else if (event.isLeftClick())
 					{
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -153,7 +153,7 @@ public class KSInventoryListener implements Listener
 					}
 					else if (event.isRightClick())
 					{
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -168,7 +168,7 @@ public class KSInventoryListener implements Listener
 					if (event.getCurrentItem() != null
 							&& event.getCursor() != null)
 					{
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -178,7 +178,7 @@ public class KSInventoryListener implements Listener
 						final Item b = new Item(event.getCursor());
 						if (a.areSame(b) && event.isLeftClick())
 						{
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger().info(
 										event.getWhoClicked().getName()
@@ -190,7 +190,7 @@ public class KSInventoryListener implements Listener
 							if (itemAmount < event.getCurrentItem()
 									.getMaxStackSize())
 							{
-								if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+								if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 								{
 									plugin.getLogger()
 											.info(event.getWhoClicked()
@@ -202,7 +202,7 @@ public class KSInventoryListener implements Listener
 								if (totalAmount > event.getCurrentItem()
 										.getMaxStackSize())
 								{
-									if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+									if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 									{
 										plugin.getLogger()
 												.info(event.getWhoClicked()
@@ -222,7 +222,7 @@ public class KSInventoryListener implements Listener
 																.getName()),
 										item, group))
 								{
-									if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+									if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 									{
 										plugin.getLogger()
 												.info(event.getWhoClicked()
@@ -234,7 +234,7 @@ public class KSInventoryListener implements Listener
 							}
 							else
 							{
-								if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+								if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 								{
 									plugin.getLogger().info(
 											event.getWhoClicked().getName()
@@ -245,7 +245,7 @@ public class KSInventoryListener implements Listener
 						}
 						else if (a.areSame(b) && event.isRightClick())
 						{
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger()
 										.info(event.getWhoClicked().getName()
@@ -255,7 +255,7 @@ public class KSInventoryListener implements Listener
 						}
 						else
 						{
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger().info(
 										event.getWhoClicked().getName()
@@ -272,7 +272,7 @@ public class KSInventoryListener implements Listener
 						/*
 						 * Attempting to take item
 						 */
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -286,7 +286,7 @@ public class KSInventoryListener implements Listener
 						if (amount == event.getCurrentItem().getAmount())
 						{
 							// IGNORE
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger().info(
 										event.getWhoClicked().getName()
@@ -300,7 +300,7 @@ public class KSInventoryListener implements Listener
 							final ItemStack bak = event.getCurrentItem()
 									.clone();
 							bak.setAmount(original - amount);
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger().info(
 										event.getWhoClicked().getName()
@@ -309,7 +309,7 @@ public class KSInventoryListener implements Listener
 						}
 						else
 						{
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger().info(
 										event.getWhoClicked().getName()
@@ -320,7 +320,7 @@ public class KSInventoryListener implements Listener
 					}
 					else if (event.isRightClick())
 					{
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -331,13 +331,13 @@ public class KSInventoryListener implements Listener
 				}
 				else if (!event.getCursor().getType().equals(Material.AIR))
 				{
-					if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+					if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 					{
 						plugin.getLogger().info("Cursor not AIR");
 					}
 					if (event.isLeftClick())
 					{
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger().info(
 									event.getWhoClicked().getName()
@@ -349,7 +349,7 @@ public class KSInventoryListener implements Listener
 										event.getWhoClicked().getName()),
 								event.getCursor(), group))
 						{
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger().info(
 										event.getWhoClicked().getName()
@@ -360,7 +360,7 @@ public class KSInventoryListener implements Listener
 					}
 					else if (event.isRightClick())
 					{
-						if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+						if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 						{
 							plugin.getLogger()
 									.info(event.getWhoClicked().getName()
@@ -375,7 +375,7 @@ public class KSInventoryListener implements Listener
 										event.getWhoClicked().getName()), item,
 								group))
 						{
-							if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+							if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 							{
 								plugin.getLogger()
 										.info(event.getWhoClicked().getName()
@@ -392,7 +392,7 @@ public class KSInventoryListener implements Listener
 				{
 					// We don't care about air if its not inside the chest
 					// inventory
-					if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+					if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 					{
 						plugin.getLogger().info(
 								event.getWhoClicked().getName()
@@ -403,7 +403,7 @@ public class KSInventoryListener implements Listener
 				else if (!event.isShiftClick())
 				{
 					// Only care about shift click here
-					if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+					if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 					{
 						plugin.getLogger().info(
 								event.getWhoClicked().getName()
@@ -413,7 +413,7 @@ public class KSInventoryListener implements Listener
 				}
 				else if (event.isLeftClick())
 				{
-					if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+					if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 					{
 						plugin.getLogger().info(
 								event.getWhoClicked().getName()
@@ -423,7 +423,7 @@ public class KSInventoryListener implements Listener
 				}
 				else if (event.isRightClick())
 				{
-					if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+					if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 					{
 						plugin.getLogger().info(
 								event.getWhoClicked().getName()
@@ -435,7 +435,7 @@ public class KSInventoryListener implements Listener
 		}
 		catch (NullPointerException e)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						event.getWhoClicked().getName() + ": NPE exception");
@@ -446,7 +446,7 @@ public class KSInventoryListener implements Listener
 
 	private void giveSingle(InventoryClickEvent event, String group)
 	{
-		if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+		if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 		{
 			plugin.getLogger().info(
 					event.getWhoClicked().getName() + ": giveSingle(event,"
@@ -466,7 +466,7 @@ public class KSInventoryListener implements Listener
 					plugin.getServer().getPlayer(
 							event.getWhoClicked().getName()), item, group))
 			{
-				if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 				{
 					plugin.getLogger().info(
 							event.getWhoClicked().getName()
@@ -477,7 +477,7 @@ public class KSInventoryListener implements Listener
 		}
 		else
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						event.getWhoClicked().getName()
@@ -489,7 +489,7 @@ public class KSInventoryListener implements Listener
 
 	private void halfStack(InventoryClickEvent event, String group)
 	{
-		if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+		if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 		{
 			plugin.getLogger().info(
 					event.getWhoClicked().getName() + ": take half stack");
@@ -513,7 +513,7 @@ public class KSInventoryListener implements Listener
 				item, group);
 		if (amount == half)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						event.getWhoClicked().getName()
@@ -523,7 +523,7 @@ public class KSInventoryListener implements Listener
 		}
 		else if (amount < event.getCurrentItem().getAmount() && amount > 0)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						event.getWhoClicked().getName()
@@ -537,7 +537,7 @@ public class KSInventoryListener implements Listener
 					.scheduleSyncDelayedTask(plugin, task, 1);
 			if (id == -1)
 			{
-				if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 				{
 					plugin.getLogger().warning(
 							event.getWhoClicked().getName()
@@ -557,7 +557,7 @@ public class KSInventoryListener implements Listener
 					.scheduleSyncDelayedTask(plugin, task, 1);
 			if (id == -1)
 			{
-				if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 				{
 					plugin.getLogger().warning(
 							event.getWhoClicked().getName()
@@ -573,7 +573,7 @@ public class KSInventoryListener implements Listener
 		}
 		else
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						event.getWhoClicked().getName() + ": deny");
@@ -618,7 +618,7 @@ public class KSInventoryListener implements Listener
 			if (amount == event.getCurrentItem().getAmount())
 			{
 				// IGNORE
-				if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 				{
 					plugin.getLogger().info(
 							event.getWhoClicked().getName()
@@ -627,7 +627,7 @@ public class KSInventoryListener implements Listener
 			}
 			else if (amount < event.getCurrentItem().getAmount() && amount > 0)
 			{
-				if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 				{
 					plugin.getLogger().info(
 							event.getWhoClicked().getName()
@@ -639,7 +639,7 @@ public class KSInventoryListener implements Listener
 			}
 			else
 			{
-				if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+				if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 				{
 					plugin.getLogger().info(
 							event.getWhoClicked().getName() + ": deny take");
@@ -650,7 +650,7 @@ public class KSInventoryListener implements Listener
 		}
 		else
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info(
 						event.getWhoClicked().getName() + ": deny give");
@@ -663,7 +663,7 @@ public class KSInventoryListener implements Listener
 	{
 		if (event.getInventory().firstEmpty() < 0)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("No empty slot available");
 			}
@@ -674,14 +674,14 @@ public class KSInventoryListener implements Listener
 				plugin.getServer().getPlayer(event.getWhoClicked().getName()),
 				event.getCurrentItem(), group))
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("gave item");
 			}
 		}
 		else
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("Did not give item");
 			}
@@ -693,7 +693,7 @@ public class KSInventoryListener implements Listener
 	{
 		if (event.getWhoClicked().getInventory().firstEmpty() < 0)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("No empty slot available");
 			}
@@ -706,7 +706,7 @@ public class KSInventoryListener implements Listener
 		final int original = event.getCurrentItem().getAmount();
 		if (amount < event.getCurrentItem().getAmount() && amount > 0)
 		{
-			if (Config.getBoolean(ConfigNode.DEBUG_INVENTORY))
+			if (RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY))
 			{
 				plugin.getLogger().info("take some");
 			}

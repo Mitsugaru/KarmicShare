@@ -11,7 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.EnchantmentWrapper;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
@@ -230,7 +230,7 @@ public class Update
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.GROUPS.getName() + ";");
 			// Recreate table
-			if (Config.getBoolean(ConfigNode.MYSQL_USE))
+			if (RootConfig.getBoolean(ConfigNode.MYSQL_USE))
 			{
 				plugin.getDatabaseHandler()
 						.createTable(
@@ -263,7 +263,7 @@ public class Update
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.PLAYERS.getName() + ";");
 			// Recreate table
-			if (Config.getBoolean(ConfigNode.MYSQL_USE))
+			if (RootConfig.getBoolean(ConfigNode.MYSQL_USE))
 			{
 				plugin.getDatabaseHandler()
 						.createTable(
@@ -376,7 +376,7 @@ public class Update
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.ITEMS.getName() + ";");
 			// Recreate table
-			if (Config.getBoolean(ConfigNode.MYSQL_USE))
+			if (RootConfig.getBoolean(ConfigNode.MYSQL_USE))
 			{
 				plugin.getDatabaseHandler()
 						.createTable(
@@ -478,7 +478,7 @@ public class Update
 			plugin.getConfig().set("karma.upperPercent", null);
 			plugin.getConfig().set("karma.lowerPercent", null);
 			plugin.saveConfig();
-			plugin.getPluginConfig().reloadConfig();
+			RootConfig.reload();
 		}
 		if (ver < 0.311)
 		{

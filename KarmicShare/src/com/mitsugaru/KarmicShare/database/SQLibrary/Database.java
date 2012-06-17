@@ -31,7 +31,7 @@ import java.sql.ResultSet;
 // import java.sql.Statement;
 import java.util.logging.Logger;
 
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 
 public abstract class Database {
@@ -111,7 +111,7 @@ public abstract class Database {
                 this.log.warning(this.DATABASE_PREFIX + toWrite);
             }
         }
-        if (exception != null && Config.getBoolean(ConfigNode.DEBUG_DATABASE)) {
+        if (exception != null && RootConfig.getBoolean(ConfigNode.DEBUG_DATABASE)) {
             exception.printStackTrace();
         }
     }

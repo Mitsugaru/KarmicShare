@@ -8,7 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
@@ -23,7 +23,7 @@ class ListCommands {
     }
 
     static void valueCommand(CommandSender sender, String[] args) {
-        if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+        if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
             if (args.length > 1) {
                 // If they provided a page number
 
@@ -88,16 +88,16 @@ class ListCommands {
     }
 
     private static void listMultipliers(CommandSender sender, int pageAdjust) {
-        if (Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
+        if (RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
             // Karma disabled
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                     + " Karma disabled.");
             return;
-        } else if (Config.getBoolean(ConfigNode.KARMA_STATIC)) {
+        } else if (RootConfig.getBoolean(ConfigNode.KARMA_STATIC)) {
             sender.sendMessage(ChatColor.YELLOW
                     + KarmicShare.TAG
                     + " Using static karma system, all items have karma value of "
-                    + Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                    + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
             return;
         }
         // Add player to page hashmap, if they're not in it
@@ -113,17 +113,17 @@ class ListCommands {
             }
         }
         // Check if there is any entries in map
-        if (Config.karma.isEmpty()) {
+        if (RootConfig.karma.isEmpty()) {
             sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
                     + " No karma multipliers, all items have karma value of "
-                    + Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                    + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
             return;
         }
         // Set hashmap to array
-        Object[] array = Config.karma.entrySet().toArray();
-        int num = array.length / Config.getInt(ConfigNode.LIST_LIMIT);
+        Object[] array = RootConfig.karma.entrySet().toArray();
+        int num = array.length / RootConfig.getInt(ConfigNode.LIST_LIMIT);
         double rem = (double) array.length
-                % (double) Config.getInt(ConfigNode.LIST_LIMIT);
+                % (double) RootConfig.getInt(ConfigNode.LIST_LIMIT);
         boolean valid = true;
         if (rem != 0) {
             num++;
@@ -136,7 +136,7 @@ class ListCommands {
             Karma.multiPage.put(sender.getName(), 0);
             valid = false;
         } else if ((Karma.multiPage.get(sender.getName()).intValue())
-                * Config.getInt(ConfigNode.LIST_LIMIT) > array.length) {
+                * RootConfig.getInt(ConfigNode.LIST_LIMIT) > array.length) {
             // They tried to use /ks next at the end of the list
             sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
                     + " Page does not exist");
@@ -152,11 +152,11 @@ class ListCommands {
                     + ((Karma.multiPage.get(sender.getName()).intValue()) + 1)
                     + " of " + num + ChatColor.BLUE + "===");
             // list
-            for (int i = ((Karma.multiPage.get(sender.getName()).intValue()) * Config
+            for (int i = ((Karma.multiPage.get(sender.getName()).intValue()) * RootConfig
                     .getInt(ConfigNode.LIST_LIMIT)); i < ((Karma.multiPage
-                    .get(sender.getName()).intValue()) * Config
+                    .get(sender.getName()).intValue()) * RootConfig
                     .getInt(ConfigNode.LIST_LIMIT))
-                    + Config.getInt(ConfigNode.LIST_LIMIT); i++) {
+                    + RootConfig.getInt(ConfigNode.LIST_LIMIT); i++) {
                 // Don't try to pull something beyond the bounds
                 if (i < array.length) {
                     @SuppressWarnings("unchecked")
@@ -264,9 +264,9 @@ class ListCommands {
                 Object[] array = cache.entrySet().toArray();
                 boolean valid = true;
                 // Caluclate amount of pages
-                int num = array.length / Config.getInt(ConfigNode.LIST_LIMIT);
+                int num = array.length / RootConfig.getInt(ConfigNode.LIST_LIMIT);
                 double rem = (double) array.length
-                        % (double) Config.getInt(ConfigNode.LIST_LIMIT);
+                        % (double) RootConfig.getInt(ConfigNode.LIST_LIMIT);
                 if (rem != 0) {
                     num++;
                 }
@@ -278,7 +278,7 @@ class ListCommands {
                     Karma.page.put(sender.getName(), 0);
                     valid = false;
                 } else if ((Karma.page.get(sender.getName()).intValue())
-                        * Config.getInt(ConfigNode.LIST_LIMIT) > array.length) {
+                        * RootConfig.getInt(ConfigNode.LIST_LIMIT) > array.length) {
                     // They tried to use /ks next at the end of the list
                     sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
                             + " Page does not exist");
@@ -299,11 +299,11 @@ class ListCommands {
                             + ((Karma.page.get(sender.getName()).intValue()) + 1)
                             + " of " + num + ChatColor.BLUE + "===");
                     // list
-                    for (int i = ((Karma.page.get(sender.getName()).intValue()) * Config
+                    for (int i = ((Karma.page.get(sender.getName()).intValue()) * RootConfig
                             .getInt(ConfigNode.LIST_LIMIT)); i < ((Karma.page
-                            .get(sender.getName()).intValue()) * Config
+                            .get(sender.getName()).intValue()) * RootConfig
                             .getInt(ConfigNode.LIST_LIMIT))
-                            + Config.getInt(ConfigNode.LIST_LIMIT); i++) {
+                            + RootConfig.getInt(ConfigNode.LIST_LIMIT); i++) {
                         // Don't try to pull something beyond the bounds
                         if (i < array.length) {
                             StringBuilder sb = new StringBuilder();

@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
@@ -392,18 +392,18 @@ public class ItemCommands {
                 + ChatColor.GREEN + " Tool: " + ChatColor.GRAY + item.isTool()
                 + ChatColor.GREEN + " Potion: " + ChatColor.GRAY
                 + item.isPotion());
-        if (!Config.getBoolean(ConfigNode.KARMA_DISABLED)) {
-            if (Config.getBoolean(ConfigNode.KARMA_STATIC)) {
+        if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
+            if (RootConfig.getBoolean(ConfigNode.KARMA_STATIC)) {
                 buf.append(ChatColor.GREEN + " Multiplier: " + ChatColor.YELLOW
-                        + Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                        + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
                 buf.append(ChatColor.GREEN
                         + " Total Karma: "
                         + ChatColor.YELLOW
                         + ""
-                        + (Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT) * quantity));
+                        + (RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT) * quantity));
             } else {
                 // Check if given item has a multiplier
-                Item[] karmaList = Config.karma.keySet().toArray(new Item[0]);
+                Item[] karmaList = RootConfig.karma.keySet().toArray(new Item[0]);
                 boolean hasKarma = false;
                 for (Item k : karmaList) {
                     if (k.areSame(item)) {
@@ -414,10 +414,10 @@ public class ItemCommands {
                 if (hasKarma) {
                     try {
                         buf.append(ChatColor.GREEN + " Multiplier: "
-                                + ChatColor.YELLOW + Config.karma.get(item));
+                                + ChatColor.YELLOW + RootConfig.karma.get(item));
                         buf.append(ChatColor.GREEN + " Total Karma: "
                                 + ChatColor.YELLOW + ""
-                                + (Config.karma.get(item) * quantity));
+                                + (RootConfig.karma.get(item) * quantity));
                     } catch (NullPointerException n) {
                         // Found item, but there is no
                         // config for specific data value
@@ -425,23 +425,23 @@ public class ItemCommands {
                         buf.append(ChatColor.GREEN
                                 + " Multiplier: "
                                 + ChatColor.YELLOW
-                                + Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                                + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
                         buf.append(ChatColor.GREEN
                                 + " Total Karma: "
                                 + ChatColor.YELLOW
                                 + ""
-                                + (Config
+                                + (RootConfig
                                         .getInt(ConfigNode.KARMA_CHANGE_DEFAULT) * quantity));
                     }
                 } else {
                     buf.append(ChatColor.GREEN + " Multiplier: "
                             + ChatColor.YELLOW
-                            + Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
+                            + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
                     buf.append(ChatColor.GREEN
                             + " Total Karma: "
                             + ChatColor.YELLOW
                             + ""
-                            + (Config.getInt(ConfigNode.KARMA_CHANGE_DEFAULT) * quantity));
+                            + (RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT) * quantity));
                 }
             }
         }

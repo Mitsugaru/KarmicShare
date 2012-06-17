@@ -3,7 +3,7 @@ package com.mitsugaru.KarmicShare.database;
 import java.sql.SQLException;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.SQLibrary.MySQL;
 import com.mitsugaru.KarmicShare.database.SQLibrary.SQLite;
@@ -12,21 +12,19 @@ import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 public class DatabaseHandler {
     // Class Variables
     private KarmicShare plugin;
-    private Config config;
     private SQLite sqlite;
     private MySQL mysql;
     private boolean useMySQL;
 
-    public DatabaseHandler(KarmicShare ks, Config conf) {
+    public DatabaseHandler(KarmicShare ks) {
         plugin = ks;
-        config = conf;
-        useMySQL = Config.getBoolean(ConfigNode.MYSQL_USE);
+        useMySQL = RootConfig.getBoolean(ConfigNode.MYSQL_USE);
         checkTables();
-        if (Config.getBoolean(ConfigNode.MYSQL_IMPORT)) {
+        if (RootConfig.getBoolean(ConfigNode.MYSQL_IMPORT)) {
             if (useMySQL) {
                 importSQL();
             }
-            config.set("mysql.import", false);
+            RootConfig.set(ConfigNode.MYSQL_IMPORT, false);
         }
     }
 
@@ -34,11 +32,11 @@ public class DatabaseHandler {
         if (useMySQL) {
             // Connect to mysql database
             mysql = new MySQL(plugin.getLogger(), KarmicShare.TAG,
-                    Config.getString(ConfigNode.MYSQL_HOST),
-                    Config.getInt(ConfigNode.MYSQL_PORT) + "",
-                    Config.getString(ConfigNode.MYSQL_DATABASE),
-                    Config.getString(ConfigNode.MYSQL_USER),
-                    Config.getString(ConfigNode.MYSQL_PASSWORD));
+                    RootConfig.getString(ConfigNode.MYSQL_HOST),
+                    RootConfig.getInt(ConfigNode.MYSQL_PORT) + "",
+                    RootConfig.getString(ConfigNode.MYSQL_DATABASE),
+                    RootConfig.getString(ConfigNode.MYSQL_USER),
+                    RootConfig.getString(ConfigNode.MYSQL_PASSWORD));
             // Check if item table exists
             if (!mysql.checkTable(Table.ITEMS.getName())) {
                 plugin.getLogger().info("Created item table");
