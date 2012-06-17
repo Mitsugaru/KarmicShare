@@ -55,60 +55,7 @@ public class Commander implements CommandExecutor {
         }
         // See if any arguments were given
         if (args.length == 0) {
-            // Check if they have "karma" permission
-            if (PermissionHandler.has(sender, PermissionNode.KARMA)) {
-                if (!RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
-                    // Show player karma
-                    this.showPlayerKarma(sender, args);
-
-                } else {
-                    // karma system disabled
-                    sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-                            + " Karma disabled");
-                }
-                // Show groups
-                if (sender instanceof Player) {
-                    String current = Karma.selectedGroup.get(sender.getName());
-                    if (current == null) {
-                        Karma.selectedGroup.put(sender.getName(), "global");
-                        current = "global";
-                    }
-                    final StringBuilder sb = new StringBuilder();
-                    for (String s : Karma.getPlayerGroups(sender,
-                            sender.getName())) {
-                        if (s.equalsIgnoreCase(current)) {
-                            sb.append(ChatColor.BOLD + ""
-                                    + ChatColor.LIGHT_PURPLE + s
-                                    + ChatColor.RESET + " ");
-                        } else {
-                            sb.append(ChatColor.GRAY + s + " ");
-                        }
-                    }
-                    // Remove trailing characters
-                    try {
-                        sb.deleteCharAt(sb.length() - 1);
-                        final String[] out = ChatPaginator.wordWrap(
-                                ChatColor.YELLOW + KarmicShare.TAG
-                                        + " Groups: " + sb.toString(),
-                                ChatPaginator.AVERAGE_CHAT_PAGE_WIDTH - 1);
-                        for (String line : out) {
-                            sender.sendMessage(line);
-                        }
-                    } catch (StringIndexOutOfBoundsException e) {
-                        sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
-                                + " No groups");
-                    }
-
-                }
-                else
-                {
-                    //Show help to console
-                    displayHelp(sender);
-                }
-            } else {
-                sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-                        + " Lack permission: " + PermissionNode.KARMA.getNode());
-            }
+            noArgs(sender);
         } else {
             // Grab command
             final String com = args[0].toLowerCase();
@@ -217,6 +164,57 @@ public class Commander implements CommandExecutor {
         return true;
     }
 
+    private void noArgs(CommandSender sender) {
+        // Check if they have "karma" permission
+        if (!PermissionHandler.has(sender, PermissionNode.KARMA)) {
+            sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+                    + " Lack permission: " + PermissionNode.KARMA.getNode());
+            return;
+        }
+        if (RootConfig.getBoolean(ConfigNode.KARMA_DISABLED)) {
+
+            // karma system disabled
+            sender.sendMessage(ChatColor.RED + KarmicShare.TAG
+                    + " Karma disabled");
+            return;
+        }
+        if (!(sender instanceof Player)) {
+            // Show help to console
+            displayHelp(sender);
+            return;
+        }
+        // Show player karma
+        this.showPlayerKarma(sender);
+        // Show groups
+        String current = Karma.selectedGroup.get(sender.getName());
+        if (current == null) {
+            Karma.selectedGroup.put(sender.getName(), "global");
+            current = "global";
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (String s : Karma.getPlayerGroups(sender, sender.getName())) {
+            if (s.equalsIgnoreCase(current)) {
+                sb.append(ChatColor.BOLD + "" + ChatColor.LIGHT_PURPLE + s
+                        + ChatColor.RESET + " ");
+            } else {
+                sb.append(ChatColor.GRAY + s + " ");
+            }
+        }
+        // Remove trailing characters
+        try {
+            sb.deleteCharAt(sb.length() - 1);
+            final String[] out = ChatPaginator.wordWrap(ChatColor.YELLOW
+                    + KarmicShare.TAG + " Groups: " + sb.toString(),
+                    ChatPaginator.AVERAGE_CHAT_PAGE_WIDTH - 1);
+            for (String line : out) {
+                sender.sendMessage(line);
+            }
+        } catch (StringIndexOutOfBoundsException e) {
+            sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
+                    + " No groups");
+        }
+    }
+
     private void openCommand(CommandSender sender, String[] args) {
         if (!plugin.useChest()) {
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -241,7 +239,8 @@ public class Commander implements CommandExecutor {
             return;
         }
         final String world = player.getWorld().getName();
-        if (RootConfig.getStringList(ConfigNode.DISABLED_WORLDS).contains(world)) {
+        if (RootConfig.getStringList(ConfigNode.DISABLED_WORLDS)
+                .contains(world)) {
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                     + " KarmicShare access disabled for this world.");
             return;
@@ -344,7 +343,7 @@ public class Commander implements CommandExecutor {
                 + RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT));
     }
 
-    private void showPlayerKarma(CommandSender sender, String[] args) {
+    private void showPlayerKarma(CommandSender sender) {
         // Check if player sent command
         if (!(sender instanceof Player)) {
             return;
@@ -454,7 +453,8 @@ public class Commander implements CommandExecutor {
                     .getInt(ConfigNode.KARMA_LOWER_LIMIT)))
                     / ((double) Math.abs(RootConfig
                             .getInt(ConfigNode.KARMA_UPPER_LIMIT)) + Math
-                            .abs(RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT))) >= RootConfig
+                            .abs(RootConfig
+                                    .getInt(ConfigNode.KARMA_LOWER_LIMIT))) >= RootConfig
                         .getDouble(ConfigNode.KARMA_UPPER_PERCENT)) {
                 return (ChatColor.YELLOW + KarmicShare.TAG + ChatColor.GREEN
                         + " Karma: " + karma);
@@ -468,7 +468,8 @@ public class Commander implements CommandExecutor {
                     .getInt(ConfigNode.KARMA_LOWER_LIMIT)))
                     / ((double) Math.abs(RootConfig
                             .getInt(ConfigNode.KARMA_UPPER_LIMIT)) + Math
-                            .abs(RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT))) <= RootConfig
+                            .abs(RootConfig
+                                    .getInt(ConfigNode.KARMA_LOWER_LIMIT))) <= RootConfig
                         .getDouble(ConfigNode.KARMA_LOWER_PERCENT)) {
                 return (ChatColor.YELLOW + KarmicShare.TAG + ChatColor.RED
                         + " Karma: " + karma);
