@@ -18,7 +18,7 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
-import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
+import com.mitsugaru.KarmicShare.database.SQLibrary.Query;
 import com.mitsugaru.KarmicShare.inventory.GroupPageInfo;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
@@ -134,13 +134,13 @@ public class Karma {
         if (karma <= RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
             // Updated karma value is beyond lower limit, so set to min
             query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
-                    + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT) + "' WHERE playername='"
-                    + name + "';";
+                    + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)
+                    + "' WHERE playername='" + name + "';";
         } else if (karma >= RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)) {
             // Updated karma value is beyond upper limit, so set to max
             query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
-                    + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT) + "' WHERE playername='"
-                    + name + "';";
+                    + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)
+                    + "' WHERE playername='" + name + "';";
         } else {
             // Updated karma value is within acceptable range
             query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
@@ -269,7 +269,8 @@ public class Karma {
                                 }
                             } catch (NumberFormatException n) {
                                 // bad group id
-                                if (RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
+                                if (RootConfig
+                                        .getBoolean(ConfigNode.DEBUG_KARMA)) {
                                     plugin.getLogger().warning(
                                             "NumberFormatException for playerHasGroup("
                                                     + sender.getName() + ","
@@ -759,22 +760,26 @@ public class Karma {
                 player.getName());
         int index = list.indexOf(current);
         switch (direction) {
-        case FORWARD: {
-            if (index + 1 >= list.size()) {
-                nextGroup = list.get(0);
-            } else {
-                nextGroup = list.get(index + 1);
+            case FORWARD: {
+                if (index + 1 >= list.size()) {
+                    nextGroup = list.get(0);
+                } else {
+                    nextGroup = list.get(index + 1);
+                }
+                break;
             }
-            break;
-        }
-        case BACKWARD: {
-            if (index - 1 < 0) {
-                nextGroup = list.get(list.size() - 1);
-            } else {
-                nextGroup = list.get(index - 1);
+            case BACKWARD: {
+                if (index - 1 < 0) {
+                    nextGroup = list.get(list.size() - 1);
+                } else {
+                    nextGroup = list.get(index - 1);
+                }
+                break;
             }
-            break;
-        }
+            default: {
+                // Ignore
+                break;
+            }
         }
         Karma.selectedGroup.put(player.getName(), nextGroup);
         player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
@@ -847,17 +852,17 @@ public class Karma {
         }
         int page = current;
         switch (direction) {
-        case FORWARD: {
-            page++;
-            break;
-        }
-        case BACKWARD: {
-            page--;
-            break;
-        }
-        default: {
-            break;
-        }
+            case FORWARD: {
+                page++;
+                break;
+            }
+            case BACKWARD: {
+                page--;
+                break;
+            }
+            default: {
+                break;
+            }
         }
         if (page <= 0) {
             // Was negative or zero, loop back to max page
@@ -878,6 +883,8 @@ public class Karma {
     }
 
     public enum Direction {
-        FORWARD, BACKWARD, CURRENT;
+        FORWARD,
+        BACKWARD,
+        CURRENT;
     }
 }

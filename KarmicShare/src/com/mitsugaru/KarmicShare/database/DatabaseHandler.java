@@ -7,7 +7,7 @@ import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.SQLibrary.MySQL;
 import com.mitsugaru.KarmicShare.database.SQLibrary.SQLite;
-import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
+import com.mitsugaru.KarmicShare.database.SQLibrary.Query;
 
 public class DatabaseHandler {
     // Class Variables

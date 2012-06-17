@@ -32,7 +32,7 @@ public class SQLite extends Database {
 	public String location;
 	public String name;
 	private File sqlFile;
-	private final int timeout = 1000;
+	private static final int timeout = 1000;
 	private int count;
 
 	public SQLite(Logger log, String prefix, String name, String location) {
@@ -147,7 +147,8 @@ public class SQLite extends Database {
 		while (!passed && count < timeout) {
 			try {
 				statement = connection.createStatement();
-				statement.executeQuery(query);
+				final ResultSet rs = statement.executeQuery(query);
+				rs.close();
 				statement.close();
 				connection.close();
 				passed = true;
@@ -175,7 +176,8 @@ public class SQLite extends Database {
 		try {
 			connection = this.open();
 			statement = connection.createStatement();
-			statement.executeQuery(query);
+			final ResultSet rs = statement.executeQuery(query);
+			rs.close();
 			statement.close();
 			connection.close();
 			}
@@ -218,7 +220,7 @@ public class SQLite extends Database {
 				this.writeError("SQL Create Table query empty.", true, null);
 				return false;
 			}
-			Connection connection = open();
+			final Connection connection = open();
 			Statement statement = null;
 			statement = connection.createStatement();
 			statement.execute(query);
@@ -252,17 +254,15 @@ public class SQLite extends Database {
 
 	@Override
 	public boolean wipeTable(String table) {
-		Connection connection = open();
-		Statement statement = null;
-		String query = null;
 		try {
 			if (!this.checkTable(table)) {
 				this.writeError("Error at Wipe Table: table, " + table + ", does not exist", true, null);
 				return false;
 			}
-			statement = connection.createStatement();
-			query = "DELETE FROM " + table + ";";
-			statement.executeQuery(query);
+			final PreparedStatement statement = prepare("DELETE FROM ?;");
+			statement.setString(1, table);
+			statement.execute();
+			statement.close();
 			return true;
 		} catch (SQLException ex) {
 			if (!(ex.getMessage().toLowerCase().contains("locking") ||

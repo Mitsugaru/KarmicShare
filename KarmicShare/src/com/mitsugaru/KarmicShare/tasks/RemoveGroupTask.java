@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.database.Table;
-import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
+import com.mitsugaru.KarmicShare.database.SQLibrary.Query;
 import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class RemoveGroupTask implements Runnable

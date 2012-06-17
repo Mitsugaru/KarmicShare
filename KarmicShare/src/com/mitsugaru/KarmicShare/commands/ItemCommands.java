@@ -16,7 +16,7 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
-import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
+import com.mitsugaru.KarmicShare.database.SQLibrary.Query;
 import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.logic.ItemLogic;
 import com.mitsugaru.KarmicShare.logic.Karma;

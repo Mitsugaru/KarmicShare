@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.mitsugaru</groupId>
   <artifactId>KarmicShare</artifactId>
-  <version>0.315-SNAPSHOT</version>
+  <version>0.316-SNAPSHOT</version>
   <name>KarmicShare</name>
   <description>Bukkit plugin that allows players to share items using a community item pool.</description>
   <scm>

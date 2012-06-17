@@ -18,7 +18,7 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 /**
  * @author mattmoss
@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -36,7 +37,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-
 
 public class DoubleInventory implements Inventory {
 
@@ -69,7 +69,7 @@ public class DoubleInventory implements Inventory {
         // TODO: Reasonable implementation?
         HashMap<Integer, ItemStack> leftover = major.addItem(items);
         if (leftover != null && !leftover.isEmpty()) {
-            ItemStack[] rest = { }; // not null
+            ItemStack[] rest = {}; // not null
             rest = leftover.values().toArray(rest);
             leftover = minor.addItem(rest);
         }
@@ -80,7 +80,7 @@ public class DoubleInventory implements Inventory {
         // TODO: Reasonable implementation?
         HashMap<Integer, ItemStack> leftover = major.addItem(items);
         if (leftover != null && !leftover.isEmpty()) {
-            ItemStack[] rest = { }; // not null
+            ItemStack[] rest = {}; // not null
             rest = leftover.values().toArray(rest);
             leftover = minor.removeItem(rest);
         }
@@ -96,10 +96,10 @@ public class DoubleInventory implements Inventory {
         int majorSize = major.getSize();
         if (items.length <= majorSize) {
             major.setContents(items);
-        }
-        else {
+        } else {
             major.setContents(Arrays.copyOfRange(items, 0, majorSize));
-            minor.setContents(Arrays.copyOfRange(items, majorSize, items.length - majorSize));
+            minor.setContents(Arrays.copyOfRange(items, majorSize, items.length
+                    - majorSize));
         }
     }
 
@@ -116,11 +116,13 @@ public class DoubleInventory implements Inventory {
     }
 
     public boolean contains(int materialId, int amount) {
-        return major.contains(materialId, amount) || minor.contains(materialId, amount);
+        return major.contains(materialId, amount)
+                || minor.contains(materialId, amount);
     }
 
     public boolean contains(Material material, int amount) {
-        return major.contains(material, amount) || minor.contains(material, amount);
+        return major.contains(material, amount)
+                || minor.contains(material, amount);
     }
 
     public boolean contains(ItemStack item, int amount) {
@@ -128,15 +130,18 @@ public class DoubleInventory implements Inventory {
     }
 
     public HashMap<Integer, ? extends ItemStack> all(int materialId) {
-        return combineWithOffset(major.all(materialId), minor.all(materialId), major.getSize());
+        return combineWithOffset(major.all(materialId), minor.all(materialId),
+                major.getSize());
     }
 
     public HashMap<Integer, ? extends ItemStack> all(Material material) {
-        return combineWithOffset(major.all(material), minor.all(material), major.getSize());
+        return combineWithOffset(major.all(material), minor.all(material),
+                major.getSize());
     }
 
     public HashMap<Integer, ? extends ItemStack> all(ItemStack item) {
-        return combineWithOffset(major.all(item), minor.all(item), major.getSize());
+        return combineWithOffset(major.all(item), minor.all(item),
+                major.getSize());
     }
 
     public int first(int materialId) {
@@ -211,7 +216,6 @@ public class DoubleInventory implements Inventory {
         minor.clear();
     }
 
-
     // DoubleInventory internals
     private Inventory major;
     private Inventory minor;
@@ -227,65 +231,66 @@ public class DoubleInventory implements Inventory {
         return result;
     }
 
-    private static <T> HashMap<Integer, ? extends T> combineWithOffset(HashMap<Integer, ? extends T> first,
-                                                                       HashMap<Integer, ? extends T> second,
-                                                                       int offset) {
+    private static <T> HashMap<Integer, ? extends T> combineWithOffset(
+            HashMap<Integer, ? extends T> first,
+            HashMap<Integer, ? extends T> second, int offset) {
         // TODO: Reasonable implementation?
         HashMap<Integer, T> result = new HashMap<Integer, T>(first);
 
         // Put in items from the second map, adjusting key values.
-        for (Integer key : second.keySet()) {
-            result.put(new Integer(key.intValue() + offset), (T) second.get(key));
+        for (Map.Entry<Integer, ? extends T> entry : second.entrySet()) {
+            result.put(new Integer(entry.getKey().intValue() + offset),
+                    (T) entry.getValue());
         }
 
         return result;
     }
 
-	@Override
-	public InventoryHolder getHolder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public InventoryHolder getHolder() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getTitle() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getTitle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public InventoryType getType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public InventoryType getType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<HumanEntity> getViewers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<HumanEntity> getViewers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public ListIterator<ItemStack> iterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ListIterator<ItemStack> iterator() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public int getMaxStackSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getMaxStackSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public ListIterator<ItemStack> iterator(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ListIterator<ItemStack> iterator(int arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void setMaxStackSize(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setMaxStackSize(int arg0) {
+        // TODO Auto-generated method stub
+
+    }
 }
