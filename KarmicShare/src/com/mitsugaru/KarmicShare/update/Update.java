@@ -11,6 +11,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.EnchantmentWrapper;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.ComparableEnchantment;
@@ -228,7 +230,7 @@ public class Update
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.GROUPS.getName() + ";");
 			// Recreate table
-			if (plugin.getPluginConfig().useMySQL)
+			if (Config.getBoolean(ConfigNode.MYSQL_USE))
 			{
 				plugin.getDatabaseHandler()
 						.createTable(
@@ -261,7 +263,7 @@ public class Update
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.PLAYERS.getName() + ";");
 			// Recreate table
-			if (plugin.getPluginConfig().useMySQL)
+			if (Config.getBoolean(ConfigNode.MYSQL_USE))
 			{
 				plugin.getDatabaseHandler()
 						.createTable(
@@ -374,7 +376,7 @@ public class Update
 			plugin.getDatabaseHandler().standardQuery(
 					"DROP TABLE " + Table.ITEMS.getName() + ";");
 			// Recreate table
-			if (plugin.getPluginConfig().useMySQL)
+			if (Config.getBoolean(ConfigNode.MYSQL_USE))
 			{
 				plugin.getDatabaseHandler()
 						.createTable(

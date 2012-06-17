@@ -14,6 +14,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.permissions.PermissionHandler;
 import com.mitsugaru.KarmicShare.permissions.PermissionNode;
 import com.splatbang.betterchest.BetterChest;
@@ -55,7 +57,7 @@ public class KSBlockListener implements Listener
 		}
 		//Check world
 		final String world = event.getBlock().getWorld().getName();
-		if(plugin.getPluginConfig().disabledWorlds.contains(world))
+		if(Config.getStringList(ConfigNode.DISABLED_WORLDS).contains(world))
 		{
 			event.getPlayer().sendMessage(
 					ChatColor.RED + KarmicShare.TAG + " KarmicShare access disabled for this world.");
@@ -69,7 +71,7 @@ public class KSBlockListener implements Listener
 		else
 		{
 			// Check if its a chest
-			if (plugin.getPluginConfig().chests && plugin.useChest())
+			if (Config.getBoolean(ConfigNode.CHESTS) && plugin.useChest())
 			{
 				// Thanks to Wolvereness for the following code
 				if (event.getBlock().getRelative(BlockFace.DOWN).getType()
@@ -184,7 +186,7 @@ public class KSBlockListener implements Listener
 			{
 				//Check world
 				final String world = block.getWorld().getName();
-				if(plugin.getPluginConfig().disabledWorlds.contains(world))
+				if(Config.getStringList(ConfigNode.DISABLED_WORLDS).contains(world))
 				{
 					event.getPlayer().sendMessage(
 							ChatColor.RED + KarmicShare.TAG + " KarmicShare access disabled for this world.");

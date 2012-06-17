@@ -5,6 +5,8 @@ import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.logic.Karma;
 
 public class PlayerKarmaResetQuestion extends Question
@@ -14,13 +16,11 @@ public class PlayerKarmaResetQuestion extends Question
 	protected Prompt acceptValidatedInput(ConversationContext context,
 			boolean valid)
 	{
-		final KarmicShare plugin = (KarmicShare) context
-				.getSessionData("plugin");
 		final String name = (String) context.getSessionData("name");
 		if (valid)
 		{
 			Karma.setPlayerKarma(name,
-					plugin.getPluginConfig().playerKarmaDefault);
+			        Config.getInt(ConfigNode.KARMA_PLAYER_DEFAULT));
 			context.getForWhom().sendRawMessage(
 					ChatColor.GREEN + KarmicShare.TAG + " " + name
 							+ "'s karma reset");

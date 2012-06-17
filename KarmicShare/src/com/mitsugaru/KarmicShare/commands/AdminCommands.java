@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
 import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.Table;
 import com.mitsugaru.KarmicShare.database.SQLibrary.Database.Query;
 import com.mitsugaru.KarmicShare.inventory.Item;
@@ -438,7 +439,7 @@ class AdminCommands
 						+ PermissionNode.ADMIN_RESET.getNode());
 				return true;
 			}
-			if (config.karmaDisabled)
+			if (Config.getBoolean(ConfigNode.KARMA_DISABLED))
 			{
 				// Karma system disabled
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
@@ -467,7 +468,6 @@ class AdminCommands
 					map.put("question", ChatColor.YELLOW + KarmicShare.TAG
 							+ ChatColor.DARK_AQUA + " Reset " + ChatColor.GOLD
 							+ name + ChatColor.DARK_AQUA + "'s karma?");
-					map.put("plugin", plugin);
 					map.put("name", name);
 					factory.withFirstPrompt(new PlayerKarmaResetQuestion())
 							.withInitialSessionData(map).withLocalEcho(false)
@@ -475,29 +475,9 @@ class AdminCommands
 				}
 				else
 				{
-					// Sent via console
-					int playerKarma = config.playerKarmaDefault;
-					try
-					{
-						// Set to zero
-						playerKarma = Karma.getPlayerKarma(name) * -1;
-						Karma.updatePlayerKarma(name, playerKarma);
-						if (config.playerKarmaDefault != 0)
-						{
-							// Default was non-zero, so re-update to
-							// config's default
-							Karma.updatePlayerKarma(name,
-									config.playerKarmaDefault);
-						}
-						sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
+					Karma.setPlayerKarma(name, Config.getInt(ConfigNode.KARMA_PLAYER_DEFAULT));
+					sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
 								+ " " + name + "'s karma reset");
-					}
-					catch (SQLException e)
-					{
-						sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-								+ "Could not reset " + name + "'s karma");
-						e.printStackTrace();
-					}
 				}
 			}
 			return true;
@@ -511,7 +491,7 @@ class AdminCommands
 						+ PermissionNode.ADMIN_SET.getNode());
 				return true;
 			}
-			if (config.karmaDisabled)
+			if (Config.getBoolean(ConfigNode.KARMA_DISABLED))
 			{
 				// Karma disabled
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG

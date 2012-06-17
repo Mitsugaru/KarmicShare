@@ -14,6 +14,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
+import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.logic.Karma;
 import com.mitsugaru.KarmicShare.logic.Karma.Direction;
@@ -79,7 +81,7 @@ public class KSPlayerListener implements Listener
 			return;
 		}
 		// Check if chests are enabled
-		if (!plugin.getPluginConfig().chests || !plugin.useChest())
+		if (!Config.getBoolean(ConfigNode.CHESTS) || !plugin.useChest())
 		{
 			player.sendMessage(ChatColor.RED + KarmicShare.TAG
 					+ " Chests disabled. Cannot use physical chests.");
@@ -97,7 +99,7 @@ public class KSPlayerListener implements Listener
 		}
 		//Check world
 		final String world = block.getWorld().getName();
-		if(plugin.getPluginConfig().disabledWorlds.contains(world))
+		if(Config.getStringList(ConfigNode.DISABLED_WORLDS).contains(world))
 		{
 			event.getPlayer().sendMessage(
 					ChatColor.RED + KarmicShare.TAG + " KarmicShare access disabled for this world.");

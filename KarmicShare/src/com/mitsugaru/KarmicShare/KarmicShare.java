@@ -16,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.commands.Commander;
 import com.mitsugaru.KarmicShare.config.Config;
+import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.DatabaseHandler;
 import com.mitsugaru.KarmicShare.listeners.KSBlockListener;
 import com.mitsugaru.KarmicShare.listeners.KSInventoryListener;
@@ -28,6 +29,7 @@ import com.mitsugaru.KarmicShare.update.Update;
 public class KarmicShare extends JavaPlugin
 {
 	// Class variables
+    protected static KarmicShare instance;
 	private DatabaseHandler database;
 	public static final String TAG = "[KarmicShare]";
 	private Config config;
@@ -67,6 +69,7 @@ public class KarmicShare extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
+	    instance = this;
 		// Config
 		config = new Config(this);
 		// Database handler
@@ -83,7 +86,7 @@ public class KarmicShare extends JavaPlugin
 		// Grab Commander to handle commands
 		getCommand("ks").setExecutor(new Commander(this));
 		// Setup economy
-		if (config.economy)
+		if (Config.getBoolean(ConfigNode.KARMA_USE_ECONOMY))
 		{
 			setupEconomy();
 			if (!economyFound)
@@ -100,7 +103,7 @@ public class KarmicShare extends JavaPlugin
 		// Register listeners
 		pm.registerEvents(new KSBlockListener(this), this);
 		pm.registerEvents(new KSPlayerListener(this), this);
-		if (config.chests)
+		if (Config.getBoolean(ConfigNode.CHESTS))
 		{
 			pm.registerEvents(new KSInventoryListener(this), this);
 			chest = true;
@@ -210,5 +213,10 @@ public class KarmicShare extends JavaPlugin
 			return null;
 		}
 		return Name;
+	}
+	
+	public static KarmicShare getInstance()
+	{
+	    return instance;
 	}
 }
