@@ -46,6 +46,7 @@ public enum ConfigNode {
 
     private ConfigNode(String path, Type type, Object def) {
         this.path = path;
+        this.type = type;
         this.def = def;
     }
 

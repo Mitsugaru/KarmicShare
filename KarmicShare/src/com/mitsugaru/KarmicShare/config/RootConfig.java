@@ -192,6 +192,7 @@ public class RootConfig {
         switch (node.getType()) {
             case BOOLEAN: {
                 b = ((Boolean) OPTIONS.get(node)).booleanValue();
+                break;
             }
             default: {
                 // TODO throw exception
