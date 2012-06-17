@@ -68,7 +68,7 @@ public class RootConfig {
     @SuppressWarnings("unchecked")
     public static void updateOption(ConfigNode node) {
         final ConfigurationSection config = plugin.getConfig();
-        switch (node.getType()) {
+        switch (node.getVarType()) {
             case LIST: {
                 List<String> list = config.getStringList(node.getPath());
                 if (list == null) {
@@ -124,7 +124,7 @@ public class RootConfig {
 
     public static int getInt(ConfigNode node) {
         int i = -1;
-        switch (node.getType()) {
+        switch (node.getVarType()) {
             case INTEGER: {
                 i = ((Integer) OPTIONS.get(node)).intValue();
                 break;
@@ -139,7 +139,7 @@ public class RootConfig {
 
     public static String getString(ConfigNode node) {
         String out = "";
-        switch (node.getType()) {
+        switch (node.getVarType()) {
             case STRING: {
                 out = (String) OPTIONS.get(node);
                 break;
@@ -155,7 +155,7 @@ public class RootConfig {
     @SuppressWarnings("unchecked")
     public static List<String> getStringList(ConfigNode node) {
         List<String> list = new ArrayList<String>();
-        switch (node.getType()) {
+        switch (node.getVarType()) {
             case LIST: {
                 final ConfigurationSection config = plugin.getConfig();
                 list = config.getStringList(node.getPath());
@@ -174,7 +174,7 @@ public class RootConfig {
 
     public static double getDouble(ConfigNode node) {
         double d = 0.0;
-        switch (node.getType()) {
+        switch (node.getVarType()) {
             case DOUBLE: {
                 d = ((Double) OPTIONS.get(node)).doubleValue();
                 break;
@@ -189,7 +189,7 @@ public class RootConfig {
 
     public static boolean getBoolean(ConfigNode node) {
         boolean b = false;
-        switch (node.getType()) {
+        switch (node.getVarType()) {
             case BOOLEAN: {
                 b = ((Boolean) OPTIONS.get(node)).booleanValue();
                 break;

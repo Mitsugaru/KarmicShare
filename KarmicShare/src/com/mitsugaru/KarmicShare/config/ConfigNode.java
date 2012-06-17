@@ -6,63 +6,64 @@ import com.mitsugaru.KarmicShare.KarmicShare;
 
 public enum ConfigNode {
     // Root nodes
-    CHESTS("chests", Type.BOOLEAN, true),
-    DISABLED_WORLDS("disabledWorlds", Type.LIST, new ArrayList<String>()),
-    EFFECTS("effecs", Type.BOOLEAN, true),
-    LIST_LIMIT("listlimit", Type.INTEGER, 10),
+    CHESTS("chests", VarType.BOOLEAN, true),
+    DISABLED_WORLDS("disabledWorlds", VarType.LIST, new ArrayList<String>()),
+    EFFECTS("effecs", VarType.BOOLEAN, true),
+    LIST_LIMIT("listlimit", VarType.INTEGER, 10),
     // Karma nodes
-    KARMA_STATIC("karma.static", Type.BOOLEAN, false),
-    KARMA_DISABLED("karma.disabled", Type.BOOLEAN, false),
-    KARMA_UPPER_LIMIT("karma.upper.limit", Type.INTEGER, 200),
-    KARMA_UPPER_PERCENT("karma.upper.percent", Type.DOUBLE, 0.85),
-    KARMA_LOWER_LIMIT("karma.lower.limit", Type.INTEGER, -200),
-    KARMA_LOWER_PERCENT("karma.lower.percent", Type.DOUBLE, 0.15),
-    KARMA_PLAYER_DEFAULT("karma.playerDefault", Type.INTEGER, 0),
-    KARMA_CHANGE_DEFAULT("karma.changeDefault", Type.INTEGER, 1),
-    KARMA_USE_ECONOMY("karma.useEconomy", Type.BOOLEAN, false),
-    KARMA_IGNORE_SELF_GROUP("karma.ignoreSelfGroup", Type.BOOLEAN, true),
+    KARMA_STATIC("karma.static", VarType.BOOLEAN, false),
+    KARMA_DISABLED("karma.disabled", VarType.BOOLEAN, false),
+    KARMA_UPPER_LIMIT("karma.upper.limit", VarType.INTEGER, 200),
+    KARMA_UPPER_PERCENT("karma.upper.percent", VarType.DOUBLE, 0.85),
+    KARMA_LOWER_LIMIT("karma.lower.limit", VarType.INTEGER, -200),
+    KARMA_LOWER_PERCENT("karma.lower.percent", VarType.DOUBLE, 0.15),
+    KARMA_PLAYER_DEFAULT("karma.playerDefault", VarType.INTEGER, 0),
+    KARMA_CHANGE_DEFAULT("karma.changeDefault", VarType.INTEGER, 1),
+    KARMA_USE_ECONOMY("karma.useEconomy", VarType.BOOLEAN, false),
+    KARMA_IGNORE_SELF_GROUP("karma.ignoreSelfGroup", VarType.BOOLEAN, true),
     // MYSQL
-    MYSQL_USE("mysql.use", Type.BOOLEAN, false),
-    MYSQL_HOST("mysql.host", Type.STRING, "localhost"),
-    MYSQL_PORT("mysql.port", Type.INTEGER, 3306),
-    MYSQL_DATABASE("mysql.database", Type.STRING, "minecraft"),
-    MYSQL_USER("mysql.user", Type.STRING, "username"),
-    MYSQL_PASSWORD("mysql.password", Type.STRING, "pass"),
-    MYSQL_TABLE_PREFIX("mysql.tablePrefix", Type.STRING, "ks_"),
-    MYSQL_IMPORT("mysql.import", Type.BOOLEAN, false),
+    MYSQL_USE("mysql.use", VarType.BOOLEAN, false),
+    MYSQL_HOST("mysql.host", VarType.STRING, "localhost"),
+    MYSQL_PORT("mysql.port", VarType.INTEGER, 3306),
+    MYSQL_DATABASE("mysql.database", VarType.STRING, "minecraft"),
+    MYSQL_USER("mysql.user", VarType.STRING, "username"),
+    MYSQL_PASSWORD("mysql.password", VarType.STRING, "pass"),
+    MYSQL_TABLE_PREFIX("mysql.tablePrefix", VarType.STRING, "ks_"),
+    MYSQL_IMPORT("mysql.import", VarType.BOOLEAN, false),
     // DEBUG
-    DEBUG_TIME("debug.time", Type.BOOLEAN, false),
-    DEBUG_DATABASE("debug.database", Type.BOOLEAN, false),
-    DEBUG_INVENTORY("debug.inventory", Type.BOOLEAN, false),
-    DEBUG_KARMA("debug.karma", Type.BOOLEAN, false),
-    DEBUG_ITEM("debug.item", Type.BOOLEAN, false),
+    DEBUG_TIME("debug.time", VarType.BOOLEAN, false),
+    DEBUG_DATABASE("debug.database", VarType.BOOLEAN, false),
+    DEBUG_INVENTORY("debug.inventory", VarType.BOOLEAN, false),
+    DEBUG_KARMA("debug.karma", VarType.BOOLEAN, false),
+    DEBUG_ITEM("debug.item", VarType.BOOLEAN, false),
     // VERSION
-    VERSION("version", Type.DOUBLE, KarmicShare.getInstance().getDescription().getVersion());
+    VERSION("version", VarType.DOUBLE, KarmicShare.getInstance()
+            .getDescription().getVersion());
 
     // TODO defaults.put("blacklist", false);
     private String path;
     private Object def;
-    private Type type;
+    private VarType vartype;
 
-    private ConfigNode(String path, Type type, Object def) {
+    private ConfigNode(String path, VarType vartype, Object def) {
         this.path = path;
-        this.type = type;
+        this.vartype = vartype;
         this.def = def;
     }
 
     public String getPath() {
-        return path;
+        return this.path;
     }
 
-    public Type getType() {
-        return type;
+    public VarType getVarType() {
+        return this.vartype;
     }
 
     public Object getDefaultValue() {
-        return def;
+        return this.def;
     }
 
-    public enum Type {
+    public enum VarType {
         STRING,
         INTEGER,
         DOUBLE,
