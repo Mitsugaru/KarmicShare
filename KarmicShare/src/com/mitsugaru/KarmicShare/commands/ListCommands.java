@@ -175,12 +175,12 @@ class ListCommands {
                             + " ID: "
                             + ChatColor.LIGHT_PURPLE
                             + ((Map.Entry<Item, Integer>) array[i]).getKey()
-                                    .itemId()
+                                    .getId()
                             + ChatColor.WHITE
                             + " Data: "
                             + ChatColor.LIGHT_PURPLE
                             + ((Map.Entry<Item, Integer>) array[i]).getKey()
-                                    .itemData();
+                                    .getData();
                     sender.sendMessage(out);
                 } else {
                     break;

@@ -450,7 +450,7 @@ public class Item extends MaterialData
 		int hash = 0;
 		hash += this.getItemTypeId();
 		hash += this.getData();
-		hash += this.itemDurability();
+		hash += this.getDurability();
 		return hash;
 	}
 
@@ -471,7 +471,7 @@ public class Item extends MaterialData
 				// Check both id and data values
 				if (this.getItemTypeId() == ((Item) obj).getItemTypeId())
 				{
-					if (this.itemId() == 9)
+					if (this.getId() == 9)
 					{
 						// Ignore data for leaves
 						return true;
@@ -489,16 +489,16 @@ public class Item extends MaterialData
 				if (this.getItemTypeId() == ((Item) obj).getItemTypeId())
 				{
 					// handle if dye or potion
-					if (this.itemId() == 351)
+					if (this.getId() == 351)
 					{
 						if (this.getData() == ((Item) obj).getData())
 						{
 							return true;
 						}
 					}
-					else if (this.itemId() == 373)
+					else if (this.getId() == 373)
 					{
-						if (durability == ((Item) obj).itemDurability())
+						if (durability == ((Item) obj).getDurability())
 						{
 							return true;
 						}
@@ -570,30 +570,20 @@ public class Item extends MaterialData
 	 * 
 	 * @return item id
 	 */
-	public int itemId()
+	public int getId()
 	{
 		return this.getItemType().getId();
 	}
 
 	/**
-	 * Grabs the data value of this Item object
-	 * 
-	 * @return data value
-	 */
-	public byte itemData()
-	{
-		return this.getData();
-	}
-
-	/**
 	 * Grabs the durability value of this Item object
 	 */
-	public short itemDurability()
+	public short getDurability()
 	{
 		return this.durability;
 	}
 
-	public int itemAmount()
+	public int getAmount()
 	{
 		return this.amount;
 	}
