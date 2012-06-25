@@ -29,7 +29,6 @@ import com.mitsugaru.KarmicShare.update.Update;
 public class KarmicShare extends JavaPlugin
 {
 	// Class variables
-    protected static KarmicShare instance;
 	private DatabaseHandler database;
 	public static final String TAG = "[KarmicShare]";
 	private int cleantask;
@@ -68,7 +67,6 @@ public class KarmicShare extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
-		KarmicShare.instance = this;
 		// Config
 		RootConfig.init(this);
 		// Database handler
@@ -202,10 +200,5 @@ public class KarmicShare extends JavaPlugin
 			return null;
 		}
 		return Name;
-	}
-	
-	public static KarmicShare getInstance()
-	{
-	    return instance;
 	}
 }

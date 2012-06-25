@@ -2,8 +2,6 @@ package com.mitsugaru.KarmicShare.config;
 
 import java.util.ArrayList;
 
-import com.mitsugaru.KarmicShare.KarmicShare;
-
 public enum ConfigNode {
     // Root nodes
     CHESTS("chests", VarType.BOOLEAN, true),
@@ -37,8 +35,7 @@ public enum ConfigNode {
     DEBUG_KARMA("debug.karma", VarType.BOOLEAN, false),
     DEBUG_ITEM("debug.item", VarType.BOOLEAN, false),
     // VERSION
-    VERSION("version", VarType.DOUBLE, KarmicShare.getInstance()
-            .getDescription().getVersion());
+    VERSION("version", VarType.DOUBLE, RootConfig.getVersion());
 
     // TODO defaults.put("blacklist", false);
     private String path;
