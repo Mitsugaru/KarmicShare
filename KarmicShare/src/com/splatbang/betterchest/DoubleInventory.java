@@ -239,7 +239,7 @@ public class DoubleInventory implements Inventory {
 
         // Put in items from the second map, adjusting key values.
         for (Map.Entry<Integer, ? extends T> entry : second.entrySet()) {
-            result.put(new Integer(entry.getKey().intValue() + offset),
+            result.put(Integer.valueOf(entry.getKey().intValue() + offset),
                     (T) entry.getValue());
         }
 

@@ -274,43 +274,6 @@ public class SQLite extends Database {
 	}
 
 	/*
-	 * <b>retry</b><br>
-	 * <br>
-	 * Retries.
-	 * <br>
-	 * <br>
-	 * @param query The SQL query.
-	 */
-	public void retry(String query) {
-		boolean passed = false;
-		Connection connection = open();
-		Statement statement = null;
-		count = 0;
-
-		while (!passed || count < timeout) {
-			try {
-				statement = connection.createStatement();
-				statement.executeQuery(query);
-				statement.close();
-				connection.close();
-				passed = true;
-			} catch (SQLException ex) {
-				if (ex.getMessage().toLowerCase().contains("locking") || ex.getMessage().toLowerCase().contains("locked") ) {
-					passed = false;
-					count++;
-					this.writeError("Locked",false, ex);
-				} else {
-					this.writeError("Error at SQL Query: " + ex.getMessage(), false, ex);
-				}
-			}
-		}
-		if(count >= timeout)
-		{
-			this.writeError("Failed to write to SQLite database. Timed out.",true, null);
-		}
-	}
-
-	/*
 	 * Retries a result.
 	 *
 	 * @param query The SQL query to retry.

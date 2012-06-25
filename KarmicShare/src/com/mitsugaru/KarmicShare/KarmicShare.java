@@ -68,7 +68,7 @@ public class KarmicShare extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
-	    instance = this;
+		KarmicShare.instance = this;
 		// Config
 		RootConfig.init(this);
 		// Database handler

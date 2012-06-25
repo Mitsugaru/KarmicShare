@@ -292,7 +292,7 @@ public class MySQL extends Database
 			statement = this.connection.createStatement();
 			query = "DELETE FROM " + table + ";";
 			statement.executeUpdate(query);
-
+			statement.close();
 			return true;
 		}
 		catch (SQLException e)
