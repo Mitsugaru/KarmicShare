@@ -373,11 +373,6 @@ public class RootConfig {
                     "List limit is lower than 1. Using default.");
         }
     }
-    
-    public static String getVersion()
-    {
-    	return plugin.getDescription().getVersion();
-    }
 
     /**
      * Loads the karma file. Contains default values If the karma file isn't

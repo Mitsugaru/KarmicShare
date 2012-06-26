@@ -3,6 +3,7 @@ package com.mitsugaru.KarmicShare.config;
 import java.util.ArrayList;
 
 public enum ConfigNode {
+    
     // Root nodes
     CHESTS("chests", VarType.BOOLEAN, true),
     DISABLED_WORLDS("disabledWorlds", VarType.LIST, new ArrayList<String>()),
@@ -35,9 +36,10 @@ public enum ConfigNode {
     DEBUG_KARMA("debug.karma", VarType.BOOLEAN, false),
     DEBUG_ITEM("debug.item", VarType.BOOLEAN, false),
     // VERSION
-    VERSION("version", VarType.DOUBLE, RootConfig.getVersion());
+    VERSION("version", VarType.STRING, "0.317");
 
     // TODO defaults.put("blacklist", false);
+    
     private String path;
     private Object def;
     private VarType vartype;
