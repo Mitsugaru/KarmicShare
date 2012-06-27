@@ -337,7 +337,7 @@ class GroupCommands
 			if (group.startsWith("self_"))
 			{
 				sender.sendMessage(ChatColor.RED + KarmicShare.TAG
-						+ " Cannot remove players from the self group.");
+						+ " Cannot add players from the self group.");
 				return true;
 			}
 			else if (group.equalsIgnoreCase("global"))
