@@ -16,7 +16,6 @@ public class KarmaConfig{
 
    public static void init(KarmicShare ks){
       plugin = ks;
-      reload();
    }
 
    /**
