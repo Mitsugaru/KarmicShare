@@ -86,7 +86,11 @@ public class KarmicShare extends JavaPlugin{
       ItemLogic.init(this);
       // Updater
       Update.init(this);
-      Update.checkUpdate();
+      if(Update.checkUpdate())
+      {
+         //reload config
+         RootConfig.reload();
+      }
       // Grab Commander to handle commands
       getCommand("ks").setExecutor(new Commander(this));
       // Grab plugin manager
