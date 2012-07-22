@@ -72,15 +72,13 @@ public class KarmicShare extends JavaPlugin{
       // Initialize permission handler
       PermissionHandler.init(this);
       // Setup economy
-      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
-         economyFound = setupEconomy();
-         if(!economyFound){
-            getLogger()
-                  .warning(
-                        "Economy not found, but is enabled in config.yml. Reverting to built-in karma system.");
-            RootConfig.set("karma.useEconomy", false);
-            RootConfig.reload();
-         }
+      economyFound = setupEconomy();
+      if(!economyFound && RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+         getLogger()
+               .warning(
+                     "Economy not found, but is enabled in config.yml. Reverting to built-in karma system.");
+         RootConfig.set("karma.useEconomy", false);
+         RootConfig.reload();
       }
       // Initialize Karma logic handler
       Karma.init(this);
