@@ -37,6 +37,7 @@ public enum ConfigNode {
     DEBUG_KARMA("debug.karma", VarType.BOOLEAN, false),
     DEBUG_ITEM("debug.item", VarType.BOOLEAN, false),
     DEBUG_CONFIG("debug.config", VarType.BOOLEAN, false),
+    DEBUG_ECONOMY("debug.economy", VarType.BOOLEAN, false),
     // VERSION
     VERSION("version", VarType.STRING, "0.317");
 

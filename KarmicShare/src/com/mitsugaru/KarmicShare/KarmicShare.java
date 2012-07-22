@@ -71,6 +71,17 @@ public class KarmicShare extends JavaPlugin{
       database = new DatabaseHandler(this);
       // Initialize permission handler
       PermissionHandler.init(this);
+      // Setup economy
+      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+         economyFound = setupEconomy();
+         if(!economyFound){
+            getLogger()
+                  .warning(
+                        "Economy not found, but is enabled in config.yml. Reverting to built-in karma system.");
+            RootConfig.set("karma.useEconomy", false);
+            RootConfig.reload();
+         }
+      }
       // Initialize Karma logic handler
       Karma.init(this);
       // Initialize ItemLogic handler
@@ -80,17 +91,6 @@ public class KarmicShare extends JavaPlugin{
       Update.checkUpdate();
       // Grab Commander to handle commands
       getCommand("ks").setExecutor(new Commander(this));
-      // Setup economy
-      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
-         setupEconomy();
-         if(!economyFound){
-            getLogger()
-                  .warning(
-                        "Economy not setup, but is enabled in config.yml. Reverting to built-in karma system.");
-            RootConfig.set("karma.useEconomy", false);
-            RootConfig.reload();
-         }
-      }
       // Grab plugin manager
       final PluginManager pm = this.getServer().getPluginManager();
       // Register listeners
@@ -113,19 +113,19 @@ public class KarmicShare extends JavaPlugin{
       return database;
    }
 
-   private void setupEconomy(){
+   private boolean setupEconomy(){
+      boolean found = false;
       RegisteredServiceProvider<Economy> economyProvider = this.getServer()
             .getServicesManager()
             .getRegistration(net.milkbowl.vault.economy.Economy.class);
       if(economyProvider != null){
          eco = economyProvider.getProvider();
-         economyFound = true;
+         found = true;
       }else{
          // No economy system found, disable
          getLogger().warning(TAG + " No economy found!");
-         this.getServer().getPluginManager().disablePlugin(this);
-         economyFound = false;
       }
+      return found;
    }
 
    public boolean useChest(){

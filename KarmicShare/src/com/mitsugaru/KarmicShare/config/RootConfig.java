@@ -264,6 +264,7 @@ public class RootConfig {
 	updateOption(ConfigNode.DEBUG_KARMA);
 	updateOption(ConfigNode.DEBUG_ITEM);
 	updateOption(ConfigNode.DEBUG_CONFIG);
+	updateOption(ConfigNode.DEBUG_ECONOMY);
     }
 
     /**

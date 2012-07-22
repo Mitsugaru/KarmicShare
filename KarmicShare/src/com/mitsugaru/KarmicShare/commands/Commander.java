@@ -172,6 +172,10 @@ public class Commander implements CommandExecutor{
          // karma system disabled
          sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Karma disabled");
          return;
+      } else if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+         sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
+               + " Uses economy system");
+         return;
       }
       if(!(sender instanceof Player)){
          // Show help to console
@@ -272,6 +276,10 @@ public class Commander implements CommandExecutor{
          // karma system disabled
          sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Karma disabled");
          return;
+      }else if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+         sender.sendMessage(ChatColor.YELLOW + KarmicShare.TAG
+               + " Uses economy system");
+         return;
       }
       // Check if name was given
       if(args.length <= 1){
@@ -319,6 +327,8 @@ public class Commander implements CommandExecutor{
             + !RootConfig.getBoolean(ConfigNode.KARMA_DISABLED));
       sender.sendMessage(ChatColor.GRAY + "Static karma: "
             + RootConfig.getBoolean(ConfigNode.KARMA_STATIC));
+      sender.sendMessage(ChatColor.GRAY + "Use Economy: "
+            + RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY));
       sender.sendMessage(ChatColor.GRAY + "Karma lower-upper limit: "
             + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT) + " :: "
             + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT));
