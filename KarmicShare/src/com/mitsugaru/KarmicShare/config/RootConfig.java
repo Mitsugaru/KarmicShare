@@ -10,20 +10,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.mitsugaru.KarmicShare.KarmicShare;
-import com.mitsugaru.KarmicShare.inventory.Item;
 
 public class RootConfig {
     // Class variables
     private static KarmicShare plugin;
-    public static final Map<Item, Integer> karma = new HashMap<Item, Integer>();
     private static final EnumMap<ConfigNode, Object> OPTIONS = new EnumMap<ConfigNode, Object>(
 	    ConfigNode.class);
 
@@ -214,47 +210,6 @@ public class RootConfig {
 	return b;
     }
 
-    /**
-     * Loads the per-item karma values into a hashmap for later usage
-     */
-    private static void loadKarmaMap() {
-	// Load karma file
-	final YamlConfiguration karmaFile = karmaFile();
-	// Load custom karma file into map
-	for (final String entry : karmaFile.getKeys(false)) {
-	    try {
-		// Attempt to parse the nodes
-		int key = Integer.parseInt(entry);
-		// If it has child nodes, parse those as well
-		if (karmaFile.isConfigurationSection(entry)) {
-		    ConfigurationSection sec = karmaFile
-			    .getConfigurationSection(entry);
-		    for (final String dataValue : sec.getKeys(false)) {
-			int secondKey = Integer.parseInt(dataValue);
-			int secondValue = sec.getInt(dataValue);
-			if (key != 373) {
-			    karma.put(
-				    new Item(key, Byte
-					    .parseByte("" + secondKey),
-					    (short) secondKey), secondValue);
-			} else {
-			    karma.put(new Item(key, Byte.parseByte("" + 0),
-				    (short) secondKey), secondValue);
-			}
-		    }
-		} else {
-		    int value = karmaFile.getInt(entry);
-		    karma.put(new Item(key, Byte.valueOf("" + 0), (short) 0),
-			    value);
-		}
-	    } catch (final NumberFormatException ex) {
-		plugin.getLogger().warning("Non-integer value for: " + entry);
-		ex.printStackTrace();
-	    }
-	}
-	plugin.getLogger().info("Loaded custom karma values");
-    }
-
     @SuppressWarnings("unused")
     private static void loadBlacklist() {
 	// final YamlConfiguration blacklistFile = blacklistFile();
@@ -275,10 +230,8 @@ public class RootConfig {
 	// Load config for item specific karma if not using static karma
 	if (!getBoolean(ConfigNode.KARMA_STATIC)
 		&& !getBoolean(ConfigNode.KARMA_DISABLED)) {
-	    // Clear old mappings
-	    karma.clear();
-	    // Reload karma mappings
-	    loadKarmaMap();
+	    // Reload karma config
+	   KarmaConfig.reload();
 	}
 	// TODO
 	// if (blacklist) {
@@ -301,14 +254,16 @@ public class RootConfig {
 	updateOption(ConfigNode.KARMA_LOWER_LIMIT);
 	updateOption(ConfigNode.KARMA_LOWER_PERCENT);
 	updateOption(ConfigNode.KARMA_PLAYER_DEFAULT);
-	updateOption(ConfigNode.KARMA_CHANGE_DEFAULT);
-	updateOption(ConfigNode.KARMA_USE_ECONOMY);
+	updateOption(ConfigNode.KARMA_CHANGE_GIVE);
+	updateOption(ConfigNode.KARMA_CHANGE_TAKE);
+	updateOption(ConfigNode.KARMA_ECONOMY);
 	updateOption(ConfigNode.KARMA_IGNORE_SELF_GROUP);
 	updateOption(ConfigNode.DEBUG_TIME);
 	updateOption(ConfigNode.DEBUG_DATABASE);
 	updateOption(ConfigNode.DEBUG_INVENTORY);
 	updateOption(ConfigNode.DEBUG_KARMA);
 	updateOption(ConfigNode.DEBUG_ITEM);
+	updateOption(ConfigNode.DEBUG_CONFIG);
     }
 
     /**
@@ -370,12 +325,19 @@ public class RootConfig {
 			    "Player karma default is out of range. Using average of the two.");
 	}
 	// Check that default karma change is not negative.
-	if (getInt(ConfigNode.KARMA_CHANGE_DEFAULT) < 0) {
-	    OPTIONS.put(ConfigNode.KARMA_CHANGE_DEFAULT,
-		    ConfigNode.KARMA_CHANGE_DEFAULT.getDefaultValue());
+	if (getDouble(ConfigNode.KARMA_CHANGE_GIVE) < 0) {
+	    OPTIONS.put(ConfigNode.KARMA_CHANGE_GIVE,
+		    ConfigNode.KARMA_CHANGE_GIVE.getDefaultValue());
 	    plugin.getLogger().warning(
-		    "Default karma rate is negative. Using default.");
+		    "Default give karma rate is negative. Using default.");
 	}
+// Check that default karma change is not negative.
+   if (getDouble(ConfigNode.KARMA_CHANGE_TAKE) < 0) {
+       OPTIONS.put(ConfigNode.KARMA_CHANGE_TAKE,
+          ConfigNode.KARMA_CHANGE_TAKE.getDefaultValue());
+       plugin.getLogger().warning(
+          "Default take karma rate is negative. Using default.");
+   }
 	// Check that list is actually going to output something, based on limit
 	// given
 	if (getInt(ConfigNode.LIST_LIMIT) < 1) {
@@ -384,70 +346,6 @@ public class RootConfig {
 	    plugin.getLogger().warning(
 		    "List limit is lower than 1. Using default.");
 	}
-    }
-
-    /**
-     * Loads the karma file. Contains default values If the karma file isn't
-     * there, or if its empty, then load defaults.
-     * 
-     * @return YamlConfiguration file
-     */
-    private static YamlConfiguration karmaFile() {
-	final File file = new File(plugin.getDataFolder().getAbsolutePath()
-		+ "/karma.yml");
-	final YamlConfiguration karmaFile = YamlConfiguration
-		.loadConfiguration(file);
-	if (karmaFile.getKeys(false).isEmpty()) {
-	    // Defaults
-	    karmaFile.set("14", 5);
-	    karmaFile.set("15", 2);
-	    karmaFile.set("17.0", 2);
-	    karmaFile.set("17.1", 2);
-	    karmaFile.set("17.2", 2);
-	    karmaFile.set("19", 10);
-	    karmaFile.set("20", 3);
-	    karmaFile.set("22", 36);
-	    karmaFile.set("24", 2);
-	    karmaFile.set("35.0", 2);
-	    karmaFile.set("35.1", 2);
-	    karmaFile.set("35.2", 2);
-	    karmaFile.set("35.3", 2);
-	    karmaFile.set("35.4", 2);
-	    karmaFile.set("35.5", 2);
-	    karmaFile.set("35.6", 2);
-	    karmaFile.set("35.7", 2);
-	    karmaFile.set("35.8", 2);
-	    karmaFile.set("35.9", 2);
-	    karmaFile.set("35.10", 2);
-	    karmaFile.set("35.11", 2);
-	    karmaFile.set("35.12", 2);
-	    karmaFile.set("35.13", 2);
-	    karmaFile.set("35.14", 2);
-	    karmaFile.set("35.15", 2);
-	    karmaFile.set("41", 54);
-	    karmaFile.set("45", 6);
-	    karmaFile.set("47", 6);
-	    karmaFile.set("49", 6);
-	    karmaFile.set("57", 225);
-	    karmaFile.set("89", 4);
-	    karmaFile.set("102", 12);
-	    karmaFile.set("264", 25);
-	    karmaFile.set("265", 3);
-	    karmaFile.set("266", 6);
-	    karmaFile.set("322", 10);
-	    karmaFile.set("331", 2);
-	    karmaFile.set("351.4", 4);
-	    // Insert defaults into config file if they're not present
-	    try {
-		// Save the file
-		karmaFile.save(file);
-	    } catch (IOException e1) {
-		plugin.getLogger().warning(
-			"File I/O Exception on saving karma list");
-		e1.printStackTrace();
-	    }
-	}
-	return karmaFile;
     }
 
     @SuppressWarnings("unused")

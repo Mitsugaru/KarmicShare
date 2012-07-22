@@ -161,7 +161,7 @@ public class Karma {
         String query = "SELECT * FROM " + Table.PLAYERS.getName()
                 + " WHERE playername='" + name + "';";
         final Query rs = plugin.getDatabaseHandler().select(query);
-        int karma = RootConfig.getInt(ConfigNode.KARMA_CHANGE_DEFAULT);
+        int karma = RootConfig.getInt(ConfigNode.KARMA_PLAYER_DEFAULT);
         boolean has = false;
         // Retrieve karma from database
         try {

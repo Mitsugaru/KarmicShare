@@ -11,14 +11,15 @@ public enum ConfigNode {
     LIST_LIMIT("listlimit", VarType.INTEGER, 10),
     // Karma nodes
     KARMA_STATIC("karma.static", VarType.BOOLEAN, false),
+    KARMA_ECONOMY("karma.useEconomy", VarType.BOOLEAN, true),
     KARMA_DISABLED("karma.disabled", VarType.BOOLEAN, false),
     KARMA_UPPER_LIMIT("karma.upper.limit", VarType.INTEGER, 200),
     KARMA_UPPER_PERCENT("karma.upper.percent", VarType.DOUBLE, 0.85),
     KARMA_LOWER_LIMIT("karma.lower.limit", VarType.INTEGER, -200),
     KARMA_LOWER_PERCENT("karma.lower.percent", VarType.DOUBLE, 0.15),
     KARMA_PLAYER_DEFAULT("karma.playerDefault", VarType.INTEGER, 0),
-    KARMA_CHANGE_DEFAULT("karma.changeDefault", VarType.INTEGER, 1),
-    KARMA_USE_ECONOMY("karma.useEconomy", VarType.BOOLEAN, false),
+    KARMA_CHANGE_GIVE("karma.change.give", VarType.INTEGER, 1),
+    KARMA_CHANGE_TAKE("karma.change.take", VarType.INTEGER, 1),
     KARMA_IGNORE_SELF_GROUP("karma.ignoreSelfGroup", VarType.BOOLEAN, true),
     // MYSQL
     MYSQL_USE("mysql.use", VarType.BOOLEAN, false),
@@ -35,6 +36,7 @@ public enum ConfigNode {
     DEBUG_INVENTORY("debug.inventory", VarType.BOOLEAN, false),
     DEBUG_KARMA("debug.karma", VarType.BOOLEAN, false),
     DEBUG_ITEM("debug.item", VarType.BOOLEAN, false),
+    DEBUG_CONFIG("debug.config", VarType.BOOLEAN, false),
     // VERSION
     VERSION("version", VarType.STRING, "0.317");
 

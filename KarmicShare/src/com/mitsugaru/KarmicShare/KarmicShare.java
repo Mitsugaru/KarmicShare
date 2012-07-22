@@ -15,6 +15,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mitsugaru.KarmicShare.commands.Commander;
+import com.mitsugaru.KarmicShare.config.KarmaConfig;
 import com.mitsugaru.KarmicShare.config.RootConfig;
 import com.mitsugaru.KarmicShare.config.ConfigNode;
 import com.mitsugaru.KarmicShare.database.DatabaseHandler;
@@ -68,6 +69,8 @@ public class KarmicShare extends JavaPlugin {
 	database = new DatabaseHandler(this);
 	// Initialize permission handler
 	PermissionHandler.init(this);
+	// Initialize karma values config
+	KarmaConfig.init(this);
 	// Initialize Karma logic handler
 	Karma.init(this);
 	// Initialize ItemLogic handler
@@ -78,7 +81,7 @@ public class KarmicShare extends JavaPlugin {
 	// Grab Commander to handle commands
 	getCommand("ks").setExecutor(new Commander(this));
 	// Setup economy
-	if (RootConfig.getBoolean(ConfigNode.KARMA_USE_ECONOMY)) {
+	if (RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)) {
 	    setupEconomy();
 	    if (!economyFound) {
 		getLogger()
