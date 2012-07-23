@@ -226,13 +226,11 @@ class ListCommands{
             // so we know their position in the result list
             if(!Karma.page.containsKey(sender.getName())){
                Karma.page.put(sender.getName(), 0);
-            }else{
+            }else if(pageAdjust != 0){
                // They already exist, so adjust if necessary
-               if(pageAdjust != 0){
-                  int adj = Karma.page.get(sender.getName()).intValue()
-                        + pageAdjust;
-                  Karma.page.put(sender.getName(), adj);
-               }
+               int adj = Karma.page.get(sender.getName()).intValue()
+                     + pageAdjust;
+               Karma.page.put(sender.getName(), adj);
             }
             // Clear cache
             cache.clear();
