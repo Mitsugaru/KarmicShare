@@ -69,7 +69,7 @@ public class KSPlayerListener implements Listener
 		boolean isChest = false, showInventory = false;
 		int page = 1;
 		// Determine if its a chest
-		if (block.getType().equals(Material.CHEST))
+		if (block.getType().equals(Material.CHEST) || block.getType().equals(Material.ENDER_CHEST))
 		{
 			isChest = true;
 		}

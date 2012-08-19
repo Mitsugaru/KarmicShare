@@ -9,6 +9,7 @@ public enum ConfigNode {
     DISABLED_WORLDS("disabledWorlds", VarType.LIST, new ArrayList<String>()),
     EFFECTS("effecs", VarType.BOOLEAN, true),
     LIST_LIMIT("listlimit", VarType.INTEGER, 10),
+    ENDER_REPLACE("enderchestreplace", VarType.BOOLEAN, false),
     // Karma nodes
     KARMA_STATIC("karma.static", VarType.BOOLEAN, false),
     KARMA_ECONOMY("karma.useEconomy", VarType.BOOLEAN, true),
