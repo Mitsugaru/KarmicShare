@@ -26,7 +26,7 @@ import com.mitsugaru.KarmicShare.inventory.Item;
 import com.mitsugaru.KarmicShare.inventory.KSInventoryHolder;
 import com.mitsugaru.KarmicShare.tasks.ShowKSInventoryTask;
 
-public class Karma{
+public class Karma {
    private static KarmicShare plugin;
    public static final int chestSize = 54;
    public static final String GROUP_NAME_REGEX = "[\\p{Alnum}_[\\-]]*";
@@ -38,28 +38,28 @@ public class Karma{
    public static final Map<String, Integer> page = new HashMap<String, Integer>(),
          multiPage = new HashMap<String, Integer>();
 
-   public static void init(KarmicShare ks){
+   public static void init(KarmicShare ks) {
       plugin = ks;
    }
 
    public static boolean hasPlayerFromPartialName(CommandSender sender,
-         String name){
+         String name) {
       // SQL query to get player count for specified name
       String query = "SELECT COUNT(*) FROM " + Table.PLAYERS.getName()
             + " WHERE playername='" + name + "';";
       Query rs = plugin.getDatabaseHandler().select(query);
       // Check ResultSet
       boolean has = false;
-      try{
-         if(rs.getResult().next()){
+      try {
+         if(rs.getResult().next()) {
             // Check if only received 1 entry
-            if(rs.getResult().getInt(1) == 1){
+            if(rs.getResult().getInt(1) == 1) {
                // we have a single name
                has = true;
-            }else if(rs.getResult().getInt(1) > 1){
+            } else if(rs.getResult().getInt(1) > 1) {
                sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                      + " Got more than one result. Possibly incomplete name?");
-            }else{
+            } else {
                // Player not in database, therefore
                // error
                // on player part
@@ -69,13 +69,13 @@ public class Karma{
                sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                      + " Player names are case sensitive.");
             }
-         }else{
+         } else {
             // Error in query...
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                   + " SQL query error");
          }
          rs.closeQuery();
-      }catch(SQLException e){
+      } catch(SQLException e) {
          sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " Could not set "
                + name + "'s karma");
          e.printStackTrace();
@@ -94,48 +94,48 @@ public class Karma{
     *           if to add to current karma, or to set it as given value
     * @throws SQLException
     */
-   public static void updatePlayerKarma(String name, int k) throws SQLException{
-      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+   public static void updatePlayerKarma(String name, int k) throws SQLException {
+      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)) {
          EconomyResponse response = null;
-         if(k < 0){
+         if(k < 0) {
             // negative, take away
             response = plugin.getEconomy().withdrawPlayer(name, (k * -1));
-         }else{
+         } else {
             // give
             response = plugin.getEconomy().depositPlayer(name, k);
          }
-         if(response == null){
+         if(response == null) {
             return;
          }
-         switch(response.type){
-         case FAILURE:{
-            try{
+         switch(response.type) {
+         case FAILURE: {
+            try {
                plugin.getServer()
                      .getPlayer(name)
                      .sendMessage(
                            ChatColor.RED + KarmicShare.TAG
                                  + " Failed economy transaction!");
-            }catch(NullPointerException npe){
+            } catch(NullPointerException npe) {
                // IGNORE
             }
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().warning(
                      "Failed economy transaction on updatePlayerKarma(" + name
                            + ", " + k + ") : " + response.errorMessage);
             }
             break;
          }
-         case NOT_IMPLEMENTED:{
-            try{
+         case NOT_IMPLEMENTED: {
+            try {
                plugin.getServer()
                      .getPlayer(name)
                      .sendMessage(
                            ChatColor.RED + KarmicShare.TAG
                                  + " Failed economy transaction!");
-            }catch(NullPointerException npe){
+            } catch(NullPointerException npe) {
                // IGNORE
             }
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().warning(
                      "Unimplemented economy transaction on updatePlayerKarma("
                            + name + ", " + k + ") for eco "
@@ -144,48 +144,48 @@ public class Karma{
             }
             break;
          }
-         case SUCCESS:{
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+         case SUCCESS: {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().info(
                      "Successful economy transaction on updatePlayerKarma("
                            + name + ", " + k + ")");
             }
             break;
          }
-         default:{
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+         default: {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().warning(
                      "Unknown response type:" + response.type.toString());
             }
             break;
          }
          }
-      }else{
-         try{
+      } else {
+         try {
             // Retrieve karma from database
             int karma = getPlayerKarma(name);
             // Add to existing value
             karma += k;
             String query;
             // Check updated karma value to limits in config
-            if(karma <= RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)){
+            if(karma <= RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
                // Updated karma value is beyond lower limit, so set to min
                query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
                      + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)
                      + "' WHERE playername='" + name + "';";
-            }else if(karma >= RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)){
+            } else if(karma >= RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)) {
                // Updated karma value is beyond upper limit, so set to max
                query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
                      + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)
                      + "' WHERE playername='" + name + "';";
-            }else{
+            } else {
                // Updated karma value is within acceptable range
                query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
                      + karma + "' WHERE playername='" + name + "';";
             }
             plugin.getDatabaseHandler().standardQuery(query);
-         }catch(SQLException e){
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+         } catch(SQLException e) {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                plugin.getLogger().warning(
                      "SQLException on updatePlayerKarma(" + name + "," + k
                            + ")");
@@ -195,55 +195,55 @@ public class Karma{
       }
    }
 
-   public static void setPlayerKarma(String name, int karma){
-      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+   public static void setPlayerKarma(String name, int karma) {
+      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)) {
          EconomyResponse response = null;
-         try{
+         try {
             int balance = getPlayerKarma(name);
-            if(balance > karma){
+            if(balance > karma) {
                // Give difference
                response = plugin.getEconomy().depositPlayer(name,
                      (balance - karma));
-            }else{
+            } else {
                // Take difference
                response = plugin.getEconomy().withdrawPlayer(name,
                      (karma - balance));
             }
-         }catch(SQLException e){
+         } catch(SQLException e) {
             // Won't happen since we're using economy
          }
-         if(response == null){
+         if(response == null) {
             return;
          }
-         switch(response.type){
-         case FAILURE:{
-            try{
+         switch(response.type) {
+         case FAILURE: {
+            try {
                plugin.getServer()
                      .getPlayer(name)
                      .sendMessage(
                            ChatColor.RED + KarmicShare.TAG
                                  + " Failed economy transaction!");
-            }catch(NullPointerException npe){
+            } catch(NullPointerException npe) {
                // IGNORE
             }
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().warning(
                      "Failed economy transaction on setPlayerKarma(" + name
                            + ", " + karma + ") : " + response.errorMessage);
             }
             break;
          }
-         case NOT_IMPLEMENTED:{
-            try{
+         case NOT_IMPLEMENTED: {
+            try {
                plugin.getServer()
                      .getPlayer(name)
                      .sendMessage(
                            ChatColor.RED + KarmicShare.TAG
                                  + " Failed economy transaction!");
-            }catch(NullPointerException npe){
+            } catch(NullPointerException npe) {
                // IGNORE
             }
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().warning(
                      "Unimplemented economy transaction on setPlayerKarma("
                            + name + ", " + karma + ") for eco "
@@ -252,36 +252,36 @@ public class Karma{
             }
             break;
          }
-         case SUCCESS:{
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+         case SUCCESS: {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().info(
                      "Successful economy transaction on setPlayerKarma(" + name
                            + ", " + karma + ")");
             }
             break;
          }
-         default:{
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)){
+         default: {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_ECONOMY)) {
                plugin.getLogger().warning(
                      "Unknown response type:" + response.type.toString());
             }
             break;
          }
          }
-      }else{
+      } else {
          String query;
          // Check updated karma value to limits in config
-         if(karma <= RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)){
+         if(karma <= RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)) {
             // Updated karma value is beyond lower limit, so set to min
             query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
                   + RootConfig.getInt(ConfigNode.KARMA_LOWER_LIMIT)
                   + "' WHERE playername='" + name + "';";
-         }else if(karma >= RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)){
+         } else if(karma >= RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)) {
             // Updated karma value is beyond upper limit, so set to max
             query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
                   + RootConfig.getInt(ConfigNode.KARMA_UPPER_LIMIT)
                   + "' WHERE playername='" + name + "';";
-         }else{
+         } else {
             // Updated karma value is within acceptable range
             query = "UPDATE " + Table.PLAYERS.getName() + " SET karma='"
                   + karma + "' WHERE playername='" + name + "';";
@@ -298,28 +298,28 @@ public class Karma{
     *           name
     * @return karma value associated with name
     */
-   public static int getPlayerKarma(String name) throws SQLException{
+   public static int getPlayerKarma(String name) throws SQLException {
       int karma = RootConfig.getInt(ConfigNode.KARMA_PLAYER_DEFAULT);
-      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)){
+      if(RootConfig.getBoolean(ConfigNode.KARMA_ECONOMY)) {
          double balance = plugin.getEconomy().getBalance(name);
          karma = (int) balance;
-      }else{
+      } else {
          boolean has = false;
          String query = "SELECT * FROM " + Table.PLAYERS.getName()
                + " WHERE playername='" + name + "';";
          final Query rs = plugin.getDatabaseHandler().select(query);
          // Retrieve karma from database
-         try{
-            if(rs.getResult().next()){
-               do{
+         try {
+            if(rs.getResult().next()) {
+               do {
                   // Grab player karma value
                   karma = rs.getResult().getInt("karma");
                   has = true;
-               }while(rs.getResult().next());
+               } while(rs.getResult().next());
             }
             rs.closeQuery();
-            if(!has){
-               if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+            if(!has) {
+               if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                   plugin.getLogger().info(
                         "getPlayerKarma(" + name + ") not in database, adding");
                }
@@ -329,8 +329,8 @@ public class Karma{
                      + "');";
                plugin.getDatabaseHandler().standardQuery(query);
             }
-         }catch(SQLException e){
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+         } catch(SQLException e) {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                plugin.getLogger().warning(
                      "SQLException on getPlayerKarma(" + name + ")");
             }
@@ -340,34 +340,34 @@ public class Karma{
       return karma;
    }
 
-   public static boolean validGroup(CommandSender sender, String group){
-      if(group.equals("global")){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+   public static boolean validGroup(CommandSender sender, String group) {
+      if(group.equals("global")) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().info(
                   "global group valid for " + sender.getName());
          }
          return true;
-      }else if(group.equals("self_" + sender.getName().toLowerCase())){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } else if(group.equals("self_" + sender.getName().toLowerCase())) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().info("self group valid for " + sender.getName());
          }
          return true;
       }
       boolean valid = false;
-      try{
+      try {
          final Query rs = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.GROUPS.getName() + " WHERE groupname='"
                      + group + "';");
-         if(rs.getResult().next()){
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+         if(rs.getResult().next()) {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                plugin.getLogger().info(
                      group + " group valid for " + sender.getName());
             }
             valid = true;
          }
          rs.closeQuery();
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().warning(
                   "SQLException on validGroup(" + sender.getName() + ","
                         + group + ")");
@@ -379,40 +379,40 @@ public class Karma{
    }
 
    public static boolean playerHasGroup(CommandSender sender, String name,
-         String group){
-      if(group.equals("global")){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+         String group) {
+      if(group.equals("global")) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().info(name + " has group " + group);
          }
          return true;
-      }else if(group.equals("self_" + name.toLowerCase())){
+      } else if(group.equals("self_" + name.toLowerCase())) {
          return true;
       }
       boolean has = false;
-      try{
+      try {
          // Insures that the player is added to the database
          getPlayerKarma(name);
          String groups = "";
          final Query rs = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.PLAYERS.getName()
                      + " WHERE playername='" + name + "';");
-         if(rs.getResult().next()){
+         if(rs.getResult().next()) {
             groups = rs.getResult().getString("groups");
-            if(!rs.getResult().wasNull()){
-               if(groups.contains("&")){
+            if(!rs.getResult().wasNull()) {
+               if(groups.contains("&")) {
                   // they have multiple groups
-                  for(String s : groups.split("&")){
-                     try{
+                  for(String s : groups.split("&")) {
+                     try {
                         // grab id of given group and compare against
                         // ids
                         final String groupName = getGroupName(Integer
                               .parseInt(s));
-                        if(groupName.equalsIgnoreCase(group)){
+                        if(groupName.equalsIgnoreCase(group)) {
                            has = true;
                         }
-                     }catch(NumberFormatException n){
+                     } catch(NumberFormatException n) {
                         // bad group id
-                        if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+                        if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                            plugin.getLogger().warning(
                                  "NumberFormatException for playerHasGroup("
                                        + sender.getName() + "," + name + ","
@@ -420,17 +420,17 @@ public class Karma{
                         }
                      }
                   }
-               }else{
-                  try{
+               } else {
+                  try {
                      final String groupName = getGroupName(Integer
                            .parseInt(groups));
                      // they only have one group
-                     if(groupName.equalsIgnoreCase(group)){
+                     if(groupName.equalsIgnoreCase(group)) {
                         has = true;
                      }
-                  }catch(NumberFormatException n){
+                  } catch(NumberFormatException n) {
                      // bad group id
-                     if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+                     if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                         plugin.getLogger().warning(
                               "NumberFormatException for playerHasGroup("
                                     + sender.getName() + "," + name + ","
@@ -441,37 +441,37 @@ public class Karma{
             }
          }
          rs.closeQuery();
-      }catch(SQLException e){
+      } catch(SQLException e) {
          sender.sendMessage(ChatColor.RED + KarmicShare.TAG + " SQL Exception");
          e.printStackTrace();
       }
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
          plugin.getLogger().info(
                "Player " + name + " has group " + group + " : " + has);
       }
       return has;
    }
 
-   public static List<String> getPlayerGroups(CommandSender sender, String name){
+   public static List<String> getPlayerGroups(CommandSender sender, String name) {
       List<String> list = new ArrayList<String>();
       boolean wasNull = false, initial = false;
-      try{
+      try {
          String groups = "";
          Query rs = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.PLAYERS.getName()
                      + " WHERE playername='" + name + "';");
-         if(rs.getResult().next()){
+         if(rs.getResult().next()) {
             groups = rs.getResult().getString("groups");
             wasNull = rs.getResult().wasNull();
          }
          rs.closeQuery();
-         if(wasNull){
+         if(wasNull) {
             initial = true;
-         }else if(groups.equals("")){
+         } else if(groups.equals("")) {
             initial = true;
          }
-         if(initial){
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+         if(initial) {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                plugin.getLogger().info("Initial groups for " + name);
             }
             // No groups, add in the global and self
@@ -487,20 +487,20 @@ public class Karma{
                         + groups + "' WHERE playername='" + name + "';");
          }
          String[] split = groups.split("&");
-         for(String s : split){
-            try{
-               if(s != null && !s.equals("")){
+         for(String s : split) {
+            try {
+               if(s != null && !s.equals("")) {
                   list.add(getGroupName(Integer.parseInt(s)));
                }
-            }catch(NumberFormatException n){
-               if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+            } catch(NumberFormatException n) {
+               if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                   plugin.getLogger().warning("Bad group id '" + s + "'");
                }
                n.printStackTrace();
             }
          }
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().warning(
                   "SQLException on getPlayerGroups(" + sender.getName() + ","
                         + name + ")");
@@ -511,21 +511,21 @@ public class Karma{
       return list;
    }
 
-   public static int getGroupId(String group){
+   public static int getGroupId(String group) {
       int id = -1;
-      try{
+      try {
          final Query query = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.GROUPS.getName() + " WHERE groupname='"
                      + group + "';");
-         if(query.getResult().next()){
+         if(query.getResult().next()) {
             id = query.getResult().getInt("id");
-            if(query.getResult().wasNull()){
+            if(query.getResult().wasNull()) {
                id = -1;
             }
          }
          query.closeQuery();
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().warning(
                   "SQLException on getGroupId(" + group + ")");
          }
@@ -533,33 +533,33 @@ public class Karma{
                "SQL Exception on getting group '" + group + "' id");
          e.printStackTrace();
       }
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
          plugin.getLogger().info("getGroupId(" + group + ") == " + id);
       }
       return id;
    }
 
-   public static String getGroupName(int id){
+   public static String getGroupName(int id) {
       String group = "NONE";
-      try{
+      try {
          final Query query = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.GROUPS.getName() + " WHERE id='" + id
                      + "';");
-         if(query.getResult().next()){
+         if(query.getResult().next()) {
             group = query.getResult().getString("groupname");
-            if(query.getResult().wasNull()){
+            if(query.getResult().wasNull()) {
                group = "NONE";
             }
          }
          query.closeQuery();
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().warning(
                   "SQL Exception on getting group name for  id '" + id + "'");
          }
          e.printStackTrace();
       }
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
          plugin.getLogger().info("getGroupName(" + id + ") == " + group);
       }
       return group;
@@ -600,10 +600,10 @@ public class Karma{
    // }
 
    public static boolean removePlayerFromGroup(CommandSender sender,
-         String name, String group){
-      try{
+         String name, String group) {
+      try {
          int groupId = Karma.getGroupId(group);
-         if(groupId == -1){
+         if(groupId == -1) {
             sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                   + " Invalid group '" + ChatColor.GRAY + group + ChatColor.RED
                   + "'");
@@ -613,28 +613,28 @@ public class Karma{
          Query rs = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.PLAYERS.getName()
                      + " WHERE playername='" + name + "';");
-         if(rs.getResult().next()){
+         if(rs.getResult().next()) {
             groups = rs.getResult().getString("groups");
-            if(!rs.getResult().wasNull()){
-               if(groups.contains("&")){
+            if(!rs.getResult().wasNull()) {
+               if(groups.contains("&")) {
                   // Multigroup
                   final StringBuilder sb = new StringBuilder();
-                  for(String s : groups.split("&")){
-                     try{
+                  for(String s : groups.split("&")) {
+                     try {
                         int id = Integer.parseInt(s);
                         // plugin.getLogger().info(s);
                         // Add back all groups excluding specified group
-                        if(id != groupId){
+                        if(id != groupId) {
                            sb.append(s + "&");
                         }
-                     }catch(NumberFormatException n){
+                     } catch(NumberFormatException n) {
 
                      }
                   }
                   // Remove trailing ampersand
                   sb.deleteCharAt(sb.length() - 1);
                   groups = sb.toString();
-               }else{
+               } else {
                   groups = "";
                }
             }
@@ -644,8 +644,8 @@ public class Karma{
          plugin.getDatabaseHandler().standardQuery(
                "UPDATE " + Table.PLAYERS.getName() + " SET groups='" + groups
                      + "' WHERE playername='" + name + "';");
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().warning(
                   "SQLException on removePlayerFromGroup(" + sender.getName()
                         + "," + name + "," + group + ")");
@@ -654,7 +654,7 @@ public class Karma{
          e.printStackTrace();
          return false;
       }
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
          plugin.getLogger().info(
                "removePlayerFromGroup(" + sender.getName() + "," + name + ","
                      + group + ")");
@@ -663,13 +663,13 @@ public class Karma{
    }
 
    public static boolean addPlayerToGroup(CommandSender sender, String name,
-         String group){
-      try{
+         String group) {
+      try {
          // Ensure that the player's default groups get added in
          getPlayerGroups(sender, name);
          int groupId = Karma.getGroupId(group);
-         if(groupId == -1){
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+         if(groupId == -1) {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
                plugin.getLogger().info(
                      "Invalid group " + group + " for addPlayerToGroup");
             }
@@ -688,19 +688,19 @@ public class Karma{
          Query rs = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.PLAYERS.getName()
                      + " WHERE playername='" + name + "';");
-         if(rs.getResult().next()){
+         if(rs.getResult().next()) {
             groups = rs.getResult().getString("groups");
-            if(!rs.getResult().wasNull()){
+            if(!rs.getResult().wasNull()) {
                groups += "&" + groupId;
-            }else{
+            } else {
                // Clear
                groups = "";
                // plugin.getLogger().info("null groups");
-               if(global != -1){
+               if(global != -1) {
                   // plugin.getLogger().info("added global");
                   groups += global + "&";
                }
-               if(selfGroup != -1){
+               if(selfGroup != -1) {
                   // plugin.getLogger().info("added self");
                   groups += selfGroup + "&";
                }
@@ -713,8 +713,8 @@ public class Karma{
          plugin.getDatabaseHandler().standardQuery(
                "UPDATE " + Table.PLAYERS.getName() + " SET groups='" + groups
                      + "' WHERE playername='" + name + "';");
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
             plugin.getLogger().warning(
                   "SQLException on addPlayerToGroup(" + sender.getName() + ","
                         + name + "," + group + ")");
@@ -723,7 +723,7 @@ public class Karma{
          e.printStackTrace();
          return false;
       }
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_KARMA)) {
          plugin.getLogger().info(
                "addPlayerToGroup(" + sender.getName() + "," + name + ","
                      + group + ")");
@@ -731,18 +731,18 @@ public class Karma{
       return true;
    }
 
-   public static void showInventory(Player player, String group, int page){
+   public static void showInventory(Player player, String group, int page) {
       // Show inventory
       final GroupPageInfo info = new GroupPageInfo(group, page);
       Inventory inventory = null;
-      if(inventories.containsKey(info)){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      if(inventories.containsKey(info)) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
             plugin.getLogger().info("inventory already open");
          }
          // Grab already open inventory
          inventory = inventories.get(info).getInventory();
-      }else{
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      } else {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
             plugin.getLogger().info("inventory first open");
          }
          final KSInventoryHolder holder = new KSInventoryHolder(info);
@@ -758,8 +758,8 @@ public class Karma{
             .getScheduler()
             .scheduleSyncDelayedTask(plugin,
                   new ShowKSInventoryTask(plugin, player, inventory), 3);
-      if(id == -1){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      if(id == -1) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
             plugin.getLogger().warning(
                   "Could not schedule open inventory for " + player.getName());
          }
@@ -769,13 +769,13 @@ public class Karma{
    }
 
    private static void populateInventory(Inventory inventory, int page,
-         String group){
-      try{
+         String group) {
+      try {
          int count = 0;
          int start = (page - 1) * chestSize;
          int groupId = Karma.getGroupId(group);
-         if(groupId == -1){
-            if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+         if(groupId == -1) {
+            if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
                plugin.getLogger().warning(
                      "Tried to populateInventory for invalid group: " + group);
             }
@@ -784,51 +784,51 @@ public class Karma{
          Query itemList = plugin.getDatabaseHandler().select(
                "SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
                      + groupId + "';");
-         if(itemList.getResult().next()){
+         if(itemList.getResult().next()) {
             boolean done = false;
-            do{
+            do {
                // Generate item
                int id = itemList.getResult().getInt("itemid");
                int amount = itemList.getResult().getInt("amount");
                byte data = itemList.getResult().getByte("data");
                short dur = itemList.getResult().getShort("durability");
                ItemStack item = null;
-               if(Item.isTool(id)){
+               if(Item.isTool(id)) {
                   item = new ItemStack(id, amount, dur);
-               }else{
+               } else {
                   item = new ItemStack(id, amount, dur, data);
                }
                // Generate psudo item to calculate slots taken up
                int maxStack = item.getType().getMaxStackSize();
-               if(maxStack <= 0){
+               if(maxStack <= 0) {
                   maxStack = 1;
                }
                int stacks = amount / maxStack;
                final double rem = (double) amount % (double) maxStack;
-               if(rem != 0){
+               if(rem != 0) {
                   stacks++;
                }
-               for(int x = 0; x < stacks; x++){
+               for(int x = 0; x < stacks; x++) {
                   ItemStack add = item.clone();
-                  if(amount < maxStack){
+                  if(amount < maxStack) {
                      add.setAmount(amount);
-                  }else{
+                  } else {
                      add.setAmount(maxStack);
                      amount -= maxStack;
                   }
 
-                  if(count >= start){
+                  if(count >= start) {
                      Item meta = new Item(id, data, dur);
-                     try{
+                     try {
                         // If tool
-                        if(meta.isTool()){
+                        if(meta.isTool()) {
                            // Check for enchantments
                            String enchantments = itemList.getResult()
                                  .getString("enchantments");
-                           if(!itemList.getResult().wasNull()){
-                              if(!enchantments.equals("")){
+                           if(!itemList.getResult().wasNull()) {
+                              if(!enchantments.equals("")) {
                                  String[] cut = enchantments.split("i");
-                                 for(int s = 0; s < cut.length; s++){
+                                 for(int s = 0; s < cut.length; s++) {
                                     String[] cutter = cut[s].split("v");
                                     EnchantmentWrapper e = new EnchantmentWrapper(
                                           Integer.parseInt(cutter[0]));
@@ -841,39 +841,39 @@ public class Karma{
                            }
                            final HashMap<Integer, ItemStack> residual = inventory
                                  .addItem(add);
-                           if(!residual.isEmpty()){
+                           if(!residual.isEmpty()) {
                               done = true;
                            }
-                        }else if(meta.isPotion()){
+                        } else if(meta.isPotion()) {
                            // Remove data for full potion compatibility
                            item = new ItemStack(id, amount, dur);
                            final HashMap<Integer, ItemStack> residual = inventory
                                  .addItem(add);
-                           if(!residual.isEmpty()){
+                           if(!residual.isEmpty()) {
                               done = true;
                            }
-                        }else{
+                        } else {
                            final HashMap<Integer, ItemStack> residual = inventory
                                  .addItem(add);
-                           if(!residual.isEmpty()){
+                           if(!residual.isEmpty()) {
                               done = true;
                            }
                         }
-                     }catch(NumberFormatException e){
+                     } catch(NumberFormatException e) {
                         // Ignore faulty item
                      }
                   }
                   count++;
                }
-            }while(itemList.getResult().next() && !done);
-         }else{
+            } while(itemList.getResult().next() && !done);
+         } else {
             // No items to add.
             inventory.clear();
          }
          // Close select
          itemList.closeQuery();
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
             plugin.getLogger().warning(
                   "SQLException on populateInventory(" + inventory.getName()
                         + "," + page + "," + group + ")");
@@ -883,28 +883,28 @@ public class Karma{
    }
 
    public static void cycleGroup(Player player, String current,
-         Direction direction){
+         Direction direction) {
       String nextGroup = current;
       final List<String> list = Karma.getPlayerGroups(player, player.getName());
       int index = list.indexOf(current);
-      switch(direction){
-      case FORWARD:{
-         if(index + 1 >= list.size()){
+      switch(direction) {
+      case FORWARD: {
+         if(index + 1 >= list.size()) {
             nextGroup = list.get(0);
-         }else{
+         } else {
             nextGroup = list.get(index + 1);
          }
          break;
       }
-      case BACKWARD:{
-         if(index - 1 < 0){
+      case BACKWARD: {
+         if(index - 1 < 0) {
             nextGroup = list.get(list.size() - 1);
-         }else{
+         } else {
             nextGroup = list.get(index - 1);
          }
          break;
       }
-      default:{
+      default: {
          // Ignore
          break;
       }
@@ -913,19 +913,19 @@ public class Karma{
       player.sendMessage(ChatColor.GREEN + KarmicShare.TAG
             + " Changed group to '" + ChatColor.GOLD + nextGroup
             + ChatColor.GREEN + "'");
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
          plugin.getLogger().info(
                "cycleGroup(" + player.getName() + "," + current + ","
                      + direction.toString() + ") : " + nextGroup);
       }
    }
 
-   public static int grabPage(int current, String group, Direction direction){
+   public static int grabPage(int current, String group, Direction direction) {
       // Calculate number of slots
       int slots = 0;
       int groupId = Karma.getGroupId(group);
-      if(groupId == -1){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      if(groupId == -1) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
             plugin.getLogger().warning(
                   "Tried to grabPage for invalid group: " + group);
          }
@@ -934,29 +934,31 @@ public class Karma{
       final Query all = plugin.getDatabaseHandler().select(
             "SELECT * FROM " + Table.ITEMS.getName() + " WHERE groups='"
                   + groupId + "';");
-      try{
-         if(all.getResult().next()){
-            do{
+      try {
+         if(all.getResult().next()) {
+            do {
                final int amount = all.getResult().getInt("amount");
-               if(!all.getResult().wasNull()){
+               if(!all.getResult().wasNull()) {
                   final ItemStack item = new ItemStack(all.getResult().getInt(
                         "itemid"), amount);
-                  int maxStack = item.getType().getMaxStackSize();
-                  if(maxStack <= 0){
-                     maxStack = 1;
+                  if(item != null) {
+                     int maxStack = item.getType().getMaxStackSize();
+                     if(maxStack <= 0) {
+                        maxStack = 1;
+                     }
+                     int stacks = amount / maxStack;
+                     final double rem = (double) amount % (double) maxStack;
+                     if(rem != 0) {
+                        stacks++;
+                     }
+                     slots += stacks;
                   }
-                  int stacks = amount / maxStack;
-                  final double rem = (double) amount % (double) maxStack;
-                  if(rem != 0){
-                     stacks++;
-                  }
-                  slots += stacks;
                }
-            }while(all.getResult().next());
+            } while(all.getResult().next());
          }
          all.closeQuery();
-      }catch(SQLException e){
-         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      } catch(SQLException e) {
+         if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
             plugin.getLogger().warning(
                   "SQLException on grabPage(" + current + "," + group + ","
                         + direction.toString() + ")");
@@ -964,45 +966,45 @@ public class Karma{
          e.printStackTrace();
       }
       // if no slots, return 1
-      if(slots <= 0){
+      if(slots <= 0) {
          return 1;
       }
       // Calculate pages
       int pageTotal = slots / chestSize;
       final double rem = (double) slots % (double) chestSize;
-      if(rem != 0){
+      if(rem != 0) {
          pageTotal++;
       }
       // Check against maximum
-      if(current >= Integer.MAX_VALUE){
+      if(current >= Integer.MAX_VALUE) {
          // Cycle back as we're at the max value for an integer
          return 1;
       }
       int page = current;
-      switch(direction){
-      case FORWARD:{
+      switch(direction) {
+      case FORWARD: {
          page++;
          break;
       }
-      case BACKWARD:{
+      case BACKWARD: {
          page--;
          break;
       }
-      default:{
+      default: {
          break;
       }
       }
-      if(page <= 0){
+      if(page <= 0) {
          // Was negative or zero, loop back to max page
          page = (pageTotal + 1);
       }
       // Allow for empty page
-      else if(page > (pageTotal + 1)){
+      else if(page > (pageTotal + 1)) {
          // Going to page beyond the total items, cycle back to
          // first
          page = 1;
       }
-      if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)){
+      if(RootConfig.getBoolean(ConfigNode.DEBUG_INVENTORY)) {
          plugin.getLogger().info(
                "grabPage(" + current + "," + group + "," + direction.toString()
                      + ") : " + page);
