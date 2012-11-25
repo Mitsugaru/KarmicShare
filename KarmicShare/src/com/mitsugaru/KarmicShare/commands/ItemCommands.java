@@ -365,7 +365,7 @@ public class ItemCommands{
       ItemStack items = player.getItemInHand();
       int itemid = items.getTypeId();
       // Check if there is an item in their hand
-      if(itemid != 0){
+      if(itemid == 0){
          // If there is no item, stop
          sender.sendMessage(ChatColor.RED + KarmicShare.TAG
                + " No item in hand. Nothing to lookup.");
