@@ -212,4 +212,10 @@ public class BetterChest implements Chest {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+   @Override
+   public Location getLocation(Location arg0) {
+      // TODO Auto-generated method stub
+      return null;
+   }
 }
