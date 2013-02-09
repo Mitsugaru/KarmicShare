@@ -1,23 +1,15 @@
-name: KarmicShare
-
-main: com.mitsugaru.KarmicShare.KarmicShare
-
-version: 0.321
-
-website: http://dev.bukkit.org/server-mods/karmicshare/
-
-description: Community/Group item sharing with limiting karma system
-
+name: ${project.artifactId}
+description: ${project.description}
+main: ${project.mainclass}
+version: ${project.version}
+website: ${project.website}
 authors:
   - Mitsugaru
-
 softdepend: [Vault, PermissionsEX, Spout]
-
 commands:
   ks:
     description: Root command for KarmicShare
     usage: /ks ? - Show help on KarmicShare
-
 permissions:
     KarmicShare.*:
         description: Gives access to all KarmicShare commands

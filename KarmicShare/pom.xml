@@ -1,31 +1,45 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>KarmicShare</artifactId>
-	<version>0.321-SNAPSHOT</version>
-	<name>KarmicShare</name>
-	<description>Bukkit plugin that allows players to share items using a community item pool.</description>
-
-	<parent>
-		<groupId>com.mitsugaru</groupId>
-		<artifactId>ProjectKarma</artifactId>
-		<version>1.4.7</version>
-	</parent>
-
-	<scm>
-		<url>https://github.com/Mitsugaru/KarmicShare.git</url>
-	</scm>
-
-	<build>
-		<defaultGoal>compile package</defaultGoal>
-		<sourceDirectory>${basedir}/src/</sourceDirectory>
-		<resources>
-			<resource>
-				<includes>
-					<include>plugin.yml</include>
-				</includes>
-				<directory>${basedir}</directory>
-			</resource>
-		</resources>
-	</build>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- Project properties -->
+    <artifactId>KarmicShare</artifactId>
+    <version>0.321</version>
+    <name>KarmicShare</name>
+    <description>Community/Group item sharing with limiting karma system</description>
+    <!-- Parent project -->
+    <parent>
+        <groupId>com.mitsugaru</groupId>
+        <artifactId>ProjectKarma</artifactId>
+        <version>1.4.7</version>
+    </parent>
+    <!-- Source code management URL -->
+    <scm>
+        <url>https://github.com/Mitsugaru/KarmicShare.git</url>
+    </scm>
+    <!-- Properties -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.mainclass>com.mitsugaru.KarmicShare.KarmicShare</project.mainclass>
+    </properties>
+    <!-- Dependencies -->
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <defaultGoal>compile package</defaultGoal>
+        <sourceDirectory>${basedir}/src/</sourceDirectory>
+        <resources>
+            <resource>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+                <directory>${basedir}</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <includes>
+                    <include>LICENSE.txt</include>
+                </includes>
+                <directory>${basedir}</directory>
+            </resource>
+        </resources>
+    </build>
 </project>
