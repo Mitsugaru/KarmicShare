@@ -18,7 +18,7 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 /**
  * @author mattmoss
@@ -38,7 +38,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-
 
 public class BetterChest implements Chest {
 
@@ -108,32 +107,27 @@ public class BetterChest implements Chest {
         return ref.update(force);
     }
 
-
     // Methods inherited from ContainerBlock
     public Inventory getInventory() {
         Chest other = attached();
-        if (other == null) {
+        if(other == null) {
             return ref.getInventory();
-        }
-        else {
+        } else {
             return new DoubleInventory(ref.getInventory(), other.getInventory());
         }
     }
 
-    public boolean isDoubleChest()
-    {
-    	final Chest other = attached();
-    	if(other != null)
-    	{
-    		return true;
-    	}
-    	return false;
+    public boolean isDoubleChest() {
+        final Chest other = attached();
+        if(other != null) {
+            return true;
+        }
+        return false;
     }
 
-
     // BetterChest internals
-    private static final BlockFace[] FACES = {
-        BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST };
+    private static final BlockFace[] FACES = { BlockFace.NORTH, BlockFace.EAST,
+            BlockFace.SOUTH, BlockFace.WEST };
 
     private Chest ref;
 
@@ -142,80 +136,90 @@ public class BetterChest implements Chest {
     }
 
     public Chest attached() {
-        // Find the first adjacent chest. Note: hacking of various sorts/degrees and/or
-        // other plugins might allow multiple chests to be adjacent. Deal with that later
+        // Find the first adjacent chest. Note: hacking of various sorts/degrees
+        // and/or
+        // other plugins might allow multiple chests to be adjacent. Deal with
+        // that later
         // if it really becomes necessary (and at all possible to detect).
 
         Block block = ref.getBlock();
-        for (BlockFace face : FACES) {
+        for(BlockFace face : FACES) {
             Block other = block.getRelative(face);
-            if (other.getType() == Material.CHEST) {
-                return (Chest) other.getState();    // Found it.
+            if(other.getType() == Material.CHEST) {
+                return (Chest) other.getState(); // Found it.
             }
         }
-        return null;    // No other adjacent chest.
+        return null; // No other adjacent chest.
     }
 
     public Block attachedBlock() {
-        // Find the first adjacent chest. Note: hacking of various sorts/degrees and/or
-        // other plugins might allow multiple chests to be adjacent. Deal with that later
+        // Find the first adjacent chest. Note: hacking of various sorts/degrees
+        // and/or
+        // other plugins might allow multiple chests to be adjacent. Deal with
+        // that later
         // if it really becomes necessary (and at all possible to detect).
 
         Block block = ref.getBlock();
-        for (BlockFace face : FACES) {
+        for(BlockFace face : FACES) {
             Block other = block.getRelative(face);
-            if (other.getType() == Material.CHEST) {
-                return other;   // Found it.
+            if(other.getType() == Material.CHEST) {
+                return other; // Found it.
             }
         }
-        return null;    // No other adjacent chest.
+        return null; // No other adjacent chest.
     }
 
-	@Override
-	public Location getLocation() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Location getLocation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void setRawData(byte arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setRawData(byte arg0) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public List<MetadataValue> getMetadata(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public boolean hasMetadata(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public List<MetadataValue> getMetadata(String arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void removeMetadata(String arg0, Plugin arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public boolean hasMetadata(String arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void setMetadata(String arg0, MetadataValue arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void removeMetadata(String arg0, Plugin arg1) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public Inventory getBlockInventory() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-   @Override
-   public Location getLocation(Location arg0) {
-      // TODO Auto-generated method stub
-      return null;
-   }
+    @Override
+    public void setMetadata(String arg0, MetadataValue arg1) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Inventory getBlockInventory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Location getLocation(Location arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean update(boolean force, boolean applyPhysics) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

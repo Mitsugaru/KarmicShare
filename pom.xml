@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.mitsugaru</groupId>
         <artifactId>ProjectKarma</artifactId>
-        <version>1.4.7</version>
+        <version>1.5.2-SNAPSHOT</version>
     </parent>
     <!-- Source code management URL -->
     <scm>
